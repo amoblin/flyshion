@@ -1,0 +1,75 @@
+pixmap_path "/usr/include/X11R6/pixmaps:/home/imain/pixmaps:/usr/share/openfetion/skin:/usr/local/share/openfetion/skin:../skin:../share/openfetion/skin"
+
+
+style "window"
+{
+	bg_pixmap[NORMAL] = "flow.jpg"
+}
+
+style "scale"
+{
+  fg[NORMAL] = { 1.0, 0, 0 }
+}
+
+style "buttons"
+{
+	bg[NORMAL] = "#52caec" 
+	fg[NORMAL] = "#FFFFFF"
+	text[NORMAL] = "#FFFFFF"
+	bg[PRELIGHT] = "#52a0b7"
+	bg[ACTIVE] = "#52a0b7"
+	text[PRELIGHT] = "#FFFFFF"
+}
+style "combos"
+{
+	bg[NORMAL] = "#cee3ec" 
+	fg[NORMAL] = "#FFFFFF"
+	bg[PRELIGHT] = "#cee3ec"
+	bg[ACTIVE] = "#cee3ec"
+}
+style "entrys"
+{
+	bg[NORMAL] = "#cee3ec" 
+}
+style "checks"
+{
+	fg[NORMAL] = "#354188"
+	bg_pixmap[NORMAL] = "flow.jpg"
+	fg[PRELIGHT] = "#354188"
+	bg_pixmap[PRELIGHT] = "flow.jpg"
+	fg[ACTIVE] = "#354188"
+	bg_pixmap[ACTIVE] = "flow.jpg"
+}
+style "texts"
+{
+	text[NORMAL] = "#44b36e"
+}
+style "treeview"
+{
+	bg[NORMAL] = "#266cbc" 
+	fg[NORMAL] = "#266cbc"
+	text[NORMAL] = "#0099ff"
+}
+style "tooltip"
+{
+	
+}
+
+widget "mainwindow" style "window"
+class "GtkDialog" style "window"
+class "GtkFileSelection" style "window"
+class "*GtkButton" style "window"
+class "*GtkEntry" style "entrys"
+class "*GtkCombo*" style "combos"
+class "*GtkLabel" style "window"
+class "*GtkMenu*" style "window"
+class "*GtkEventBox" style "window"
+class "*GtkToolbar" style "window"
+class "*GtkNotebook" style "window"
+class "*GtkMessageDialog" style "window"
+class "*GtkFileChooserDialog" style "window"
+class "*GtkAboutDialog" style "window"
+class "*GtkCheckButton" style "checks"
+class "*GtkRadioButton" style "checks"
+class "*GtkToggleButton" style "window"
+class "*GtkTreeView" style "window"

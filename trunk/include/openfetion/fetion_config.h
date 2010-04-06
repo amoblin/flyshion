@@ -1,0 +1,72 @@
+/***************************************************************************
+ *   Copyright (C) 2010 by lwp                                             *
+ *   levin108@gmail.com                                                    *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ ***************************************************************************/
+
+#ifndef FETION_CONFIG_H
+#define FETION_CONFIG_H
+
+typedef struct
+{
+	char* content;
+	int phraseid;
+} Phrase;
+
+extern Config* fetion_config_new();
+
+extern void fetion_config_download_configuration(User* user);
+
+extern int fetion_config_initialize(Config* config , const char* userid);
+
+extern int fetion_config_load_xml(User* user);
+
+extern int fetion_config_load_data(User* user);
+
+extern int fetion_config_save(User* user);
+
+extern char* fetion_config_get_city_name(const char* province , const char* city);
+
+extern char* fetion_config_get_province_name(const char* province);
+
+extern FxList* fetion_config_get_phrase(Config* config);
+
+extern void fetion_phrase_free(Phrase* phrase);
+/*user list*/
+
+extern UserList* fetion_user_list_new(const char* no , const char* password , int laststate , int islastuser);
+
+extern void fetion_user_list_append(UserList* userList , UserList* ul);
+
+extern void fetion_user_list_save(Config* config , UserList* ul);
+
+extern void fetion_user_list_set_lastuser_by_no(UserList* userList , const char* no);
+
+extern UserList* fetion_user_list_find_by_no(UserList* list , const char* no);
+
+extern UserList* fetion_user_list_load(Config* config);
+
+
+/*private*/
+extern char* generate_configuration_body(User* user);
+
+extern void refresh_configuration_xml(const char* xml , const char* xmlPath , User* user);
+
+extern xmlNodePtr xml_goto_node(xmlNodePtr node , const char* xml);
+
+extern char* xml_convert(xmlChar* in);
+#endif 
