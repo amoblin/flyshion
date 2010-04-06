@@ -20,7 +20,6 @@
 
 #include "fx_include.h"
 
-
 FxHead* fx_head_new()
 {
 	FxHead* fxhead = (FxHead*)malloc(sizeof(FxHead));
