@@ -1,0 +1,39 @@
+
+README
+
+	OpenFetion a IM client based on GTK+2.0, using CHINA MOBILE's Fetion Protocol Version 4.
+
+
+CONTACT
+
+	If you have problems, questions, ideas or suggestions, please contact me 
+	by email to levin108@gmail.com . 
+
+WEB SITE
+
+	Visit the openfetion web site for the latest news and downloads:
+
+	http://basiccoder.com/openfetion
+
+INSTALLATION
+
+	It requires these library : openssl , libxml2 , gtk+2.0
+
+	If there are no such libraries in your system You can install these library like this:
+
+		sudo apt-get install gnome-core-devel
+
+		sudo apt-get install libssl-dev
+
+		apt-get install libxml2-dev
+
+		sudo apt-get install pkg-config       
+	
+	Then you can start installing openfetion like this:
+
+	./configure
+	or your can enable debug mode to trace the runing information with --enable-debug
+
+	make
+
+	make install
