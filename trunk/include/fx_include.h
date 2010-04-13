@@ -16,8 +16,7 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************/
-
+ ***************************************************************************/ 
 #ifndef FX_INCLUDE_H
 #define FX_INCLUDE_H
 
@@ -33,6 +32,7 @@
 #include "fx_bottom.h"
 #include "fx_main.h"
 #include "fx_login.h"
+#include "fx_proxy.h"
 #include "fx_add_group.h"
 #include "fx_profile.h"
 #include "fx_edit.h"

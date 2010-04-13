@@ -18,50 +18,15 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "fx_include.h"
+#ifndef FX_PROXY_H
+#define FX_PROXY_H
 
-FxProxy *fx_proxy_new(FxMain *fxmain)
-{
-	FxProxy *fxproxy = (FxProxy*)malloc(sizeof(FxProxy));
+extern FxProxy *fx_proxy_new(FxMain *fxmain);
 
-	DEBUG_FOOTPRINT();
+extern void fx_proxy_initialize(FxProxy *fxproxy);
 
-	memset(fxproxy , 0 , sizeof(FxProxy));
-	fxproxy->fxmain = fxmain;
-	return fxproxy;
-}
+extern void fx_proxy_on_ok_clicked(GtkWidget *widget , gpointer data);
 
-void fx_proxy_initialize(FxProxy *fxproxy)
-{
-	GtkBox *vbox = NULL;
-	GtkBox *action_area = NULL;
-	GtkWidget *hostLabel = NULL;
-	GtkWidget *portLabel = NULL;
-	GtkWidget *userLabel = NULL;
-	GtkWidget *passLabel = NULL;
+extern void fx_proxy_on_cancel_clicked(GtkWidget *widget , gpointer data);
 
-	DEBUG_FOOTPRINT();
-
-	fxproxy->dialog = gtk_dialog_new();
-
-	gtk_widget_set_usize(fxproxy->dialog , 300 , 200);
-
-	vbox = GTK_BOX(GTK_DIALOG(fxproxy->dialog)->vbox);
-	action_area = GTK_BOX(GTK_DIALOG(fxproxy->dialog)->action_area);
-
-	fxproxy->enableBtn = gtk_check_button_new_with_label("开启HTTP代理");
-
-	gtk_widget_show_all(fxproxy->dialog);
-	gtk_widget_hide(fxproxy->dialog);
-
-}
-
-void fx_proxy_on_ok_clicked(GtkWidget *widget , gpointer data)
-{
-
-}
-
-void fx_proxy_on_cancel_clicked(GtkWidget *widget , gpointer data)
-{
-
-}
+#endif

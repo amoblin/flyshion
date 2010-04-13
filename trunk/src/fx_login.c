@@ -39,7 +39,12 @@ void fx_login_free(FxLogin* fxlogin)
 
 gboolean fx_login_proxy_button_func(GtkWidget *widget , GdkEventButton *event , gpointer data)
 {
-	FxLogin *fxlogin = (FxLogin*)data;
+	FxMain *fxmain = (FxMain*)data;
+	FxLogin *fxlogin = fxmain->loginPanel;
+	FxProxy *fxproxy = NULL;
+
+	DEBUG_FOOTPRINT();
+
 	switch(event->type)
 	{
 		case GDK_ENTER_NOTIFY :
@@ -49,6 +54,12 @@ gboolean fx_login_proxy_button_func(GtkWidget *widget , GdkEventButton *event , 
 		case GDK_LEAVE_NOTIFY :
 			gtk_label_set_markup(GTK_LABEL(fxlogin->proxyLabel)
 					, "<span color='#0099ff'><small> 网络代理[开启]</small></span>");
+			break;
+		case GDK_BUTTON_PRESS :
+			fxproxy = fx_proxy_new(fxmain);
+			fx_proxy_initialize(fxproxy);
+			gtk_dialog_run(GTK_DIALOG(fxproxy->dialog));
+			gtk_widget_destroy(fxproxy->dialog);
 			break;
 	}
 	return TRUE;
@@ -130,17 +141,17 @@ void fx_login_initialize(FxMain* fxmain)
 	g_signal_connect(G_OBJECT(fxlogin->proxyBtn)
 				   , "button_press_event"
 				   , GTK_SIGNAL_FUNC(fx_login_proxy_button_func)
-				   , fxlogin);
+				   , fxmain);
 				 
 	g_signal_connect(G_OBJECT(fxlogin->proxyBtn)
 				   , "enter_notify_event"
 				   , GTK_SIGNAL_FUNC(fx_login_proxy_button_func)
-				   , fxlogin);
+				   , fxmain);
 
 	g_signal_connect(G_OBJECT(fxlogin->proxyBtn)
 				   , "leave_notify_event"
 				   , GTK_SIGNAL_FUNC(fx_login_proxy_button_func)
-				   , fxlogin);
+				   , fxmain);
 	fx_login_set_last_login_user(fxlogin);
 
 	fxlogin->fixed = gtk_fixed_new();
