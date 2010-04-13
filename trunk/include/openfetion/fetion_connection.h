@@ -32,6 +32,9 @@ extern FetionConnection* tcp_connection_new_with_ip_and_port(const char* ipaddre
 
 extern int tcp_connection_connect(FetionConnection* connection , const char* ipaddress , const int port);
 
+extern int tcp_connection_connect_with_proxy(FetionConnection* connection 
+		, const char* ipaddress , const int port , Proxy *proxy);
+
 extern int tcp_connection_send(FetionConnection* connetion , const void* buf , int len);
 
 extern int tcp_connection_recv(FetionConnection* connection , void* recv , int len);

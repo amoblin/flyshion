@@ -21,8 +21,8 @@
 #ifndef FX_TYPES_H
 #define FX_TYPES_H
 
-#define WINDOW_WIDTH 300
-#define WINDOW_HEIGHT 600
+#define WINDOW_WIDTH 280
+#define WINDOW_HEIGHT 500
 
 typedef enum
 {
@@ -35,6 +35,7 @@ typedef struct
 	GThread* loginThread;
 	long loginFuncId;
 	long cancelFuncId;
+	Proxy *proxy;
 	/* login widget start */
 	GtkWidget* fixed;
 	GtkWidget* username;
@@ -101,7 +102,7 @@ typedef struct
 
 typedef struct
 {
-	FxMain *fxmain;
+	FxLogin *fxlogin;
 	GtkWidget *dialog;
 	GtkWidget *enableBtn;
 	GtkWidget *hostEntry;

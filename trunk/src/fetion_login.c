@@ -155,7 +155,12 @@ char* ssi_auth_action(User* user)
 	ssi_ip = get_ip_by_name(ssiName);
 	FetionConnection* ssl;
 	ssl = tcp_connection_new();
-	tcp_connection_connect(ssl , ssi_ip , 443);
+
+	if(user->config->proxy != NULL && user->config->proxy->proxyEnabled)
+		tcp_connection_connect_with_proxy(ssl , ssi_ip , 443 , user->config->proxy);
+	else
+		tcp_connection_connect(ssl , ssi_ip , 443);
+
 	debug_info("Start ssi login with %s password , user number %s"
 			, passwordType == 1 ? "v3Temp" : "v4"
 			, user->loginType == 1 ? user->mobileno : user->sId);

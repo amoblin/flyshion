@@ -61,6 +61,7 @@ void fx_tree_initilize(FxMain* fxmain)
 	
 	treeModel = fx_tree_create_model(fxmain->user);
 	fxtree->treeView = gtk_tree_view_new_with_model(GTK_TREE_MODEL(treeModel));
+	gtk_widget_set_usize(fxtree->treeView , 100 , 0);
 	g_object_set(fxtree->treeView , "has-tooltip" , TRUE , NULL);
 	g_signal_connect(fxtree->treeView , "query-tooltip" , G_CALLBACK(fx_tree_on_show_tooltip) , fxmain);
 
@@ -80,10 +81,10 @@ void fx_tree_initilize(FxMain* fxmain)
 	gtk_box_pack_start(GTK_BOX(mainbox) , fxtree->scrollWindow , TRUE , TRUE , 0);
 
 	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(fxtree->treeView) , FALSE);
-   	gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (fxtree->treeView), TRUE);
+ 	gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (fxtree->treeView), TRUE);
 	gtk_tree_view_set_level_indentation(GTK_TREE_VIEW(fxtree->treeView) , -30);
 	gtk_tree_view_set_hover_selection(GTK_TREE_VIEW(fxtree->treeView) , TRUE);
-	gtk_tree_view_columns_autosize(GTK_TREE_VIEW(fxtree->treeView));
+//	gtk_tree_view_columns_autosize(GTK_TREE_VIEW(fxtree->treeView));
 	fetion_contact_subscribe_only(fxmain->user);
 	g_thread_create(fx_tree_update_portrait_thread_func , fxmain , FALSE , NULL);
 

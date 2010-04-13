@@ -375,8 +375,10 @@ SipMsg* fetion_sip_listen(FetionSip* sip)
 		msg->next = NULL;
 		bodyLen = fetion_sip_get_length(buf);
 		pos = strstr(buf , "\r\n\r\n");
-		/* ensure the bodyLength is read from 
-		 * the first chunk before '\r\n\r\n' */
+		/**
+		 * ensure the bodyLength is read from 
+		 * the first chunk before '\r\n\r\n'
+		 */
 		if(pos != NULL)
 		{
 			strBeforeSptLen = strlen(buf) - strlen(pos) + 1;
@@ -390,7 +392,7 @@ SipMsg* fetion_sip_listen(FetionSip* sip)
 		if(buf == NULL || strlen(buf) == 0 )
 			return msglist;
 
-		/************************************
+		/**
 		 * chunk contains an entire sip head
 		 * but has no attribute of length 
 		 * such as a reply message :
@@ -398,7 +400,7 @@ SipMsg* fetion_sip_listen(FetionSip* sip)
 		 * SIP-C/4.0 200 OK
 		 * I: 3
 		 * Q: 2 SUB
-		 ***********************************/
+		 */
 		if(bodyLen == 0 && pos != NULL)
 		{
 			len = strlen(buf) - strlen(pos);
@@ -412,14 +414,14 @@ SipMsg* fetion_sip_listen(FetionSip* sip)
 			buf = pos + 4;
 			continue;
 		}
-		/*************************************
+		/**
 		 * chunk does not contan an entire sip header
 		 * and even has no attribute of length , such as:
 		 *
 		 * BN 572003969 SIP-C/4.0
 		 * N: PresenceV4
 		 * I: 2\r\n
-		 *************************************/
+		 */
 		if(bodyLen == 0 && pos == NULL)
 		{
 			if(tmp != NULL && strlen(tmp) != 0)
@@ -436,10 +438,10 @@ SipMsg* fetion_sip_listen(FetionSip* sip)
 			buf = tmp;
 			continue;
 		}
-		/*****************************************
+		/**
 		 * chunk contanns an entire sip header at least
 		 * and has attribute of length
-		 * ***************************************/
+		 */
 		if(bodyLen != 0 && pos == NULL)
 		{
 			if(tmp != NULL && strlen(tmp) != 0)

@@ -80,7 +80,7 @@ extern Verification* fetion_verification_new();
 extern void fetion_verification_free(Verification* ver);
 
 /*private*/
-extern int fetion_user_download_portrait_again(const char* filepath , const char* buf);
+extern int fetion_user_download_portrait_again(const char* filepath , const char* buf , Proxy *proxy);
 
 extern Contact* fetion_user_parse_presence_body(const char* body , User* user);
 

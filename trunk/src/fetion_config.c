@@ -209,7 +209,8 @@ UserList* fetion_user_list_load(Config* config)
 void fetion_config_download_configuration(User* user)
 {
 	char http[1025] , path[256] , *body , *res;
-	FetionConnection* conn;
+	FetionConnection* conn = NULL;
+	Config *config = user->config;
 	char uri[] = "nav.fetion.com.cn";
 	char* ip;
 	sprintf(path , "%s/configuration.xml" , user->config->userPath);
@@ -220,7 +221,10 @@ void fetion_config_download_configuration(User* user)
 		return;
 	}
 	conn = tcp_connection_new();
-	tcp_connection_connect(conn , ip , 80);
+	if(config->proxy != NULL && config->proxy->proxyEnabled)
+		tcp_connection_connect_with_proxy(conn , ip , 80 , config->proxy);
+	else
+		tcp_connection_connect(conn , ip , 80);
 	body = generate_configuration_body(user);
 	sprintf(http , "POST /nav/getsystemconfig.aspx HTTP/1.1\r\n"
 				   "User-Agent: IIC2.0/PC 3.6.1900\r\n"
@@ -327,6 +331,52 @@ int fetion_config_load_data(User* user)
 	cfg->closeMode = config.closeMode;
 	cfg->iconSize = config.iconSize;
 	return 1;
+}
+
+Proxy* fetion_config_load_proxy()
+{
+	Proxy *proxy = (Proxy*)malloc(sizeof(Proxy));
+	FILE *file = NULL;
+	char path[1024];
+	
+	bzero(path , sizeof(path));
+
+	sprintf(path , "%s/.openfetion/proxy.dat" , getenv("HOME"));
+
+	file = fopen(path , "rb");
+
+	if(file == NULL)
+	{
+		free(proxy);
+		return NULL;
+	}
+
+	debug_info("Read proxy information");
+
+	if(fread(proxy , sizeof(Proxy) , 1 , file) > 0)
+	{
+		fclose(file);
+		return proxy;
+	}
+	free(proxy);
+	fclose(file);
+	return NULL;
+}
+
+void fetion_config_save_proxy(Proxy *proxy)
+{
+	FILE *file = NULL;
+	char path[1024];
+	
+	bzero(path , sizeof(path));
+
+	sprintf(path , "%s/.openfetion/proxy.dat" , getenv("HOME"));
+
+	file = fopen(path , "wb+");
+
+	fwrite(proxy , sizeof(Proxy) , 1 , file);
+
+	fclose(file);
 }
 
 int fetion_config_save(User* user)

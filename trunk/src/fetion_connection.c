@@ -97,6 +97,46 @@ int tcp_connection_connect(FetionConnection* connection , const char* ipaddress 
 	setsockopt(connection->socketfd , SOL_SOCKET , SO_RCVBUF , (const char*)&n , sizeof(n));
 	return connect(connection->socketfd , (struct sockaddr*)&addr , sizeof(struct sockaddr));
 }
+
+int tcp_connection_connect_with_proxy(FetionConnection* connection 
+		, const char* ipaddress , const int port , Proxy *proxy)
+{
+	struct sockaddr_in addr;
+	int n;
+	char http[1024] , code[5] , *pos = NULL;
+	addr.sin_family = AF_INET;
+	addr.sin_addr.s_addr = inet_addr(proxy->proxyHost);
+	addr.sin_port = htons(proxy->proxyPort);
+	strcpy(connection->remote_ipaddress , ipaddress);
+	connection->remote_port = port;
+
+	n = MAX_RECV_BUF_SIZE;
+	setsockopt(connection->socketfd , SOL_SOCKET , SO_RCVBUF , (const char*)&n , sizeof(n));
+	connect(connection->socketfd , (struct sockaddr*)&addr , sizeof(struct sockaddr));
+
+	bzero(http , sizeof(http));
+
+	sprintf(http , "CONNECT %s:%d HTTP/1.1\r\n"
+				   "Host: %s:%d\r\n"
+				   "User-Agent: OpenFetion\r\n\r\n"
+				 , ipaddress , port , ipaddress , port);
+
+	debug_info("Connecting to %s:%d through proxy server %s:%d" , ipaddress , port , proxy->proxyHost , proxy->proxyPort);
+
+
+	tcp_connection_send(connection , http , strlen(http));
+
+	bzero(http , sizeof(http));
+
+	tcp_connection_recv(connection , http , sizeof(http));
+
+	pos = strstr(http , " ") + 1;
+	n = strlen(pos) - strlen(strstr(pos , " "));
+	bzero(code , sizeof(code));
+	strncpy(code , pos , n);
+
+	return 1;
+}
 int tcp_connection_select_read(FetionConnection* connection)
 {
 	fd_set fs ; 
