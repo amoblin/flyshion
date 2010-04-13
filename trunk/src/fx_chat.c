@@ -200,7 +200,7 @@ void fx_chat_initialize(FxChat* fxchat)
 	fxchat->dialog = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_widget_set_name(fxchat->dialog , "mainwindow");
 	gtk_window_set_modal(GTK_WINDOW(fxchat->dialog) , FALSE);
-	gtk_widget_set_usize(fxchat->dialog , 550 , 490);
+	gtk_window_set_default_size(GTK_WINDOW(fxchat->dialog) , 550 , 490);
 	name = (contact->localname == NULL || strlen(contact->localname) == 0) ? contact->nickname : contact->localname;
 	bzero(nametext , sizeof(nametext));
 	sprintf(nametext , "与[%s]聊天中" , name);

@@ -39,24 +39,29 @@ void fx_login_free(FxLogin* fxlogin)
 
 gboolean fx_login_proxy_button_func(GtkWidget *widget , GdkEventButton *event , gpointer data)
 {
-	FxMain *fxmain = (FxMain*)data;
-	FxLogin *fxlogin = fxmain->loginPanel;
+	FxLogin *fxlogin = (FxLogin*)data;
+	Proxy *proxy = fxlogin->proxy;
 	FxProxy *fxproxy = NULL;
+	char text[1024];
 
 	DEBUG_FOOTPRINT();
+
+	bzero(text , sizeof(text));
 
 	switch(event->type)
 	{
 		case GDK_ENTER_NOTIFY :
-			gtk_label_set_markup(GTK_LABEL(fxlogin->proxyLabel)
-					, "<span color='#7ce1a9'><small> 网络代理[开启]</small></span>");
+			sprintf(text , "<span color='#7ce1a9'><small> 网络代理[%s]</small></span>"
+					, (proxy == NULL || !proxy->proxyEnabled) ? "关闭" : "开启");
+			gtk_label_set_markup(GTK_LABEL(fxlogin->proxyLabel) , text);
 			break;
 		case GDK_LEAVE_NOTIFY :
-			gtk_label_set_markup(GTK_LABEL(fxlogin->proxyLabel)
-					, "<span color='#0099ff'><small> 网络代理[开启]</small></span>");
+			sprintf(text , "<span color='#0099ff'><small> 网络代理[%s]</small></span>"
+					, (proxy == NULL || !proxy->proxyEnabled) ? "关闭" : "开启");
+			gtk_label_set_markup(GTK_LABEL(fxlogin->proxyLabel) , text);
 			break;
 		case GDK_BUTTON_PRESS :
-			fxproxy = fx_proxy_new(fxmain);
+			fxproxy = fx_proxy_new(fxlogin);
 			fx_proxy_initialize(fxproxy);
 			gtk_dialog_run(GTK_DIALOG(fxproxy->dialog));
 			gtk_widget_destroy(fxproxy->dialog);
@@ -75,10 +80,19 @@ void fx_login_initialize(FxMain* fxmain)
 	Config* config = NULL;
 	GtkTreeModel* model = NULL;
 	GtkWidget *proxyHbox = NULL;
+	GtkWidget *label = NULL;
+	Proxy *proxy = NULL;
+	char text[1024];
 
 	DEBUG_FOOTPRINT();
 	
 	config = fetion_config_new();
+	/**
+	 * load proxy information
+	 */
+	proxy = fetion_config_load_proxy();
+	fxlogin->proxy = proxy;
+	
 	model = fx_login_create_user_model(config);
 	fxlogin->username = gtk_combo_box_entry_new_with_model(model , 0);
 	noentry = gtk_bin_get_child(GTK_BIN(fxlogin->username));
@@ -132,8 +146,11 @@ void fx_login_initialize(FxMain* fxmain)
 	fxlogin->proxyLabel = gtk_label_new(NULL);
 	proxyHbox = gtk_hbox_new(FALSE , FALSE);
 	img = gtk_image_new_from_file(SKIN_DIR"proxy.png");
-	gtk_label_set_markup(GTK_LABEL(fxlogin->proxyLabel)
-					, "<span color='#0099ff'><small> 网络代理[开启]</small></span>");
+	bzero(text , sizeof(text));
+	sprintf(text , "<span color='#0099ff'><small> 网络代理[%s]</small></span>"
+			, (fxlogin->proxy == NULL || ! fxlogin->proxy->proxyEnabled) ? "关闭"  : "开启");
+
+	gtk_label_set_markup(GTK_LABEL(fxlogin->proxyLabel) , text);
 	gtk_container_add(GTK_CONTAINER(fxlogin->proxyBtn) , proxyHbox);
 	gtk_box_pack_start_defaults(GTK_BOX(proxyHbox) , img);
 	gtk_box_pack_start_defaults(GTK_BOX(proxyHbox) , fxlogin->proxyLabel);
@@ -141,20 +158,25 @@ void fx_login_initialize(FxMain* fxmain)
 	g_signal_connect(G_OBJECT(fxlogin->proxyBtn)
 				   , "button_press_event"
 				   , GTK_SIGNAL_FUNC(fx_login_proxy_button_func)
-				   , fxmain);
+				   , fxlogin);
 				 
 	g_signal_connect(G_OBJECT(fxlogin->proxyBtn)
 				   , "enter_notify_event"
 				   , GTK_SIGNAL_FUNC(fx_login_proxy_button_func)
-				   , fxmain);
+				   , fxlogin);
 
 	g_signal_connect(G_OBJECT(fxlogin->proxyBtn)
 				   , "leave_notify_event"
 				   , GTK_SIGNAL_FUNC(fx_login_proxy_button_func)
-				   , fxmain);
+				   , fxlogin);
+
 	fx_login_set_last_login_user(fxlogin);
 
+	label = gtk_label_new(NULL);
+	gtk_label_set_markup(GTK_LABEL(label) , "<small>welcome to openfetion</small>");
+
 	fxlogin->fixed = gtk_fixed_new();
+	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , label , 50 , 20);
 	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->userlabel , 20 ,80);
 	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->username , (WINDOW_WIDTH - 200)/2 , 100 );
 	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->passlabel , 20 , 130);
@@ -163,7 +185,7 @@ void fx_login_initialize(FxMain* fxmain)
 	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->remember , (WINDOW_WIDTH - 80)/2 , 220);
 	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->label , 5 , 240);
 	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->loginbutton , (WINDOW_WIDTH - 80)/2 , 270);
-	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->proxyBtn , (WINDOW_WIDTH - 100) / 2 , 350);
+	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->proxyBtn , (WINDOW_WIDTH - 100) / 2 , 320);
 	gtk_box_pack_start(GTK_BOX(fxmain->mainbox) , fxlogin->fixed , TRUE , TRUE , 0);
 	gtk_widget_show_all(fxmain->mainbox);
 }
@@ -224,13 +246,13 @@ void* fx_login_thread_func(void* data)
 {
 	FxMain* fxmain = (FxMain*)data;
 	FxLogin* fxlogin = fxmain->loginPanel;
-	FetionConnection* conn;
+	FetionConnection* conn = NULL;					 /* connection for sipc 		   */
 	const char *no = NULL , *password = NULL;
-	char *pos , *nonce , *key , *aeskey , *response;
-	Config* config = NULL;
-	Group* group = NULL;
-	User* user = NULL;
-	char code[20];
+	char *pos , *nonce , *key , *aeskey , *response; /* string used for authentication */
+	Config* config = NULL;							 /* global user config 			   */
+	Group* group = NULL;							 /* buddy list		  			   */
+	User* user = NULL;								 /* global user information 	   */
+	char code[20];									 /* store reply code   			   */
 	char statusTooltip[128];
 	UserList* ul = NULL;
 	UserList* newEntry = NULL;
@@ -258,7 +280,11 @@ void* fx_login_thread_func(void* data)
 		fx_login_show_msg(fxlogin , "登录失败");
 		return NULL;
 	}
-	fetion_user_set_config(user , config);	
+
+	/* set the proxy structure to config */
+	config->proxy = fxlogin->proxy;
+	/* set the config structure to user */
+	fetion_user_set_config(user , config);
 login:
 	pos = ssi_auth_action(user);
 	if(pos == NULL)
@@ -351,9 +377,18 @@ login:
 	/**
 	 * start a new tcp connection for registering to sipc server
 	 */
-	fx_login_show_msg(fxlogin , "正在连接到注册服务器");
+	
 	conn = tcp_connection_new();
-	tcp_connection_connect(conn , config->sipcProxyIP , config->sipcProxyPort);
+	if(config->proxy->proxyEnabled)
+	{
+		fx_login_show_msg(fxlogin , "正在连接到代理服务器");
+		tcp_connection_connect_with_proxy(conn , config->sipcProxyIP , config->sipcProxyPort , config->proxy);
+	}
+	else
+	{
+		fx_login_show_msg(fxlogin , "正在连接到注册服务器");
+		tcp_connection_connect(conn , config->sipcProxyIP , config->sipcProxyPort);
+	}
 	FetionSip* sip = fetion_sip_new(conn , user->sId);
 	fetion_user_set_sip(user , sip);
 
@@ -468,6 +503,7 @@ auth:
 	 * start sending keep alive request periodically
 	 */
 	g_timeout_add_seconds(180 , (GSourceFunc)fx_main_register_func , user);
+
 	g_thread_exit(0);
 	return NULL;
 }

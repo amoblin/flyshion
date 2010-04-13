@@ -37,6 +37,10 @@ extern int fetion_config_load_xml(User* user);
 
 extern int fetion_config_load_data(User* user);
 
+extern Proxy* fetion_config_load_proxy();
+
+extern void fetion_config_save_proxy(Proxy *proxy);
+
 extern int fetion_config_save(User* user);
 
 extern char* fetion_config_get_city_name(const char* province , const char* city);
@@ -48,7 +52,8 @@ extern FxList* fetion_config_get_phrase(Config* config);
 extern void fetion_phrase_free(Phrase* phrase);
 /*user list*/
 
-extern UserList* fetion_user_list_new(const char* no , const char* password , int laststate , int islastuser);
+extern UserList* fetion_user_list_new(const char* no 
+		, const char* password , int laststate , int islastuser);
 
 extern void fetion_user_list_append(UserList* userList , UserList* ul);
 
@@ -64,7 +69,8 @@ extern UserList* fetion_user_list_load(Config* config);
 /*private*/
 extern char* generate_configuration_body(User* user);
 
-extern void refresh_configuration_xml(const char* xml , const char* xmlPath , User* user);
+extern void refresh_configuration_xml(const char* xml
+		, const char* xmlPath , User* user);
 
 extern xmlNodePtr xml_goto_node(xmlNodePtr node , const char* xml);
 

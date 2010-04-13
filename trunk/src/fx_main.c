@@ -49,7 +49,7 @@ void fx_main_initialize(FxMain* fxmain)
 				  , "window-state-event"
 				  , G_CALLBACK(fx_main_window_state_func)
 				  , NULL);
-	gtk_widget_set_size_request(GTK_WIDGET(fxmain->window) , WINDOW_WIDTH , WINDOW_HEIGHT);
+	gtk_window_set_default_size(GTK_WINDOW(fxmain->window) , WINDOW_WIDTH , WINDOW_HEIGHT);
 	GdkPixbuf* icon = gdk_pixbuf_new_from_file(SKIN_DIR"user_online.png" , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxmain->window) , icon);
 	fxmain->trayIcon = gtk_status_icon_new_from_file(SKIN_DIR"user_offline.png");

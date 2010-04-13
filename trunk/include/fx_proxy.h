@@ -21,7 +21,7 @@
 #ifndef FX_PROXY_H
 #define FX_PROXY_H
 
-extern FxProxy *fx_proxy_new(FxMain *fxmain);
+extern FxProxy *fx_proxy_new(FxLogin *fxlogin);
 
 extern void fx_proxy_initialize(FxProxy *fxproxy);
 

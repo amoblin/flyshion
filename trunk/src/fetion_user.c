@@ -421,6 +421,7 @@ int fetion_user_download_portrait(User* user , const char* sipuri)
 	char* portraitPath = user->config->portraitServerPath;
 	char *encodedSipuri , *encodedSsic , replyCode[4] = { 0 };
 	char *friendSid = NULL;
+	Config *config = user->config;
 	FetionConnection* tcp = NULL;
 	int i = 0 , isFirstChunk = 0 , chunkLength = 0 , imageLength = 0 , receivedLength = 0;
 	ip = get_ip_by_name(server);
@@ -433,7 +434,7 @@ int fetion_user_download_portrait(User* user , const char* sipuri)
 	if(friendSid == NULL)
 		return -1;
 /*	open a file to write ,if not exist then create one*/
-	sprintf(filename , "%s/%s.jpg" , user->config->iconPath ,  friendSid);
+	sprintf(filename , "%s/%s.jpg" , config->iconPath ,  friendSid);
 	free(friendSid);
 	encodedSipuri = http_connection_encode_url(sipuri);
 	encodedSsic = http_connection_encode_url(user->ssic);
@@ -445,7 +446,10 @@ int fetion_user_download_portrait(User* user , const char* sipuri)
 				  "Host: %s\r\nConnection: Keep-Alive\r\n\r\n"
 				  , portraitPath , encodedSipuri , encodedSsic , server);
 	tcp = tcp_connection_new();
-	tcp_connection_connect(tcp , ip , 80);
+	if(config->proxy != NULL && config->proxy->proxyEnabled)
+		tcp_connection_connect_with_proxy(tcp , ip , 80 , config->proxy);
+	else
+		tcp_connection_connect(tcp , ip , 80);
 	free(ip);
 	tcp_connection_send(tcp , buf , strlen(buf));	
 	memset( buf , 0 , sizeof(buf)); 
@@ -515,7 +519,7 @@ int fetion_user_download_portrait(User* user , const char* sipuri)
 	}
 redirect:
 	if(strcmp(replyCode , "302") == 0)
-		fetion_user_download_portrait_again(filename , buf);
+		fetion_user_download_portrait_again(filename , buf , config->proxy);
 end:
 	if(f != NULL)
 		fclose(f);
@@ -523,7 +527,7 @@ end:
 	tcp = NULL;
 	return 0;
 }
-int fetion_user_download_portrait_again(const char* filepath , const char* buf)
+int fetion_user_download_portrait_again(const char* filepath , const char* buf , Proxy* proxy)
 {
 	char location[512] = { 0 };
 	char httpHost[50] = { 0 };
@@ -531,7 +535,7 @@ int fetion_user_download_portrait_again(const char* filepath , const char* buf)
 	char http[1024] = { 0 };
 	char replyCode[5] = { 0 };
 	FILE* f;
-	FetionConnection* tcp;
+	FetionConnection* tcp = NULL;
 	char* ip = NULL;
 	char* pos = strstr(buf , "Location: ") ;
 	int chunkLength = 0 , imageLength = 0 , receivedLength = 0;
@@ -563,7 +567,12 @@ int fetion_user_download_portrait_again(const char* filepath , const char* buf)
 		return -1;
 	}
 	tcp = tcp_connection_new();
-	tcp_connection_connect(tcp , ip , 80);
+
+	if(proxy != NULL && proxy->proxyEnabled)
+		tcp_connection_connect_with_proxy(tcp , ip , 80 , proxy);
+	else
+		tcp_connection_connect(tcp , ip , 80);
+
 	free(ip);
 	tcp_connection_send(tcp , http , strlen(http));
 	//read portrait data
