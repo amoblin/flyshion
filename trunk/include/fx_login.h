@@ -49,4 +49,6 @@ extern void fx_login_action_func(GtkWidget* widget , gpointer data);
 
 extern void fx_login_user_change_func(GtkWidget* widget , gpointer data);
 
+extern gboolean fx_login_proxy_button_func(GtkWidget *widget , GdkEventButton *event , gpointer data);
+
 #endif

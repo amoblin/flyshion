@@ -208,6 +208,11 @@ typedef struct
 	int autoPopup;						/* whether auto pupup chat dialog enabled				  */
 	int sendMode;						/* press enter to send message or ctrl + enter 			  */
 	int closeMode;						/* close button clicked to close window or iconize it	  */
+	int proxyEnabled;					/* whether http proxy is enable							  */
+	char proxyHost[48];					/* proxy host name or ip address						  */
+	int proxyPort[48];
+	char proxyUser[48];
+	char proxyPass[48];
 	UserList* userList;					/* user list store in local data file					  */
 } Config;
 

@@ -30,6 +30,7 @@ openfetion_SOURCES = fetion_buddylist.c \
 					 fx_gedit.c \
 					 fx_head.c \
 					 fx_history.c \
+					 fx_proxy.c \
 					 fx_login.c \
 					 fx_lookup.c \
 					 fx_lookupres.c \
@@ -39,5 +40,4 @@ openfetion_SOURCES = fetion_buddylist.c \
 					 fx_profile.c \
 					 fx_set.c \
 					 fx_tree.c \
-					 fx_util.c \
-					 fx_proxy.c
+					 fx_util.c 

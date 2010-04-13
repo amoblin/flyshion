@@ -45,6 +45,8 @@ typedef struct
 	GtkWidget* passlabel;
 	GtkWidget* statecombo;
 	GtkWidget* remember;
+	GtkWidget* proxyBtn;
+	GtkWidget* proxyLabel;
 	GtkListStore* store;
 	GtkTreeModel* model;
 } FxLogin;
@@ -96,6 +98,18 @@ typedef struct
 	
 	User* user;
 } FxMain;
+
+typedef struct
+{
+	FxMain *fxmain;
+	GtkWidget *dialog;
+	GtkWidget *enableBtn;
+	GtkWidget *hostEntry;
+	GtkWidget *portEntry;
+	GtkWidget *userEntry;
+	GtkWidget *passEntry;
+} FxProxy;
+
 typedef struct
 {
 	GtkWidget* dialog;
