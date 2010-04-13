@@ -36,6 +36,24 @@ void fx_login_free(FxLogin* fxlogin)
 	gtk_widget_destroy(fxlogin->fixed);
 	free(fxlogin);
 }
+
+gboolean fx_login_proxy_button_func(GtkWidget *widget , GdkEventButton *event , gpointer data)
+{
+	FxLogin *fxlogin = (FxLogin*)data;
+	switch(event->type)
+	{
+		case GDK_ENTER_NOTIFY :
+			gtk_label_set_markup(GTK_LABEL(fxlogin->proxyLabel)
+					, "<span color='#7ce1a9'><small> 网络代理[开启]</small></span>");
+			break;
+		case GDK_LEAVE_NOTIFY :
+			gtk_label_set_markup(GTK_LABEL(fxlogin->proxyLabel)
+					, "<span color='#0099ff'><small> 网络代理[开启]</small></span>");
+			break;
+	}
+	return TRUE;
+}
+
 void fx_login_initialize(FxMain* fxmain)
 {
 	FxLogin* fxlogin = fxmain->loginPanel;
@@ -45,6 +63,7 @@ void fx_login_initialize(FxMain* fxmain)
 	GtkWidget* noentry = NULL;
 	Config* config = NULL;
 	GtkTreeModel* model = NULL;
+	GtkWidget *proxyHbox = NULL;
 
 	DEBUG_FOOTPRINT();
 	
@@ -97,7 +116,31 @@ void fx_login_initialize(FxMain* fxmain)
 	gtk_widget_set_usize(GTK_WIDGET(fxlogin->statecombo) , 120 , 32);
 
 	fxlogin->remember = gtk_check_button_new_with_label("记住密码");
+	fxlogin->proxyBtn = gtk_event_box_new();
 
+	fxlogin->proxyLabel = gtk_label_new(NULL);
+	proxyHbox = gtk_hbox_new(FALSE , FALSE);
+	img = gtk_image_new_from_file(SKIN_DIR"proxy.png");
+	gtk_label_set_markup(GTK_LABEL(fxlogin->proxyLabel)
+					, "<span color='#0099ff'><small> 网络代理[开启]</small></span>");
+	gtk_container_add(GTK_CONTAINER(fxlogin->proxyBtn) , proxyHbox);
+	gtk_box_pack_start_defaults(GTK_BOX(proxyHbox) , img);
+	gtk_box_pack_start_defaults(GTK_BOX(proxyHbox) , fxlogin->proxyLabel);
+
+	g_signal_connect(G_OBJECT(fxlogin->proxyBtn)
+				   , "button_press_event"
+				   , GTK_SIGNAL_FUNC(fx_login_proxy_button_func)
+				   , fxlogin);
+				 
+	g_signal_connect(G_OBJECT(fxlogin->proxyBtn)
+				   , "enter_notify_event"
+				   , GTK_SIGNAL_FUNC(fx_login_proxy_button_func)
+				   , fxlogin);
+
+	g_signal_connect(G_OBJECT(fxlogin->proxyBtn)
+				   , "leave_notify_event"
+				   , GTK_SIGNAL_FUNC(fx_login_proxy_button_func)
+				   , fxlogin);
 	fx_login_set_last_login_user(fxlogin);
 
 	fxlogin->fixed = gtk_fixed_new();
@@ -109,6 +152,7 @@ void fx_login_initialize(FxMain* fxmain)
 	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->remember , (WINDOW_WIDTH - 80)/2 , 220);
 	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->label , 5 , 240);
 	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->loginbutton , (WINDOW_WIDTH - 80)/2 , 270);
+	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->proxyBtn , (WINDOW_WIDTH - 100) / 2 , 350);
 	gtk_box_pack_start(GTK_BOX(fxmain->mainbox) , fxlogin->fixed , TRUE , TRUE , 0);
 	gtk_widget_show_all(fxmain->mainbox);
 }

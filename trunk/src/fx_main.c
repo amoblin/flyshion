@@ -807,7 +807,7 @@ void fx_main_about_fetion_clicked(GtkWidget* widget , gpointer data)
 
 	gtk_window_set_modal(GTK_WINDOW(dialog) , TRUE);
 	gtk_about_dialog_set_name(GTK_ABOUT_DIALOG(dialog), "OpenFetion");
-	gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), "1.0"); 
+	gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), "1.3"); 
 	gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog), 
 	"(c) Li Wenpeng");
 	logo = gdk_pixbuf_new_from_file(SKIN_DIR"warning_icon.png" , NULL);
