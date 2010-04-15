@@ -323,28 +323,22 @@ int fetion_contact_delete_buddy(User* user , const char* userid)
 	body = generate_delete_buddy_body(userid);
 	res = fetion_sip_to_string(sip , body);
 	free(body);
-//	tcp_connection_send(sip->tcp , res , strlen(res));
+	tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
-//	res = fetion_sip_get_response(sip);
-//	ret = fetion_sip_get_code(res);
-//	free(res);
-//	if(ret == 200)
-//	{
-	Contact *pos = user->contactList;
-	while(pos != NULL)
+	res = fetion_sip_get_response(sip);
+	ret = fetion_sip_get_code(res);
+	free(res);
+	if(ret == 200)
 	{
-		printf("%s-\n" , pos->sipuri);
-		pos = pos->nextNode;
-	}
 		fetion_contact_list_remove_by_userid(&(user->contactList) , userid);
 		debug_info("Delete buddy(%s) success" , userid);
 		return 1;
-//	}
-//	else
-//	{
-//		debug_info("Delete buddy(%s) failed" , userid);
-//		return -1;
-//	}
+	}
+	else
+	{
+		debug_info("Delete buddy(%s) failed" , userid);
+		return -1;
+	}
 }
 Contact* fetion_contact_add_buddy(User* user , const char* no
 								, NumberType notype , int buddylist

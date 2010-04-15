@@ -379,7 +379,7 @@ login:
 	 */
 	
 	conn = tcp_connection_new();
-	if(config->proxy->proxyEnabled)
+	if(config->proxy != NULL && config->proxy->proxyEnabled)
 	{
 		fx_login_show_msg(fxlogin , "正在连接到代理服务器");
 		tcp_connection_connect_with_proxy(conn , config->sipcProxyIP , config->sipcProxyPort , config->proxy);
@@ -389,6 +389,7 @@ login:
 		fx_login_show_msg(fxlogin , "正在连接到注册服务器");
 		tcp_connection_connect(conn , config->sipcProxyIP , config->sipcProxyPort);
 	}
+
 	FetionSip* sip = fetion_sip_new(conn , user->sId);
 	fetion_user_set_sip(user , sip);
 

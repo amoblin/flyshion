@@ -109,6 +109,7 @@ typedef struct
 	GtkWidget *portEntry;
 	GtkWidget *userEntry;
 	GtkWidget *passEntry;
+	GtkWidget *errorLabel;
 } FxProxy;
 
 typedef struct
@@ -226,6 +227,7 @@ typedef struct
 	GtkWidget* headbox;
 	GdkPixbuf* headpix;
 	GtkWidget* headimage;
+	GtkWidget* name_box;
 	GtkWidget* name_label;
 	GtkWidget* impre_label; 
 	GtkWidget* recv_text;

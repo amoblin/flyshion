@@ -93,7 +93,8 @@ extern void fetion_sip_set_type(FetionSip* sip , SipType type);
 
 extern SipHeader* fetion_sip_authentication_header_new(const char* response);
 
-extern SipHeader* fetion_sip_ack_header_new(const char* code , const char* algorithm , const char* type , const char* guid);
+extern SipHeader* fetion_sip_ack_header_new(const char* code
+		, const char* algorithm , const char* type , const char* guid);
 
 extern SipHeader* fetion_sip_event_header_new(int eventType);
 
@@ -115,7 +116,8 @@ extern int fetion_sip_get_code(const char* sip);
 
 extern int fetion_sip_get_type(const char* sip);
 
-extern void fetion_sip_get_auth_attr(const char* auth , char** ipaddress , int* port , char** credential);
+extern void fetion_sip_get_auth_attr(const char* auth , char** ipaddress
+		, int* port , char** credential);
 
 extern char* fetion_sip_get_response(FetionSip* sip);
 
@@ -129,15 +131,19 @@ extern void fetion_sip_message_free(SipMsg* msg);
 
 extern void fetion_sip_message_append(SipMsg* msglist , SipMsg* msg);
 
-extern void fetion_sip_parse_notification(const char* sip , int* type , int* event , char** xml);
+extern void fetion_sip_parse_notification(const char* sip 
+		, int* type , int* event , char** xml);
 
 extern void fetion_sip_parse_message(FetionSip* sip , const char* sipmsg , Message** msg);
 
-extern void fetion_sip_parse_invitation(FetionSip* sip , const char* sipmsg , FetionSip** conversionSip , char** sipuri);
+extern void fetion_sip_parse_invitation(FetionSip* sip  , Proxy *proxy, const char* sipmsg
+		, FetionSip** conversionSip , char** sipuri);
 
-extern void fetion_sip_parse_addbuddyapplication(const char* sipmsg , char** sipuri , char** userid , char** desc , int* phrase);
+extern void fetion_sip_parse_addbuddyapplication(const char* sipmsg , char** sipuri
+		, char** userid , char** desc , int* phrase);
 
-extern void fetion_sip_parse_incoming(FetionSip* sip , const char* sipmsg , char** sipuri , IncomingType* type);
+extern void fetion_sip_parse_incoming(FetionSip* sip , const char* sipmsg
+		, char** sipuri , IncomingType* type);
 
 extern void fetion_sip_parse_userleft(const char* sipmsg , char** sipuri);
 

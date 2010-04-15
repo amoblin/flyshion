@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.63])
-AC_INIT([openfetion], [1.2], [http://basiccoder.com/openfetion])
+AC_INIT([openfetion], [1.3], [http://basiccoder.com/openfetion])
 AC_CONFIG_SRCDIR([src/fx_main.c])
 AC_CONFIG_HEADERS([config.h])
 

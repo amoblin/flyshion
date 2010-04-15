@@ -61,7 +61,7 @@ CC = gcc
 CCDEPMODE = depmode=gcc3
 CFLAGS = -g -O2
 CPP = gcc -E
-CPPFLAGS = 
+CPPFLAGS = -DFETION_DEBUG_TRACE
 CYGPATH_W = echo
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
@@ -88,15 +88,15 @@ OBJEXT = o
 PACKAGE = openfetion
 PACKAGE_BUGREPORT = http://basiccoder.com/openfetion
 PACKAGE_NAME = openfetion
-PACKAGE_STRING = openfetion 1.2
+PACKAGE_STRING = openfetion 1.3
 PACKAGE_TARNAME = openfetion
-PACKAGE_VERSION = 1.2
+PACKAGE_VERSION = 1.3
 PATH_SEPARATOR = :
 PKG_CONFIG = /usr/bin/pkg-config
 SET_MAKE = 
 SHELL = /bin/sh
 STRIP = 
-VERSION = 1.2
+VERSION = 1.3
 XML2_CONFIG = /usr/local/bin/xml2-config
 XML_CPPFLAGS = -I/usr/local/include/libxml2
 XML_LIBS = -L/usr/local/lib -lxml2 -lz -lm
@@ -174,7 +174,8 @@ skin_DATA = about.png \
 			user_offline.png \
 			user_online.png \
 			warning.png \
-			warning_icon.png
+			warning_icon.png \
+			proxy.png
 
 EXTRA_DIST = $(skin_DATA)
 all: all-am

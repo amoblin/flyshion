@@ -126,6 +126,7 @@ char* ssi_auth_action(User* user)
 	char verifyUri[256];
 	char *password , *ssi_ip , *res;
 	int passwordType;
+	int ret;
 	
 	DEBUG_FOOTPRINT();
 
@@ -157,9 +158,14 @@ char* ssi_auth_action(User* user)
 	ssl = tcp_connection_new();
 
 	if(user->config->proxy != NULL && user->config->proxy->proxyEnabled)
-		tcp_connection_connect_with_proxy(ssl , ssi_ip , 443 , user->config->proxy);
+	{
+		ret = tcp_connection_connect_with_proxy(ssl , ssi_ip , 443 , user->config->proxy);
+		if(ret < 0)
+			return NULL;
+	}
 	else
-		tcp_connection_connect(ssl , ssi_ip , 443);
+		if(tcp_connection_connect(ssl , ssi_ip , 443) < 0)
+			return NULL;
 
 	debug_info("Start ssi login with %s password , user number %s"
 			, passwordType == 1 ? "v3Temp" : "v4"
