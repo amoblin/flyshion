@@ -3,7 +3,8 @@
 
 extern FxChat* fx_chat_new(FxMain* fxmain , Conversation* conv);
 
-extern void fx_chat_add_message(FxChat* fxchat , const char* msg , const struct tm* datetime , const int issendmsg);
+extern void fx_chat_add_message(FxChat* fxchat , const char* msg
+		, const struct tm* datetime , const int issendmsg);
 
 extern void fx_chat_add_information(FxChat* fxchat , const char* msg);
 

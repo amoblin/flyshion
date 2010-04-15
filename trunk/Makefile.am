@@ -5,7 +5,7 @@ EXTRA_DIST = LICENSE LICENSE.OpenSSL
 install: install-recursive
 	@echo "----------------------------------------------------------";
 	@echo "|                                                        |";
-	@echo "|       OpenFetion 1.2 by lwp(levin108@gmail.com)        |";
+	@echo "|       OpenFetion 1.3 by lwp(levin108@gmail.com)        |";
 	@echo "|                                                        |";
 	@echo "|  OpenFetion a fetion client for linux based on GTK+2.0,|";
 	@echo "|  using Fetion Protocol Version 4. It supports most     |";

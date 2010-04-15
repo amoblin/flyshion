@@ -129,7 +129,10 @@ int fetion_conversation_invite_friend(Conversation* conversation)
 	char *res , *ip , *credential , auth[256] , *body;
 	int port;
 	FetionConnection* conn;
+	Proxy *proxy = conversation->currentUser->config->proxy;
 	SipHeader *eheader , *theader , *mheader , *nheader , *aheader;
+
+
 	/*start chat*/
 	fetion_sip_set_type(sip , SIP_SERVICE);
 	eheader = fetion_sip_event_header_new(SIP_EVENT_STARTCHAT);
@@ -143,7 +146,12 @@ int fetion_conversation_invite_friend(Conversation* conversation)
 	fetion_sip_get_auth_attr(auth , &ip , &port , &credential);
 	free(res); res = NULL;
 	conn = tcp_connection_new();
-	tcp_connection_connect(conn , ip , port);
+
+	if(proxy != NULL && proxy->proxyEnabled)
+		tcp_connection_connect_with_proxy(conn , ip , port , proxy);
+	else
+		tcp_connection_connect(conn , ip , port);
+
 	/*clone sip*/
 	conversation->currentSip = fetion_sip_clone(conversation->currentUser->sip);
 	bzero(conversation->currentSip->sipuri , sizeof(conversation->currentSip->sipuri));

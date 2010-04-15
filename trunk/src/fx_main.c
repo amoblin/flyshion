@@ -406,14 +406,13 @@ void fx_main_process_invitation(FxMain* fxmain , const char* sipmsg)
 
 	DEBUG_FOOTPRINT();
 
-	fetion_sip_parse_invitation(sip , sipmsg , &osip , &sipuri);
+	fetion_sip_parse_invitation(sip , fxmain->user->config->proxy , sipmsg , &osip , &sipuri);
 
 	list = fx_list_new(osip);
 	fx_list_append(&(fxmain->slist) , list);
 
 	args->fxmain = fxmain;
 	args->sip = osip;
-
 	/**
 	 * create a thread to listen in this channel
 	 */

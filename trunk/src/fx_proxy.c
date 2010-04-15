@@ -88,6 +88,9 @@ void fx_proxy_initialize(FxProxy *fxproxy)
 	g_signal_connect(fxproxy->enableBtn , "toggled"
 			, G_CALLBACK(fx_proxy_enable_toggled) , fxproxy);
 	gtk_fixed_put(GTK_FIXED(fixed) , fxproxy->enableBtn , 20 , 20);
+
+	fxproxy->errorLabel = gtk_label_new(NULL);
+	gtk_fixed_put(GTK_FIXED(fixed) , fxproxy->errorLabel , 180 , 22);
 	
 	hostLabel = gtk_label_new(NULL);
 	gtk_label_set_markup(GTK_LABEL(hostLabel) , "<b>代理主机</b>");
@@ -174,9 +177,21 @@ void fx_proxy_on_ok_clicked(GtkWidget *widget , gpointer data)
 		memset(proxy , 0 , sizeof(proxy));
 		proxy->proxyEnabled = TRUE;
 		text = gtk_entry_get_text(GTK_ENTRY(fxproxy->hostEntry));
+		if(strlen(text) == 0)
+		{
+			gtk_label_set_markup(GTK_LABEL(fxproxy->errorLabel)
+					, "<span color='red'>请输入主机名</span>");
+			return;
+		}
 		strcpy(proxy->proxyHost , text);
 		text = gtk_entry_get_text(GTK_ENTRY(fxproxy->portEntry));
 		proxy->proxyPort = atoi(text);
+		if(strlen(text) == 0)
+		{
+			gtk_label_set_markup(GTK_LABEL(fxproxy->errorLabel)
+					, "<span color='red'>请输入端口号</span>");
+			return;
+		}
 		text = gtk_entry_get_text(GTK_ENTRY(fxproxy->userEntry));
 		strcpy(proxy->proxyUser , text);
 		text = gtk_entry_get_text(GTK_ENTRY(fxproxy->passEntry));

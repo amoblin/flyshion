@@ -30,5 +30,6 @@ skin_DATA = about.png \
 			user_offline.png \
 			user_online.png \
 			warning.png \
-			warning_icon.png
+			warning_icon.png \
+			proxy.png
 EXTRA_DIST = $(skin_DATA)

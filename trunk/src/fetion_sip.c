@@ -648,20 +648,22 @@ void fetion_sip_parse_message(FetionSip* sip , const char* sipmsg , Message** ms
 				, from , callid , sequence );
 	tcp_connection_send(sip->tcp , rep , strlen(rep));
 }
-void fetion_sip_parse_invitation(FetionSip* sip , const char* sipmsg , FetionSip** conversionSip , char** sipuri)
+void fetion_sip_parse_invitation(FetionSip* sip , Proxy *proxy , const char* sipmsg
+		, FetionSip** conversionSip , char** sipuri)
 {
 	char from[50];
 	char auth[128];
-	char* ipaddress;
+	char* ipaddress = NULL;
 	char buf[1024];
 	int port;
-	char* credential;
-	FetionConnection* conn;
-	SipHeader* aheader;
-	SipHeader* theader;
-	SipHeader* mheader;
-	SipHeader* nheader;
-	char* sipres;
+	char* credential = NULL;
+	FetionConnection* conn = NULL;
+	SipHeader* aheader = NULL;
+	SipHeader* theader = NULL;
+	SipHeader* mheader = NULL;
+	SipHeader* nheader = NULL;
+	char* sipres = NULL;
+
 	bzero(from , sizeof(from));
 	bzero(auth , sizeof(auth));
 	bzero(buf , sizeof(buf));
@@ -669,7 +671,12 @@ void fetion_sip_parse_invitation(FetionSip* sip , const char* sipmsg , FetionSip
 	fetion_sip_get_attr(sipmsg , "A" , auth);
 	fetion_sip_get_auth_attr(auth , &ipaddress , &port , &credential);
 	conn = tcp_connection_new();
-	tcp_connection_connect(conn , ipaddress , port);
+
+	if(proxy != NULL && proxy->proxyEnabled)
+		tcp_connection_connect_with_proxy(conn , ipaddress , port , proxy);
+	else
+		tcp_connection_connect(conn , ipaddress , port);
+
 	*conversionSip = fetion_sip_clone(sip);
 	fetion_sip_set_connection(*conversionSip , conn);
 	debug_info("Received a conversation invitation");

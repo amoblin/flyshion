@@ -104,8 +104,13 @@ int tcp_connection_connect_with_proxy(FetionConnection* connection
 	struct sockaddr_in addr;
 	int n;
 	char http[1024] , code[5] , *pos = NULL;
+	unsigned char authentication[1024];
+	char authen[1024];
+	char authorization[1024];
+	char *ip = get_ip_by_name(proxy->proxyHost);
+
 	addr.sin_family = AF_INET;
-	addr.sin_addr.s_addr = inet_addr(proxy->proxyHost);
+	addr.sin_addr.s_addr = inet_addr(ip);
 	addr.sin_port = htons(proxy->proxyPort);
 	strcpy(connection->remote_ipaddress , ipaddress);
 	connection->remote_port = port;
@@ -114,15 +119,23 @@ int tcp_connection_connect_with_proxy(FetionConnection* connection
 	setsockopt(connection->socketfd , SOL_SOCKET , SO_RCVBUF , (const char*)&n , sizeof(n));
 	connect(connection->socketfd , (struct sockaddr*)&addr , sizeof(struct sockaddr));
 
+	bzero(authorization , sizeof(authorization));
+	if(strlen(proxy->proxyUser) != 0 && strlen(proxy->proxyPass) != 0)
+	{
+		bzero(authen , sizeof(authen));
+		sprintf(authen , "%s:%s" , proxy->proxyUser , proxy->proxyPass);
+		EVP_EncodeBlock(authentication , (char*)authen , strlen(authen));
+		sprintf(authorization , "Proxy-Authorization: Basic %s\r\n" , (char*)authentication);
+	}
+
 	bzero(http , sizeof(http));
-
 	sprintf(http , "CONNECT %s:%d HTTP/1.1\r\n"
-				   "Host: %s:%d\r\n"
+				   "Host: %s:%d\r\n%s"
 				   "User-Agent: OpenFetion\r\n\r\n"
-				 , ipaddress , port , ipaddress , port);
+				 , ipaddress , port , ipaddress , port , authorization);
 
-	debug_info("Connecting to %s:%d through proxy server %s:%d" , ipaddress , port , proxy->proxyHost , proxy->proxyPort);
-
+	debug_info("Connecting to %s:%d through proxy server %s:%d"
+			, ipaddress , port , ip , proxy->proxyPort);
 
 	tcp_connection_send(connection , http , strlen(http));
 
@@ -134,6 +147,10 @@ int tcp_connection_connect_with_proxy(FetionConnection* connection
 	n = strlen(pos) - strlen(strstr(pos , " "));
 	bzero(code , sizeof(code));
 	strncpy(code , pos , n);
+	free(ip); ip = NULL;
+
+	if(strcmp(code , "200") != 0)
+		return -1;
 
 	return 1;
 }

@@ -352,8 +352,10 @@ int fetion_user_upload_portrait(User* user , const char* filename)
 	char code[4];
 	char* ip = NULL;
 	FILE* f = NULL;
-	char* server = user->config->portraitServerName;
-	char* portraitPath = user->config->portraitServerPath;
+	Config *config = user->config;
+	char* server = config->portraitServerName;
+	char* portraitPath = config->portraitServerPath;
+	Proxy *proxy = config->proxy;
 	long filelength;
 	int n;
 	FetionConnection* tcp;
@@ -381,7 +383,10 @@ int fetion_user_upload_portrait(User* user , const char* filename)
 		  		  , portraitPath , server , user->ssic , filelength);
 
 	tcp = tcp_connection_new();
-	tcp_connection_connect(tcp , ip , 80);
+	if(proxy != NULL && proxy->proxyEnabled)
+		tcp_connection_connect_with_proxy(tcp , ip , 80 , proxy);
+	else
+		tcp_connection_connect(tcp , ip , 80);
 
 	tcp_connection_send(tcp , http , strlen(http));
 

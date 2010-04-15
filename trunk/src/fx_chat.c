@@ -20,8 +20,6 @@
 
 #include "fx_include.h"
 
-gboolean ctrl_pressed = FALSE;
-
 FxChat* fx_chat_new(FxMain* fxmain , Conversation* conv)
 {
 	FxChat* fxchat = (FxChat*)malloc(sizeof(FxChat));
@@ -160,7 +158,7 @@ gboolean fx_chat_focus_out_func(GtkWidget *widget , GdkEventFocus *event , gpoin
 	DEBUG_FOOTPRINT();
 
 	fxchat->hasFocus = CHAT_DIALOG_NOT_FOCUSED;
-	return TRUE;
+	return FALSE;
 }
 void fx_chat_bind(FxChat* fxchat)
 {
@@ -187,12 +185,52 @@ void fx_chat_bind(FxChat* fxchat)
 
 
 }
+
+static void fx_chat_name_box_func(GtkWidget *widget
+		, GdkEventButton *event , gpointer data)
+{
+	FxChat *fxchat = (FxChat*)data;
+	char *name = NULL , *sid = NULL , nametext[1024];
+	Contact *contact = fxchat->conv->currentContact;
+	FxProfile* fxprofile = NULL;
+
+	DEBUG_FOOTPRINT();
+
+	name = (contact->localname == NULL ||
+		strlen(contact->localname) == 0)
+		? contact->nickname : contact->localname;
+	sid = fetion_sip_get_sid_by_sipuri(contact->sipuri);
+	bzero(nametext , sizeof(nametext));
+	switch(event->type)
+	{
+		case GDK_ENTER_NOTIFY :
+			sprintf(nametext , "<span underline='low'><b>%s(%s)</b></span>" , name , sid);
+			free(sid);
+			gtk_label_set_markup(GTK_LABEL(fxchat->name_label) , nametext);
+			break;
+		case GDK_LEAVE_NOTIFY :
+			sprintf(nametext , "<b>%s(%s)</b>" , name , sid);
+			free(sid);
+			gtk_label_set_markup(GTK_LABEL(fxchat->name_label) , nametext);
+			break;
+		case GDK_BUTTON_PRESS :
+			fxprofile = fx_profile_new(fxchat->fxmain , contact->userId);
+			fx_profile_initialize(fxprofile);
+			gtk_dialog_run(GTK_DIALOG(fxprofile->dialog));
+			gtk_widget_destroy(fxprofile->dialog);
+			free(fxprofile);
+			break;
+		default:
+			break;
+	}
+}
+
 void fx_chat_initialize(FxChat* fxchat)
 {
 	GtkWidget *vbox , *halign , *halign1 , *tophone_icon;
 	GtkWidget *history_icon , *nouge_icon , *label , *action_area ;
 	GtkWidget *send_button , *close_button;
-	char nametext[100] , *sid , *name;
+	char nametext[512] , *sid , *name;
 	Contact* contact = fxchat->conv->currentContact;
 
 	DEBUG_FOOTPRINT();
@@ -201,6 +239,7 @@ void fx_chat_initialize(FxChat* fxchat)
 	gtk_widget_set_name(fxchat->dialog , "mainwindow");
 	gtk_window_set_modal(GTK_WINDOW(fxchat->dialog) , FALSE);
 	gtk_window_set_default_size(GTK_WINDOW(fxchat->dialog) , 550 , 490);
+	gtk_widget_set_size_request(fxchat->dialog , 550 , 0);
 	name = (contact->localname == NULL || strlen(contact->localname) == 0) ? contact->nickname : contact->localname;
 	bzero(nametext , sizeof(nametext));
 	sprintf(nametext , "与[%s]聊天中" , name);
@@ -224,11 +263,23 @@ void fx_chat_initialize(FxChat* fxchat)
 
 	fxchat->name_label = gtk_label_new(NULL);
 	sid = fetion_sip_get_sid_by_sipuri(contact->sipuri);
-	sprintf(nametext , "%s(%s)" , name , sid);
+	sprintf(nametext , "<b>%s(%s)</b>" , name , sid);
 	free(sid);
 	gtk_label_set_markup(GTK_LABEL(fxchat->name_label) , nametext);
 	gtk_label_set_justify(GTK_LABEL(fxchat->name_label) , GTK_JUSTIFY_LEFT);
-	gtk_table_attach(GTK_TABLE(fxchat->headbox) , fxchat->name_label 
+
+	fxchat->name_box = gtk_event_box_new();
+
+	g_signal_connect(fxchat->name_box , "enter-notify-event"
+			, GTK_SIGNAL_FUNC(fx_chat_name_box_func) , fxchat);
+	g_signal_connect(fxchat->name_box , "leave-notify-event"
+			, GTK_SIGNAL_FUNC(fx_chat_name_box_func) , fxchat);
+	g_signal_connect(fxchat->name_box , "button-press-event"
+			, GTK_SIGNAL_FUNC(fx_chat_name_box_func) , fxchat);
+
+	gtk_container_add(GTK_CONTAINER(fxchat->name_box) , fxchat->name_label);
+
+	gtk_table_attach(GTK_TABLE(fxchat->headbox) , fxchat->name_box
 								, 1 , 2 , 0 , 1 
 								, GTK_FILL , GTK_FILL , 0 , 0);
 
@@ -304,7 +355,6 @@ void fx_chat_initialize(FxChat* fxchat)
 	fxchat->send_text = gtk_text_view_new();
 	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(fxchat->send_text) , GTK_WRAP_WORD_CHAR);
 	g_signal_connect(fxchat->send_text , "key_press_event" , G_CALLBACK(fx_chat_on_key_pressed) , fxchat);
-	g_signal_connect(fxchat->send_text , "key_release_event" , G_CALLBACK(fx_chat_on_key_released) , fxchat);
 	gtk_container_add(GTK_CONTAINER(fxchat->send_scroll) , fxchat->send_text);
 
  	fxchat->send_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(fxchat->send_text));
@@ -430,12 +480,6 @@ void fx_chat_send_message(FxChat* fxchat)
 	gtk_text_buffer_get_start_iter(fxchat->send_buffer , &begin);
 	gtk_text_buffer_get_end_iter(fxchat->send_buffer , &end);
 
-	if((config->sendMode == SEND_MODE_ENTER && ctrl_pressed == TRUE) ||
-	  (config->sendMode == SEND_MODE_CTRL_ENTER && ctrl_pressed == FALSE))
-	{
-			gtk_text_buffer_insert(fxchat->send_buffer , &end , "\n" , 1);
-			return;
-	}
 	if(contact == NULL)
 		return;
 
@@ -650,25 +694,39 @@ void fx_chat_on_history_clicked(GtkWidget* widget , gpointer data)
 gboolean fx_chat_on_key_pressed(GtkWidget* widget , GdkEventKey* event , gpointer data)
 {
 
+	FxChat *fxchat = NULL;
+	Config *config = NULL;
+
+	DEBUG_FOOTPRINT();
+
 	if(event->keyval == GDK_Return)
 	{
-		fx_chat_send_message((FxChat*)data);
-		return TRUE;
-	}
-	if(event->keyval == GDK_Control_L)
-	{
-		ctrl_pressed = TRUE;
-	}
-	return FALSE;
-}
-
-gboolean fx_chat_on_key_released(GtkWidget* widget , GdkEventKey* event , gpointer data)
-{
-
-	if(event->keyval == GDK_Control_L)
-	{
-		ctrl_pressed = FALSE;
-		return TRUE;
+		fxchat = (FxChat*)data;
+		config = fxchat->fxmain->user->config;
+		if(config->sendMode == SEND_MODE_ENTER)
+		{
+			if(event->state & GDK_CONTROL_MASK)
+			{
+				return FALSE;
+			}
+			else
+			{
+				fx_chat_send_message(fxchat);
+				return TRUE;
+			}
+		}
+		else
+		{
+			if(event->state & GDK_CONTROL_MASK)
+			{
+				fx_chat_send_message(fxchat);
+				return TRUE;
+			}
+			else
+			{
+				return FALSE;
+			}
+		}
 	}
 	return FALSE;
 }
@@ -680,6 +738,8 @@ gboolean fx_chat_on_text_buffer_changed(GtkTextBuffer* buffer , gpointer data)
 	char text[48];
 	const char *res = NULL;
 	int count = gtk_text_buffer_get_char_count(buffer);
+
+	DEBUG_FOOTPRINT();
 
 	if(count <= 180)
 	{
@@ -694,5 +754,5 @@ gboolean fx_chat_on_text_buffer_changed(GtkTextBuffer* buffer , gpointer data)
 		res = gtk_text_buffer_get_text(buffer , &startIter , &endIter , 180);
 		gtk_text_buffer_set_text(buffer , res , strlen(res));
 	}
-	return TRUE;
+	return FALSE;
 }
