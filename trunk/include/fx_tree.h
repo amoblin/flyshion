@@ -85,33 +85,52 @@ extern GtkTreeModel* fx_tree_create_model(User* groupList);
 
 extern void fx_tree_create_column(GtkWidget* tree , FxMain* fxmain);
 
-extern void fx_tree_get_group_iter_by_id(GtkTreeModel* model , int id , GtkTreeIter* iter);
+extern void fx_tree_get_group_iter_by_id(GtkTreeModel* model
+		, int id , GtkTreeIter* iter);
 
-extern int fx_tree_get_buddy_iter_by_userid(GtkTreeModel* model , const char* userid , GtkTreeIter* iter);
+extern int fx_tree_get_buddy_iter_by_userid(GtkTreeModel* model
+		, const char* userid , GtkTreeIter* iter);
 
-extern void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* tree , GtkTreePath* path , GdkEventButton* event , GtkTreeIter iter);
+extern void fx_tree_create_buddy_menu(FxMain* fxmain
+		, GtkWidget* tree , GtkTreePath* path
+		, GdkEventButton* event , GtkTreeIter iter);
 
-extern void fx_tree_create_group_menu(FxMain* fxmain , GtkWidget* tree , GtkTreePath* path , GdkEventButton* event , GtkTreeIter iter);
+extern void fx_tree_create_group_menu(FxMain* fxmain
+		, GtkWidget* tree , GtkTreePath* path
+		, GdkEventButton* event , GtkTreeIter iter);
 
-extern GtkWidget* fx_tree_create_menu(const char* name , const char* iconpath , GtkWidget* parent , gboolean sensitive, void (*func)(GtkWidget* item , gpointer data) , gpointer data);
+extern GtkWidget* fx_tree_create_menu(const char* name
+		, const char* iconpath , GtkWidget* parent
+		, gboolean sensitive
+		, void (*func)(GtkWidget* item , gpointer data)
+		, gpointer data);
 
 extern void fx_tree_add_new_buddy(FxMain* fxmain , Contact* contact);
 
 /*signal function*/
 
-extern void fx_tree_text_cell_data_func(GtkTreeViewColumn *col , GtkCellRenderer *renderer , GtkTreeModel *model , GtkTreeIter *iter , gpointer user_data);
+extern void fx_tree_text_cell_data_func(GtkTreeViewColumn *col 
+		, GtkCellRenderer *renderer , GtkTreeModel *model
+		, GtkTreeIter *iter , gpointer user_data);
 
-extern void fx_tree_pixbuf_cell_data_func(GtkTreeViewColumn *col , GtkCellRenderer *renderer , GtkTreeModel *model , GtkTreeIter *iter , gpointer user_data);
+extern void fx_tree_pixbuf_cell_data_func(GtkTreeViewColumn *col
+		, GtkCellRenderer *renderer , GtkTreeModel *model
+		, GtkTreeIter *iter , gpointer user_data);
 
 extern void* fx_tree_update_portrait_thread_func(void* data);
 
-extern gboolean fx_tree_on_rightbutton_click(GtkWidget* tree , GdkEventButton* event , gpointer data);
+extern gboolean fx_tree_on_rightbutton_click(GtkWidget* tree
+		, GdkEventButton* event , gpointer data);
 
-extern void fx_tree_on_double_click(GtkTreeView *treeview , GtkTreePath *path , GtkTreeViewColumn  *col , gpointer data);
+extern void fx_tree_on_double_click(GtkTreeView *treeview
+		, GtkTreePath *path , GtkTreeViewColumn  *col
+		, gpointer data);
 
 extern void fx_tree_on_chatmenu_clicked(GtkWidget* widget , gpointer data);
 
 extern void fx_tree_on_profilemenu_clicked(GtkWidget* widget , gpointer data);
+
+extern void fx_tree_on_sendfile_clicked(GtkWidget* widget , gpointer data);
 
 extern void fx_tree_on_historymenu_clicked(GtkWidget* widget , gpointer data);
 
@@ -131,7 +150,9 @@ extern void fx_tree_on_geditmenu_clicked(GtkWidget* widget , gpointer data);
 
 extern void fx_tree_on_movemenu_clicked(GtkWidget* widget , gpointer data);
 
-extern gboolean fx_tree_on_show_tooltip(GtkWidget* widget , int x , int y , gboolean keybord_mode , GtkTooltip* tip , gpointer data);
+extern gboolean fx_tree_on_show_tooltip(GtkWidget* widget
+		, int x , int y , gboolean keybord_mode
+		, GtkTooltip* tip , gpointer data);
 /*private*/
 
 #endif

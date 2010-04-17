@@ -505,6 +505,10 @@ auth:
 	 */
 	g_timeout_add_seconds(180 , (GSourceFunc)fx_main_register_func , user);
 
+	/*====================================*/
+
+	/*====================================*/
+
 	g_thread_exit(0);
 	return NULL;
 }

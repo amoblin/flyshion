@@ -50,4 +50,5 @@
 #include "fetion_conversation.h"
 #include "fetion_buddylist.h"
 #include "fetion_history.h"
+#include "fetion_share.h"
 #endif

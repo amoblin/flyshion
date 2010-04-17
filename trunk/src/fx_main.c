@@ -678,6 +678,7 @@ int main(int argc , char* argv[])
 
 	fx_main_initialize(fxmain);
 
+
 	exit(0);
 }
 void* fx_main_listen_thread_func(void* data)
