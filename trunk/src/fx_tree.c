@@ -276,6 +276,9 @@ void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* tree , GtkTreePath* p
 		fx_tree_create_menu("查看好友信息" , SKIN_DIR"profile.gif"
 						, menu , TRUE , fx_tree_on_profilemenu_clicked , profileargs);
 
+		fx_tree_create_menu("发送文件" , SKIN_DIR"sendfile.png"
+						, menu , TRUE , fx_tree_on_sendfile_clicked , profileargs);
+
 		fx_tree_create_menu("查看聊天记录" , SKIN_DIR"history.png"
 						, menu , TRUE ,  fx_tree_on_historymenu_clicked , profileargs);
 
@@ -720,6 +723,91 @@ void fx_tree_on_profilemenu_clicked(GtkWidget* widget , gpointer data)
 	gtk_widget_destroy(fxprofile->dialog);
 	free(fxprofile);
 	free(args);
+}
+
+void fx_tree_on_sendfile_clicked(GtkWidget* widget , gpointer data)
+{
+	Args *args = (Args*)data;
+	FxMain *fxmain = args->fxmain;
+	FxTree *fxtree = fxmain->mainPanel;
+	User *user = fxmain->user;
+	GtkTreeView *treeview = GTK_TREE_VIEW(fxtree->treeView);
+	GtkTreeModel *model = gtk_tree_view_get_model(treeview);
+	GtkTreeIter iter = args->iter;
+
+	GtkWidget *filechooser = NULL;
+	char *filename = NULL;
+	char *sipuri = NULL;
+	Share *share = NULL;
+	Conversation *conv = NULL;
+	FetionSip *sip = NULL;
+	ThreadArgs *targs = NULL;
+	TimeOutArgs *oargs = NULL;
+	FxList *fxlist = NULL;
+	long long filesize;
+	char text[1024];
+	int response = 0;
+
+
+	filechooser = gtk_file_chooser_dialog_new("请选择要发送的文件"
+							   , NULL , GTK_FILE_CHOOSER_ACTION_OPEN
+							   , "确定" , 1 , "取消" , 2 , NULL);
+	response = gtk_dialog_run(GTK_DIALOG(filechooser));
+
+	if(response == 1){
+		filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(filechooser));
+	}else{
+		return;
+	}
+	gtk_widget_destroy(filechooser);
+	
+	filesize = fetion_share_get_filesize(filename);
+	if(filesize == -1){
+		fx_util_popup_warning(fxmain , "无法获取文件信息");
+		return ;
+	}
+	if(filesize > MAX_FILE_SIZE){
+		bzero(text , sizeof(text));
+		sprintf(text , "文件过大，飞信限制最大传输文件大小为%d个字节" , MAX_FILE_SIZE);
+		fx_util_popup_warning(fxmain , text);
+		return;
+	}
+
+	gtk_tree_model_get(model , &iter , B_SIPURI_COL , &sipuri , -1);
+
+	conv = fetion_conversation_new(user , sipuri , NULL);
+	sip = fx_list_find_sip_by_sipuri(fxmain->slist , sipuri);
+	if(sip != NULL){
+		conv->currentSip = sip;
+	}else{
+		if(fetion_conversation_invite_friend(conv) > 0){
+			targs = (ThreadArgs*)malloc(sizeof(ThreadArgs));
+			targs->fxmain = fxmain;
+			targs->sip = conv->currentSip;
+
+			fxlist = fx_list_new(conv->currentSip);
+			fx_list_append(&(fxmain->slist) , fxlist);
+
+			g_thread_create(fx_main_listen_thread_func , targs , FALSE , NULL);
+
+			/**
+			 * start send keep alive message throuth chat chanel
+			 * and put the timeout information into stack
+			 */
+			debug_info("Start periodically sending keep alive request");
+			oargs = timeout_args_new(fxmain , conv->currentSip , sipuri);
+			fxlist = fx_list_new(oargs);
+			fx_list_append(&(fxmain->tlist) , fxlist);
+			g_timeout_add_seconds(120 , (GSourceFunc)fx_main_chat_keep_alive_func , oargs);
+		}
+	}
+	sip = conv->currentSip;
+
+	share = fetion_share_new(sipuri , filename);
+	fetion_share_request(sip , share);
+	free(share);
+	free(conv);
+
 }
 
 void fx_tree_on_historymenu_clicked(GtkWidget* widget , gpointer data)

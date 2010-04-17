@@ -24,7 +24,7 @@
 /* inline function to trace program track */
 #ifdef FETION_DEBUG_TRACE
 #	define DEBUG_FOOTPRINT()	\
-		printf("Track:function '%s()' in file: <%s:%d>\n" \
+		printf("| TRACK |function '%s()' in file: <%s:%d>\n" \
 		, __FUNCTION__ , __FILE__ , __LINE__)
 #else
 #	define DEBUG_FOOTPRINT()

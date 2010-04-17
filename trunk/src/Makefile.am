@@ -18,6 +18,7 @@ openfetion_SOURCES = fetion_buddylist.c \
 					 fetion_list.c \
 					 fetion_login.c \
 					 fetion_message.c \
+					 fetion_share.c \
 					 fetion_sip.c \
 					 fetion_user.c \
 					 fx_add_group.c \

@@ -11,4 +11,5 @@ include_HEADERS = fetion_buddylist.h \
 				  fetion_message.h \
 				  fetion_sip.h \
 				  fetion_types.h \
+				  fetion_share.h \
 				  fetion_user.h

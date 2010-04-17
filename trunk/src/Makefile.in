@@ -53,6 +53,7 @@ am_openfetion_OBJECTS = openfetion-fetion_buddylist.$(OBJEXT) \
 	openfetion-fetion_list.$(OBJEXT) \
 	openfetion-fetion_login.$(OBJEXT) \
 	openfetion-fetion_message.$(OBJEXT) \
+	openfetion-fetion_share.$(OBJEXT) \
 	openfetion-fetion_sip.$(OBJEXT) \
 	openfetion-fetion_user.$(OBJEXT) \
 	openfetion-fx_add_group.$(OBJEXT) \
@@ -189,6 +190,7 @@ openfetion_SOURCES = fetion_buddylist.c \
 					 fetion_list.c \
 					 fetion_login.c \
 					 fetion_message.c \
+					 fetion_share.c \
 					 fetion_sip.c \
 					 fetion_user.c \
 					 fx_add_group.c \
@@ -289,6 +291,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fetion_list.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fetion_login.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fetion_message.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fetion_share.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fetion_sip.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fetion_user.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_add_group.Po@am__quote@
@@ -466,6 +469,20 @@ openfetion-fetion_message.obj: fetion_message.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='fetion_message.c' object='openfetion-fetion_message.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o openfetion-fetion_message.obj `if test -f 'fetion_message.c'; then $(CYGPATH_W) 'fetion_message.c'; else $(CYGPATH_W) '$(srcdir)/fetion_message.c'; fi`
+
+openfetion-fetion_share.o: fetion_share.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT openfetion-fetion_share.o -MD -MP -MF $(DEPDIR)/openfetion-fetion_share.Tpo -c -o openfetion-fetion_share.o `test -f 'fetion_share.c' || echo '$(srcdir)/'`fetion_share.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/openfetion-fetion_share.Tpo $(DEPDIR)/openfetion-fetion_share.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='fetion_share.c' object='openfetion-fetion_share.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o openfetion-fetion_share.o `test -f 'fetion_share.c' || echo '$(srcdir)/'`fetion_share.c
+
+openfetion-fetion_share.obj: fetion_share.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT openfetion-fetion_share.obj -MD -MP -MF $(DEPDIR)/openfetion-fetion_share.Tpo -c -o openfetion-fetion_share.obj `if test -f 'fetion_share.c'; then $(CYGPATH_W) 'fetion_share.c'; else $(CYGPATH_W) '$(srcdir)/fetion_share.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/openfetion-fetion_share.Tpo $(DEPDIR)/openfetion-fetion_share.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='fetion_share.c' object='openfetion-fetion_share.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o openfetion-fetion_share.obj `if test -f 'fetion_share.c'; then $(CYGPATH_W) 'fetion_share.c'; else $(CYGPATH_W) '$(srcdir)/fetion_share.c'; fi`
 
 openfetion-fetion_sip.o: fetion_sip.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT openfetion-fetion_sip.o -MD -MP -MF $(DEPDIR)/openfetion-fetion_sip.Tpo -c -o openfetion-fetion_sip.o `test -f 'fetion_sip.c' || echo '$(srcdir)/'`fetion_sip.c

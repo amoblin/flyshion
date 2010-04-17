@@ -198,6 +198,7 @@ char* fetion_sip_to_string(FetionSip* sip , const char* body)
 			break;
 		case SIP_INCOMING	  : strcpy(type , "IN");
 			break;
+		case SIP_OPTION 	  : strcpy(type , "O");
 		default:
 			break;
 	};
@@ -316,6 +317,8 @@ int fetion_sip_get_type(const char* sip)
 		return SIP_SIPC_4_0;
 	if(strcmp(res , "IN") == 0)
 		return SIP_INCOMING;
+	if(strcmp(res , "O") == 0 )
+		return SIP_OPTION;
 	return SIP_UNKNOWN;
 		
 }
