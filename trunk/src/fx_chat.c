@@ -46,6 +46,10 @@ void fx_chat_add_message(FxChat* fxchat , const char* msg , const struct tm* dat
 	char color[10] = { 0 };
 	char time[30] = { 0 };
 
+	int i = 0 , p = 0 , n = 0;
+	GdkPixbuf *pb = NULL;
+	char path[1024];
+
 	DEBUG_FOOTPRINT();
 
 	if(issendmsg == 1)
@@ -72,8 +76,38 @@ void fx_chat_add_message(FxChat* fxchat , const char* msg , const struct tm* dat
 	gtk_text_buffer_get_end_iter(buffer , &iter );
 	gtk_text_buffer_insert_with_tags_by_name(buffer
 					, &iter , text , -1 , color , NULL);
-	gtk_text_buffer_insert_with_tags_by_name(buffer
-					, &iter, msg , -1 , "lm10" , NULL);
+	char *msgE = fx_util_replace_emotion((char*)msg);
+	char *pos , num[4];
+	while(msgE[i] != '\0'){
+		if(msgE[i] == '#'){
+			pos = msgE + i + 1;
+			if(strstr(pos , "#") != NULL){
+				n = strlen(pos) - strlen(strstr(pos , "#"));
+				if(n == 1 || n == 2 ){
+					bzero(num , sizeof(num));
+					strncpy(num , pos , n);
+					if(atoi(num) > 0 && atoi(num) < 53){
+						gtk_text_buffer_insert_with_tags_by_name(buffer
+										, &iter, msgE + p , i - p , "lm10" , NULL);
+						bzero(path , sizeof(path));
+						sprintf(path , SKIN_DIR"face_images/big_%s.gif" , num);
+						pb = gdk_pixbuf_new_from_file(path , NULL);
+						gtk_text_buffer_insert_pixbuf(buffer , &iter , pb);
+						i += n + 2;
+						p = i;
+						continue;
+					}
+				}
+			}
+			if(msgE[i + 1] == '1' && msgE[i + 2] == '#'){
+			}
+		}
+		i ++;
+	}
+	if( p < strlen(msgE)){
+		gtk_text_buffer_insert_with_tags_by_name(buffer
+						, &iter, msgE + p , strlen(msgE) - p , "lm10" , NULL);
+	}
 	gtk_text_buffer_insert(buffer , &iter , "\n" , -1);
 	gtk_text_iter_set_line_offset (&iter, 0);
 	fxchat->mark = gtk_text_buffer_get_mark (buffer, "scroll");
@@ -224,7 +258,22 @@ static void fx_chat_name_box_func(GtkWidget *widget
 			break;
 	}
 }
+void fx_chat_on_emotion_clicked(GtkWidget *widget , gpointer data)
+{
+	FxChat *fxchat = (FxChat*)data;
+	FxEmotion *fxemotion = NULL;
+	int x , y , ex , ey , root_x , root_y;
 
+	DEBUG_FOOTPRINT();
+
+	gtk_widget_translate_coordinates(widget , fxchat->dialog , 0 , 0 , &ex , &ey );
+	gtk_window_get_position(GTK_WINDOW(fxchat->dialog) , &root_x , &root_y);
+	x = root_x + ex + 3;
+	y = root_y + ey + 46;
+
+	fxemotion = fx_emotion_new(fxchat);
+	fx_emotion_initialize(fxemotion , x , y);
+}
 void fx_chat_initialize(FxChat* fxchat)
 {
 	GtkWidget *vbox , *halign , *halign1 , *tophone_icon;
@@ -232,6 +281,8 @@ void fx_chat_initialize(FxChat* fxchat)
 	GtkWidget *send_button , *close_button;
 	char nametext[512] , *sid , *name;
 	Contact* contact = fxchat->conv->currentContact;
+	GdkPixbuf *pb;
+	GtkToolItem *emotionBtn;
 
 	DEBUG_FOOTPRINT();
 
@@ -320,6 +371,14 @@ void fx_chat_initialize(FxChat* fxchat)
 	fxchat->toolbar = gtk_toolbar_new();
 	gtk_toolbar_set_style(GTK_TOOLBAR(fxchat->toolbar) , GTK_TOOLBAR_ICONS);
 	gtk_box_pack_start(GTK_BOX(vbox) , fxchat->toolbar , FALSE , FALSE , 0);
+
+	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"face_images/3.gif" , 16 , 16 , NULL);
+	nouge_icon = gtk_image_new_from_pixbuf(pb);
+	fxchat->nouge = gtk_toolbar_append_item(GTK_TOOLBAR(fxchat->toolbar)
+					 						   , "表情" , "" , NULL , nouge_icon
+					  						   , G_CALLBACK(fx_chat_on_emotion_clicked)
+											   , fxchat );									   
+	gtk_toolbar_append_space(GTK_TOOLBAR(fxchat->toolbar));
 	tophone_icon = gtk_image_new_from_file(SKIN_DIR"phone.png");
 	fxchat->tophone = gtk_toolbar_append_element(GTK_TOOLBAR(fxchat->toolbar)
 					 						   , GTK_TOOLBAR_CHILD_TOGGLEBUTTON , NULL
@@ -339,6 +398,9 @@ void fx_chat_initialize(FxChat* fxchat)
 					  						   , G_CALLBACK(fx_chat_on_nudge_clicked)
 											   , fxchat );									   
 	gtk_toolbar_append_space(GTK_TOOLBAR(fxchat->toolbar));
+
+
+
 	label = gtk_label_new("共可输入180个字 , 还可输入");
 	fxchat->countLabel = gtk_label_new("");
 	gtk_label_set_markup(GTK_LABEL(fxchat->countLabel) , "[<span color='#0099ff'>180</span>]个字");

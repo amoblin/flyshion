@@ -401,6 +401,12 @@ typedef struct
 
 typedef struct
 {
+	FxChat *fxchat;
+	GtkWidget *dialog;
+} FxEmotion;
+
+typedef struct
+{
 	FxMain* fxmain;
 	FetionSip* sip;
 	Conversation* conv;

@@ -47,4 +47,5 @@
 #include "fx_code.h"
 #include "fx_app.h"
 #include "fx_set.h"
+#include "fx_emotion.h"
 #endif

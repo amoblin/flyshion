@@ -236,7 +236,8 @@ int fx_tree_get_buddy_iter_by_userid(GtkTreeModel* model , const char* userid , 
 	}
 	return -1;
 }
-void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* tree , GtkTreePath* path , GdkEventButton* event , GtkTreeIter iter)
+void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* tree
+		, GtkTreePath* path , GdkEventButton* event , GtkTreeIter iter)
 {
 	char *sipuri , *groupname , *userid;
 	int groupid , iconsize , status ;
@@ -323,7 +324,8 @@ void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* tree , GtkTreePath* p
 			, (event != NULL) ? event->button : 0 , gdk_event_get_time((GdkEvent*)event));
 }
 
-void fx_tree_create_group_menu(FxMain* fxmain , GtkWidget* tree , GtkTreePath* path , GdkEventButton* event , GtkTreeIter iter)
+void fx_tree_create_group_menu(FxMain* fxmain , GtkWidget* tree
+		, GtkTreePath* path , GdkEventButton* event , GtkTreeIter iter)
 {
 	GtkWidget* menu = NULL;
 	Args* args = fx_args_new(fxmain , iter ,  NULL , 0);
@@ -760,7 +762,7 @@ void fx_tree_on_sendfile_clicked(GtkWidget* widget , gpointer data)
 		return;
 	}
 	gtk_widget_destroy(filechooser);
-	
+/*	
 	filesize = fetion_share_get_filesize(filename);
 	if(filesize == -1){
 		fx_util_popup_warning(fxmain , "无法获取文件信息");
@@ -790,10 +792,10 @@ void fx_tree_on_sendfile_clicked(GtkWidget* widget , gpointer data)
 
 			g_thread_create(fx_main_listen_thread_func , targs , FALSE , NULL);
 
-			/**
+			**
 			 * start send keep alive message throuth chat chanel
 			 * and put the timeout information into stack
-			 */
+			 *
 			debug_info("Start periodically sending keep alive request");
 			oargs = timeout_args_new(fxmain , conv->currentSip , sipuri);
 			fxlist = fx_list_new(oargs);
@@ -807,7 +809,7 @@ void fx_tree_on_sendfile_clicked(GtkWidget* widget , gpointer data)
 	fetion_share_request(sip , share);
 	free(share);
 	free(conv);
-
+*/
 }
 
 void fx_tree_on_historymenu_clicked(GtkWidget* widget , gpointer data)

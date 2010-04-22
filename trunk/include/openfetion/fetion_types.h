@@ -21,7 +21,9 @@
 #ifndef FETION_TYPES_H
 #define FETION_TYPES_H
 
+
 /* inline function to trace program track */
+
 #ifdef FETION_DEBUG_TRACE
 #	define DEBUG_FOOTPRINT()	\
 		printf("| TRACK |function '%s()' in file: <%s:%d>\n" \
@@ -29,6 +31,7 @@
 #else
 #	define DEBUG_FOOTPRINT()
 #endif
+
 /**
  * some other buddylists
  */
