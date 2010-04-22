@@ -1,3 +1,4 @@
+SUBDIRS=face_images
 skindir = $(pkgdatadir)/skin
 skin_DATA = about.png \
 			addbuddy.png \

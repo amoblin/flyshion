@@ -24,4 +24,8 @@
 extern char* fx_util_get_state_name(StateType type);
 
 extern void fx_util_popup_warning(FxMain* fxmain , const char* message);
+
+extern char *fx_util_str_replace(char *str , const char *oldstr , const char *newstr);
+
+extern char *fx_util_replace_emotion(char *str);
 #endif

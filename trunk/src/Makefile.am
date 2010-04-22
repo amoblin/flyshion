@@ -41,4 +41,5 @@ openfetion_SOURCES = fetion_buddylist.c \
 					 fx_profile.c \
 					 fx_set.c \
 					 fx_tree.c \
+					 fx_emotion.c \
 					 fx_util.c 

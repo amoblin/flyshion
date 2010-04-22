@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.63])
-AC_INIT([openfetion], [1.3], [http://basiccoder.com/openfetion])
+AC_INIT([openfetion], [1.4], [http://basiccoder.com/openfetion])
 AC_CONFIG_SRCDIR([src/fx_main.c])
 AC_CONFIG_HEADERS([config.h])
 
@@ -29,10 +29,10 @@ AC_CHECK_LIB([ssl], [main])
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h netinet/in.h stdint.h stdlib.h string.h sys/ioctl.h sys/socket.h unistd.h])
 
 # checks for gtk+2.0
-AM_PATH_GTK_2_0(,,AC_MSG_ERROR(openfetion 0.1 needs GTK+ 2.0))
+AM_PATH_GTK_2_0(,,AC_MSG_ERROR(openfetion 1.4 needs GTK+ 2.0))
 
 # checks for libxml2
-AM_PATH_XML2(,,AC_MSG_ERROR(openfetion 0.1 needs LIBXML2))
+AM_PATH_XML2(,,AC_MSG_ERROR(openfetion 1.4 needs LIBXML2))
 
 AC_ARG_ENABLE(debug,
         [ --enable-debug turn on debug],
@@ -49,6 +49,7 @@ AC_CONFIG_FILES(
 				Makefile
 				src/Makefile
 				skin/Makefile
+				skin/face_images/Makefile
 				include/Makefile
 				include/openfetion/Makefile
 				resource/Makefile

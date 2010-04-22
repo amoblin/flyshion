@@ -43,6 +43,8 @@ extern int tcp_connection_select_read(FetionConnection* connection);
 
 extern int tcp_connection_recv_dont_wait(FetionConnection* connection , void* recv , int len);
 
+extern int tcp_connection_getname(FetionConnection* connection , char **ip , int *port);
+
 extern int ssl_connection_start(FetionConnection* conn);
 
 extern char* ssl_connection_get(FetionConnection* conn , const char* buf);

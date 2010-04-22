@@ -178,6 +178,23 @@ int tcp_connection_recv_dont_wait(FetionConnection* connection , void* buf , int
 {
 	return recv(connection->socketfd , buf , len , MSG_DONTWAIT);
 }
+
+int tcp_connection_getname(FetionConnection* connection , char **ip , int *port)
+{
+	struct sockaddr_in addr;
+	int ret;
+	socklen_t len = 0;
+
+	len = sizeof(struct sockaddr);
+
+	ret = accept(connection->socketfd
+			, (struct sockaddr*)&addr , &len);
+
+	*ip = inet_ntoa(addr.sin_addr);
+	*port = ntohs(addr.sin_port);
+
+	return ret;
+}
 int ssl_connection_start(FetionConnection* conn)
 {
 	int ret;
