@@ -130,8 +130,8 @@ char *fx_util_replace_emotion(char *str)
         str = fx_util_str_replace(str, ":'(", "#9#");
     }
 
-    if ((g_strstr_len(str, -1, ":\"&gt;")) != NULL) {
-        str = fx_util_str_replace(str, ":\"&gt;", "#10#");
+    if ((g_strstr_len(str, -1, ":\">")) != NULL) {
+        str = fx_util_str_replace(str, ":\">", "#10#");
     }
 
     if ((g_strstr_len(str, -1, "^o)")) != NULL) {
@@ -203,11 +203,11 @@ char *fx_util_replace_emotion(char *str)
     }
 
     if ((g_strstr_len(str, -1, "(})")) != NULL) {
-        str = fx_util_str_replace(str, "(})", "#28#");
+        str = fx_util_str_replace(str, "(})", "#29#");
     }
 
     if ((g_strstr_len(str, -1, "({)")) != NULL) {
-        str = fx_util_str_replace(str, "({)", "#29#");
+        str = fx_util_str_replace(str, "({)", "#28#");
     }
 
     if ((g_strstr_len(str, -1, "(k)")) != NULL) {
@@ -230,8 +230,8 @@ char *fx_util_replace_emotion(char *str)
         str = fx_util_str_replace(str, "(^)", "#34#");
     }
 
-    if ((g_strstr_len(str, -1, "-8")) != NULL) {
-        str = fx_util_str_replace(str, "-8", "#35#");
+    if ((g_strstr_len(str, -1, "(8)")) != NULL) {
+        str = fx_util_str_replace(str, "(8)", "#35#");
     }
 
     if ((g_strstr_len(str, -1, "(i)")) != NULL) {
@@ -262,8 +262,8 @@ char *fx_util_replace_emotion(char *str)
         str = fx_util_str_replace(str, ":-/", "#43#");
     }
 
-    if ((g_strstr_len(str, -1, ":-s")) != NULL) {
-        str = fx_util_str_replace(str, ":-s", "#44#");
+    if ((g_strstr_len(str, -1, ":s")) != NULL) {
+        str = fx_util_str_replace(str, ":s", "#44#");
     }
 
     if ((g_strstr_len(str, -1, ")-|")) != NULL) {

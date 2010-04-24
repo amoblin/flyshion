@@ -84,7 +84,6 @@ void fx_tree_initilize(FxMain* fxmain)
  	gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (fxtree->treeView), TRUE);
 	gtk_tree_view_set_level_indentation(GTK_TREE_VIEW(fxtree->treeView) , -30);
 	gtk_tree_view_set_hover_selection(GTK_TREE_VIEW(fxtree->treeView) , TRUE);
-//	gtk_tree_view_columns_autosize(GTK_TREE_VIEW(fxtree->treeView));
 	fetion_contact_subscribe_only(fxmain->user);
 	g_thread_create(fx_tree_update_portrait_thread_func , fxmain , FALSE , NULL);
 
@@ -727,55 +726,24 @@ void fx_tree_on_profilemenu_clicked(GtkWidget* widget , gpointer data)
 	free(args);
 }
 
-void fx_tree_on_sendfile_clicked(GtkWidget* widget , gpointer data)
-{
-	Args *args = (Args*)data;
-	FxMain *fxmain = args->fxmain;
-	FxTree *fxtree = fxmain->mainPanel;
-	User *user = fxmain->user;
-	GtkTreeView *treeview = GTK_TREE_VIEW(fxtree->treeView);
-	GtkTreeModel *model = gtk_tree_view_get_model(treeview);
-	GtkTreeIter iter = args->iter;
+static void* fx_tree_on_send_thread(void *data){
 
-	GtkWidget *filechooser = NULL;
-	char *filename = NULL;
-	char *sipuri = NULL;
-	Share *share = NULL;
+	struct sendargs{
+		FxMain *fxmain;FxShare *share;
+	} *threadargs = (struct sendargs*)data;
+
 	Conversation *conv = NULL;
-	FetionSip *sip = NULL;
 	ThreadArgs *targs = NULL;
 	TimeOutArgs *oargs = NULL;
-	FxList *fxlist = NULL;
-	long long filesize;
-	char text[1024];
-	int response = 0;
+	FxMain *fxmain = threadargs->fxmain;
+	FxShare *fxshare = threadargs->share;
+	User *user = fxmain->user;
+	Share *share = fxshare->share;
+	char *sipuri = fxshare->contact->sipuri;
+	FetionSip *sip ;
+	FxList *fxlist;
 
-
-	filechooser = gtk_file_chooser_dialog_new("请选择要发送的文件"
-							   , NULL , GTK_FILE_CHOOSER_ACTION_OPEN
-							   , "确定" , 1 , "取消" , 2 , NULL);
-	response = gtk_dialog_run(GTK_DIALOG(filechooser));
-
-	if(response == 1){
-		filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(filechooser));
-	}else{
-		return;
-	}
-	gtk_widget_destroy(filechooser);
-/*	
-	filesize = fetion_share_get_filesize(filename);
-	if(filesize == -1){
-		fx_util_popup_warning(fxmain , "无法获取文件信息");
-		return ;
-	}
-	if(filesize > MAX_FILE_SIZE){
-		bzero(text , sizeof(text));
-		sprintf(text , "文件过大，飞信限制最大传输文件大小为%d个字节" , MAX_FILE_SIZE);
-		fx_util_popup_warning(fxmain , text);
-		return;
-	}
-
-	gtk_tree_model_get(model , &iter , B_SIPURI_COL , &sipuri , -1);
+	DEBUG_FOOTPRINT();
 
 	conv = fetion_conversation_new(user , sipuri , NULL);
 	sip = fx_list_find_sip_by_sipuri(fxmain->slist , sipuri);
@@ -792,10 +760,6 @@ void fx_tree_on_sendfile_clicked(GtkWidget* widget , gpointer data)
 
 			g_thread_create(fx_main_listen_thread_func , targs , FALSE , NULL);
 
-			**
-			 * start send keep alive message throuth chat chanel
-			 * and put the timeout information into stack
-			 *
 			debug_info("Start periodically sending keep alive request");
 			oargs = timeout_args_new(fxmain , conv->currentSip , sipuri);
 			fxlist = fx_list_new(oargs);
@@ -804,12 +768,88 @@ void fx_tree_on_sendfile_clicked(GtkWidget* widget , gpointer data)
 		}
 	}
 	sip = conv->currentSip;
-
-	share = fetion_share_new(sipuri , filename);
-	fetion_share_request(sip , share);
-	free(share);
 	free(conv);
-*/
+
+	fetion_share_request(sip , share);
+
+	if(share == NULL){
+		return NULL;
+	}
+
+	gdk_threads_enter();
+	gtk_label_set_markup(GTK_LABEL(fxshare->iLabel)
+			, "<span color='#838383'>连接已经建立，正在等待对方接收文件...</span>");
+	gdk_threads_leave();
+
+	return NULL;
+}
+
+void fx_tree_on_sendfile_clicked(GtkWidget* widget , gpointer data)
+{
+	Args *args = (Args*)data;
+	FxMain *fxmain = args->fxmain;
+	FxTree *fxtree = fxmain->mainPanel;
+	FxShare *fxshare = NULL;
+	GtkTreeView *treeview = GTK_TREE_VIEW(fxtree->treeView);
+	GtkTreeModel *model = gtk_tree_view_get_model(treeview);
+	GtkTreeIter iter = args->iter;
+
+	GtkWidget *filechooser = NULL;
+	char *filename = NULL;
+	char *sipuri = NULL;
+	Share *share = NULL;
+	FetionSip *sip = NULL;
+	FxList *fxlist = NULL;
+	GThread thread;
+	long long filesize;
+	char text[1024];
+	int response = 0;
+
+	struct sendargs{
+		FxMain *fxmain;FxShare *fxshare;
+	} *threadargs = (struct sendargs*)malloc(sizeof(struct sendargs));
+
+	filechooser = gtk_file_chooser_dialog_new("请选择要发送的文件"
+							   , NULL , GTK_FILE_CHOOSER_ACTION_OPEN
+							   , "确定" , 1 , "取消" , 2 , NULL);
+	response = gtk_dialog_run(GTK_DIALOG(filechooser));
+
+	if(response == 1){
+		filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(filechooser));
+	}else{
+		return;
+	}
+	gtk_widget_destroy(filechooser);
+	
+	filesize = fetion_share_get_filesize(filename);
+	if(filesize == -1){
+		fx_util_popup_warning(fxmain , "无法获取文件信息");
+		return ;
+	}
+	if(filesize > MAX_FILE_SIZE){
+		bzero(text , sizeof(text));
+		sprintf(text , "文件过大，飞信限制最大传输文件大小为%d个字节" , MAX_FILE_SIZE);
+		fx_util_popup_warning(fxmain , text);
+		return;
+	}
+
+	gtk_tree_model_get(model , &iter , B_SIPURI_COL , &sipuri , -1);
+
+	share = fetion_share_new_with_path(sipuri , filename);
+	fxshare = fx_share_new(fxmain , sipuri);
+	free(sipuri);
+
+	fxshare->share = share;
+	fx_share_initialize(fxshare);
+	fxlist = fx_list_new(fxshare);
+	fx_list_append(&(fxmain->shlist) , fxlist);
+
+	threadargs->fxmain = fxmain;
+	threadargs->fxshare = fxshare;
+	g_thread_create(fx_tree_on_send_thread , threadargs , FALSE , NULL);
+	gtk_dialog_run(GTK_DIALOG(fxshare->dialog));
+
+	gtk_widget_destroy(fxshare->dialog);
 }
 
 void fx_tree_on_historymenu_clicked(GtkWidget* widget , gpointer data)

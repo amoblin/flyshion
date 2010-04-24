@@ -4,7 +4,19 @@
 #define GUID "9741dc51-43d3-448b-bfc2-dbf4661a27f6"
 #define SESSIONID "xz4BBcV9741dc5143d3448bbfc2dbf4661a27f6"
 
-Share *fetion_share_new(const char *sipuri , const char *absolutePath)
+Share *fetion_share_new(const char *sipuri)
+{
+	Share *share = (Share*)malloc(sizeof(Share));
+
+	memset(share , 0 , sizeof(Share));
+
+	strcpy(share->sipuri , sipuri);
+
+	return share;
+}
+
+
+Share *fetion_share_new_with_path(const char *sipuri , const char *absolutePath)
 {
 	Share *share = (Share*)malloc(sizeof(Share));
 	char *name = NULL;

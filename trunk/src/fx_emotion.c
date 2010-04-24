@@ -11,7 +11,7 @@ struct emotion emotions[] = {
 	{ "生气" , ":-@", 7 } ,
 	{ "悲伤" , ":(", 8 } ,
 	{ "哭泣" , ":'(", 9 } ,
-	{ "尴尬" , ":\"&gt;", 10 } ,
+	{ "尴尬" , ":\">", 10 } ,
 	{ "讽刺" , "^o)", 11 } ,
 	{ "生病" , ":&", 12 } ,
 	{ "咬牙切齿" , "8o|", 13 } ,
@@ -29,14 +29,14 @@ struct emotion emotions[] = {
 	{ "星星" , "(*)", 25 } ,
 	{ "太阳" , "(#)", 26 } ,
 	{ "彩虹" , "(r)", 27 } ,
-	{ "左侧拥抱" , "(})", 28 } ,
-	{ "右侧拥抱" , "({)", 29 } ,
+	{ "左侧拥抱" , "(})", 29 } ,
+	{ "右侧拥抱" , "({)", 28 } ,
 	{ "红唇" , "(k)", 30 } ,
 	{ "红玫瑰" , "(f)", 31 } ,
 	{ "凋谢的玫瑰" , "(w)", 32 } ,
 	{ "礼品盒" , "(g)", 33 } ,
 	{ "生日蛋糕" , "(^)", 34 } ,
-	{ "音乐" , "-8", 35 } ,
+	{ "音乐" , "(8)", 35 } ,
 	{ "灯泡" , "(i)", 36 } ,
 	{ "想法" , "*-:)", 37 } ,
 	{ "咖啡" , "(c)", 38 } ,
@@ -45,7 +45,7 @@ struct emotion emotions[] = {
 	{ "计算机" , "(co)", 41 } ,
 	{ "失望" , ":-|", 42 } ,
 	{ "困惑" , ":-/", 43 } ,
-	{ "担心" , ":-s", 44 } ,
+	{ "担心" , ":s", 44 } ,
 	{ "饮料" , ")-|", 45 } ,
 	{ "高脚杯" , "(d)", 46 } ,
 	{ "天使" , "O:)", 47 } ,
@@ -86,13 +86,14 @@ gboolean fx_emotion_ok_clicked(GtkWidget *widget
 	FxEmotion *fxemotion = emotionArgs->fxemotion;
 	FxChat *fxchat = fxemotion->fxchat;
 	GtkTextBuffer* buffer;
+	GtkTextChildAnchor *anchor;
 	GtkTextIter iter;
 
 	DEBUG_FOOTPRINT();
 	
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(fxchat->send_text));
 
-	gtk_text_buffer_get_end_iter(buffer , &iter );
+	gtk_text_buffer_get_end_iter(buffer , &iter);
 
 	gtk_text_buffer_insert(buffer , &iter , emotions[emotionArgs->id - 1].symbol , -1);
 

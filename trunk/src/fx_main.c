@@ -428,15 +428,63 @@ void fx_main_process_invitation(FxMain* fxmain , const char* sipmsg)
 	g_timeout_add_seconds(120 , (GSourceFunc)fx_main_chat_keep_alive_func , timeout);
 } 
 
-void fx_main_process_incoming(FxMain* fxmain , FetionSip* sip , const char* sipmsg)
+static void process_share_action_accept(FxMain *fxmain
+		, FetionSip *sip , const char *sipmsg , const char *sipuri){
+	FxShare *fxshare;
+	Share *share;
+
+	DEBUG_FOOTPRINT();
+
+	fxshare = fx_share_find_by_sipuri(fxmain->shlist , sipuri);
+	if(fxshare == NULL){
+		return;
+	}
+
+	share = fxshare->share;
+	fetion_sip_parse_shareaccept(sip , sipmsg , share);
+
+	gdk_threads_enter();
+	fx_share_start_transfer(fxshare);
+	gdk_threads_leave();
+
+	printf("%s\n%s\n%d\n" , share->preferType , share->outerIp , share->outerTcpPort);
+
+}
+
+static void process_share_action_cancel(FxMain *fxmain
+		, FetionSip *sip , const char *sipmsg , const char *sipuri){
+	FxShare *fxshare;
+	Share *share;
+
+	DEBUG_FOOTPRINT();
+
+	fxshare = fx_share_find_by_sipuri(fxmain->shlist , sipuri);
+	if(fxshare == NULL){
+		return;
+	}
+
+	share = fxshare->share;
+	fetion_sip_parse_shareaccept(sip , sipmsg , share);
+
+	gdk_threads_enter();
+	fx_share_start_transfer(fxshare);
+	gdk_threads_leave();
+
+	printf("%s\n%s\n%d\n" , share->preferType , share->outerIp , share->outerTcpPort);
+
+}
+void fx_main_process_incoming(FxMain* fxmain
+		, FetionSip* sip , const char* sipmsg)
 {
 	IncomingType type;
+	IncomingActionType action;
 	char *sipuri = NULL;
 	FxChat *fxchat = NULL;
 
 	DEBUG_FOOTPRINT();
+	printf("%s\n" , sipmsg);
 
-	fetion_sip_parse_incoming(sip , sipmsg , &sipuri , &type);
+	fetion_sip_parse_incoming(sip , sipmsg , &sipuri , &type , &action);
 	switch(type)
 	{
 		case INCOMING_NUDGE :
@@ -451,6 +499,23 @@ void fx_main_process_incoming(FxMain* fxmain , FetionSip* sip , const char* sipm
 				fx_chat_add_information(fxchat , "收到一个窗口抖动");
 				gdk_threads_leave();
 				debug_info("Received a nudge from %s" , sipuri);
+				break;
+			}
+		case INCOMING_SHARE_CONTENT :
+			{
+				switch(action){
+					case INCOMING_ACTION_ACCEPT :
+						printf("%s\n\n%s\n" , sipmsg , sipuri );
+						process_share_action_accept(fxmain , sip , sipmsg , sipuri);
+						break;
+					case INCOMING_ACTION_CANCEL :
+						process_share_action_cancel(fxmain , sip , sipmsg , sipuri);
+						printf("%s\r\n\r\n%s , %d\n" , sipmsg , sipuri , action);
+						printf("###\n%s\n" , sipmsg);
+						break;
+					default:
+						break;
+				}
 				break;
 			}
 		default:
@@ -694,8 +759,8 @@ void* fx_main_listen_thread_func(void* data)
 	debug_info("THREAD ENTERED");
 
 	sip = (sip == NULL ? fxmain->user->sip : sip);
-	while(1)
-	{
+	while(1){
+		
 		if(fxmain == NULL)
 			g_thread_exit(0);
 		g_usleep(10);
@@ -703,11 +768,10 @@ void* fx_main_listen_thread_func(void* data)
 		msg = fetion_sip_listen(sip);
 		gdk_threads_leave();
 		pos = msg;
-		while(pos != NULL)
-		{
+		while(pos != NULL){
+
 			type = fetion_sip_get_type(pos->message);
-			switch(type)
-			{
+			switch(type){
 				case SIP_NOTIFICATION :
 					fx_main_process_notification(fxmain , pos->message);
 					break;
@@ -744,21 +808,16 @@ void fx_main_message_func(GtkWidget* widget , gpointer data)
 
 	DEBUG_FOOTPRINT();
 
-	while(pos != NULL)
-	{
+	while(pos != NULL){
 		msg = (Message*)(pos->data);
 		fxchat = fx_main_create_chat_window(fxmain , msg->sipuri);
-		if(fxchat == NULL)
-		{
+		if(fxchat == NULL){
 			sid = fetion_sip_get_sid_by_sipuri(msg->sipuri);
-			if(strcmp(sid , "100") == 0)
-			{
+			if(strcmp(sid , "100") == 0){
 				debug_info("Received a system message,ignored");
 				pos = pos->next;
 				continue;
-			}
-			else
-			{
+			}else{
 				debug_info("Received a stranger,ignored");
 				pos = pos->next;
 				continue;
