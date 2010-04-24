@@ -47,7 +47,8 @@ void fx_chat_add_message(FxChat* fxchat , const char* msg , const struct tm* dat
 	char time[30] = { 0 };
 
 	int i = 0 , p = 0 , n = 0;
-	GdkPixbuf *pb = NULL;
+	GtkWidget *pb = NULL;
+	GtkTextChildAnchor *anchor; 
 	char path[1024];
 
 	DEBUG_FOOTPRINT();
@@ -61,13 +62,10 @@ void fx_chat_add_message(FxChat* fxchat , const char* msg , const struct tm* dat
 	strftime(time , sizeof(time) , "%H:%M:%S" , datetime);
 
 	usid = fetion_sip_get_sid_by_sipuri(contact->sipuri);
-	if(issendmsg == 0)
-	{
+	if(issendmsg == 0){
 		sprintf(text , "%s(%s) %s\n" , contact->nickname , usid , time);
 		history = fetion_history_message_new(contact->nickname , contact->userId , *datetime , msg , issendmsg);
-	}
-	else
-	{
+	}else{
 		sprintf(text , "%s(%s) %s\n" , user->nickname , user->sId , time);
 		history = fetion_history_message_new(user->nickname , contact->userId , *datetime , msg , issendmsg);
 	}
@@ -91,15 +89,16 @@ void fx_chat_add_message(FxChat* fxchat , const char* msg , const struct tm* dat
 										, &iter, msgE + p , i - p , "lm10" , NULL);
 						bzero(path , sizeof(path));
 						sprintf(path , SKIN_DIR"face_images/big_%s.gif" , num);
-						pb = gdk_pixbuf_new_from_file(path , NULL);
-						gtk_text_buffer_insert_pixbuf(buffer , &iter , pb);
+						pb = gtk_image_new_from_file(path);
+						gtk_widget_show(pb);
+						anchor = gtk_text_buffer_create_child_anchor(buffer , &iter);
+						gtk_text_view_add_child_at_anchor(GTK_TEXT_VIEW(fxchat->recv_text)
+								, pb , anchor); 
 						i += n + 2;
 						p = i;
 						continue;
 					}
 				}
-			}
-			if(msgE[i + 1] == '1' && msgE[i + 2] == '#'){
 			}
 		}
 		i ++;

@@ -67,7 +67,7 @@ am_openfetion_OBJECTS = openfetion-fetion_buddylist.$(OBJEXT) \
 	openfetion-fx_many.$(OBJEXT) openfetion-fx_myself.$(OBJEXT) \
 	openfetion-fx_profile.$(OBJEXT) openfetion-fx_set.$(OBJEXT) \
 	openfetion-fx_tree.$(OBJEXT) openfetion-fx_emotion.$(OBJEXT) \
-	openfetion-fx_util.$(OBJEXT)
+	openfetion-fx_share.$(OBJEXT) openfetion-fx_util.$(OBJEXT)
 openfetion_OBJECTS = $(am_openfetion_OBJECTS)
 openfetion_LDADD = $(LDADD)
 openfetion_LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(openfetion_LDFLAGS) \
@@ -215,6 +215,7 @@ openfetion_SOURCES = fetion_buddylist.c \
 					 fx_set.c \
 					 fx_tree.c \
 					 fx_emotion.c \
+					 fx_share.c \
 					 fx_util.c 
 
 all: all-am
@@ -316,6 +317,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_profile.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_proxy.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_set.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_share.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_tree.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_util.Po@am__quote@
 
@@ -808,6 +810,20 @@ openfetion-fx_emotion.obj: fx_emotion.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='fx_emotion.c' object='openfetion-fx_emotion.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o openfetion-fx_emotion.obj `if test -f 'fx_emotion.c'; then $(CYGPATH_W) 'fx_emotion.c'; else $(CYGPATH_W) '$(srcdir)/fx_emotion.c'; fi`
+
+openfetion-fx_share.o: fx_share.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT openfetion-fx_share.o -MD -MP -MF $(DEPDIR)/openfetion-fx_share.Tpo -c -o openfetion-fx_share.o `test -f 'fx_share.c' || echo '$(srcdir)/'`fx_share.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/openfetion-fx_share.Tpo $(DEPDIR)/openfetion-fx_share.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='fx_share.c' object='openfetion-fx_share.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o openfetion-fx_share.o `test -f 'fx_share.c' || echo '$(srcdir)/'`fx_share.c
+
+openfetion-fx_share.obj: fx_share.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT openfetion-fx_share.obj -MD -MP -MF $(DEPDIR)/openfetion-fx_share.Tpo -c -o openfetion-fx_share.obj `if test -f 'fx_share.c'; then $(CYGPATH_W) 'fx_share.c'; else $(CYGPATH_W) '$(srcdir)/fx_share.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/openfetion-fx_share.Tpo $(DEPDIR)/openfetion-fx_share.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='fx_share.c' object='openfetion-fx_share.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o openfetion-fx_share.obj `if test -f 'fx_share.c'; then $(CYGPATH_W) 'fx_share.c'; else $(CYGPATH_W) '$(srcdir)/fx_share.c'; fi`
 
 openfetion-fx_util.o: fx_util.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT openfetion-fx_util.o -MD -MP -MF $(DEPDIR)/openfetion-fx_util.Tpo -c -o openfetion-fx_util.o `test -f 'fx_util.c' || echo '$(srcdir)/'`fx_util.c

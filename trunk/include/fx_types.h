@@ -86,6 +86,7 @@ typedef struct
 	FxList* mlist; 				 /*  unread message list						 */
 	FxList* slist;				 /*  sip list wicth is now listening			 */
 	FxList* tlist;				 /*  time out args list							 */
+	FxList* shlist;				 /*	 share content window list		   			 */
 	int iconConnectId;			 /*  status icon connect id						 */
 
 	FxLogin* loginPanel;		 /*  login panel								 */
@@ -411,4 +412,17 @@ typedef struct
 	FetionSip* sip;
 	Conversation* conv;
 } ThreadArgs;
+
+typedef struct
+{
+	FxMain *fxmain;
+	Share *share;
+	Contact *contact;
+
+	GtkWidget *dialog;
+	GtkWidget *progress;
+	GtkWidget *uLabel;
+	GtkWidget *iLabel;
+
+} FxShare;
 #endif

@@ -48,4 +48,5 @@
 #include "fx_app.h"
 #include "fx_set.h"
 #include "fx_emotion.h"
+#include "fx_share.h"
 #endif

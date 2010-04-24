@@ -545,8 +545,7 @@ void fetion_sip_message_free(SipMsg* msg)
 	{
 		pot = pos;
 		pos = pos->next;
-		if(pot != NULL && pot->message != NULL)
-		{
+		if(pot != NULL ){
 			free(pot->message);
 		}
 		free(pot);
@@ -748,7 +747,9 @@ void fetion_sip_parse_addbuddyapplication(const char* sipmsg , char** sipuri , c
 
 }
 
-void fetion_sip_parse_incoming(FetionSip* sip , const char* sipmsg , char** sipuri, IncomingType* type)
+void fetion_sip_parse_incoming(FetionSip* sip
+		, const char* sipmsg , char** sipuri
+		, IncomingType* type , IncomingActionType *action)
 {
 	char *pos = NULL;
 	xmlDocPtr doc = NULL;
@@ -761,41 +762,60 @@ void fetion_sip_parse_incoming(FetionSip* sip , const char* sipmsg , char** sipu
 	pos = strstr(sipmsg , "\r\n\r\n") + 4;
 	doc = xmlParseMemory(pos , strlen(pos));
 	node = xmlDocGetRootElement(doc);
-	if(xmlStrcmp(node->name , BAD_CAST "is-composing") != 0)
-	{
+	if(xmlStrcmp(node->name , BAD_CAST "share-content") == 0){
+		debug_info("Received a share-content IN message");
+		*sipuri = (char*)malloc(48);
+		bzero(*sipuri , 48);
+		fetion_sip_get_attr(sipmsg , "F" , *sipuri);
+		*type = INCOMING_SHARE_CONTENT;
+		if(! xmlHasProp(node , BAD_CAST "action")){
+			*action = INCOMING_ACTION_UNKNOWN;
+			xmlFreeDoc(doc);
+			return;
+		}
+		res = xmlGetProp(node , BAD_CAST "action");
+		if(xmlStrcmp(res , BAD_CAST "accept") == 0){
+			*action = INCOMING_ACTION_ACCEPT;
+		} else if( xmlStrcmp(res , BAD_CAST "cancel") == 0){
+			*action = INCOMING_ACTION_CANCEL;
+		} else {
+			*action = INCOMING_ACTION_UNKNOWN;
+		}
+		xmlFree(res);
+		xmlFreeDoc(doc);
+		return;
+	}
+	if(xmlStrcmp(node->name , BAD_CAST "is-composing") != 0){
 		debug_info("Received a unhandled sip message , thanks for sending it to the author");
-		printf("%s\n" , sipmsg);
 		*type = INCOMING_UNKNOWN;
+		xmlFreeDoc(doc);
 		return;
 	}
 	node = node->xmlChildrenNode;
 	res = xmlNodeGetContent(node);
-	if(xmlStrcmp(res , BAD_CAST "nudge") != 0)
+	if(xmlStrcmp(res , BAD_CAST "nudge") == 0)
 	{
-		debug_info("Received a unhandled sip message , thanks for sending it to the author");
-		printf("%s\n" , sipmsg);
 		*type = INCOMING_UNKNOWN;
-		xmlFree(res);
-		return;
+		*sipuri = (char*)malloc(50);
+		bzero(replyMsg , sizeof(replyMsg));
+		bzero(callid   , sizeof(callid));
+		bzero(seq 	   , sizeof(seq));
+		bzero(*sipuri  , 50);
+
+		fetion_sip_get_attr(sipmsg , "I" , callid);
+		fetion_sip_get_attr(sipmsg , "Q" , seq);
+		fetion_sip_get_attr(sipmsg , "F" , *sipuri);
+		sprintf(replyMsg , "SIP-C/4.0 200 OK\r\n"
+						   "F: %s\r\n"
+						   "I: %s \r\n"
+						   "Q: %s\r\n\r\n"
+						 , *sipuri , callid , seq);
+		tcp_connection_send(sip->tcp , replyMsg , strlen(replyMsg));
+		
+		*type = INCOMING_NUDGE;
 	}
 	xmlFree(res);
-	*sipuri = (char*)malloc(50);
-	bzero(replyMsg , sizeof(replyMsg));
-	bzero(callid   , sizeof(callid));
-	bzero(seq 	   , sizeof(seq));
-	bzero(*sipuri  , 50);
-
-	fetion_sip_get_attr(sipmsg , "I" , callid);
-	fetion_sip_get_attr(sipmsg , "Q" , seq);
-	fetion_sip_get_attr(sipmsg , "F" , *sipuri);
-	sprintf(replyMsg , "SIP-C/4.0 200 OK\r\n"
-					   "F: %s\r\n"
-					   "I: %s \r\n"
-					   "Q: %s\r\n\r\n"
-					 , *sipuri , callid , seq);
-	tcp_connection_send(sip->tcp , replyMsg , strlen(replyMsg));
-	
-	*type = INCOMING_NUDGE;
+	xmlFreeDoc(doc);
 }
 
 void fetion_sip_parse_userleft(const char* sipmsg , char** sipuri)
@@ -814,6 +834,44 @@ void fetion_sip_parse_userleft(const char* sipmsg , char** sipuri)
 	bzero(*sipuri , xmlStrlen(res) + 1);
 	strcpy(*sipuri , (char*)res);
 	xmlFreeDoc(doc);
+}
+
+int fetion_sip_parse_shareaccept(FetionSip *sip 
+		, const char* sipmsg , Share *share)
+{
+	xmlDocPtr doc;
+	xmlNodePtr node;
+	xmlChar *res;
+	char *pos;
+	
+	pos = strstr(sipmsg , "\r\n\r\n") + 4;
+	doc = xmlReadMemory(pos , strlen(pos) , NULL , "UTF-8" , XML_PARSE_RECOVER );
+	node = xmlDocGetRootElement(doc);
+
+	node = node->xmlChildrenNode->next;
+	if(xmlStrcmp(node->name , BAD_CAST "client") != 0)
+		return -1;
+	
+	res = xmlGetProp(node , BAD_CAST "prefer-types");
+	strcpy(share->preferType , (char*)res);
+	xmlFree(res);
+	
+	res = xmlGetProp(node , BAD_CAST "inner-ip");
+	pos = hexip_to_dotip((char*)res);
+	xmlFree(res);
+	strcpy(share->outerIp , pos);
+	free(pos);
+	pos = NULL;
+
+	res = xmlGetProp(node , BAD_CAST "udp-inner-port");
+	share->outerUdpPort = atoi((char*)res);
+	xmlFree(res);
+
+	res = xmlGetProp(node , BAD_CAST "tcp-port");
+	share->outerTcpPort = atoi((char*)res);
+	xmlFree(res);
+	
+	return 1;
 }
 
 struct tm convert_date(const char* date)

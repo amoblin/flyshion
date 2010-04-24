@@ -30,7 +30,8 @@ extern FetionConnection* tcp_connection_new_with_port(const int port);
 
 extern FetionConnection* tcp_connection_new_with_ip_and_port(const char* ipaddress , const int port);
 
-extern int tcp_connection_connect(FetionConnection* connection , const char* ipaddress , const int port);
+extern int tcp_connection_connect(FetionConnection* connection
+		, const char* ipaddress , const int port);
 
 extern int tcp_connection_connect_with_proxy(FetionConnection* connection 
 		, const char* ipaddress , const int port , Proxy *proxy);
@@ -41,9 +42,11 @@ extern int tcp_connection_recv(FetionConnection* connection , void* recv , int l
 
 extern int tcp_connection_select_read(FetionConnection* connection);
 
-extern int tcp_connection_recv_dont_wait(FetionConnection* connection , void* recv , int len);
+extern int tcp_connection_recv_dont_wait(FetionConnection* connection
+		, void* recv , int len);
 
-extern int tcp_connection_getname(FetionConnection* connection , char **ip , int *port);
+extern int tcp_connection_getname(FetionConnection* connection
+		, char **ip , int *port);
 
 extern int ssl_connection_start(FetionConnection* conn);
 
@@ -60,5 +63,9 @@ extern char* http_connection_encode_url(const char* url);
 extern void tcp_connection_free(FetionConnection* conn);
 
 extern char* get_ip_by_name(const char* hostname);
+
+extern char *get_loacl_ip();
+
+extern char *hexip_to_dotip(const char *ip);
 
 #endif

@@ -24,6 +24,8 @@
 
 /* inline function to trace program track */
 
+#define FETION_DEBUG_TRACE
+
 #ifdef FETION_DEBUG_TRACE
 #	define DEBUG_FOOTPRINT()	\
 		printf("| TRACK |function '%s()' in file: <%s:%d>\n" \
@@ -319,4 +321,31 @@ typedef struct
 	User* user;
 	FILE* file;
 } FetionHistory;
+
+#define FILE_RECEIVE 1
+#define FILE_SEND 2
+
+#define FILE_ACCEPTED 1
+#define FILE_DECLINED 2
+
+typedef struct{
+
+	FetionSip *sip;
+	int shareMode;
+	int shareState;
+	char guid[64];
+	char sessionid[64];
+	char filename[64];
+	char sipuri[64];
+	char md5[64];
+	long long filesize;
+	char preferType[8];
+	char innerIp[24];
+	int innerUdpPort;
+	int innerTcpPort;
+	char outerIp[24];
+	int outerUdpPort;
+	int outerTcpPort;
+} Share;
+
 #endif

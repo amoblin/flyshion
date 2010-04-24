@@ -81,8 +81,16 @@ typedef enum
 typedef enum
 {
 	INCOMING_NUDGE ,
+	INCOMING_SHARE_CONTENT ,
 	INCOMING_UNKNOWN
 } IncomingType;
+
+typedef enum
+{
+	INCOMING_ACTION_ACCEPT ,
+	INCOMING_ACTION_CANCEL , 
+	INCOMING_ACTION_UNKNOWN
+} IncomingActionType;
 
 extern FetionSip* fetion_sip_new(FetionConnection* tcp , const char* sid);
 
@@ -109,7 +117,8 @@ extern void fetion_sip_free(FetionSip* sip);
 
 extern char* fetion_sip_get_sid_by_sipuri(const char* sipuri);
 
-extern int fetion_sip_get_attr(const char* sip , const char* name , char* result);
+extern int fetion_sip_get_attr(const char* sip
+		, const char* name , char* result);
 
 extern int fetion_sip_get_length(const char* sip);
 
@@ -122,7 +131,8 @@ extern void fetion_sip_get_auth_attr(const char* auth , char** ipaddress
 
 extern char* fetion_sip_get_response(FetionSip* sip);
 
-extern void fetion_sip_set_connection(FetionSip* sip , FetionConnection* conn);
+extern void fetion_sip_set_connection(FetionSip* sip
+		, FetionConnection* conn);
 
 extern SipMsg* fetion_sip_listen(FetionSip* sip);
 
@@ -135,18 +145,25 @@ extern void fetion_sip_message_append(SipMsg* msglist , SipMsg* msg);
 extern void fetion_sip_parse_notification(const char* sip 
 		, int* type , int* event , char** xml);
 
-extern void fetion_sip_parse_message(FetionSip* sip , const char* sipmsg , Message** msg);
+extern void fetion_sip_parse_message(FetionSip* sip
+		, const char* sipmsg , Message** msg);
 
-extern void fetion_sip_parse_invitation(FetionSip* sip  , Proxy *proxy, const char* sipmsg
+extern void fetion_sip_parse_invitation(FetionSip* sip
+		, Proxy *proxy, const char* sipmsg
 		, FetionSip** conversionSip , char** sipuri);
 
-extern void fetion_sip_parse_addbuddyapplication(const char* sipmsg , char** sipuri
-		, char** userid , char** desc , int* phrase);
+extern void fetion_sip_parse_addbuddyapplication(const char* sipmsg
+		, char** sipuri	, char** userid
+		, char** desc , int* phrase);
 
-extern void fetion_sip_parse_incoming(FetionSip* sip , const char* sipmsg
-		, char** sipuri , IncomingType* type);
+extern void fetion_sip_parse_incoming(FetionSip* sip
+		, const char* sipmsg , char** sipuri
+		, IncomingType* type , IncomingActionType *action);
 
 extern void fetion_sip_parse_userleft(const char* sipmsg , char** sipuri);
+
+extern int fetion_sip_parse_shareaccept(FetionSip *sip 
+		, const char* sipmsg , Share *share);
 
 extern struct tm convert_date(const char* date);
 #endif

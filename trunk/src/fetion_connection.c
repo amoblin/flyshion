@@ -24,6 +24,7 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <net/if.h>
 #include <sys/socket.h>
 #include <netdb.h>
 
@@ -360,3 +361,52 @@ char* http_connection_encode_url(const char* url)
 	return res;
 }
 
+char *get_loacl_ip(){
+
+    struct ifreq req;
+    int sock;
+	char *ip = NULL;
+
+	DEBUG_FOOTPRINT();
+
+	sock = socket(AF_INET, SOCK_DGRAM, 0);
+	strncpy(req.ifr_name, "eth0", IFNAMSIZ);
+
+	if ( ioctl(sock, SIOCGIFADDR, &req) < 0 ) {
+		debug_error("Get local ipaddress failed");
+		return NULL;
+	}
+
+	ip = (char *)inet_ntoa(*(struct in_addr *) &((struct sockaddr_in *) &req.ifr_addr)->sin_addr);
+	shutdown(sock, 2);
+	close(sock);
+    return ip;
+}
+
+char *hexip_to_dotip(const char *ip){
+	
+	char *out;
+	char tmp[3];
+	char tmp1[4];
+	int i , j = 0;
+	long res;
+
+	out = (char*)malloc(18);
+	bzero(out , 18);
+	bzero(tmp , sizeof(tmp));
+
+	for(i = 0 ; i < strlen(ip) ; i ++){
+		tmp[j++] = ip[i]; 	
+		if(j == 2){
+			res = strtol(tmp , NULL , 16);
+			bzero(tmp1 , sizeof(tmp1));
+			sprintf(tmp1 , "%ld" , res);
+			strcat(out , tmp1);
+			if(i != 7){
+				strcat(out , ".");
+			}
+			j = 0;
+		}
+	}
+	return out;
+}
