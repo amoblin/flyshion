@@ -693,6 +693,10 @@ Contact* fetion_user_parse_presence_body(const char* body , User* user)
 			pos = xmlGetProp(cnode , BAD_CAST "cs");
 			if(atoi((char*)pos) == 2)
 				currentContact->serviceStatus = STATUS_SERVICE_CLOSED;
+#if 0
+			if(atoi((char*)pos) == 1)
+				currentContact->serviceStatus = STATUS_NOT_BOUND;
+#endif
 			xmlFree(pos);
 		}
 		cnode = xml_goto_node(node , "pr");
@@ -733,6 +737,8 @@ Contact* fetion_user_parse_syncuserinfo_body(const char* body , User* user)
 	doc = xmlParseMemory(body , strlen(body));
 	node = xmlDocGetRootElement(doc);
 	node = xml_goto_node(node , "buddy");
+	if(node == NULL)
+		return NULL;
 
 	pos = xmlGetProp(node , BAD_CAST "user-id");
 	currentContact = fetion_contact_list_find_by_userid(contactlist , (char*)pos);
@@ -785,7 +791,9 @@ char* generate_set_state_body(StateType state)
 	xmlFreeDoc(doc);
 	return xml_convert(res);
 }
-char* generate_set_moodphrase_body(const char* customConfigVersion , const char* customConfig , const char* personalVersion ,  const char* moodphrase)
+char* generate_set_moodphrase_body(const char* customConfigVersion
+		, const char* customConfig , const char* personalVersion
+		,  const char* moodphrase)
 {
 	char args[] = "<args></args>";
 	xmlChar *res;

@@ -24,8 +24,6 @@
 
 /* inline function to trace program track */
 
-#define FETION_DEBUG_TRACE
-
 #ifdef FETION_DEBUG_TRACE
 #	define DEBUG_FOOTPRINT()	\
 		printf("| TRACK |function '%s()' in file: <%s:%d>\n" \
@@ -80,7 +78,8 @@ typedef enum
 	STATUS_NOT_AUTHENTICATED ,			/* user has not accept your add buddy request				 */
 	STATUS_SMS_ONLINE ,					/* user has not start fetion service						 */
 	STATUS_REJECTED ,					/* user rejected your add buddy request,wait for deleting 	 */
-	STATUS_SERVICE_CLOSED				/* user has closed his fetion service 						 */
+	STATUS_SERVICE_CLOSED , 			/* user has closed his fetion service 						 */
+	STATUS_NOT_BOUND					/* user doesn`t bound fetion number to a mobile number 		 */
 } StatusType;
 
 /**
@@ -335,6 +334,7 @@ typedef struct{
 	int shareState;
 	char guid[64];
 	char sessionid[64];
+	char absolutePath[1024];
 	char filename[64];
 	char sipuri[64];
 	char md5[64];

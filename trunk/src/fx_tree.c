@@ -520,7 +520,7 @@ void fx_tree_text_cell_data_func(GtkTreeViewColumn *col,
 						   "(%s)  <span color='#838383'>%s</span>"
 						   , name == NULL ? "" : g_markup_escape_text(name , strlen(name))
 						   , (status == STATUS_NORMAL ? (presence == 0 ? "" : stateStr1) : statusStr)
-						   , (device != NULL && strcmp(device , "J2ME") == 0) ? "[手机登录]" : "" , sid
+						   , (device != NULL && strcmp(device , "PC") != 0) ? "[手机登录]" : "" , sid
 						   , impression == NULL ? "" : g_markup_escape_text(impression , strlen(impression)));
 		}
 		else
@@ -529,7 +529,7 @@ void fx_tree_text_cell_data_func(GtkTreeViewColumn *col,
 						   "(%s) \n <span color='#838383'>%s</span>"
 						   , name == NULL ? "" : g_markup_escape_text(name , strlen(name))
 						   , status == STATUS_NORMAL ? ((presence == 0 ? "" : stateStr1)) : statusStr 
-						   , (device != NULL &&strcmp(device , "J2ME") == 0) ? "[手机登录]" : "" , sid
+						   , (device != NULL &&strcmp(device , "PC") != 0) ? "[手机登录]" : "" , sid
 						   , impression == NULL ? "" : g_markup_escape_text(impression , strlen(impression)));
 		}
 
@@ -1238,6 +1238,7 @@ gboolean fx_tree_on_show_tooltip(GtkWidget* widget
 	char* impression = NULL;
 	char* sid = NULL;
 	char* mobileno = NULL;
+	int status;
 	char text[2048];
 	char iconpath[100];
 
@@ -1255,16 +1256,18 @@ gboolean fx_tree_on_show_tooltip(GtkWidget* widget
 					 , B_NAME_COL       , &name
 					 , B_IMPRESSION_COL , &impression
 					 , B_PHONENUM_COL	, &mobileno
+					 , B_STATUS_COL		, &status
 					 , -1);
 	sid = fetion_sip_get_sid_by_sipuri(sipuri);
 	bzero(text , sizeof(text));
 	sprintf(text , " 昵称:    <b>%s</b>\n"
 				   " 飞信号:  <b>%s</b>\n"
 				   " 手机号:  <b>%s</b>\n"
-				   " 个性签名:<b>%s</b>"
+				   " 个性签名:<b>%s</b>%s"
 		  		  , name == NULL ? "" : g_markup_escape_text(name , strlen(name))
 				  , sid , mobileno == NULL || strlen(mobileno) == 0 ? "未公开" : mobileno
-				  , impression == NULL ? "" : g_markup_escape_text(impression , strlen(impression)));
+				  , impression == NULL ? "" : g_markup_escape_text(impression , strlen(impression))
+				  , status == STATUS_NOT_BOUND ? "<span color='red'>非移动用户</span>" : "");
 	free(name);
 	free(impression);
 	free(mobileno);

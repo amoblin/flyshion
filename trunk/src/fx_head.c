@@ -125,6 +125,8 @@ void fx_head_initialize(FxMain* fxmain)
 				   , G_CALLBACK(fx_head_impre_activate_func)
 				   , fxmain);
 	fxhead->impre_label = gtk_label_new(NULL);
+	gtk_misc_set_alignment(GTK_MISC(fxhead->impre_label) , 0 , 0);
+	gtk_widget_set_usize(fxhead->impre_label , 180 , 0);
 
 	alignment = gtk_alignment_new(0 , 0 , 0 , 0);
 	gtk_container_add(GTK_CONTAINER(alignment) , headbox);
@@ -148,6 +150,7 @@ void fx_head_bind(FxMain* fxmain)
 	User* user = fxmain->user;
 	Config* config = user->config;
 	char name[100];
+	char tooltip[1024];
 	char* statename = NULL;
 	GdkPixbuf* portrait_pix = NULL;
 
@@ -164,6 +167,10 @@ void fx_head_bind(FxMain* fxmain)
 	strcpy(fxhead->oldimpression
 		, (strlen(user->impression) == 0 || user->impression == NULL)
 		? "点此输入心情短语" : user->impression);
+	bzero(tooltip , sizeof(tooltip));
+	sprintf(tooltip , "<b>%s</b>" , user->impression);
+	gtk_widget_set_tooltip_markup(fxhead->impre_label
+			, tooltip);
 	gtk_label_set_text(GTK_LABEL(fxhead->impre_label) , fxhead->oldimpression);
 
 	bzero(name , sizeof(name));
@@ -216,9 +223,9 @@ void fx_head_set_state_image(FxMain* fxmain , StateType type)
 										, SKIN_DIR"user_away.png");
 			break;
 	}
-
 }
-void fx_head_popup_statemenu_func(GtkWidget* widget , GdkEventButton* event , gpointer data)
+void fx_head_popup_statemenu_func(GtkWidget* widget
+		, GdkEventButton* event , gpointer data)
 {
 	FxMain* fxmain = (FxMain*)data;
 	GtkWidget* separator;
@@ -320,6 +327,7 @@ gboolean fx_head_impre_activate_func(GtkWidget* widget , gpointer data)
 	FxMain* fxmain = (FxMain*)data;
 	FxHead* fxhead = fxmain->headPanel;
 
+	char tooltip[1024];
 	const char* impression = gtk_entry_get_text(GTK_ENTRY(widget));
 	
 	DEBUG_FOOTPRINT();
@@ -333,6 +341,9 @@ gboolean fx_head_impre_activate_func(GtkWidget* widget , gpointer data)
 		gtk_label_set_text(GTK_LABEL(fxhead->impre_label) , impression);
 		bzero(fxhead->oldimpression , sizeof(fxhead->oldimpression));
 		strcpy(fxhead->oldimpression , impression);
+		bzero(tooltip , sizeof(tooltip));
+		sprintf(tooltip , "<b>%s</b>" , impression);
+		gtk_widget_set_tooltip_markup(fxhead->impre_label , tooltip);
 	}
 	return TRUE;
 }

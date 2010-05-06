@@ -23,4 +23,5 @@ EXTRA_DIST = fx_add_group.h \
 			 fx_types.h \
 			 fx_proxy.h \
 			 fx_share.h \
+			 fx_sound.h \
 			 fx_util.h 

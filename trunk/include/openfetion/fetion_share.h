@@ -14,4 +14,6 @@ extern char* fetion_share_compute_md5(const char *absolutePath);
 
 extern long long fetion_share_get_filesize(const char *absolutePath);
 
+extern void fetion_share_response_accept(FetionSip *sip , Share *share);
+
 #endif

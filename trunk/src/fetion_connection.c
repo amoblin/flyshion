@@ -188,8 +188,10 @@ int tcp_connection_getname(FetionConnection* connection , char **ip , int *port)
 
 	len = sizeof(struct sockaddr);
 
-	ret = accept(connection->socketfd
+	ret = getsockname(connection->socketfd
 			, (struct sockaddr*)&addr , &len);
+
+	printf("RET: ret");
 
 	*ip = inet_ntoa(addr.sin_addr);
 	*port = ntohs(addr.sin_port);
@@ -321,9 +323,10 @@ char* get_ip_by_name(const char* hostname)
 	name = (char*)malloc(len + 1);
 	memset(name , 0 , len + 1);
 	strncpy(name , pos , len);
+reget:
 	hst = gethostbyname(name);
 	if(hst == NULL)
-		return NULL;
+		goto reget;
 	inet_ntop(AF_INET , hst->h_addr , ip , 16);
 	return ip;
 }
