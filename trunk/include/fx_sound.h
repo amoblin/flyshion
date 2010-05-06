@@ -18,15 +18,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef FX_SHARE_H
-#define FX_SHARE_H
+#ifndef FX_SOUND_H
+#define FX_SOUND_H
 
-extern FxShare *fx_share_new(FxMain *fxmain , const char *sipuri);
+#include "fx_include.h"
 
-extern void fx_share_initialize(FxShare *fxshare);
-
-extern FxShare *fx_share_find_by_sipuri(FxList *fxlist , const char *sipuri);
-
-extern void fx_share_start_transfer(FxShare *fxshare);
+extern void fx_sound_play_file(const char *filename);
 
 #endif

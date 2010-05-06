@@ -332,20 +332,19 @@ char* fetion_sip_get_response(FetionSip* sip)
 	len = fetion_sip_get_length(buf);
 	if(strstr(buf , "\r\n\r\n") == NULL)
 		return NULL;
-	n = strlen(buf) - strlen(strstr(buf , "\r\n\r\n")) + 4;
+	n = strlen(buf) - strlen(strstr(buf , "\r\n\r\n") + 4);
 	len += n;
 	res = (char*)malloc(len + 1);
 	memset(res , 0 , len + 1);
 	if(res == NULL)
-	{
 		return NULL;
-	}
 	strcpy(res , buf);
 	if(c < len)
 		while(1)
 		{
 			bzero(buf , sizeof(buf));
-			c1 = tcp_connection_recv(sip->tcp , buf , sizeof(buf) - 2 );
+			c1 = tcp_connection_recv(sip->tcp , buf
+					, len -c < (sizeof(buf) - 1) ? len -c : (sizeof(buf) - 1) );
 			strcpy(res + c, buf);
 			c += c1;
 			if(c == len)
@@ -836,13 +835,47 @@ void fetion_sip_parse_userleft(const char* sipmsg , char** sipuri)
 	xmlFreeDoc(doc);
 }
 
+static char *generate_action_accept_body(Share *share)
+{
+	xmlChar *buf = NULL;
+	xmlDocPtr doc;
+	xmlNodePtr node , fnode , root;
+	char size[16];
+	char body[] = "<share-content></share-content>";
+
+	DEBUG_FOOTPRINT();
+
+	doc = xmlParseMemory(body , strlen(body));
+	root = xmlDocGetRootElement(doc);
+	node = xmlNewChild(root , NULL , BAD_CAST "client" , NULL);
+	xmlNewProp(node , BAD_CAST "prefer-types" , BAD_CAST share->preferType);
+	printf("%s\n" , hexip_to_dotip("3B408066"));
+	xmlNewProp(node , BAD_CAST "inner-ip" , BAD_CAST "3B408066");
+	xmlNewProp(node , BAD_CAST "net-type" , BAD_CAST "0");
+	xmlNewProp(node , BAD_CAST "tcp-port" , BAD_CAST "443");
+	xmlDocDumpMemory(doc , &buf , NULL);
+	xmlFreeDoc(doc);
+	return xml_convert(buf);
+}
+
 int fetion_sip_parse_shareaccept(FetionSip *sip 
 		, const char* sipmsg , Share *share)
 {
 	xmlDocPtr doc;
 	xmlNodePtr node;
 	xmlChar *res;
+	char callid[16];
+	char from[48];
+	char seq[16];
+	char response[1024];
 	char *pos;
+
+	bzero(callid , sizeof(callid));
+	bzero(from , sizeof(from));
+	bzero(seq , sizeof(seq));
+	fetion_sip_get_attr(sipmsg , "I" , callid);
+	fetion_sip_get_attr(sipmsg , "F" , from);
+	fetion_sip_get_attr(sipmsg , "Q" , seq);
 	
 	pos = strstr(sipmsg , "\r\n\r\n") + 4;
 	doc = xmlReadMemory(pos , strlen(pos) , NULL , "UTF-8" , XML_PARSE_RECOVER );
@@ -870,6 +903,20 @@ int fetion_sip_parse_shareaccept(FetionSip *sip
 	res = xmlGetProp(node , BAD_CAST "tcp-port");
 	share->outerTcpPort = atoi((char*)res);
 	xmlFree(res);
+
+	pos = generate_action_accept_body(share);
+	bzero(response , sizeof(response));
+	sprintf(response , "SIP-C/4.0 200 OK\r\n"
+					   "F: %s\r\n"
+					   "I: %s\r\n"
+					   "Q: %s\r\n"
+					   "L: %d\r\n\r\n%s"
+					 , from , callid , seq , strlen(pos) , pos);
+	free(pos);
+	pos = NULL;
+
+	printf("%s\n" , response);
+	tcp_connection_send(sip->tcp , response , strlen(response) );
 	
 	return 1;
 }

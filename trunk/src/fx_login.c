@@ -34,7 +34,7 @@ void fx_login_free(FxLogin* fxlogin)
 	DEBUG_FOOTPRINT();
 
 	gtk_widget_destroy(fxlogin->fixed);
-	free(fxlogin);
+//	free(fxlogin);
 }
 
 gboolean fx_login_proxy_button_func(GtkWidget *widget , GdkEventButton *event , gpointer data)
@@ -300,7 +300,8 @@ login:
 		debug_info(user->verification->tips);
 		generate_pic_code(user);
 		gdk_threads_enter();
-		fxcode = fx_code_new(fxmain , user->verification->text , user->verification->tips , CODE_NOT_ERROR);
+		fxcode = fx_code_new(fxmain , user->verification->text
+				, user->verification->tips , CODE_NOT_ERROR);
 		fx_code_initialize(fxcode);
 		ret = gtk_dialog_run(GTK_DIALOG(fxcode->dialog));
 		if(ret == GTK_RESPONSE_OK)
@@ -314,7 +315,7 @@ login:
 		{
 			gtk_widget_destroy(fxcode->dialog);
 			gdk_threads_leave();
-			return NULL;
+			g_thread_exit(0);
 		}
 		debug_info("Input verfication code:%s" , code);
 		goto login;
@@ -323,7 +324,7 @@ login:
 	{
 		debug_info("Password error!!!");
 		fx_login_show_msg(fxlogin , "登录失败，手机号或密码错误");
-		return NULL;
+		g_thread_exit(0);
 	}
 	
 	fx_login_show_msg(fxlogin , "正在加载本地用户信息");
@@ -476,28 +477,47 @@ auth:
 		strcpy(group->groupname , "陌生人");
 		fetion_group_list_append(user->groupList , group);
 	}
-	gdk_threads_enter();
 
+	gdk_threads_enter();
 	fx_login_free(fxlogin);
+	gdk_threads_leave();
 	fxmain->loginPanel = NULL;
 	/**
 	 * initialize main panel which in fact only contains a treeview
 	 */
+	gdk_threads_enter();
 	fx_head_initialize(fxmain);
+	DEBUG_FOOTPRINT();
+	gdk_threads_leave();
+
+	DEBUG_FOOTPRINT();
+	gdk_threads_enter();
 	fxmain->mainPanel = fx_tree_new();
 	fx_tree_initilize(fxmain);
-	update();
+	DEBUG_FOOTPRINT();
+	gdk_threads_leave();
+	
+	DEBUG_FOOTPRINT();
+	gdk_threads_enter();
+	DEBUG_FOOTPRINT();
 	fx_bottom_initialize(fxmain);
-	update();
+	DEBUG_FOOTPRINT();
+	gdk_threads_leave();
 	/**
 	 * set tooltip of status icon
 	 */
+	DEBUG_FOOTPRINT();
 	bzero(statusTooltip , sizeof(statusTooltip));
 	sprintf(statusTooltip , "%s\n%s" , user->nickname , user->mobileno);
+
+	DEBUG_FOOTPRINT();
+	gdk_threads_enter();
+	DEBUG_FOOTPRINT();
 	gtk_status_icon_set_tooltip(GTK_STATUS_ICON(fxmain->trayIcon) , statusTooltip);
 	/**
 	 * set title of main window
 	 */
+	DEBUG_FOOTPRINT();
 	gtk_window_set_title(GTK_WINDOW(fxmain->window) , user->nickname );
 	gdk_threads_leave();
 	/**
@@ -509,6 +529,7 @@ auth:
 
 	/*====================================*/
 
+	DEBUG_FOOTPRINT();
 	g_thread_exit(0);
 	return NULL;
 }

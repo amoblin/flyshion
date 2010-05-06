@@ -1,4 +1,32 @@
+/***************************************************************************
+ *   Copyright (C) 2010 by lwp                                             *
+ *   levin108@gmail.com                                                    *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ ***************************************************************************/
+
 #include "fx_include.h"
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <net/if.h>
+#include <sys/socket.h>
+#include <netdb.h>
 
 FxShare *fx_share_new(FxMain *fxmain , const char *sipuri)
 {
@@ -14,7 +42,6 @@ FxShare *fx_share_new(FxMain *fxmain , const char *sipuri)
 	if(fxshare->contact == NULL){
 		return NULL;
 	}
-	fxshare->share = fetion_share_new(sipuri);
 
 	return fxshare;
 }
@@ -102,10 +129,41 @@ FxShare *fx_share_find_by_sipuri(FxList *fxlist , const char *sipuri)
 void fx_share_start_transfer(FxShare *fxshare)
 {
 	Share *share = fxshare->share;
+	FetionConnection *tcp ;
+	char *innerIp;
+	int innerUdpPort;
+	FILE *file;
+	unsigned char buf[1024];
+	int i;
 
 	DEBUG_FOOTPRINT();
 
 	gtk_label_set_markup(GTK_LABEL(fxshare->iLabel)
 			, "<span color='#838383'>对方同意了您的文件传输请求，传输进行中...</span>");
 
+	tcp = tcp_connection_new_with_port(1435);
+	tcp_connection_getname(tcp , &innerIp , &innerUdpPort);
+	printf("%s:%d\n" , innerIp , innerUdpPort);
+	
+	share->innerUdpPort = 1435;
+	printf("%s:%d\n" , share->outerIp , share->outerTcpPort);
+	int ret;
+	ret = tcp_connection_connect(tcp , share->outerIp , share->outerTcpPort);
+	printf("%d\n" , ret);
+
+	file = fopen(share->absolutePath , "r");
+
+
+	while(1){
+		
+		i = fread(buf , 1 , sizeof(buf) , file);
+		if(i == 0){
+			break;
+		}
+		printf("%d\n" , i);
+		ret = tcp_connection_send(tcp , buf , i);
+		printf("SEND : %d\n" , ret);
+	}
+	fclose(file);
+	tcp_connection_free(tcp);
 }

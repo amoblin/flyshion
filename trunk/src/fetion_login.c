@@ -237,6 +237,7 @@ char* sipc_aut_action(User* user , const char* response)
 			 , user->contactVersion , user->personalVersion);
 	tcp_connection_send(sip->tcp , sipmsg , strlen(sipmsg));
 	res = fetion_sip_get_response(sip);
+	printf("-------------------------------------------------\n");
 	free(sipmsg);
 	return res;
 }

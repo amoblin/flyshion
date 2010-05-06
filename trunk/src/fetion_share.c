@@ -1,8 +1,8 @@
 #include "fetion_include.h"
 #include <openssl/md5.h>
 
-#define GUID "9741dc51-43d3-448b-bfc2-dbf4661a27f6"
-#define SESSIONID "xz4BBcV9741dc5143d3448bbfc2dbf4661a27f6"
+#define GUID "9741dc51-43d3-448b-bfc2-dbf4661a27f7"
+#define SESSIONID "xz4BBcV9741dc5143d3448bbfc2dbf4661a27f7"
 
 Share *fetion_share_new(const char *sipuri)
 {
@@ -27,6 +27,7 @@ Share *fetion_share_new_with_path(const char *sipuri , const char *absolutePath)
 	strcpy(share->guid , GUID);
 	strcpy(share->sessionid , SESSIONID);	
 	strcpy(share->sipuri , sipuri);
+	strcpy(share->absolutePath , absolutePath);
 
 	name = (char*)basename(absolutePath);
 	strcpy(share->filename , name);
@@ -52,7 +53,7 @@ static char* generate_share_request_body(Share *share)
 	xmlNewProp(node , BAD_CAST "max-size" , BAD_CAST "2097151");
 	node = xmlNewChild(root , NULL , BAD_CAST "client" , NULL);
 	xmlNewProp(node , BAD_CAST "outer-ip" , BAD_CAST "");
-	xmlNewProp(node , BAD_CAST "inner-ip" , BAD_CAST "59.64.129.143:1519;");
+	xmlNewProp(node , BAD_CAST "inner-ip" , BAD_CAST "59.64.128.102:1429;");
 	xmlNewProp(node , BAD_CAST "port" , BAD_CAST "443");
 	node = xmlNewChild(root , NULL , BAD_CAST "fileinfo" , NULL);
 	fnode = xmlNewChild(node , NULL , BAD_CAST "transmit" , NULL);
@@ -66,10 +67,36 @@ static char* generate_share_request_body(Share *share)
 	xmlNewProp(fnode , BAD_CAST "url" , BAD_CAST "");
 	xmlNewProp(fnode , BAD_CAST "md5" , BAD_CAST share->md5);
 	xmlNewProp(fnode , BAD_CAST "id" , BAD_CAST share->guid);
+	xmlNewProp(fnode , BAD_CAST "p2ptorelay" , BAD_CAST "1");
 	xmlNewProp(fnode , BAD_CAST "file-type" , BAD_CAST "unknown");
 	xmlDocDumpMemory(doc , &buf , NULL);
 	xmlFreeDoc(doc);
 	return xml_convert(buf);
+}
+
+static void fetion_start_transfer(FetionSip *sip){
+	
+	SipHeader *kheader = NULL;
+	SipHeader *theader = NULL;
+	char *res = NULL;
+	char *body = NULL;
+	char buf[2048];
+
+	DEBUG_FOOTPRINT();
+
+	fetion_sip_set_type(sip , SIP_SERVICE);
+	
+	kheader = fetion_sip_header_new("N" , "StartTransfer");
+	theader = fetion_sip_header_new("XI" , SESSIONID);
+	fetion_sip_add_header(sip , kheader);
+	fetion_sip_add_header(sip , theader);
+	res = fetion_sip_to_string(sip , NULL);
+	tcp_connection_send(sip->tcp , res , strlen(res));
+	printf("%s\n" , res);
+	free(res);
+	bzero(buf , sizeof(buf));
+	tcp_connection_recv(sip->tcp , buf , sizeof(buf));
+	printf("%s\n" , buf);
 }
 
 void fetion_share_request(FetionSip *sip , Share *share)
@@ -79,6 +106,9 @@ void fetion_share_request(FetionSip *sip , Share *share)
 	char *res = NULL;
 	char *body = NULL;
 	char buf[2048];
+
+	DEBUG_FOOTPRINT();
+
 	fetion_sip_set_type(sip , SIP_OPTION);
 	
 	kheader = fetion_sip_header_new("K" , "ShareContent");
@@ -88,10 +118,13 @@ void fetion_share_request(FetionSip *sip , Share *share)
 	body = generate_share_request_body(share);
 	res = fetion_sip_to_string(sip , body);
 	tcp_connection_send(sip->tcp , res , strlen(res));
+	printf("%s\n" , res);
 	free(res);
 	bzero(buf , sizeof(buf));
 	tcp_connection_recv(sip->tcp , buf , sizeof(buf));
 	printf("%s\n" , buf);
+
+	fetion_start_transfer(sip);
 }
 
 char* fetion_share_compute_md5(const char *absolutePath)

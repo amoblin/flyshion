@@ -20,6 +20,9 @@
 
 #include "fx_include.h"
 
+int window_pos_x;
+int window_pos_y;
+
 FxMain* fx_main_new()
 {
 	FxMain* fxmain = (FxMain*)malloc(sizeof(FxMain));
@@ -31,11 +34,21 @@ FxMain* fx_main_new()
 }
 void fx_main_initialize(FxMain* fxmain)
 {
+	int window_width , window_height;
+	GdkScreen *screen;
 	DEBUG_FOOTPRINT();
 
 	fxmain->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_widget_set_name(fxmain->window , "mainwindow");
 	gtk_window_set_title(GTK_WINDOW(fxmain->window) , "OpenFetion");
+
+	screen = gdk_screen_get_default();
+	window_width = gdk_screen_get_width(screen);
+	window_height = gdk_screen_get_height(screen);
+	window_pos_x = window_width - WINDOW_WIDTH - 200;
+	window_pos_y = (window_height - WINDOW_HEIGHT) / 2;
+
+	gtk_window_move(GTK_WINDOW(fxmain->window) , window_pos_x , window_pos_y);
 	gtk_container_set_border_width(GTK_CONTAINER(fxmain->window) , 0);
 	g_signal_connect(G_OBJECT(fxmain->window)
 				  , "delete-event"
@@ -70,9 +83,7 @@ void fx_main_initialize(FxMain* fxmain)
 	fx_login_initialize(fxmain);
 	gtk_widget_show_all(fxmain->window);
 
-	gdk_threads_enter();
 	gtk_main();
-	gdk_threads_leave();
 }
 void fx_main_free(FxMain* fxmain)
 {
@@ -268,8 +279,10 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const char* sipms
 			if(config->autoPopup == AUTO_POPUP_ENABLE)
 			{
 				fxchat = fx_main_create_chat_window(fxmain , msg->sipuri);
-				if(fxchat == NULL)
+				if(fxchat == NULL){
+					gdk_threads_leave();
 					return;
+				}
 				fx_chat_add_message(fxchat , msg->message , &(msg->sendtime) , 0);
 			}
 			else
@@ -279,6 +292,7 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const char* sipms
 				{
 					free(sid);
 					sid = NULL;
+					gdk_threads_leave();
 					return;
 				}
 				mitem = fx_list_new(msg);
@@ -310,8 +324,8 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const char* sipms
 	{
 		fx_chat_add_message(fxchat , msg->message , &(msg->sendtime) , 0);
 	}
-
 	gdk_threads_leave();
+	fx_sound_play_file(RESOURCE_DIR"newmessage.wav");
 }
 void fx_main_process_user_left(FxMain* fxmain , const char* msg)
 {
@@ -447,7 +461,6 @@ static void process_share_action_accept(FxMain *fxmain
 	fx_share_start_transfer(fxshare);
 	gdk_threads_leave();
 
-	printf("%s\n%s\n%d\n" , share->preferType , share->outerIp , share->outerTcpPort);
 
 }
 
@@ -470,7 +483,6 @@ static void process_share_action_cancel(FxMain *fxmain
 	fx_share_start_transfer(fxshare);
 	gdk_threads_leave();
 
-	printf("%s\n%s\n%d\n" , share->preferType , share->outerIp , share->outerTcpPort);
 
 }
 void fx_main_process_incoming(FxMain* fxmain
@@ -544,6 +556,8 @@ void fx_main_process_syncuserinfo(FxMain* fxmain , const char* xml)
 	DEBUG_FOOTPRINT();
 
 	contact = fetion_user_parse_syncuserinfo_body(xml , fxmain->user);
+	if(contact == NULL)
+		return;
 	gtk_tree_model_get_iter_root(model , &iter);
 	do
 	{
@@ -735,6 +749,7 @@ int main(int argc , char* argv[])
 		g_thread_init(NULL);
 	gdk_threads_init();
 
+	gst_init(&argc , &argv);
 	gtk_init(&argc , &argv);
 	gtk_rc_parse(RESOURCE_DIR"style.rc");
 	FxMain* fxmain = fx_main_new();
@@ -770,6 +785,7 @@ void* fx_main_listen_thread_func(void* data)
 		pos = msg;
 		while(pos != NULL){
 
+		printf("%s\n" , pos->message);
 			type = fetion_sip_get_type(pos->message);
 			switch(type){
 				case SIP_NOTIFICATION :
