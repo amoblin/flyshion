@@ -66,7 +66,7 @@ void fx_main_initialize(FxMain* fxmain)
 	GdkPixbuf* icon = gdk_pixbuf_new_from_file(SKIN_DIR"user_online.png" , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxmain->window) , icon);
 	fxmain->trayIcon = gtk_status_icon_new_from_file(SKIN_DIR"user_offline.png");
-	gtk_status_icon_set_tooltip(fxmain->trayIcon , "SmartFetion");
+	gtk_status_icon_set_tooltip(fxmain->trayIcon , "OpenFetion");
 	fxmain->iconConnectId = g_signal_connect(GTK_STATUS_ICON(fxmain->trayIcon)
 									, "activate"
 									, GTK_SIGNAL_FUNC(fx_main_tray_activate_func)
@@ -255,6 +255,27 @@ void fx_main_process_presence(FxMain* fxmain , const char* xml)
 		contact = contact->nextNode;
 	}
 }
+
+static void process_system_message(FxMain *fxmain , const char *sipmsg){
+	
+	int showonce , type;
+	char *msg , *url;
+	FxSysmsg *sysmsg;
+	fetion_sip_parse_sysmsg(sipmsg , &type , &showonce
+			, &msg , &url);
+	if(type == 0)
+	{
+		sysmsg = fx_sysmsg_new();
+		fx_sysmsg_initialize(sysmsg);
+		fx_sysmsg_bind(sysmsg , msg , url);
+		gtk_dialog_run(GTK_DIALOG(sysmsg->dialog));
+
+		gtk_widget_destroy(sysmsg->dialog);
+		free(sysmsg);
+
+	}
+}
+
 void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const char* sipmsg)
 {
 	Message* msg = NULL;
@@ -276,6 +297,15 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const char* sipms
 	{
 		if(fxchat == NULL)
 		{
+			sid = fetion_sip_get_sid_by_sipuri(msg->sipuri);
+			if(strcmp(sid , "100") == 0)
+			{
+				free(sid);
+				sid = NULL;
+				process_system_message(fxmain , sipmsg);
+				gdk_threads_leave();
+				return;
+			}
 			if(config->autoPopup == AUTO_POPUP_ENABLE)
 			{
 				fxchat = fx_main_create_chat_window(fxmain , msg->sipuri);
@@ -287,14 +317,6 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const char* sipms
 			}
 			else
 			{
-				sid = fetion_sip_get_sid_by_sipuri(msg->sipuri);
-				if(strcmp(sid , "100") == 0)
-				{
-					free(sid);
-					sid = NULL;
-					gdk_threads_leave();
-					return;
-				}
 				mitem = fx_list_new(msg);
 				fx_list_append(&(fxmain->mlist) , mitem );
 			}
@@ -325,7 +347,8 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const char* sipms
 		fx_chat_add_message(fxchat , msg->message , &(msg->sendtime) , 0);
 	}
 	gdk_threads_leave();
-	fx_sound_play_file(RESOURCE_DIR"newmessage.wav");
+	if(config->isMute == MUTE_DISABLE)
+		fx_sound_play_file(RESOURCE_DIR"newmessage.wav");
 }
 void fx_main_process_user_left(FxMain* fxmain , const char* msg)
 {
@@ -494,7 +517,6 @@ void fx_main_process_incoming(FxMain* fxmain
 	FxChat *fxchat = NULL;
 
 	DEBUG_FOOTPRINT();
-	printf("%s\n" , sipmsg);
 
 	fetion_sip_parse_incoming(sip , sipmsg , &sipuri , &type , &action);
 	switch(type)
@@ -666,11 +688,33 @@ void fx_main_tray_activate_func(GtkWidget* widget , gpointer data)
 	DEBUG_FOOTPRINT();
 
 	gtk_window_deiconify(GTK_WINDOW(fxmain->window));
+	gtk_window_move(GTK_WINDOW(fxmain->window) , window_pos_x , window_pos_y);
 	gtk_widget_show(fxmain->window);
+
 }
+
+static void fx_main_mute_clicked(GtkWidget *widget , gpointer data)
+{
+	FxMain *fxmain = (FxMain*)data;
+	User *user = fxmain->user;
+	Config *config = user->config;
+
+	DEBUG_FOOTPRINT();
+
+	if(config->isMute == MUTE_ENABLE)
+		config->isMute = MUTE_DISABLE;
+	else
+		config->isMute = MUTE_ENABLE;
+
+	fetion_config_save(user);
+
+}
+
 void fx_main_tray_popmenu_func(GtkWidget* widget , guint button , guint activate_time , gpointer data)
 {
 	FxMain* fxmain = (FxMain*)data;
+	Config *config = fxmain->user->config;
+	GtkWidget *muteItem;
 	char stateMenu[48];
 	int i;
 	typedef struct 
@@ -711,6 +755,13 @@ void fx_main_tray_popmenu_func(GtkWidget* widget , guint button , guint activate
 					 , menu , fx_main_about_author_clicked , NULL);
 	if(fxmain->user != NULL && fxmain->user->loginStatus != -1)
 	{
+		muteItem = gtk_check_menu_item_new_with_label("关闭声音");
+		if(config->isMute == MUTE_ENABLE)
+			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(muteItem) , TRUE);
+		else
+			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(muteItem) , FALSE);
+		g_signal_connect(muteItem , "activate" , G_CALLBACK(fx_main_mute_clicked) , fxmain);
+		gtk_menu_shell_append(GTK_MENU_SHELL(menu) , muteItem);
 		fx_main_create_menu("短信自己" , SKIN_DIR"phone.png"
 						 , menu , fx_main_send_to_myself_clicked , fxmain);
 		statemenu = fx_main_create_menu("修改状态" , SKIN_DIR"user_online.png" , menu , NULL , NULL);
@@ -748,8 +799,9 @@ int main(int argc , char* argv[])
 	if(!g_thread_supported())
 		g_thread_init(NULL);
 	gdk_threads_init();
-
+#ifdef USE_GSTREAMER
 	gst_init(&argc , &argv);
+#endif
 	gtk_init(&argc , &argv);
 	gtk_rc_parse(RESOURCE_DIR"style.rc");
 	FxMain* fxmain = fx_main_new();
@@ -785,7 +837,6 @@ void* fx_main_listen_thread_func(void* data)
 		pos = msg;
 		while(pos != NULL){
 
-		printf("%s\n" , pos->message);
 			type = fetion_sip_get_type(pos->message);
 			switch(type){
 				case SIP_NOTIFICATION :
@@ -882,7 +933,7 @@ void fx_main_about_fetion_clicked(GtkWidget* widget , gpointer data)
 
 	gtk_window_set_modal(GTK_WINDOW(dialog) , TRUE);
 	gtk_about_dialog_set_name(GTK_ABOUT_DIALOG(dialog), "OpenFetion");
-	gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), "1.3"); 
+	gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), "1.4"); 
 	gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog), 
 	"(c) Li Wenpeng");
 	logo = gdk_pixbuf_new_from_file(SKIN_DIR"warning_icon.png" , NULL);

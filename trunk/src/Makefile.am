@@ -1,15 +1,14 @@
 bin_PROGRAMS = openfetion
 
 openfetion_CPPFLAGS=`xml2-config --cflags` `pkg-config --cflags gtk+-2.0 gthread-2.0` \
-					`pkg-config --cflags gstreamer-0.10` \
-					-I../include -I../include/openfetion \
+					$(GSTREAMER_CFLAGS) -g \
+					-I../include -I../include/openfetion -I ../. \
 					-DSKIN_DIR=\"$(pkgdatadir)/skin/\" \
 					-DRESOURCE_DIR=\"$(pkgdatadir)/resource/\"
-					-g
 
 openfetion_LDFLAGS=`xml2-config --libs` \
 				   `pkg-config --libs gtk+-2.0 gthread-2.0` \
-				   `pkg-config --libs gstreamer-0.10` -lssl -lcrypto
+				    $(GSTREAMER_LIBS) -lssl -lcrypto
 
 openfetion_SOURCES = fetion_buddylist.c \
 					 fetion_config.c \
@@ -47,4 +46,5 @@ openfetion_SOURCES = fetion_buddylist.c \
 					 fx_emotion.c \
 					 fx_share.c \
 					 fx_sound.c \
+					 fx_sysmsg.c \
 					 fx_util.c 

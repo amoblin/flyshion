@@ -281,13 +281,13 @@ void parse_sipc_reg_response(const char* reg_response , char** nouce , char** ke
 
 	pos = strstr(digest , "nonce") + 7;
 	n = strlen(pos) - strlen(strstr(pos , "\","));
-	*nouce = (char*)malloc(n);
+	*nouce = (char*)malloc(n + 1);
 	strncpy(*nouce , pos , n);
 	(*nouce)[n] = '\0';
 
 	pos = strstr(pos , "key") + 5;
 	n = strlen(pos) - strlen(strstr(pos , "\","));
-	*key = (char*)malloc(n);
+	*key = (char*)malloc(n + 1);
 	strncpy(*key , pos , n);
 	(*key)[n] = '\0';
 	debug_info("Register to sip server success");

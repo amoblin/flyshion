@@ -375,6 +375,7 @@ typedef struct
 	GtkWidget *apBtn;
 	GtkWidget *apEty;
 	GtkWidget *ppCb;
+	GtkWidget *muteBtn;
 	GtkWidget *smallBtn;
 	GtkWidget *ctBtn;
 	GtkWidget *etBtn;

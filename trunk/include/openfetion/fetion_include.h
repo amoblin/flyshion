@@ -37,6 +37,7 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <openssl/rand.h>
+#include "config.h"
 #include "fetion_types.h"
 #include "fetion_list.h"
 #include "fetion_debug.h"

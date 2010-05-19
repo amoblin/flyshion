@@ -124,6 +124,9 @@
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 
+/* Use Gstreamer for playing sound */
+#undef USE_GSTREAMER
+
 /* Version number of package */
 #undef VERSION
 

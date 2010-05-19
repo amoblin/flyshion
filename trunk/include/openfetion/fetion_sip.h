@@ -165,5 +165,8 @@ extern void fetion_sip_parse_userleft(const char* sipmsg , char** sipuri);
 extern int fetion_sip_parse_shareaccept(FetionSip *sip 
 		, const char* sipmsg , Share *share);
 
+extern void fetion_sip_parse_sysmsg(const char* sipmsg , int *type
+		, int *showonce , char **content , char **url);
+
 extern struct tm convert_date(const char* date);
 #endif

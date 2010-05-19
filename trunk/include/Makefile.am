@@ -18,10 +18,12 @@ EXTRA_DIST = fx_add_group.h \
 			 fx_many.h \
 			 fx_myself.h \
 			 fx_profile.h \
+			 fx_emotion.h \
 			 fx_set.h \
 			 fx_tree.h \
 			 fx_types.h \
 			 fx_proxy.h \
 			 fx_share.h \
 			 fx_sound.h \
+			 fx_sysmsg.h \
 			 fx_util.h 

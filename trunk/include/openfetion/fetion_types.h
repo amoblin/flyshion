@@ -232,6 +232,7 @@ typedef struct
 	char portraitServerPath[32];		/* portrait server`s path , such as /HD_POOL8             */
 	int iconSize;						/* portrait`s display size default 25px					  */
 	int autoReply;						/* whether auto reply enabled							  */
+	int isMute;
 	char autoReplyMessage[180];			/* auto reply message content							  */
 	int autoPopup;						/* whether auto pupup chat dialog enabled				  */
 	int sendMode;						/* press enter to send message or ctrl + enter 			  */
