@@ -202,7 +202,13 @@ char* sipc_reg_action(User* user)
 			 , sip->tcp->remote_ipaddress , sip->tcp->remote_port);
 	tcp_connection_send(sip->tcp , sipmsg , strlen(sipmsg));
 	free(sipmsg);
-	return fetion_sip_get_response(sip);
+	sipmsg = (char*)malloc(1024);
+	bzero(sipmsg , 1024);
+	if(tcp_connection_recv(sip->tcp , sipmsg , 1024) <= 0){
+		debug_info("Net work error occured here");
+		return NULL;
+	}
+	return sipmsg;
 }
 char* sipc_aut_action(User* user , const char* response)
 {
@@ -399,12 +405,7 @@ char* generate_auth_body(User* user)
 	xmlNewProp(node1 , BAD_CAST "desc" , BAD_CAST "");
 	xmlDocDumpMemory(doc , &buf , NULL);
 	xmlFreeDoc(doc);
-	pos = strstr((char*)buf , "?>") + 2;
-	res = (char*)malloc(strlen(pos));
-	memset(res , 0 , strlen(pos));
-	strcpy(res , pos);
-	xmlFree(buf);
-	return res;
+	return xml_convert(buf);
 }
 void parse_personal_info(xmlNodePtr node , User* user)
 {

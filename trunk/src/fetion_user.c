@@ -534,12 +534,12 @@ end:
 }
 int fetion_user_download_portrait_again(const char* filepath , const char* buf , Proxy* proxy)
 {
-	char location[512] = { 0 };
+	char location[1024] = { 0 };
 	char httpHost[50] = { 0 };
 	char httpPath[512] = { 0 };
 	char http[1024] = { 0 };
 	char replyCode[5] = { 0 };
-	FILE* f;
+	FILE* f = NULL;
 	FetionConnection* tcp = NULL;
 	char* ip = NULL;
 	char* pos = strstr(buf , "Location: ") ;
@@ -581,6 +581,7 @@ int fetion_user_download_portrait_again(const char* filepath , const char* buf ,
 	free(ip);
 	tcp_connection_send(tcp , http , strlen(http));
 	//read portrait data
+	f = fopen(filepath , "wb+");
 	while((chunkLength = tcp_connection_recv(tcp , img , sizeof(img)-1)) > 0)
 	{
 		img[chunkLength] = '\0';
@@ -588,9 +589,11 @@ int fetion_user_download_portrait_again(const char* filepath , const char* buf ,
 		{
 			char* pos = (char*)(img);
 			strncpy(replyCode , pos + 9 , 3 );
-			if(strcmp(replyCode , "404") == 0)
+			if(strcmp(replyCode , "404") == 0){
+				fclose(f);
+				f = NULL;
 				goto end;
-			f = fopen(filepath , "wb+");
+			}
 			imageLength = http_connection_get_body_length(pos);
 			receivedLength = chunkLength - http_connection_get_head_length(pos) - 4;
 			for(i = 0 ; i < chunkLength ; i ++)
@@ -598,23 +601,26 @@ int fetion_user_download_portrait_again(const char* filepath , const char* buf ,
 					&&img[i+2] == '\r' && img[i+3] == '\n' )
 				{
 					fwrite(img + i +4 , chunkLength - i - 4 , 1 ,f);
-					fflush(f);
 					break;
 				}
 			if(receivedLength == imageLength)
+			{
+				fclose(f);
+				f = NULL;
 				goto end;
+			}
 		}
 		else
 		{
 			fwrite(img , chunkLength , 1 , f);
-			fflush(f);
 			receivedLength += chunkLength;
 			if(receivedLength == imageLength)
 				break;
 		}
 		memset(img , 0 , sizeof(img));
 	}
-	fclose(f);
+	if(f != NULL)
+		fclose(f);
 end:
 	tcp_connection_free(tcp);
 	tcp = NULL;
