@@ -275,10 +275,10 @@ void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* tree
 
 		fx_tree_create_menu("查看好友信息" , SKIN_DIR"profile.gif"
 						, menu , TRUE , fx_tree_on_profilemenu_clicked , profileargs);
-
+#if 0
 		fx_tree_create_menu("发送文件" , SKIN_DIR"sendfile.png"
 						, menu , TRUE , fx_tree_on_sendfile_clicked , profileargs);
-
+#endif
 		fx_tree_create_menu("查看聊天记录" , SKIN_DIR"history.png"
 						, menu , TRUE ,  fx_tree_on_historymenu_clicked , profileargs);
 

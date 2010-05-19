@@ -111,10 +111,10 @@
 #define PACKAGE_BUGREPORT "http://basiccoder.com/openfetion"
 
 /* Define to the full name of this package. */
-#define PACKAGE_NAME "openfetion"
+#define PACKAGE_NAME "OpenFetion"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "openfetion 1.4"
+#define PACKAGE_STRING "OpenFetion 1.4"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "openfetion"
@@ -124,6 +124,9 @@
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
+
+/* Use Gstreamer for playing sound */
+#define USE_GSTREAMER 1
 
 /* Version number of package */
 #define VERSION "1.4"

@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.63])
-AC_INIT([openfetion], [1.4], [http://basiccoder.com/openfetion])
+AC_INIT([OpenFetion], [1.4], [http://basiccoder.com/openfetion])
 AC_CONFIG_SRCDIR([src/fx_main.c])
 AC_CONFIG_HEADERS([config.h])
 
@@ -29,10 +29,17 @@ AC_CHECK_LIB([ssl], [main])
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h netinet/in.h stdint.h stdlib.h string.h sys/ioctl.h sys/socket.h unistd.h])
 
 # checks for gtk+2.0
-AM_PATH_GTK_2_0(,,AC_MSG_ERROR(openfetion 1.4 needs GTK+ 2.0))
+AM_PATH_GTK_2_0(,,AC_MSG_ERROR(OpenFetion 1.4 needs GTK+ 2.0))
 
 # checks for libxml2
-AM_PATH_XML2(,,AC_MSG_ERROR(openfetion 1.4 needs LIBXML2))
+AM_PATH_XML2(,,AC_MSG_ERROR(OpenFetion 1.4 needs LIBXML2))
+
+# checks for gstreamer-0.10
+PKG_CHECK_MODULES(GSTREAMER, [gstreamer-0.10], [
+			AC_DEFINE(USE_GSTREAMER, 1, [Use Gstreamer for playing sound])
+			AC_SUBST(GSTREAMER_CFLAGS)
+			AC_SUBST(GSTREAMER_LIBS)
+		] , [enable_gst="no"])
 
 AC_ARG_ENABLE(debug,
         [ --enable-debug turn on debug],
@@ -55,3 +62,18 @@ AC_CONFIG_FILES(
 				resource/Makefile
 				)
 AC_OUTPUT
+
+if test "x$enable_gst" == "xno"; then
+	echo "-----------------------------------------------------------"
+	echo "|                                                         |"
+	echo "|            Welcome To OpenFetion v1.4                   |"
+	echo "|                                                         |"
+	echo "| You have not installed gstreamer-0.10 on your system    |"
+	echo "| for which you can not use the sound reminder function   |"
+	echo "| if you want to use this function,just install gstreamer |"
+	echo "| and recompile openfetion                                |"
+	echo "| NOTE:this message does not mean that you have failed    |"
+	echo "|     just type \"make and\" \"make install\" to install  |"
+	echo "|     openfetion without sound reminder                   |"
+	echo "-----------------------------------------------------------"
+fi

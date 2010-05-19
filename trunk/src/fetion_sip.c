@@ -921,6 +921,40 @@ int fetion_sip_parse_shareaccept(FetionSip *sip
 	return 1;
 }
 
+void fetion_sip_parse_sysmsg(const char* sipmsg , int *type
+		, int* showonce , char **content , char **url){
+
+	char *pos;
+	xmlChar *res;
+	xmlDocPtr doc;
+	xmlNodePtr node;
+
+	pos = strstr(sipmsg , "\r\n\r\n") + 4;
+	doc = xmlReadMemory(pos , strlen(pos)
+			, NULL , "UTF-8" , XML_PARSE_RECOVER);
+
+	node = xmlDocGetRootElement(doc);
+	res = xmlGetProp(node , BAD_CAST "type");
+	*type = atoi((char*)type);
+	xmlFree(res);
+	res = xmlGetProp(node , BAD_CAST "show-once");
+	*showonce = atoi((char*)res);
+	xmlFree(res);
+	node = node->xmlChildrenNode->next->next->next;
+	res = xmlNodeGetContent(node);
+	*content = (char*)malloc(xmlStrlen(res) + 1);
+	bzero(*content , xmlStrlen(res) + 1);
+	strcpy(*content , (char*)res);
+	xmlFree(res);
+	node = node->next->next;
+	res = xmlNodeGetContent(node);
+	*url = (char*)malloc(xmlStrlen(res) + 1);
+	bzero(*url , xmlStrlen(res) + 1);
+	strcpy(*url , (char*)res);
+	xmlFree(res);
+
+}
+
 struct tm convert_date(const char* date)
 {
 	char* pos = strstr(date , ",") + 2;

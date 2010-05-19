@@ -17,10 +17,12 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-
-#include <gst/gst.h>
 #include "fx_include.h"
+#ifdef USE_GSTREAMER
+#include <gst/gst.h>
+#endif
 
+#ifdef USE_GSTREAMER
 static void
 add_pad (GstElement *element , GstPad *pad , gpointer data){
 
@@ -31,13 +33,17 @@ add_pad (GstElement *element , GstPad *pad , gpointer data){
 	gst_element_link_pads(element , name , sink , "sink");
 	g_free(name);
 }
+#endif /* USE_GSTREAMER */
 
 void
 fx_sound_play_file(const char *filename){
 
+#ifdef USE_GSTREAMER
 	GstElement *pipeline;
 	GstBus *bus;
 	GstElement *source , *parser , *sink;
+
+	DEBUG_FOOTPRINT();
 
 	pipeline = gst_pipeline_new("audio-player");
 
@@ -74,4 +80,5 @@ fx_sound_play_file(const char *filename){
 	sleep(1);
 	gst_element_set_state(pipeline , GST_STATE_NULL);
 	g_object_unref(pipeline);
+#endif /* USE_GSTREAMER */
 }

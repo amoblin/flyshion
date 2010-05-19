@@ -120,6 +120,14 @@ void fx_set_bind_system(FxSet* fxset)
 	{
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->smallBtn) , FALSE);
 	}
+	if(config->isMute == MUTE_ENABLE)
+	{
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->muteBtn) , TRUE);
+	}
+	else
+	{
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->muteBtn) , FALSE);
+	}
 
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(fxset->apEty));
 	gtk_text_buffer_get_start_iter(buffer , &startIter);
@@ -306,6 +314,9 @@ void fx_set_initialize_system(FxSet* fxset)
 	g_signal_connect(fxset->apBtn , "toggled" , G_CALLBACK(fx_set_on_autoreply_toggled) , fxset);
 	gtk_fixed_put(GTK_FIXED(fixed) , fxset->apBtn , 40 , 50);
 
+	fxset->muteBtn = gtk_check_button_new_with_label("静音");
+	gtk_fixed_put(GTK_FIXED(fixed) , fxset->muteBtn , 240 , 50);
+
 	fxset->apEty = gtk_text_view_new();
 	gtk_widget_set_sensitive(fxset->apEty , FALSE);
 	gtk_widget_set_usize(fxset->apEty , 380 , 50);
@@ -419,6 +430,11 @@ void fx_set_on_ok_clicked(GtkWidget* widget , gpointer data)
 			config->closeMode = CLOSE_ICON_MODE;
 		else
 			config->closeMode = CLOSE_DESTROY_MODE;
+
+		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxset->muteBtn)))
+			config->isMute = MUTE_ENABLE;
+		else
+			config->isMute = MUTE_DISABLE;
 
 		gtk_text_buffer_get_start_iter(buffer , &startIter);
 		gtk_text_buffer_get_end_iter(buffer , &endIter);

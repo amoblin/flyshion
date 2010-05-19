@@ -68,7 +68,7 @@ am_openfetion_OBJECTS = openfetion-fetion_buddylist.$(OBJEXT) \
 	openfetion-fx_profile.$(OBJEXT) openfetion-fx_set.$(OBJEXT) \
 	openfetion-fx_tree.$(OBJEXT) openfetion-fx_emotion.$(OBJEXT) \
 	openfetion-fx_share.$(OBJEXT) openfetion-fx_sound.$(OBJEXT) \
-	openfetion-fx_util.$(OBJEXT)
+	openfetion-fx_sysmsg.$(OBJEXT) openfetion-fx_util.$(OBJEXT)
 openfetion_OBJECTS = $(am_openfetion_OBJECTS)
 openfetion_LDADD = $(LDADD)
 openfetion_LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(openfetion_LDFLAGS) \
@@ -105,6 +105,8 @@ ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 GREP = @GREP@
+GSTREAMER_CFLAGS = @GSTREAMER_CFLAGS@
+GSTREAMER_LIBS = @GSTREAMER_LIBS@
 GTK_CFLAGS = @GTK_CFLAGS@
 GTK_LIBS = @GTK_LIBS@
 INSTALL = @INSTALL@
@@ -177,14 +179,14 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 openfetion_CPPFLAGS = `xml2-config --cflags` `pkg-config --cflags gtk+-2.0 gthread-2.0` \
-					`pkg-config --cflags gstreamer-0.10` \
-					-I../include -I../include/openfetion \
+					$(GSTREAMER_CFLAGS) -g \
+					-I../include -I../include/openfetion -I ../. \
 					-DSKIN_DIR=\"$(pkgdatadir)/skin/\" \
 					-DRESOURCE_DIR=\"$(pkgdatadir)/resource/\"
 
 openfetion_LDFLAGS = `xml2-config --libs` \
 				   `pkg-config --libs gtk+-2.0 gthread-2.0` \
-				   `pkg-config --libs gstreamer-0.10` -lssl -lcrypto
+				    $(GSTREAMER_LIBS) -lssl -lcrypto
 
 openfetion_SOURCES = fetion_buddylist.c \
 					 fetion_config.c \
@@ -222,6 +224,7 @@ openfetion_SOURCES = fetion_buddylist.c \
 					 fx_emotion.c \
 					 fx_share.c \
 					 fx_sound.c \
+					 fx_sysmsg.c \
 					 fx_util.c 
 
 all: all-am
@@ -325,6 +328,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_set.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_share.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_sound.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_sysmsg.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_tree.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_util.Po@am__quote@
 
@@ -846,6 +850,20 @@ openfetion-fx_sound.obj: fx_sound.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o openfetion-fx_sound.obj `if test -f 'fx_sound.c'; then $(CYGPATH_W) 'fx_sound.c'; else $(CYGPATH_W) '$(srcdir)/fx_sound.c'; fi`
 
+openfetion-fx_sysmsg.o: fx_sysmsg.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT openfetion-fx_sysmsg.o -MD -MP -MF $(DEPDIR)/openfetion-fx_sysmsg.Tpo -c -o openfetion-fx_sysmsg.o `test -f 'fx_sysmsg.c' || echo '$(srcdir)/'`fx_sysmsg.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/openfetion-fx_sysmsg.Tpo $(DEPDIR)/openfetion-fx_sysmsg.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='fx_sysmsg.c' object='openfetion-fx_sysmsg.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o openfetion-fx_sysmsg.o `test -f 'fx_sysmsg.c' || echo '$(srcdir)/'`fx_sysmsg.c
+
+openfetion-fx_sysmsg.obj: fx_sysmsg.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT openfetion-fx_sysmsg.obj -MD -MP -MF $(DEPDIR)/openfetion-fx_sysmsg.Tpo -c -o openfetion-fx_sysmsg.obj `if test -f 'fx_sysmsg.c'; then $(CYGPATH_W) 'fx_sysmsg.c'; else $(CYGPATH_W) '$(srcdir)/fx_sysmsg.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/openfetion-fx_sysmsg.Tpo $(DEPDIR)/openfetion-fx_sysmsg.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='fx_sysmsg.c' object='openfetion-fx_sysmsg.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o openfetion-fx_sysmsg.obj `if test -f 'fx_sysmsg.c'; then $(CYGPATH_W) 'fx_sysmsg.c'; else $(CYGPATH_W) '$(srcdir)/fx_sysmsg.c'; fi`
+
 openfetion-fx_util.o: fx_util.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT openfetion-fx_util.o -MD -MP -MF $(DEPDIR)/openfetion-fx_util.Tpo -c -o openfetion-fx_util.o `test -f 'fx_util.c' || echo '$(srcdir)/'`fx_util.c
 @am__fastdepCC_TRUE@	mv -f $(DEPDIR)/openfetion-fx_util.Tpo $(DEPDIR)/openfetion-fx_util.Po
@@ -1036,7 +1054,6 @@ uninstall-am: uninstall-binPROGRAMS
 	mostlyclean-generic pdf pdf-am ps ps-am tags uninstall \
 	uninstall-am uninstall-binPROGRAMS
 
-					-g
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
