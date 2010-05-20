@@ -73,52 +73,85 @@ void fetion_conversation_send_sms_to_myself(Conversation* conversation , const c
 	res = fetion_sip_get_response(sip);
 	free(res);
 }
-void fetion_conversation_send_sms_to_phone(Conversation* conversation , const char* message)
+int fetion_conversation_send_sms_to_phone(Conversation* conversation , const char* message)
 {
 	
 	SipHeader *toheader = NULL;
 	SipHeader *eheader = NULL;
+	SipHeader *aheader = NULL;
+	User *user = conversation->currentUser;
 	char* res = NULL;
-	FetionSip* sip = conversation->currentUser->sip;
+	FetionSip* sip = user->sip;
 	char* sipuri = conversation->currentContact->sipuri;
+	char astr[256] , rep[1024];
+	int code;
+
 	fetion_sip_set_type(sip , SIP_MESSAGE);
 	toheader = fetion_sip_header_new("T" , sipuri);
 	eheader  = fetion_sip_event_header_new(SIP_EVENT_SENDCATMESSAGE);
 	fetion_sip_add_header(sip , toheader);
+	if(user->verification != NULL){
+		bzero(astr , sizeof(astr));
+		sprintf(astr , "Verify algorithm=\"picc\",chid=\"%s\",response=\"%s\""
+				, user->verification->guid
+				, user->verification->code);
+		aheader = fetion_sip_header_new("A" , astr);
+		fetion_sip_add_header(sip , aheader);
+	}
 	fetion_sip_add_header(sip , eheader);
 	res = fetion_sip_to_string(sip , message);
+	printf("%s\n" , res);
 	debug_info("Sent a message to (%s)`s mobile phone" , sipuri);
 	tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
+	bzero(rep , sizeof(rep));
+	tcp_connection_recv(sip->tcp , rep , sizeof(rep));
+	code = fetion_sip_get_code(rep);
+	if(code == 420 || code == 421){
+		return -1;
+	}else{
+		return 1;
+	}
 }
-int fetion_conversation_send_sms_to_phone_with_reply(Conversation* conversation , const char* message , int* daycount , int* monthcount)
+int fetion_conversation_send_sms_to_phone_with_reply(Conversation* conversation
+		, const char* message , int* daycount , int* monthcount)
 {
 	
-	SipHeader *toheader , *eheader;
+	SipHeader *toheader , *eheader , *aheader;
 	char* res;
 	char* xml;
-	FetionSip* sip = conversation->currentUser->sip;
+	User *user = conversation->currentUser;
+	FetionSip* sip = user->sip;
+	char astr[256] , rep[1024];
 	char* sipuri = conversation->currentContact->sipuri;
 	fetion_sip_set_type(sip , SIP_MESSAGE);
 	toheader = fetion_sip_header_new("T" , sipuri);
 	eheader  = fetion_sip_event_header_new(SIP_EVENT_SENDCATMESSAGE);
 	fetion_sip_add_header(sip , toheader);
+	if(user->verification != NULL){
+		bzero(astr , sizeof(astr));
+		sprintf(astr , "Verify algorithm=\"picc\",chid=\"%s\",response=\"%s\""
+				, user->verification->guid
+				, user->verification->code);
+		aheader = fetion_sip_header_new("A" , astr);
+		fetion_sip_add_header(sip , aheader);
+	}
 	fetion_sip_add_header(sip , eheader);
 	res = fetion_sip_to_string(sip , message);
 	debug_info("Sent a message to (%s)`s mobile phone" , sipuri);
 	tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
-	res = fetion_sip_get_response(sip);
-	if(fetion_sip_get_code(res) == 280)
+	bzero(rep , sizeof(rep));
+	tcp_connection_recv(sip->tcp , rep , sizeof(rep));
+	printf("%s\n" , rep);
+	if(fetion_sip_get_code(rep) == 280)
 	{
-		xml = strstr(res , "\r\n\r\n") + 4;
+		xml = strstr(rep , "\r\n\r\n") + 4;
 		fetion_conversation_parse_send_sms(xml , daycount , monthcount);
-		free(res);
 		return 1;
 	}
 	else
 	{
-		free(res);
 		debug_error("Send a message to (%s)`s mobile phone failed");
 		return -1;
 	}

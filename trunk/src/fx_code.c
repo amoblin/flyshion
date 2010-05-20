@@ -29,8 +29,10 @@ FxCode* fx_code_new(FxMain* fxmain , const char* reason , const char* tips , Err
 
 	memset(fxcode , 0 , sizeof(FxCode));
 	fxcode->fxmain = fxmain;
-	strcpy(fxcode->reason , reason);
-	strcpy(fxcode->tip , tips);
+	if(reason != NULL)
+		strcpy(fxcode->reason , reason);
+	if(tips != NULL)
+		strcpy(fxcode->tip , tips);
 	fxcode->error = error;
 	return fxcode;
 }

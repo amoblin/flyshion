@@ -97,9 +97,10 @@ void generate_pic_code(User* user)
 	tcp_connection_connect(con , ip , 80);
 	sprintf(buf , "GET /nav/GetPicCodeV4.aspx?algorithm=%s HTTP/1.1\r\n"
 				  "Host: %s\r\n"
-				  "User-Agent: IIC2.0/PC 3.6.2020\r\n"
+				  "User-Agent: IIC2.0/PC "PROTO_VERSION"\r\n"
 				  "Connection: close\r\n\r\n"
-				, user->verification->algorithm , "nav.fetion.com.cn");
+				, user->verification->algorithm == NULL ? "" : user->verification->algorithm
+				, "nav.fetion.com.cn");
 	tcp_connection_send(con , buf , strlen(buf));
 	res = http_connection_get_response(con);
 	tcp_connection_free(con);
@@ -111,6 +112,7 @@ void generate_pic_code(User* user)
 	xmlFreeDoc(doc);
 	debug_info("Generating verification code picture");
 	pic = decode_base64(code , &piclen);
+	free(code);
 	bzero(codePath , sizeof(codePath));
 	sprintf(codePath , "%s/code.gif" , user->config->globalPath);
 	picfd = fopen(codePath , "wb+");
@@ -133,7 +135,7 @@ char* ssi_auth_action(User* user)
 	debug_info("Initialize ssi authentication action");
 	password = hash_password_v4(user->userId , user->password);
 	bzero(noUri , sizeof(noUri));
-	if(user->loginType == 1)
+	if(user->loginType == LOGIN_TYPE_MOBILENO)
 		sprintf(noUri , "mobileno=%s" , user->mobileno);
 	else
 		sprintf(noUri , "sid=%s" , user->sId);
@@ -148,7 +150,7 @@ char* ssi_auth_action(User* user)
 	passwordType = (strlen(user->userId) == 0 ? 1 : 2);
 	sprintf(sslbuf, "GET /ssiportal/SSIAppSignInV4.aspx?%s"
 				    "&domains=fetion.com.cn%s&v4digest-type=%d&v4digest=%s\r\n"
-				    "User-Agent: IIC2.0/pc 3.3.0370\r\n"
+				    "User-Agent: IIC2.0/pc "PROTO_VERSION"\r\n"
 					"Host: %s\r\n"
 				    "Cache-Control: private\r\n"
 				    "Connection: Keep-Alive\r\n\r\n",
@@ -169,7 +171,7 @@ char* ssi_auth_action(User* user)
 
 	debug_info("Start ssi login with %s password , user number %s"
 			, passwordType == 1 ? "v3Temp" : "v4"
-			, user->loginType == 1 ? user->mobileno : user->sId);
+			, user->loginType == LOGIN_TYPE_MOBILENO ? user->mobileno : user->sId);
 	if(ssl_connection_start(ssl) == -1)
 	{
 		debug_error("Initialize ssl failed,please retry or check your system`s configuration");
@@ -193,7 +195,7 @@ char* sipc_reg_action(User* user)
 
 	fetion_sip_set_type(sip , SIP_REGISTER);
 	SipHeader* cheader = fetion_sip_header_new("CN" , cnouce);
-	SipHeader* client = fetion_sip_header_new("CL" , "type=\"pc\" ,version=\"3.6.2020\"");
+	SipHeader* client = fetion_sip_header_new("CL" , "type=\"pc\" ,version=\"PROTO_VERSION\"");
 	fetion_sip_add_header(sip , cheader);
 	fetion_sip_add_header(sip , client);
 	free(cnouce);
@@ -243,7 +245,6 @@ char* sipc_aut_action(User* user , const char* response)
 			 , user->contactVersion , user->personalVersion);
 	tcp_connection_send(sip->tcp , sipmsg , strlen(sipmsg));
 	res = fetion_sip_get_response(sip);
-	printf("-------------------------------------------------\n");
 	free(sipmsg);
 	return res;
 }
@@ -256,6 +257,7 @@ void parse_ssi_auth_response(const char* ssi_response , User* user)
 	char* xml = strstr(ssi_response , "\r\n\r\n") + 4;
 
 	DEBUG_FOOTPRINT();
+	printf("%s\n" , ssi_response);
 
 	doc = xmlReadMemory(xml , strlen(xml) , NULL , "UTF-8" , XML_PARSE_RECOVER);
 	node = xmlDocGetRootElement(doc);
@@ -298,6 +300,31 @@ void parse_sipc_reg_response(const char* reg_response , char** nouce , char** ke
 	(*key)[n] = '\0';
 	debug_info("Register to sip server success");
 	debug_info("nonce:%s" , *nouce);
+}
+static void parse_sms_frequency(xmlNodePtr node , User *user){
+	xmlChar *res;
+
+	node = node->xmlChildrenNode;
+	if(xmlHasProp(node , "day-limit")){
+		res = xmlGetProp(node , "day-limit");
+		user->smsDayLimit = atoi((char*)res);
+		xmlFree(res);
+	}
+	if(xmlHasProp(node , "day-count")){
+		res = xmlGetProp(node , "day-count");
+		user->smsDayCount = atoi((char*)res);
+		xmlFree(res);
+	}
+	if(xmlHasProp(node , "month-limit")){
+		res = xmlGetProp(node , "month-limit");
+		user->smsMonthLimit = atoi((char*)res);
+		xmlFree(res);
+	}
+	if(xmlHasProp(node , "month-count")){
+		res = xmlGetProp(node , "month-count");
+		user->smsMonthCount = atoi((char*)res);
+		xmlFree(res);
+	}
 }
 void parse_sipc_auth_response(const char* auth_response , User* user)
 {
@@ -357,9 +384,12 @@ void parse_sipc_auth_response(const char* auth_response , User* user)
 	node1 = xml_goto_node(node , "contact-list");
 	parse_contact_list(node1 , user);
 	node1 = xml_goto_node(node , "chat-friends");
-	if(node1 != NULL)
-	{
+	if(node1 != NULL){
 		parse_stranger_list(node1 , user);
+	}
+	node1 = xml_goto_node(node , "quota-frequency");
+	if(node1 != NULL){
+		parse_sms_frequency(node1 , user);
 	}
 	xmlFreeDoc(doc);
 }
@@ -427,6 +457,11 @@ void parse_personal_info(xmlNodePtr node , User* user)
 	if(xmlHasProp(node , BAD_CAST "mobile-no"))
 	{
 		buf = xmlGetProp(node , BAD_CAST "mobile-no");
+		if(xmlStrlen(buf)){
+			user->boundToMobile = BOUND_MOBILE_ENABLE;
+		}else{
+			user->boundToMobile = BOUND_MOBILE_DISABLE;
+		}
 		strcpy(user->mobileno , (char*)buf);
 		xmlFree(buf);
 	}

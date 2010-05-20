@@ -28,12 +28,12 @@ User* fetion_user_new(const char* no , const char* password)
 	if(strlen(no) == 11)
 	{
 		strcpy(user->mobileno , no);
-		user->loginType = 1;
+		user->loginType = LOGIN_TYPE_MOBILENO;
 	}
 	else
 	{
 		strcpy(user->sId , no);
-		user->loginType = 2;
+		user->loginType = LOGIN_TYPE_FETIONNO;
 	}
 	strcpy(user->password , password);
 	strcpy(user->personalVersion , "0");
@@ -77,8 +77,8 @@ void fetion_user_set_config(User* user , Config* config1)
 }
 void fetion_user_set_verification_code(User* user , const char* code)
 {
-	user->verification->code = (char*)malloc(12);
-	memset(user->verification->code , 0 , 12);
+	user->verification->code = (char*)malloc(strlen(code) + 1);
+	memset(user->verification->code , 0 , strlen(code) + 1);
 	strcpy(user->verification->code , code);
 }
 void fetion_user_free(User* user)
@@ -88,7 +88,7 @@ void fetion_user_free(User* user)
 	if(user->customConfig != NULL)
 		free(user->customConfig);
 	if(user->verification != NULL)
-		free(user->verification);
+		fetion_verification_free(user->verification);
 	free(user);
 }
 void fetion_user_save(User* user)
@@ -340,6 +340,8 @@ void fetion_verification_free(Verification* ver)
 		free(ver->type);
 		free(ver->text);
 		free(ver->tips);
+		free(ver->guid);
+		free(ver->code);
 	}
 	free(ver);
 }

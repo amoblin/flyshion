@@ -126,9 +126,9 @@ void fx_chat_add_information(FxChat* fxchat , const char* msg)
 	gtk_text_buffer_insert(buffer , &iter , "" , -1);
 
 	gtk_text_buffer_insert_with_tags_by_name(buffer
-					, &iter, msg , -1 , "red" , "lm10" , NULL);
+					, &iter, msg , -1 , "grey" , "lm10" , "small" , NULL);
 	
-	gtk_text_buffer_insert(buffer , &iter , "\n\n" , -1);
+	gtk_text_buffer_insert(buffer , &iter , "\n" , -1);
 
 	gtk_text_iter_set_line_offset (&iter, 0);
 	
@@ -360,9 +360,11 @@ void fx_chat_initialize(FxChat* fxchat)
 
 	fxchat->recv_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(fxchat->recv_text));
 	gtk_text_buffer_create_tag(fxchat->recv_buffer , "blue" , "foreground" , "blue" , NULL);
+	gtk_text_buffer_create_tag(fxchat->recv_buffer , "grey" , "foreground" , "grey" , NULL);
 	gtk_text_buffer_create_tag(fxchat->recv_buffer , "green" , "foreground" , "green" , NULL);
 	gtk_text_buffer_create_tag(fxchat->recv_buffer , "red" , "foreground" , "red" , NULL);
 	gtk_text_buffer_create_tag(fxchat->recv_buffer , "lm10" , "left_margin" , 10 , NULL);
+	gtk_text_buffer_create_tag(fxchat->recv_buffer , "small" , "left_margin" , 5 , NULL);
 	gtk_text_buffer_get_end_iter(fxchat->recv_buffer , &(fxchat->recv_iter));
 	gtk_text_buffer_create_mark(fxchat->recv_buffer , "scroll" , &(fxchat->recv_iter) , FALSE);
 	
@@ -531,10 +533,17 @@ void fx_chat_send_message(FxChat* fxchat)
 {
 	Conversation* conv = fxchat->conv;
 	Contact* contact = conv->currentContact;
-	Config *config = fxchat->fxmain->user->config;
+	User *user = fxchat->fxmain->user;
+	Config *config = user->config;
 	GtkTextIter begin , end;
 	char* text;
 	struct tm* now;
+	FxCode *fxcode;
+	char reason[512];
+	char tips[512];
+	const char *code = NULL;
+	int ret;
+	int daycount , monthcount;
 
 	DEBUG_FOOTPRINT();
 
@@ -559,11 +568,50 @@ void fx_chat_send_message(FxChat* fxchat)
 			fx_chat_add_information(fxchat , "不允许发送空信息");
 			return;
 		}
+		if(user->boundToMobile == BOUND_MOBILE_DISABLE){
+
+			user->verification = fetion_verification_new();
+send:
+			generate_pic_code(user);
+			bzero(reason , sizeof(reason));
+			sprintf(reason , "您还可以发送%d条免费短信（含本条），"
+					"免费短信限额：每月%d条" , user->smsDayLimit - user->smsMonthCount
+					, user->smsMonthLimit );
+			bzero(tips , sizeof(tips));
+			sprintf(tips , "温馨提示：发送更多免费短信，请立即绑定手机号，无需输入验证码");
+			fxcode = fx_code_new(fxchat->fxmain , reason
+					, tips , CODE_NOT_ERROR);
+			fx_code_initialize(fxcode);
+			ret = gtk_dialog_run(GTK_DIALOG(fxcode->dialog));
+			if(ret == GTK_RESPONSE_OK){
+				code = gtk_entry_get_text(GTK_ENTRY(fxcode->codeentry));
+				user->verification->code = (char*)malloc(strlen(code) + 1);
+				bzero(user->verification->code , strlen(code) + 1);
+				strcpy(user->verification->code , code);
+				gtk_widget_destroy(fxcode->dialog);
+			}else{
+				gtk_widget_destroy(fxcode->dialog);
+				return;
+			}
+			if(fetion_conversation_send_sms_to_phone_with_reply(conv
+						, text , &daycount , &monthcount) == -1){
+				goto send;
+			}else{
+				fetion_verification_free(user->verification);
+				user->verification = NULL;
+			}
+		}else{
+			fetion_conversation_send_sms_to_phone_with_reply(conv
+					, text , &daycount , &monthcount);
+		}
 		now = get_currenttime();
 		fx_chat_add_message(fxchat , text , now , 1);
 
+		bzero(tips , sizeof(tips));
+		sprintf(tips , "发送成功，今天已发送%d条短信息，还可以发送%d条。"
+				, daycount , user->smsDayLimit - daycount);
+		fx_chat_add_information(fxchat , tips);
 		gtk_text_buffer_delete(fxchat->send_buffer , &begin , &end);
-		fetion_conversation_send_sms_to_phone(conv , text);
 		return;
 	}
 	/**
@@ -708,17 +756,28 @@ void fx_chat_on_tophone_clicked(GtkWidget* widget , gpointer data)
 {
 	GtkToggleButton* btn = GTK_TOGGLE_BUTTON(widget);
 	FxChat* fxchat = (FxChat*)data;
+	User *user = fxchat->fxmain->user;
+	char text[1024];
 
 	DEBUG_FOOTPRINT();
 
 	if(gtk_toggle_button_get_active(btn))
 	{
 		fxchat->sendtophone = TRUE;
-		fx_chat_add_information(fxchat , "消息将发送到对方手机");
+		if(user->boundToMobile == BOUND_MOBILE_DISABLE){
+			bzero(text , sizeof(text));
+			sprintf(text , "消息将直接发送到对方手机。您还可以发送%d条免费短信。如果您还想"
+					"发送更多免费短信，请绑定手机号，成为飞信移动用户。"
+					, user->smsDayLimit - user->smsDayCount);
+			fx_chat_add_information(fxchat , text);
+		}else{
+			fx_chat_add_information(fxchat , "信息将以长短信的方式发送到对方的手机上");
+		}
 	}
 	else
 	{
 		fxchat->sendtophone = FALSE;
+		fx_chat_add_information(fxchat , "消息将直接发送到对方飞信");
 	}
 }
 void fx_chat_on_close_clicked(GtkWidget* widget , gpointer data)
@@ -766,25 +825,19 @@ gboolean fx_chat_on_key_pressed(GtkWidget* widget , GdkEventKey* event , gpointe
 		config = fxchat->fxmain->user->config;
 		if(config->sendMode == SEND_MODE_ENTER)
 		{
-			if(event->state & GDK_CONTROL_MASK)
-			{
+			if(event->state & GDK_CONTROL_MASK){
 				return FALSE;
-			}
-			else
-			{
+			}else{
 				fx_chat_send_message(fxchat);
 				return TRUE;
 			}
 		}
 		else
 		{
-			if(event->state & GDK_CONTROL_MASK)
-			{
+			if(event->state & GDK_CONTROL_MASK)	{
 				fx_chat_send_message(fxchat);
 				return TRUE;
-			}
-			else
-			{
+			}else{
 				return FALSE;
 			}
 		}

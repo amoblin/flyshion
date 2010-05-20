@@ -35,6 +35,7 @@ void fx_bottom_initialize(FxMain* fxmain)
 	FxBottom* fxbottom = fx_bottom_new();
 	GtkWidget* icon;
 	fxmain->bottomPanel = fxbottom;
+	User *user = fxmain->user;
 	GtkWidget* mainbox = fxmain->mainbox;
 
 	DEBUG_FOOTPRINT();
@@ -54,18 +55,18 @@ void fx_bottom_initialize(FxMain* fxmain)
 						  , "添加" , NULL , NULL , icon
 						  , G_CALLBACK(fx_bottom_on_addfriend_clicked)
 						  , fxmain);
-
-	icon = gtk_image_new_from_file(SKIN_DIR"phone.png");
-	gtk_toolbar_append_item(GTK_TOOLBAR(fxbottom->toolbar)
-						  , "自己" , NULL , NULL , icon
-						  , G_CALLBACK(fx_bottom_on_sendtome_clicked)
-						  , fxmain);
-
-	icon = gtk_image_new_from_file(SKIN_DIR"sms.gif");
-	gtk_toolbar_append_item(GTK_TOOLBAR(fxbottom->toolbar)
-						  , "群发" , NULL , NULL , icon
-						  , G_CALLBACK(fx_bottom_on_sendtomany_clicked)
-						  , fxmain);
+	if(user->boundToMobile == BOUND_MOBILE_ENABLE){
+		icon = gtk_image_new_from_file(SKIN_DIR"phone.png");
+		gtk_toolbar_append_item(GTK_TOOLBAR(fxbottom->toolbar)
+							  , "自己" , NULL , NULL , icon
+							  , G_CALLBACK(fx_bottom_on_sendtome_clicked)
+							  , fxmain);
+		icon = gtk_image_new_from_file(SKIN_DIR"sms.gif");
+		gtk_toolbar_append_item(GTK_TOOLBAR(fxbottom->toolbar)
+							  , "群发" , NULL , NULL , icon
+							  , G_CALLBACK(fx_bottom_on_sendtomany_clicked)
+							  , fxmain);
+	}
 	icon = gtk_image_new_from_file(SKIN_DIR"find.png");
 	gtk_toolbar_append_item(GTK_TOOLBAR(fxbottom->toolbar)
 						  , "查询" , NULL , NULL , icon

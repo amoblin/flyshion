@@ -439,9 +439,14 @@ void fx_main_process_invitation(FxMain* fxmain , const char* sipmsg)
 	FetionSip* sip = fxmain->user->sip;
 	FxList *list = NULL;
 	TimeOutArgs *timeout = NULL;
+	char event[10];
 	ThreadArgs* args = (ThreadArgs*)malloc(sizeof(ThreadArgs));
 
 	DEBUG_FOOTPRINT();
+	bzero(event , sizeof(event));
+	if(fetion_sip_get_attr(sipmsg , "N" , event) != -1){
+		return;
+	}
 
 	fetion_sip_parse_invitation(sip , fxmain->user->config->proxy , sipmsg , &osip , &sipuri);
 
@@ -713,7 +718,7 @@ static void fx_main_mute_clicked(GtkWidget *widget , gpointer data)
 void fx_main_tray_popmenu_func(GtkWidget* widget , guint button , guint activate_time , gpointer data)
 {
 	FxMain* fxmain = (FxMain*)data;
-	Config *config = fxmain->user->config;
+	Config *config = NULL;
 	GtkWidget *muteItem;
 	char stateMenu[48];
 	int i;
@@ -755,6 +760,7 @@ void fx_main_tray_popmenu_func(GtkWidget* widget , guint button , guint activate
 					 , menu , fx_main_about_author_clicked , NULL);
 	if(fxmain->user != NULL && fxmain->user->loginStatus != -1)
 	{
+		config = fxmain->user->config;
 		muteItem = gtk_check_menu_item_new_with_label("关闭声音");
 		if(config->isMute == MUTE_ENABLE)
 			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(muteItem) , TRUE);
@@ -762,8 +768,10 @@ void fx_main_tray_popmenu_func(GtkWidget* widget , guint button , guint activate
 			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(muteItem) , FALSE);
 		g_signal_connect(muteItem , "activate" , G_CALLBACK(fx_main_mute_clicked) , fxmain);
 		gtk_menu_shell_append(GTK_MENU_SHELL(menu) , muteItem);
-		fx_main_create_menu("短信自己" , SKIN_DIR"phone.png"
-						 , menu , fx_main_send_to_myself_clicked , fxmain);
+		if(fxmain->user->boundToMobile == BOUND_MOBILE_ENABLE){
+			fx_main_create_menu("短信自己" , SKIN_DIR"phone.png"
+							 , menu , fx_main_send_to_myself_clicked , fxmain);
+		}
 		statemenu = fx_main_create_menu("修改状态" , SKIN_DIR"user_online.png" , menu , NULL , NULL);
 		submenu = gtk_menu_new();
 		for(i = 0 ; presence[i].type != -1 ; i++)
@@ -836,7 +844,7 @@ void* fx_main_listen_thread_func(void* data)
 		gdk_threads_leave();
 		pos = msg;
 		while(pos != NULL){
-
+			printf("%s\n" , pos->message);
 			type = fetion_sip_get_type(pos->message);
 			switch(type){
 				case SIP_NOTIFICATION :
