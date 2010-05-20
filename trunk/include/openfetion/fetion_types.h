@@ -32,6 +32,12 @@
 #	define DEBUG_FOOTPRINT()
 #endif
 
+#define FETION_VERSION "1.5"
+#define PROTO_VERSION "4.0.2380"
+#define LOGIN_TYPE_FETIONNO 1
+#define LOGIN_TYPE_MOBILENO 0
+#define BOUND_MOBILE_ENABLE 1
+#define BOUND_MOBILE_DISABLE 0
 /**
  * some other buddylists
  */
@@ -270,9 +276,15 @@ typedef struct
 	char city[6];						/* the city which your number belongs to 					*/
 	int gender;							/* the gender of your self									*/
 
+	int smsDayLimit;
+	int smsDayCount;
+	int smsMonthLimit;
+	int smsMonthCount;
+
 	int state;							/* presence state											*/
 	int loginType;   					/* using sid or mobileno									*/
 	int loginStatus; 					/* login status code 										*/
+	int boundToMobile;					/* whether this number is bound to a mobile number  */
 	long loginTimes;
 	char* ssic;						    /* cookie string read from reply message after ssi login 	*/
 	char* customConfig;					/* custom config string used to set personal information	*/

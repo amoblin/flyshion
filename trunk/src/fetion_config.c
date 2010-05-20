@@ -232,8 +232,10 @@ void fetion_config_download_configuration(User* user)
 				   "Connection: Close\r\n"
 				   "Content-Length: %d\r\n\r\n%s"
 				 , uri , strlen(body) , body);
+	printf("%s\n" , http);
 	tcp_connection_send(conn , http , strlen(http));
 	res = http_connection_get_response(conn);
+	printf("%s\n" , res);
 	refresh_configuration_xml(res , path , user);
 	free(res);
 }
@@ -408,10 +410,14 @@ char* generate_configuration_body(User* user)
 	doc = xmlParseMemory(body , strlen(body));
 	node = xmlDocGetRootElement(doc);
 	cnode = xmlNewChild(node , NULL , BAD_CAST "user" , NULL);
-	xmlNewProp(cnode , BAD_CAST "mobile-no" , BAD_CAST user->mobileno);
+	if(user->loginType == LOGIN_TYPE_FETIONNO){
+		xmlNewProp(cnode , BAD_CAST "sid" , BAD_CAST user->sId);
+	}else{
+		xmlNewProp(cnode , BAD_CAST "mobile-no" , BAD_CAST user->mobileno);
+	}
 	cnode = xmlNewChild(node , NULL , BAD_CAST "client" , NULL);
 	xmlNewProp(cnode , BAD_CAST "type" , BAD_CAST "PC");
-	xmlNewProp(cnode , BAD_CAST "version" , BAD_CAST "3.6.1900");
+	xmlNewProp(cnode , BAD_CAST "version" , BAD_CAST PROTO_VERSION);
 	xmlNewProp(cnode , BAD_CAST "platform" , BAD_CAST "W5.1");
 	cnode = xmlNewChild(node , NULL , BAD_CAST "servers" , NULL);
 	xmlNewProp(cnode , BAD_CAST "version" , BAD_CAST user->configServersVersion);

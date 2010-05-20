@@ -28,7 +28,7 @@ extern void fetion_conversation_send_sms(Conversation* user , const char* msg);
 
 extern void fetion_conversation_send_sms_to_myself(Conversation* conversation , const char* message);
 
-extern void fetion_conversation_send_sms_to_phone(Conversation* conversation , const char* message);
+extern int fetion_conversation_send_sms_to_phone(Conversation* conversation , const char* message);
 
 extern int fetion_conversation_send_sms_to_phone_with_reply(Conversation* conversation , const char* message , int* daycount , int* monthcount);
 
