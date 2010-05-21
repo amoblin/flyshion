@@ -83,8 +83,8 @@ ECHO_T =
 EGREP = /usr/bin/grep -E
 EXEEXT = 
 GREP = /usr/bin/grep
-GSTREAMER_CFLAGS = -pthread -I/usr/local/include/libxml2 -I/usr/include/gstreamer-0.10 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include  
-GSTREAMER_LIBS = -pthread -L/usr/local/lib -lgstreamer-0.10 -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lrt -lxml2 -lglib-2.0  
+GSTREAMER_CFLAGS = -pthread -I/usr/include/gstreamer-0.10 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/libxml2  
+GSTREAMER_LIBS = -pthread -lgstreamer-0.10 -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lrt -lxml2 -lglib-2.0  
 GTK_CFLAGS = -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/libpng12  
 GTK_LIBS = -lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 -lgio-2.0 -lpangoft2-1.0 -lgdk_pixbuf-2.0 -lpangocairo-1.0 -lcairo -lpango-1.0 -lfreetype -lfontconfig -lgobject-2.0 -lgmodule-2.0 -lglib-2.0  
 INSTALL = /usr/bin/ginstall -c
@@ -111,9 +111,9 @@ SET_MAKE =
 SHELL = /bin/sh
 STRIP = 
 VERSION = 1.4
-XML2_CONFIG = /usr/local/bin/xml2-config
-XML_CPPFLAGS = -I/usr/local/include/libxml2
-XML_LIBS = -L/usr/local/lib -lxml2 -lz -lm
+XML2_CONFIG = /usr/bin/xml2-config
+XML_CPPFLAGS = -I/usr/include/libxml2
+XML_LIBS = -lxml2 -lz -lm
 abs_builddir = /home/ouclwp/code/ofetion/skin
 abs_srcdir = /home/ouclwp/code/ofetion/skin
 abs_top_builddir = /home/ouclwp/code/ofetion
@@ -163,6 +163,7 @@ skin_DATA = about.png \
 			bigimage.png \
 			computer.png \
 			delete.png \
+			directsms.png \
 			edit.gif \
 			exit.png \
 			fetion.jpg \
@@ -170,18 +171,20 @@ skin_DATA = about.png \
 			flow.jpg \
 			group.png \
 			history.png \
+			home.png \
 			im.gif \
 			LoadingImage.gif \
 			move.gif \
+			myselfsms.png \
 			nudge.png \
-			options.gif \
+			options.png \
 			personal.png \
 			phone.png \
 			profile.gif \
 			refresh.gif \
 			rename.gif \
 			skin.gif \
-			sms.gif \
+			groupsend.png \
 			tux.png \
 			user_away.png \
 			user_busy.png \
