@@ -63,10 +63,10 @@ void fx_chat_add_message(FxChat* fxchat , const char* msg , const struct tm* dat
 
 	usid = fetion_sip_get_sid_by_sipuri(contact->sipuri);
 	if(issendmsg == 0){
-		sprintf(text , "%s(%s) %s\n" , contact->nickname , usid , time);
+		sprintf(text , "%s 说 (%s):\n" , contact->nickname , time);
 		history = fetion_history_message_new(contact->nickname , contact->userId , *datetime , msg , issendmsg);
 	}else{
-		sprintf(text , "%s(%s) %s\n" , user->nickname , user->sId , time);
+		sprintf(text , "%s 说 (%s):\n" , user->nickname , time);
 		history = fetion_history_message_new(user->nickname , contact->userId , *datetime , msg , issendmsg);
 	}
 	fetion_history_add(fxchat->fhistory , history);
@@ -359,10 +359,10 @@ void fx_chat_initialize(FxChat* fxchat)
 	gtk_container_add(GTK_CONTAINER(fxchat->recv_scroll) , fxchat->recv_text);
 
 	fxchat->recv_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(fxchat->recv_text));
-	gtk_text_buffer_create_tag(fxchat->recv_buffer , "blue" , "foreground" , "blue" , NULL);
-	gtk_text_buffer_create_tag(fxchat->recv_buffer , "grey" , "foreground" , "grey" , NULL);
+	gtk_text_buffer_create_tag(fxchat->recv_buffer , "blue" , "foreground" , "#639900" , NULL);
+	gtk_text_buffer_create_tag(fxchat->recv_buffer , "grey" , "foreground" , "#808080" , NULL);
 	gtk_text_buffer_create_tag(fxchat->recv_buffer , "green" , "foreground" , "green" , NULL);
-	gtk_text_buffer_create_tag(fxchat->recv_buffer , "red" , "foreground" , "red" , NULL);
+	gtk_text_buffer_create_tag(fxchat->recv_buffer , "red" , "foreground" , "#0088bf" , NULL);
 	gtk_text_buffer_create_tag(fxchat->recv_buffer , "lm10" , "left_margin" , 10 , NULL);
 	gtk_text_buffer_create_tag(fxchat->recv_buffer , "small" , "left_margin" , 5 , NULL);
 	gtk_text_buffer_get_end_iter(fxchat->recv_buffer , &(fxchat->recv_iter));
@@ -574,6 +574,10 @@ void fx_chat_send_message(FxChat* fxchat)
 send:
 			generate_pic_code(user);
 			bzero(reason , sizeof(reason));
+			if(user->smsDayLimit == user->smsDayCount){
+				fx_chat_add_information(fxchat , "对不起，你本");
+				return;
+			}
 			sprintf(reason , "您还可以发送%d条免费短信（含本条），"
 					"免费短信限额：每月%d条" , user->smsDayLimit - user->smsMonthCount
 					, user->smsMonthLimit );
@@ -636,7 +640,7 @@ send:
 	text = gtk_text_buffer_get_text(fxchat->send_buffer , &begin , &end , TRUE);
 	if(strlen(text) == 0)
 	{
-		fx_chat_add_information(fxchat , "不允许发送空信息");
+		//fx_chat_add_information(fxchat , "不允许发送空信息");
 		return;
 	}
 	now = get_currenttime();
@@ -766,17 +770,28 @@ void fx_chat_on_tophone_clicked(GtkWidget* widget , gpointer data)
 		fxchat->sendtophone = TRUE;
 		if(user->boundToMobile == BOUND_MOBILE_DISABLE){
 			bzero(text , sizeof(text));
-			sprintf(text , "消息将直接发送到对方手机。您还可以发送%d条免费短信。如果您还想"
-					"发送更多免费短信，请绑定手机号，成为飞信移动用户。"
-					, user->smsDayLimit - user->smsDayCount);
+			if(user->smsDayLimit == user->smsDayCount 
+			|| user->smsMonthLimit == user->smsMonthCount){
+				sprintf(text , "您的短信限额已用完，你可以给对方发送消息。如果您想发送"
+						"更多免费短信，请绑定手机号，成为飞信移动用户");
+				gtk_widget_set_sensitive(fxchat->send_text , FALSE);
+			}else{
+				sprintf(text , "消息将直接发送到对方手机。您还可以发送%d条免费短信。如果您还想"
+						"发送更多免费短信，请绑定手机号，成为飞信移动用户。"
+						, user->smsDayLimit - user->smsDayCount);
+			}
 			fx_chat_add_information(fxchat , text);
 		}else{
-			fx_chat_add_information(fxchat , "信息将以长短信的方式发送到对方的手机上");
+			sprintf(text , "信息将以长短信的方式发送到对方的手机上,"
+					"您今天发送了%d条，还可以发送%d条"
+					, user->smsDayCount , user->smsDayLimit - user->smsDayCount);
+			fx_chat_add_information(fxchat , text);
 		}
 	}
 	else
 	{
 		fxchat->sendtophone = FALSE;
+		gtk_widget_set_sensitive(fxchat->send_text , TRUE);
 		fx_chat_add_information(fxchat , "消息将直接发送到对方飞信");
 	}
 }

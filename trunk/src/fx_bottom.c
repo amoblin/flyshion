@@ -30,6 +30,51 @@ FxBottom* fx_bottom_new()
 	return fxbottom;
 }
 
+static void fx_bottom_on_directsms_clicked(GtkWidget *widget , gpointer data)
+{
+	FxMain *fxmain = (FxMain*)data;
+	User *user = fxmain->user;
+
+	FxCode *fxcode;
+	int ret;
+	char *error;
+	const char *code;
+
+	DEBUG_FOOTPRINT();
+
+	fetion_directsms_send_option(user);
+
+	generate_pic_code(user);
+	fxcode = fx_code_new(fxmain , user->verification->text
+			, user->verification->tips , CODE_NOT_ERROR);
+	fx_code_initialize(fxcode);
+	ret = gtk_dialog_run(GTK_DIALOG(fxcode->dialog));
+	code = gtk_entry_get_text(GTK_ENTRY(fxcode->codeentry));	
+	switch(fetion_directsms_send_subscribe(user , code , &error)){
+		case PIC_SUCCESS :
+			fx_util_popup_warning(fxmain , "成功！");
+			break;
+		case PIC_ERROR :
+			fx_util_popup_warning(fxmain , error);
+			free(error);
+			break;
+		case UNKNOW_ERROR :
+			fx_util_popup_warning(fxmain , "发生未知错误，请向报告作者\n"
+					"http://basiccoder.com/openfetion");
+			break;
+	}
+	printf("%s\n" , user->verification->guid);
+	gtk_widget_destroy(fxcode->dialog);
+}
+
+static void
+fx_bottom_on_help_clicked(GtkWidget* widget , gpointer data)
+{
+	if(fork() == 0)
+	{
+		execlp("firefox" , "firefox" , "http://basiccoder.com/openfetion" , (char**)NULL);
+	}
+}
 void fx_bottom_initialize(FxMain* fxmain)
 {
 	FxBottom* fxbottom = fx_bottom_new();
@@ -42,36 +87,45 @@ void fx_bottom_initialize(FxMain* fxmain)
 
 	fxbottom->toolbar = gtk_toolbar_new();
 	gtk_box_pack_start(GTK_BOX(mainbox) , fxbottom->toolbar , FALSE , FALSE , 0);
-	icon = gtk_image_new_from_file(SKIN_DIR"options.gif");
+	icon = gtk_image_new_from_file(SKIN_DIR"options.png");
 	gtk_toolbar_append_item(GTK_TOOLBAR(fxbottom->toolbar)
-						  , "设置" , NULL , NULL , icon
+						  , NULL , "设置" , NULL , icon
 						  , G_CALLBACK(fx_bottom_on_setting_clicked)
 						  , fxmain );
 
-	gtk_toolbar_set_style(GTK_TOOLBAR(fxbottom->toolbar) , GTK_TOOLBAR_BOTH_HORIZ);
+	gtk_toolbar_set_style(GTK_TOOLBAR(fxbottom->toolbar) , GTK_TOOLBAR_ICONS);
 
 	icon = gtk_image_new_from_file(SKIN_DIR"addbuddy.png");
 	gtk_toolbar_append_item(GTK_TOOLBAR(fxbottom->toolbar)
-						  , "添加" , NULL , NULL , icon
+						  , "添加" , "添加好友" , NULL , icon
 						  , G_CALLBACK(fx_bottom_on_addfriend_clicked)
 						  , fxmain);
 	if(user->boundToMobile == BOUND_MOBILE_ENABLE){
-		icon = gtk_image_new_from_file(SKIN_DIR"phone.png");
+		icon = gtk_image_new_from_file(SKIN_DIR"myselfsms.png");
 		gtk_toolbar_append_item(GTK_TOOLBAR(fxbottom->toolbar)
-							  , "自己" , NULL , NULL , icon
+							  , "自己" , "给自己发短信" , NULL , icon
 							  , G_CALLBACK(fx_bottom_on_sendtome_clicked)
 							  , fxmain);
-		icon = gtk_image_new_from_file(SKIN_DIR"sms.gif");
+		icon = gtk_image_new_from_file(SKIN_DIR"groupsend.png");
 		gtk_toolbar_append_item(GTK_TOOLBAR(fxbottom->toolbar)
-							  , "群发" , NULL , NULL , icon
+							  , "群发" , "群发短信" , NULL , icon
 							  , G_CALLBACK(fx_bottom_on_sendtomany_clicked)
+							  , fxmain);
+		icon = gtk_image_new_from_file(SKIN_DIR"directsms.png");
+		gtk_toolbar_append_item(GTK_TOOLBAR(fxbottom->toolbar)
+							  , "短信" , "发送直接短信" , NULL , icon
+							  , G_CALLBACK(fx_bottom_on_directsms_clicked)
 							  , fxmain);
 	}
 	icon = gtk_image_new_from_file(SKIN_DIR"find.png");
 	gtk_toolbar_append_item(GTK_TOOLBAR(fxbottom->toolbar)
-						  , "查询" , NULL , NULL , icon
+						  , "查询" , "查询任意移动用户信息(归属地等)" , NULL , icon
 						  , G_CALLBACK(fx_bottom_on_lookup_clicked)
 						  , fxmain);
+	icon = gtk_image_new_from_file(SKIN_DIR"home.png");
+	gtk_toolbar_append_item(GTK_TOOLBAR(fxbottom->toolbar)
+						  , "帮助" , "到Openfetion页面获取帮助或外馈意见"
+						  , NULL , icon , G_CALLBACK(fx_bottom_on_help_clicked) , NULL);
 	gtk_widget_show_all(fxbottom->toolbar);
 }
 

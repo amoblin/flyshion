@@ -163,6 +163,7 @@ skin_DATA = about.png \
 			bigimage.png \
 			computer.png \
 			delete.png \
+			directsms.png \
 			edit.gif \
 			exit.png \
 			fetion.jpg \
@@ -170,18 +171,20 @@ skin_DATA = about.png \
 			flow.jpg \
 			group.png \
 			history.png \
+			home.png \
 			im.gif \
 			LoadingImage.gif \
 			move.gif \
+			myselfsms.png \
 			nudge.png \
-			options.gif \
+			options.png \
 			personal.png \
 			phone.png \
 			profile.gif \
 			refresh.gif \
 			rename.gif \
 			skin.gif \
-			sms.gif \
+			groupsend.png \
 			tux.png \
 			user_away.png \
 			user_busy.png \

@@ -34,6 +34,7 @@
 
 #define FETION_VERSION "1.5"
 #define PROTO_VERSION "4.0.2380"
+#define NAVIGATION_URI "nav.fetion.com.cn"
 #define LOGIN_TYPE_FETIONNO 1
 #define LOGIN_TYPE_MOBILENO 0
 #define BOUND_MOBILE_ENABLE 1

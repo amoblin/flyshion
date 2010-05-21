@@ -78,7 +78,6 @@ char* generate_response(const char* nouce , const char* userid , const char* pas
 void generate_pic_code(User* user)
 {
 	char buf[1024] , *res , *code;
-	char hostName[] = "nav.fetion.com.cn";
 	char codePath[128];
 	char* ip;
 
@@ -92,15 +91,16 @@ void generate_pic_code(User* user)
 	DEBUG_FOOTPRINT();
 
 	bzero(buf , sizeof(buf));
-	ip = get_ip_by_name(hostName);
+	ip = get_ip_by_name(NAVIGATION_URI);
 	FetionConnection* con = tcp_connection_new();
 	tcp_connection_connect(con , ip , 80);
 	sprintf(buf , "GET /nav/GetPicCodeV4.aspx?algorithm=%s HTTP/1.1\r\n"
+				  "Cookie: ssic=%s\r\n"
 				  "Host: %s\r\n"
 				  "User-Agent: IIC2.0/PC "PROTO_VERSION"\r\n"
 				  "Connection: close\r\n\r\n"
 				, user->verification->algorithm == NULL ? "" : user->verification->algorithm
-				, "nav.fetion.com.cn");
+				, user->ssic , NAVIGATION_URI);
 	tcp_connection_send(con , buf , strlen(buf));
 	res = http_connection_get_response(con);
 	tcp_connection_free(con);

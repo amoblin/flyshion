@@ -18,39 +18,16 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef FETION_INCLUDE_H
-#define FETION_INCLUDE_H
-#include <stdint.h>
-#include <string.h>
-#include <stdarg.h>
-#include <ctype.h>
-#include <unistd.h>
-#define _XOPEN_SOURCE
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <dirent.h>
-#include <sys/stat.h>
-#include <libxml/parser.h>
-#include <pthread.h>
-#include <openssl/crypto.h>
-#include <openssl/ssl.h>
-#include <openssl/err.h>
-#include <openssl/rand.h>
-#include "config.h"
-#include "fetion_types.h"
-#include "fetion_list.h"
-#include "fetion_debug.h"
-#include "fetion_message.h"
-#include "fetion_connection.h"
-#include "fetion_sip.h"
-#include "fetion_user.h"
-#include "fetion_contact.h"
-#include "fetion_login.h"
-#include "fetion_config.h"
-#include "fetion_conversation.h"
-#include "fetion_buddylist.h"
-#include "fetion_history.h"
-#include "fetion_share.h"
-#include "fetion_directsms.h"
+#ifndef FETION_DIRECTSMS_H
+#define FETION_DIRECTSMS_H
+
+#define PIC_SUCCESS 1
+#define PIC_ERROR -1
+#define UNKNOW_ERROR -2
+
+extern void fetion_directsms_send_option(User *user);
+
+extern int fetion_directsms_send_subscribe(User *user
+		, const char *code , char **error);
+
 #endif

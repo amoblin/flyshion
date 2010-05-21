@@ -540,11 +540,11 @@ echo 'BEGIN {' >"$tmp/subs1.awk" &&
 cat >>"$tmp/subs1.awk" <<\_ACAWK &&
 S["LTLIBOBJS"]=""
 S["LIBOBJS"]=""
-S["GSTREAMER_LIBS"]="-pthread -L/usr/local/lib -lgstreamer-0.10 -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lrt -lxml2 -lglib-2.0  "
-S["GSTREAMER_CFLAGS"]="-pthread -I/usr/local/include/libxml2 -I/usr/include/gstreamer-0.10 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include  "
-S["XML_LIBS"]="-L/usr/local/lib -lxml2 -lz -lm"
-S["XML_CPPFLAGS"]="-I/usr/local/include/libxml2"
-S["XML2_CONFIG"]="/usr/local/bin/xml2-config"
+S["GSTREAMER_LIBS"]="-pthread -lgstreamer-0.10 -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lrt -lxml2 -lglib-2.0  "
+S["GSTREAMER_CFLAGS"]="-pthread -I/usr/include/gstreamer-0.10 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/libxml2  "
+S["XML_LIBS"]="-lxml2 -lz -lm"
+S["XML_CPPFLAGS"]="-I/usr/include/libxml2"
+S["XML2_CONFIG"]="/usr/bin/xml2-config"
 S["GTK_LIBS"]="-lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 -lgio-2.0 -lpangoft2-1.0 -lgdk_pixbuf-2.0 -lpangocairo-1.0 -lcairo -lpango-1.0 -lfreetype -lfontconfig -lgobje"\
 "ct-2.0 -lgmodule-2.0 -lglib-2.0  "
 S["GTK_CFLAGS"]="-I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/us"\

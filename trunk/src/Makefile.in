@@ -54,6 +54,7 @@ am_openfetion_OBJECTS = openfetion-fetion_buddylist.$(OBJEXT) \
 	openfetion-fetion_login.$(OBJEXT) \
 	openfetion-fetion_message.$(OBJEXT) \
 	openfetion-fetion_share.$(OBJEXT) \
+	openfetion-fetion_directsms.$(OBJEXT) \
 	openfetion-fetion_sip.$(OBJEXT) \
 	openfetion-fetion_user.$(OBJEXT) \
 	openfetion-fx_add_group.$(OBJEXT) \
@@ -199,6 +200,7 @@ openfetion_SOURCES = fetion_buddylist.c \
 					 fetion_login.c \
 					 fetion_message.c \
 					 fetion_share.c \
+					 fetion_directsms.c \
 					 fetion_sip.c \
 					 fetion_user.c \
 					 fx_add_group.c \
@@ -299,6 +301,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fetion_contact.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fetion_conversation.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fetion_debug.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fetion_directsms.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fetion_history.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fetion_list.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fetion_login.Po@am__quote@
@@ -499,6 +502,20 @@ openfetion-fetion_share.obj: fetion_share.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='fetion_share.c' object='openfetion-fetion_share.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o openfetion-fetion_share.obj `if test -f 'fetion_share.c'; then $(CYGPATH_W) 'fetion_share.c'; else $(CYGPATH_W) '$(srcdir)/fetion_share.c'; fi`
+
+openfetion-fetion_directsms.o: fetion_directsms.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT openfetion-fetion_directsms.o -MD -MP -MF $(DEPDIR)/openfetion-fetion_directsms.Tpo -c -o openfetion-fetion_directsms.o `test -f 'fetion_directsms.c' || echo '$(srcdir)/'`fetion_directsms.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/openfetion-fetion_directsms.Tpo $(DEPDIR)/openfetion-fetion_directsms.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='fetion_directsms.c' object='openfetion-fetion_directsms.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o openfetion-fetion_directsms.o `test -f 'fetion_directsms.c' || echo '$(srcdir)/'`fetion_directsms.c
+
+openfetion-fetion_directsms.obj: fetion_directsms.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT openfetion-fetion_directsms.obj -MD -MP -MF $(DEPDIR)/openfetion-fetion_directsms.Tpo -c -o openfetion-fetion_directsms.obj `if test -f 'fetion_directsms.c'; then $(CYGPATH_W) 'fetion_directsms.c'; else $(CYGPATH_W) '$(srcdir)/fetion_directsms.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/openfetion-fetion_directsms.Tpo $(DEPDIR)/openfetion-fetion_directsms.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='fetion_directsms.c' object='openfetion-fetion_directsms.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o openfetion-fetion_directsms.obj `if test -f 'fetion_directsms.c'; then $(CYGPATH_W) 'fetion_directsms.c'; else $(CYGPATH_W) '$(srcdir)/fetion_directsms.c'; fi`
 
 openfetion-fetion_sip.o: fetion_sip.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT openfetion-fetion_sip.o -MD -MP -MF $(DEPDIR)/openfetion-fetion_sip.Tpo -c -o openfetion-fetion_sip.o `test -f 'fetion_sip.c' || echo '$(srcdir)/'`fetion_sip.c
