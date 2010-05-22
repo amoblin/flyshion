@@ -142,6 +142,9 @@ SipHeader* fetion_sip_event_header_new(int eventType)
 		case SIP_EVENT_HANDLECONTACTREQUEST :
 			strcpy(event , "HandleContactRequestV4");
 			break;
+		case SIP_EVENT_SENDDIRECTCATSMS :
+			strcpy(event , "SendDirectCatSMS");
+			break;
 		default:
 			break;
 	}

@@ -608,7 +608,8 @@ void* fx_tree_update_portrait_thread_func(void* data)
 	while(gtk_tree_model_iter_next(model , &iter));
 	return NULL;
 }
-void fx_tree_on_double_click(GtkTreeView *treeview , GtkTreePath *path , GtkTreeViewColumn  *col , gpointer data)
+void fx_tree_on_double_click(GtkTreeView *treeview
+		, GtkTreePath *path , GtkTreeViewColumn  *col , gpointer data)
 {
 	FxMain* fxmain = (FxMain*)data;
 	GtkTreeModel* model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
@@ -661,7 +662,8 @@ void fx_tree_on_double_click(GtkTreeView *treeview , GtkTreePath *path , GtkTree
 			gtk_tree_view_expand_row(treeview , path , TRUE);
 	}
 }
-gboolean fx_tree_on_rightbutton_click(GtkWidget* tree , GdkEventButton* event , gpointer data)
+gboolean fx_tree_on_rightbutton_click(GtkWidget* tree
+		, GdkEventButton* event , gpointer data)
 {
 	GtkTreeIter iter;
 	GtkTreePath* path = NULL;

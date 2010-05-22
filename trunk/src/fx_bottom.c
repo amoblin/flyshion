@@ -41,7 +41,7 @@ static void fx_bottom_on_directsms_clicked(GtkWidget *widget , gpointer data)
 	const char *code;
 
 	DEBUG_FOOTPRINT();
-
+/*
 	fetion_directsms_send_option(user);
 
 	generate_pic_code(user);
@@ -63,8 +63,10 @@ static void fx_bottom_on_directsms_clicked(GtkWidget *widget , gpointer data)
 					"http://basiccoder.com/openfetion");
 			break;
 	}
-	printf("%s\n" , user->verification->guid);
-	gtk_widget_destroy(fxcode->dialog);
+	*/
+	//fetion_directsms_send_sms(user , "15210634361" , "aaa");
+	FxDSMS *fxdsms = fx_dsms_new(fxmain);
+	fx_dsms_initialize(fxdsms);
 }
 
 static void

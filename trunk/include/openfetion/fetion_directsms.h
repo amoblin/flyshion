@@ -25,9 +25,15 @@
 #define PIC_ERROR -1
 #define UNKNOW_ERROR -2
 
+#define SEND_SMS_SUCCESS 1
+#define SEND_SMS_NEED_AUTHENTICATION -1
+#define SEND_SMS_OTHER_ERROR -2
+
 extern void fetion_directsms_send_option(User *user);
 
 extern int fetion_directsms_send_subscribe(User *user
 		, const char *code , char **error);
 
+extern int fetion_directsms_send_sms(User *user
+		, const char *to , const char *msg);
 #endif

@@ -35,6 +35,7 @@
 #include "fx_proxy.h"
 #include "fx_add_group.h"
 #include "fx_profile.h"
+#include "fx_dsms.h"
 #include "fx_edit.h"
 #include "fx_gedit.h"
 #include "fx_chat.h"

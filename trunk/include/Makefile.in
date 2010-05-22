@@ -153,6 +153,7 @@ EXTRA_DIST = fx_add_group.h \
 			 fx_bottom.h \
 			 fx_chat.h \
 			 fx_code.h \
+			 fx_dsms.h \
 			 fx_edit.h \
 			 fx_gedit.h \
 			 fx_head.h \
