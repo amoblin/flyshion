@@ -31,6 +31,7 @@ openfetion_SOURCES = fetion_buddylist.c \
 					 fx_chat.c \
 					 fx_code.c \
 					 fx_edit.c \
+					 fx_dsms.c \
 					 fx_gedit.c \
 					 fx_head.c \
 					 fx_history.c \

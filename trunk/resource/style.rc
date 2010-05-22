@@ -46,7 +46,8 @@ style "texts"
 }
 style "treeview"
 {
-	bg[NORMAL] = "#266cbc" 
+	bg_pixmap[NORMAL] = "flow.jpg"
+	bg[NORMAL] = "#000000" 
 	fg[NORMAL] = "#266cbc"
 	text[NORMAL] = "#0099ff"
 }

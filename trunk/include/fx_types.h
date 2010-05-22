@@ -426,4 +426,28 @@ typedef struct
 	GtkWidget *iLabel;
 
 } FxShare;
+
+typedef struct
+{
+	FxMain *fxmain;
+	
+	GtkWidget *dialog;
+	GtkWidget *codeEntry;
+} FxConfirm;
+
+typedef struct
+{
+	FxMain *fxmain;
+
+	GtkWidget *dialog;
+	GtkWidget *recvText;
+	GtkWidget *sendText;
+	GtkWidget *numberEntry;
+	GtkWidget *addEventBox;
+	GtkWidget *msgLabel;
+	GtkWidget *chooseList;
+	GtkWidget *countLabel;
+	GtkWidget *checkBtn;
+	GtkWidget *sigEntry;
+} FxDSMS;
 #endif

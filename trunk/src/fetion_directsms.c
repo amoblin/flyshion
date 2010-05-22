@@ -158,3 +158,46 @@ int fetion_directsms_send_subscribe(User *user , const char *code , char **error
 	return parse_subscribe_response(http , error);
 
 }
+
+static void
+parse_send_sms_response(User *user , const char *msg)
+{
+
+}
+
+int fetion_directsms_send_sms(User *user
+		, const char *to , const char *msg)
+{
+	FetionSip *sip = user->sip;
+	SipHeader *svheader , *eheader , *theader;
+	char tostr[24] , *res , rep[1024];
+	int code;
+	
+	fetion_sip_set_type(sip , SIP_MESSAGE);
+	bzero(tostr , sizeof(tostr));
+	sprintf(tostr , "tel:%s" , to);
+	theader = fetion_sip_header_new("T" , tostr);
+	fetion_sip_add_header(sip , theader);
+	svheader = fetion_sip_header_new("SV" , "1");
+	fetion_sip_add_header(sip , svheader);
+	eheader = fetion_sip_event_header_new(SIP_EVENT_SENDDIRECTCATSMS);
+	fetion_sip_add_header(sip , eheader);
+	res = fetion_sip_to_string(sip , msg);
+	tcp_connection_send(sip->tcp , res , strlen(res));
+	printf("%s\n" , res);
+	bzero(rep , sizeof(rep));
+	int ret = tcp_connection_recv(sip->tcp , rep , sizeof(rep));
+	printf("%d\n" , ret);
+	printf("%s\n" , rep);
+	code = fetion_sip_get_code(rep);
+	if(code == 280){
+		return SEND_SMS_SUCCESS;
+	}else{
+		if(code == 420 || code == 421){
+			parse_option_verification(user , msg);
+			return SEND_SMS_NEED_AUTHENTICATION;
+		}else{
+			return SEND_SMS_OTHER_ERROR;
+		}
+	}
+}

@@ -61,9 +61,10 @@ am_openfetion_OBJECTS = openfetion-fetion_buddylist.$(OBJEXT) \
 	openfetion-fx_addbuddy.$(OBJEXT) openfetion-fx_app.$(OBJEXT) \
 	openfetion-fx_bottom.$(OBJEXT) openfetion-fx_chat.$(OBJEXT) \
 	openfetion-fx_code.$(OBJEXT) openfetion-fx_edit.$(OBJEXT) \
-	openfetion-fx_gedit.$(OBJEXT) openfetion-fx_head.$(OBJEXT) \
-	openfetion-fx_history.$(OBJEXT) openfetion-fx_proxy.$(OBJEXT) \
-	openfetion-fx_login.$(OBJEXT) openfetion-fx_lookup.$(OBJEXT) \
+	openfetion-fx_dsms.$(OBJEXT) openfetion-fx_gedit.$(OBJEXT) \
+	openfetion-fx_head.$(OBJEXT) openfetion-fx_history.$(OBJEXT) \
+	openfetion-fx_proxy.$(OBJEXT) openfetion-fx_login.$(OBJEXT) \
+	openfetion-fx_lookup.$(OBJEXT) \
 	openfetion-fx_lookupres.$(OBJEXT) openfetion-fx_main.$(OBJEXT) \
 	openfetion-fx_many.$(OBJEXT) openfetion-fx_myself.$(OBJEXT) \
 	openfetion-fx_profile.$(OBJEXT) openfetion-fx_set.$(OBJEXT) \
@@ -210,6 +211,7 @@ openfetion_SOURCES = fetion_buddylist.c \
 					 fx_chat.c \
 					 fx_code.c \
 					 fx_edit.c \
+					 fx_dsms.c \
 					 fx_gedit.c \
 					 fx_head.c \
 					 fx_history.c \
@@ -315,6 +317,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_bottom.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_chat.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_code.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_dsms.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_edit.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_emotion.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_gedit.Po@am__quote@
@@ -642,6 +645,20 @@ openfetion-fx_edit.obj: fx_edit.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='fx_edit.c' object='openfetion-fx_edit.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o openfetion-fx_edit.obj `if test -f 'fx_edit.c'; then $(CYGPATH_W) 'fx_edit.c'; else $(CYGPATH_W) '$(srcdir)/fx_edit.c'; fi`
+
+openfetion-fx_dsms.o: fx_dsms.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT openfetion-fx_dsms.o -MD -MP -MF $(DEPDIR)/openfetion-fx_dsms.Tpo -c -o openfetion-fx_dsms.o `test -f 'fx_dsms.c' || echo '$(srcdir)/'`fx_dsms.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/openfetion-fx_dsms.Tpo $(DEPDIR)/openfetion-fx_dsms.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='fx_dsms.c' object='openfetion-fx_dsms.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o openfetion-fx_dsms.o `test -f 'fx_dsms.c' || echo '$(srcdir)/'`fx_dsms.c
+
+openfetion-fx_dsms.obj: fx_dsms.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT openfetion-fx_dsms.obj -MD -MP -MF $(DEPDIR)/openfetion-fx_dsms.Tpo -c -o openfetion-fx_dsms.obj `if test -f 'fx_dsms.c'; then $(CYGPATH_W) 'fx_dsms.c'; else $(CYGPATH_W) '$(srcdir)/fx_dsms.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/openfetion-fx_dsms.Tpo $(DEPDIR)/openfetion-fx_dsms.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='fx_dsms.c' object='openfetion-fx_dsms.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o openfetion-fx_dsms.obj `if test -f 'fx_dsms.c'; then $(CYGPATH_W) 'fx_dsms.c'; else $(CYGPATH_W) '$(srcdir)/fx_dsms.c'; fi`
 
 openfetion-fx_gedit.o: fx_gedit.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT openfetion-fx_gedit.o -MD -MP -MF $(DEPDIR)/openfetion-fx_gedit.Tpo -c -o openfetion-fx_gedit.o `test -f 'fx_gedit.c' || echo '$(srcdir)/'`fx_gedit.c

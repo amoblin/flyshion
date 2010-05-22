@@ -177,6 +177,7 @@ skin_DATA = about.png \
 			move.gif \
 			myselfsms.png \
 			nudge.png \
+			add.png \
 			options.png \
 			personal.png \
 			phone.png \

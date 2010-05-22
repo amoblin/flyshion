@@ -42,28 +42,37 @@ void fx_myself_bind(FxMyself* fxmyself)
 
 	DEBUG_FOOTPRINT();
 
-	bzero(name , sizeof(name)); sprintf(name , "%s/%s.jpg" , config->iconPath ,
-			user->sId ); pb = gdk_pixbuf_new_from_file_at_size(name , 40 , 40 ,
-				NULL); if(pb != NULL) {
-				gtk_image_set_from_pixbuf(GTK_IMAGE(fxmyself->headimage) , pb);
-				gtk_window_set_icon(GTK_WINDOW(fxmyself->dialog) , pb); }
-				gtk_window_set_title(GTK_WINDOW(fxmyself->dialog) ,
-						"正在给自己发短信");
+	bzero(name , sizeof(name));
+	sprintf(name , "%s/%s.jpg" , config->iconPath ,
+			user->sId );
+	pb = gdk_pixbuf_new_from_file_at_size(name , 40 , 40 ,
+				NULL); 
+	if(pb != NULL) {
+		gtk_image_set_from_pixbuf(GTK_IMAGE(fxmyself->headimage) , pb);
+		gtk_window_set_icon(GTK_WINDOW(fxmyself->dialog) , pb);
+	}
+	gtk_window_set_title(GTK_WINDOW(fxmyself->dialog) ,
+			"正在给自己发短信");
 
 	bzero(name , sizeof(name)); sprintf(name , "%s(%s)" , user->nickname ,
-			user->sId); gtk_label_set_markup(GTK_LABEL(fxmyself->name_label) ,
+			user->sId);
+	gtk_label_set_markup(GTK_LABEL(fxmyself->name_label) ,
 				name);
 
-	gtk_label_set_text(GTK_LABEL(fxmyself->impre_label) , user->impression); }
+	gtk_label_set_text(GTK_LABEL(fxmyself->impre_label) , user->impression);
+}
 
-void fx_myself_add_message(FxMyself* fxmyself , const char* message) {
+void fx_myself_add_message(FxMyself* fxmyself , const char* message)
+{
 	GtkTextIter iter;
 
-	User* user = fxmyself->fxmain->user; char text[200] = { 0 }; char time[30]
-		= { 0 }; char color[] = "blue";
+	User* user = fxmyself->fxmain->user;
+	char text[200] = { 0 };
+	char time[30] = { 0 };
+	char color[] = "blue";
 
-	struct tm* sendtime = get_currenttime(); GtkTextBuffer* buffer =
-		gtk_text_view_get_buffer(GTK_TEXT_VIEW(fxmyself->recv_text));
+	struct tm* sendtime = get_currenttime();
+	GtkTextBuffer* buffer =	gtk_text_view_get_buffer(GTK_TEXT_VIEW(fxmyself->recv_text));
 
 	DEBUG_FOOTPRINT();
 
@@ -88,9 +97,14 @@ void fx_myself_add_message(FxMyself* fxmyself , const char* message) {
 	gtk_text_buffer_move_mark (buffer, fxmyself->mark, &iter);
 
 	gtk_text_view_scroll_mark_onscreen (GTK_TEXT_VIEW(fxmyself->recv_text),
-			fxmyself->mark); } void fx_myself_initialize(FxMyself* fxmyself) {
-		GtkWidget* close_button; GtkWidget* send_button; GtkWidget* vbox;
-		GtkWidget* action_area;
+			fxmyself->mark);
+} 
+void fx_myself_initialize(FxMyself* fxmyself)
+{
+	GtkWidget* close_button;
+	GtkWidget* send_button;
+	GtkWidget* vbox;
+	GtkWidget* action_area;
 
 	DEBUG_FOOTPRINT();
 
