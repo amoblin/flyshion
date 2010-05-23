@@ -20,6 +20,8 @@
 
 #include "fx_include.h"
 
+#define SERVICE_DOWN_MESSAGE "您目前无法使用此功能\n\n您的手机已停机，无法使\n用手机相关功能，请缴费\n后重试"
+
 FxBottom* fx_bottom_new()
 {
 	FxBottom* fxbottom = (FxBottom*)malloc(sizeof(FxBottom));
@@ -30,42 +32,18 @@ FxBottom* fx_bottom_new()
 	return fxbottom;
 }
 
-static void fx_bottom_on_directsms_clicked(GtkWidget *widget , gpointer data)
+static void 
+fx_bottom_on_directsms_clicked(GtkWidget *widget , gpointer data)
 {
 	FxMain *fxmain = (FxMain*)data;
-	User *user = fxmain->user;
-
-	FxCode *fxcode;
-	int ret;
-	char *error;
-	const char *code;
+	FxDSMS *fxdsms = fx_dsms_new(fxmain);
 
 	DEBUG_FOOTPRINT();
-/*
-	fetion_directsms_send_option(user);
 
-	generate_pic_code(user);
-	fxcode = fx_code_new(fxmain , user->verification->text
-			, user->verification->tips , CODE_NOT_ERROR);
-	fx_code_initialize(fxcode);
-	ret = gtk_dialog_run(GTK_DIALOG(fxcode->dialog));
-	code = gtk_entry_get_text(GTK_ENTRY(fxcode->codeentry));	
-	switch(fetion_directsms_send_subscribe(user , code , &error)){
-		case PIC_SUCCESS :
-			fx_util_popup_warning(fxmain , "成功！");
-			break;
-		case PIC_ERROR :
-			fx_util_popup_warning(fxmain , error);
-			free(error);
-			break;
-		case UNKNOW_ERROR :
-			fx_util_popup_warning(fxmain , "发生未知错误，请向报告作者\n"
-					"http://basiccoder.com/openfetion");
-			break;
+	if(fxmain->user->carrierStatus == CARRIER_STATUS_DOWN){
+		fx_util_popup_warning(fxmain , SERVICE_DOWN_MESSAGE);
+		return;
 	}
-	*/
-	//fetion_directsms_send_sms(user , "15210634361" , "aaa");
-	FxDSMS *fxdsms = fx_dsms_new(fxmain);
 	fx_dsms_initialize(fxdsms);
 }
 
@@ -155,6 +133,11 @@ void fx_bottom_on_sendtome_clicked(GtkWidget* widget , gpointer data)
 
 	DEBUG_FOOTPRINT();
 
+	if(fxmain->user->carrierStatus == CARRIER_STATUS_DOWN){
+		fx_util_popup_warning(fxmain , SERVICE_DOWN_MESSAGE);
+		return;
+	}
+
 	fx_myself_initialize(fxmyself);
 	gtk_dialog_run(GTK_DIALOG(fxmyself->dialog));
 	gtk_widget_destroy(fxmyself->dialog);
@@ -166,6 +149,11 @@ void fx_bottom_on_sendtomany_clicked(GtkWidget* widget , gpointer data)
 	FxMany* fxmany = fx_many_new(fxmain);
 
 	DEBUG_FOOTPRINT();
+
+	if(fxmain->user->carrierStatus == CARRIER_STATUS_DOWN){
+		fx_util_popup_warning(fxmain , SERVICE_DOWN_MESSAGE);
+		return;
+	}
 
 	fx_many_initialize(fxmany);
 	gtk_dialog_run(GTK_DIALOG(fxmany->dialog));

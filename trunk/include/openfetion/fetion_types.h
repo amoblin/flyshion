@@ -32,13 +32,22 @@
 #	define DEBUG_FOOTPRINT()
 #endif
 
+#define FETION_NAME "OpenFetion"
 #define FETION_VERSION "1.5"
 #define PROTO_VERSION "4.0.2380"
 #define NAVIGATION_URI "nav.fetion.com.cn"
-#define LOGIN_TYPE_FETIONNO 1
-#define LOGIN_TYPE_MOBILENO 0
-#define BOUND_MOBILE_ENABLE 1
-#define BOUND_MOBILE_DISABLE 0
+#define LOGIN_TYPE_FETIONNO    			1
+#define LOGIN_TYPE_MOBILENO    			0
+#define BOUND_MOBILE_ENABLE    			1
+#define BOUND_MOBILE_DISABLE   			0
+#define BASIC_SERVICE_NORMAL   			1
+#define BASIC_SERVICE_ABNORMAL 			0
+#define CARRIER_STATUS_OFFLINE			-1
+#define CARRIER_STATUS_NORMAL  			0
+#define CARRIER_STATUS_DOWN    			1
+#define CARRIER_STATUS_CLOSED           2 
+#define RELATION_STATUS_AUTHENTICATED   1
+#define RELATION_STATUS_UNAUTHENTICATED 0
 /**
  * some other buddylists
  */
@@ -62,7 +71,7 @@ typedef enum
 	P_MEETING = 	 850 ,
 	P_DONOTDISTURB = 800 ,
 	P_HIDDEN = 		 0 ,
-	P_NOTAPRESENCE = -1
+	P_OFFLINE =      -1
 } StateType;
 
 /**
@@ -178,7 +187,10 @@ typedef struct contact
 	char city[6];						/* user`s city`s code ,like 10 for beijing			*/
 	int identity;						/* whethere to show mobileno to this user   		*/
 	int scoreLevel;						/* user`s score level,unused now					*/
-	int serviceStatus;					/* service status like offline or closed,etc		*/
+	int serviceStatus;					/* basic service status 							*/
+	int carrierStatus;
+	int relationStatus;
+	char carrier[16];
 	StateType state;					/* state type like online,busy,etc					*/
 	int groupid;						/* buddylist id										*/
 	int gender;							/* gender 1 for male 2 for female,0 for private		*/
@@ -285,6 +297,7 @@ typedef struct
 	int state;							/* presence state											*/
 	int loginType;   					/* using sid or mobileno									*/
 	int loginStatus; 					/* login status code 										*/
+	int carrierStatus;
 	int boundToMobile;					/* whether this number is bound to a mobile number  */
 	long loginTimes;
 	char* ssic;						    /* cookie string read from reply message after ssi login 	*/

@@ -29,7 +29,11 @@
 #define SEND_SMS_NEED_AUTHENTICATION -1
 #define SEND_SMS_OTHER_ERROR -2
 
-extern void fetion_directsms_send_option(User *user);
+#define DSMS_OPTION_SUCCESS 1
+#define DSMS_OPTION_FAILED -1
+
+extern int fetion_directsms_send_option(User *user
+		, const char *response);
 
 extern int fetion_directsms_send_subscribe(User *user
 		, const char *code , char **error);

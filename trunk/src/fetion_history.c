@@ -20,7 +20,8 @@
 
 #include "fetion_include.h"
 
-History* fetion_history_message_new(const char* name , const char* userid , struct tm time , const char* msg , const int issend)
+History* fetion_history_message_new(const char* name , const char* userid
+		, struct tm time , const char* msg , const int issend)
 {
 	History* history = (History*)malloc(sizeof(History));
 	memset(history , 0 , sizeof(History));

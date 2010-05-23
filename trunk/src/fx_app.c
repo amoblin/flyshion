@@ -246,7 +246,7 @@ void* fx_app_ok_thread(void* data)
 					, B_SIPURI_COL			, contact->sipuri
 					, B_USERID_COL			, contact->userId
 					, B_NAME_COL			, contact->localname
-					, B_STATUS_COL			, STATUS_NORMAL
+					, B_RELATIONSTATUS_COL	, RELATION_STATUS_AUTHENTICATED
 					, B_DEVICE_COL			, "PC"
 					, -1);
 

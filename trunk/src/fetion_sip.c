@@ -634,6 +634,7 @@ void fetion_sip_parse_message(FetionSip* sip , const char* sipmsg , Message** ms
 	*msg = fetion_message_new();
 
 	pos = strstr(sipmsg , "\r\n\r\n") + 4;
+		printf("%s\n" , pos);
 	doc = xmlReadMemory(pos , strlen(pos) , "UTF-8" , NULL , XML_PARSE_NOERROR);
 	fetion_message_set_sipuri(*msg , from);
 	fetion_message_set_time(*msg , convert_date(sendtime));
@@ -715,7 +716,8 @@ void fetion_sip_parse_invitation(FetionSip* sip , Proxy *proxy , const char* sip
 	strcpy((*conversionSip)->sipuri , *sipuri);
 
 }
-void fetion_sip_parse_addbuddyapplication(const char* sipmsg , char** sipuri , char** userid , char** desc , int* phrase)
+void fetion_sip_parse_addbuddyapplication(const char* sipmsg
+		, char** sipuri , char** userid , char** desc , int* phrase)
 {
 	char *pos = NULL;
 	xmlDocPtr doc;

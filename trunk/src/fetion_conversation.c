@@ -213,6 +213,7 @@ int fetion_conversation_invite_friend(Conversation* conversation)
 	eheader = fetion_sip_event_header_new(SIP_EVENT_INVITEBUDDY);
 	fetion_sip_add_header(sip , eheader);
 	body = generate_invite_friend_body(conversation->currentContact->sipuri);
+	printf("%s\n" , body);
 	res = fetion_sip_to_string(sip , body);	
 	free(body); body = NULL;
 	tcp_connection_send(sip->tcp , res , strlen(res));
@@ -285,12 +286,7 @@ char* generate_invite_friend_body(const char* sipuri)
 	xmlNewProp(node , BAD_CAST "uri" , BAD_CAST sipuri);
 	xmlDocDumpMemory(doc , &buf , NULL);
 	xmlFreeDoc(doc);
-	pos = strstr((char*)buf , "?>") + 2;
-	res = (char*)malloc(strlen(pos));
-	memset(res , 0 , strlen(pos));
-	strcpy(res , pos);
-	xmlFree(buf);
-	return res;
+	return xml_convert(buf);
 }
 char* generate_send_nudge_body()
 {
@@ -305,13 +301,7 @@ char* generate_send_nudge_body()
 	xmlNodeSetContent(node , BAD_CAST "nudge");
 	xmlDocDumpMemory(doc , &buf , NULL);
 	xmlFreeDoc(doc);
-	pos = strstr((char*)buf , "?>") + 2;
-	res = (char*)malloc(strlen(pos));
-	memset(res , 0 , strlen(pos));
-	strcpy(res , pos);
-	xmlFree(buf);
-	return res;
-
+	return xml_convert(buf);
 }
 void fetion_conversation_parse_send_sms(const char* xml , int* daycount , int* mountcount)
 {

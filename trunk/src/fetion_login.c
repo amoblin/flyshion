@@ -465,6 +465,12 @@ void parse_personal_info(xmlNodePtr node , User* user)
 		strcpy(user->mobileno , (char*)buf);
 		xmlFree(buf);
 	}
+	if(xmlHasProp(node , BAD_CAST "carrier-status"))
+	{
+		buf = xmlGetProp(node , BAD_CAST "carrier-status");
+		user->carrierStatus = atoi((char*)buf);
+		xmlFree(buf);
+	}
 	if(xmlHasProp(node , BAD_CAST "nickname"))
 	{
 		buf = xmlGetProp(node , BAD_CAST "nickname");
@@ -567,22 +573,15 @@ void parse_contact_list(xmlNodePtr node , User* user)
 		else
 			contact->identity = 0;
 		buf = xmlGetProp(node1 , BAD_CAST "r");
-		if(atoi((char*)buf) == 1)
-			contact->serviceStatus = STATUS_NORMAL;
-		else
-			contact->serviceStatus = STATUS_NOT_AUTHENTICATED;
+		contact->relationStatus = atoi((char*)buf);
 		xmlFree(buf);
 
 		buf = xmlGetProp(node1 , BAD_CAST "u");
 		strcpy(contact->sipuri , (char*)buf);
-		if(strstr((char*)buf , "tel") != NULL)
-			contact->serviceStatus = STATUS_SMS_ONLINE;
+		//if(strstr((char*)buf , "tel") != NULL)
+		//	contact->serviceStatus = STATUS_SMS_ONLINE;
 		xmlFree(buf);
 
-/*		buf = xmlGetProp(node1 , BAD_CAST "o");
-		if(atoi((char*)buf) == 1)
-			contact->serviceStatus = STATUS_OFFLINE;
-		xmlFree(buf);*/
 		if(hasBuddy == 0)
 		{
 			if(user->contactList == NULL)
@@ -804,4 +803,3 @@ unsigned char* decode_base64(const char* in , int* len)
 	}
 	return res;
 }
-

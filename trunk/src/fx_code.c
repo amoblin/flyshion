@@ -73,19 +73,20 @@ void fx_code_initialize(FxCode *fxcode)
 	sprintf(codePath , "%s/code.gif" , fxcode->fxmain->user->config->globalPath);
 	pb = gdk_pixbuf_new_from_file_at_size(codePath , 130 , 36 , NULL);
 	fxcode->codepic = gtk_image_new_from_pixbuf(pb);
+	gtk_widget_set_tooltip_markup(fxcode->codepic , "点此重新获取验证码");
 	fxcode->codebox = gtk_event_box_new();
 	g_signal_connect(G_OBJECT(fxcode->codebox)
 					, "button_press_event"
 					, GTK_SIGNAL_FUNC(fx_code_code_event_func)
-				   , NULL);
+				   , fxcode);
 	g_signal_connect(G_OBJECT(fxcode->codebox)
 				   , "enter_notify_event"
 				   , GTK_SIGNAL_FUNC(fx_code_code_event_func)
-				   , fxcode->dialog);
+				   , fxcode);
 	g_signal_connect(G_OBJECT(fxcode->codebox)
 				   , "leave_notify_event"
 				   , GTK_SIGNAL_FUNC(fx_code_code_event_func)
-				   , fxcode->dialog);
+				   , fxcode);
 	gtk_container_add(GTK_CONTAINER(fxcode->codebox) , fxcode->codepic);
 	gtk_fixed_put(GTK_FIXED(fixed) , fxcode->codebox , 150 , 120);
 
@@ -110,22 +111,31 @@ void fx_code_initialize(FxCode *fxcode)
 }
 void fx_code_code_event_func(GtkWidget* widget , GdkEventButton* event , gpointer data)
 {
-	GtkWidget* dialog = (GtkWidget*)data;
+	FxCode *fxcode = (FxCode*)data;
+	GtkWidget* dialog = fxcode->dialog;
+	User *user = fxcode->fxmain->user;
 	GdkCursor*  cursor;
+	char codePath[256];
+	GdkPixbuf *pb;
 
 	DEBUG_FOOTPRINT();
 
 	switch(event->type)
 	{
 		case GDK_BUTTON_PRESS :
+			generate_pic_code(user);
+			bzero(codePath , sizeof(codePath));
+			sprintf(codePath , "%s/code.gif" , fxcode->fxmain->user->config->globalPath);
+			pb = gdk_pixbuf_new_from_file_at_size(codePath , 130 , 36 , NULL);
+			gtk_image_set_from_pixbuf(GTK_IMAGE(fxcode->codepic) , pb);
 			break;
 		case GDK_ENTER_NOTIFY :
 			cursor = gdk_cursor_new (GDK_HAND2);
-			gdk_window_set_cursor(dialog->window,cursor);
+			gdk_window_set_cursor(fxcode->dialog->window,cursor);
 			break;
 		case GDK_LEAVE_NOTIFY :
 			cursor = gdk_cursor_new (GDK_LEFT_PTR);
-			gdk_window_set_cursor(dialog->window,cursor);
+			gdk_window_set_cursor(fxcode->dialog->window,cursor);
 			break;
 		default:
 			break;
