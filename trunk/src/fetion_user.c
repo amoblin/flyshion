@@ -420,12 +420,12 @@ int fetion_user_upload_portrait(User* user , const char* filename)
 int fetion_user_download_portrait(User* user , const char* sipuri)
 {
 	char buf[2048] = { 0 };
-	char* ip = NULL;
-	char* pos = NULL;
-	FILE* f = NULL;
-	char filename[100] = { 0 };
-	char* server = user->config->portraitServerName;
-	char* portraitPath = user->config->portraitServerPath;
+	char *ip = NULL;
+	char *pos = NULL;
+	FILE *f = NULL;
+	char filename[128] = { 0 };
+	char *server = user->config->portraitServerName;
+	char *portraitPath = user->config->portraitServerPath;
 	char *encodedSipuri , *encodedSsic , replyCode[4] = { 0 };
 	char *friendSid = NULL;
 	Config *config = user->config;
@@ -441,6 +441,7 @@ int fetion_user_download_portrait(User* user , const char* sipuri)
 	if(friendSid == NULL)
 		return -1;
 /*	open a file to write ,if not exist then create one*/
+	bzero(filename , sizeof(filename));
 	sprintf(filename , "%s/%s.jpg" , config->iconPath ,  friendSid);
 	free(friendSid);
 	encodedSipuri = http_connection_encode_url(sipuri);
@@ -520,6 +521,7 @@ int fetion_user_download_portrait(User* user , const char* sipuri)
 	if(strcmp(replyCode , "200") == 0)
 	{
 		fclose(f);
+		f = NULL;
 		tcp_connection_free(tcp);
 		tcp = NULL;
 		return 0;
@@ -645,6 +647,7 @@ Contact* fetion_user_parse_presence_body(const char* body , User* user)
 	{
 		pos = xmlGetProp(node , BAD_CAST "id");
 		currentContact = fetion_contact_list_find_by_userid(contactlist , (char*)pos);
+		//currentContact = fetion_contact_new();
 		if(currentContact == NULL)
 		{
 			/*not a valid information*/
@@ -689,24 +692,35 @@ Contact* fetion_user_parse_presence_body(const char* body , User* user)
 			strcpy(currentContact->portraitCrc ,  (char*)pos);
 			xmlFree(pos);
 		}
-		if(xmlHasProp(cnode , BAD_CAST "sms"))
+		if(xmlHasProp(cnode , BAD_CAST "c"))
 		{
-			pos = xmlGetProp(cnode , BAD_CAST "sms");
-			if(strstr((char*)pos , "365") != NULL)
-				currentContact->serviceStatus = STATUS_OFFLINE;
+			pos = xmlGetProp(cnode , BAD_CAST "c");
+			strcpy(currentContact->carrier , (char*)pos);
 			xmlFree(pos);
 		}
 		if(xmlHasProp(cnode , BAD_CAST "cs"))
 		{
 			pos = xmlGetProp(cnode , BAD_CAST "cs");
-			if(atoi((char*)pos) == 2)
-				currentContact->serviceStatus = STATUS_SERVICE_CLOSED;
-#if 0
-			if(atoi((char*)pos) == 1)
-				currentContact->serviceStatus = STATUS_NOT_BOUND;
-#endif
+			currentContact->carrierStatus = atoi((char*)pos);
 			xmlFree(pos);
 		}
+		if(xmlHasProp(cnode , BAD_CAST "s"))
+		{
+			pos = xmlGetProp(cnode , BAD_CAST "s");
+			currentContact->serviceStatus = atoi((char*)pos);
+			xmlFree(pos);
+		}
+#if 0
+		if(xmlHasProp(cnode , BAD_CAST "sms")){
+			pos = xmlGetProp(cnode , BAD_CAST "sms");
+			if(strstr((char*)pos , "365")
+			&& currentContact->serviceStatus == BASIC_SERVICE_NORMAL
+			&& currentContact->carrierStatus == CARRIER_STATUS_NORMAL
+			&& strlen(currentContact->carrier) != 0)
+				currentContact->state = P_OFFLINE;
+			xmlFree(pos);
+		}
+#endif
 		cnode = xml_goto_node(node , "pr");
 		if(xmlHasProp(cnode , BAD_CAST "dt"))
 		{
@@ -750,6 +764,7 @@ Contact* fetion_user_parse_syncuserinfo_body(const char* body , User* user)
 
 	pos = xmlGetProp(node , BAD_CAST "user-id");
 	currentContact = fetion_contact_list_find_by_userid(contactlist , (char*)pos);
+	//currentContact = fetion_contact_new();
 	debug_info("synchronize user information");
 	if(currentContact == NULL)
 	{
@@ -766,15 +781,14 @@ Contact* fetion_user_parse_syncuserinfo_body(const char* body , User* user)
 	if(xmlHasProp(node , BAD_CAST "relation-status"))
 	{
 		pos = xmlGetProp(node , BAD_CAST "relation-status");
+		currentContact->relationStatus = atoi((char*)pos);
 		if(atoi((char*)pos) == 1)
 		{
 			debug_info("User %s accepted your request" , currentContact->userId);
-			currentContact->serviceStatus = STATUS_NORMAL;
 		}
 		else
 		{
 			debug_info("User %s refused your request" , currentContact->userId);
-			currentContact->serviceStatus = STATUS_REJECTED;
 		}
 		xmlFree(pos);
 	}

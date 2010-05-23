@@ -32,7 +32,9 @@ parse_option_verification(User *user , const char *in)
 	user->verification = fetion_verification_new();
 	bzero(w , sizeof(w));
 	fetion_sip_get_attr(in , "W" , w);
+	printf("%s\n" , w);
 	pos = strstr(w , "thm=\"") + 5;
+	printf("%s\n" , pos);
 	n = strlen(pos) - strlen(strstr(pos , "\""));
 	user->verification->algorithm = (char*)malloc(n + 1);
 	bzero(user->verification->algorithm , n + 1);
@@ -67,20 +69,38 @@ parse_option_verification(User *user , const char *in)
 	}
 }
 
-void fetion_directsms_send_option(User *user)
+int fetion_directsms_send_option(User *user , const char *response)
 {
 	FetionSip *sip = user->sip;
-	SipHeader *eheader;
-	char *res;
+	SipHeader *eheader , *aheader;
+	int code;
+	char *res , atext[1024];
 	
 	fetion_sip_set_type(sip , SIP_OPTION);
 	eheader = fetion_sip_event_header_new(SIP_EVENT_DIRECTSMS);	
 	fetion_sip_add_header(sip , eheader);
+	if(user->verification != NULL && response != NULL){
+		bzero(atext , sizeof(atext));
+		sprintf(atext , "Verify algorithm=\"%s\","
+				"type=\"%s\",response=\"%s\",chid=\"%s\""
+				, user->verification->algorithm
+				, user->verification->type
+				, response
+				, user->verification->guid);
+		aheader = fetion_sip_header_new("A" , atext);
+		fetion_sip_add_header(sip , aheader);
+	}
 	res = fetion_sip_to_string(sip , NULL);
 	tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
 	res = fetion_sip_get_response(sip);
-	parse_option_verification(user , res);
+	code = fetion_sip_get_code(res);
+	if(code == 200){
+		return DSMS_OPTION_SUCCESS;
+	}else{
+		parse_option_verification(user , res);
+		return DSMS_OPTION_FAILED;
+	}
 	free(res);
 }
 
@@ -194,7 +214,7 @@ int fetion_directsms_send_sms(User *user
 		return SEND_SMS_SUCCESS;
 	}else{
 		if(code == 420 || code == 421){
-			parse_option_verification(user , msg);
+			parse_option_verification(user , rep);
 			return SEND_SMS_NEED_AUTHENTICATION;
 		}else{
 			return SEND_SMS_OTHER_ERROR;

@@ -1,3 +1,23 @@
+/***************************************************************************
+ *   Copyright (C) 2010 by lwp                                             *
+ *   levin108@gmail.com                                                    *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ ***************************************************************************/
+
 #include "fx_include.h"
 
 FxConfirm* fx_confirm_new(FxMain *fxmain)
@@ -9,6 +29,22 @@ FxConfirm* fx_confirm_new(FxMain *fxmain)
 	fxconfirm = (FxConfirm*)malloc(sizeof(FxConfirm));
 	fxconfirm->fxmain = fxmain;
 	return fxconfirm;
+}
+
+static void
+fx_confirm_on_ok_clicked(GtkWidget *widget , gpointer data)
+{
+	FxConfirm *fxconfirm = (FxConfirm*)data;
+	gtk_dialog_response(GTK_DIALOG(fxconfirm->dialog)
+			, GTK_RESPONSE_OK);
+}
+
+static void
+fx_confirm_on_cancel_clicked(GtkWidget *widget , gpointer data)
+{
+	FxConfirm *fxconfirm = (FxConfirm*)data;
+	gtk_dialog_response(GTK_DIALOG(fxconfirm->dialog)
+			, GTK_RESPONSE_CANCEL);
 }
 
 void fx_confirm_initialize(FxConfirm *fxconfirm)
@@ -46,8 +82,12 @@ void fx_confirm_initialize(FxConfirm *fxconfirm)
 
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxconfirm->dialog)->action_area)
 			, okBtn);
+	g_signal_connect(okBtn , "clicked"
+			, G_CALLBACK(fx_confirm_on_ok_clicked) , fxconfirm);
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxconfirm->dialog)->action_area)
 			, cancelBtn);
+	g_signal_connect(cancelBtn , "clicked"
+			, G_CALLBACK(fx_confirm_on_cancel_clicked) , fxconfirm);
 
 	gtk_widget_show_all(fxconfirm->dialog);
 	gtk_widget_hide(fxconfirm->dialog);
@@ -217,6 +257,28 @@ fx_dsms_on_text_buffer_changed(GtkTextBuffer *buffer , gpointer data)
 	}
 	return FALSE;
 }
+
+static void 
+fx_dsms_add_information(FxDSMS* fxdsms , const char* msg)
+{
+	GtkTextIter iter;
+	GtkTextMark *mark;
+	GtkTextBuffer* buffer;
+
+	DEBUG_FOOTPRINT();
+
+ 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(fxdsms->recvText));
+	gtk_text_buffer_get_end_iter(buffer , &iter );
+	gtk_text_buffer_insert(buffer , &iter , "" , -1);
+	gtk_text_buffer_insert_with_tags_by_name(buffer
+					, &iter, msg , -1 , "grey" , "lm10" , NULL);
+	gtk_text_buffer_insert(buffer , &iter , "\n" , -1);
+	gtk_text_iter_set_line_offset (&iter, 0);
+	mark = gtk_text_buffer_get_mark (buffer, "scroll");
+	gtk_text_buffer_move_mark (buffer, mark, &iter);
+	gtk_text_view_scroll_mark_onscreen (GTK_TEXT_VIEW(fxdsms->recvText), mark);
+}
+
 static void
 fx_dsms_sig_checked(GtkWidget *widget , gpointer data)
 {
@@ -237,7 +299,119 @@ fx_dsms_sig_checked(GtkWidget *widget , gpointer data)
 static void*
 fx_dsms_send_thread(void *data)
 {
+	FxDSMS *fxdsms = (FxDSMS*)data;
+	FxMain *fxmain = fxdsms->fxmain;
+	User *user = fxmain->user;
+	GtkTreeView *treeView = GTK_TREE_VIEW(fxdsms->chooseList);
+	GtkTreeModel *model = gtk_tree_view_get_model(treeView);
+	GtkTreeIter iter;
+	GtkTextIter begin , end;
+	GtkTextBuffer *buffer;
+	char *to , text[1024] , msg[1024] , *error;
+	const char *message , *code;
+	int ret , ret1 , ret2 , ret3;
 
+	FxCode *fxcode;
+	FxConfirm *fxconfirm;
+
+	DEBUG_FOOTPRINT();
+
+	gtk_tree_model_get_iter_first(model , &iter);
+	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(fxdsms->sendText));
+	gtk_text_buffer_get_start_iter(buffer , &begin);
+	gtk_text_buffer_get_end_iter(buffer , &end);
+	message = gtk_text_buffer_get_text(buffer , &begin , &end , TRUE);
+	bzero(msg , sizeof(msg));
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxdsms->checkBtn))){
+		sprintf(msg , "%s:%s"
+				, gtk_entry_get_text(GTK_ENTRY(fxdsms->sigEntry))
+				, message);
+	}else{
+		strcpy(msg , message);
+	}
+	gtk_text_buffer_delete(buffer , &begin , &end);
+
+	do
+	{
+		gtk_tree_model_get(model , &iter
+				, NUMBER_COL , &to , -1);
+		ret = fetion_directsms_send_sms(user , to , msg);
+		if(ret == SEND_SMS_SUCCESS){
+			bzero(text , sizeof(text));
+			sprintf(text , "消息成功发送至:%s" , to);
+			gdk_threads_enter();
+			fx_dsms_add_information(fxdsms , text);
+			gdk_threads_leave();
+		}else if(ret == SEND_SMS_OTHER_ERROR){
+			bzero(text , sizeof(text));
+			sprintf(text , "消息未发送至:%s，请确认联系人手机号是否正确" , to);
+			gdk_threads_enter();
+			fx_dsms_add_information(fxdsms , text);
+			gdk_threads_leave();
+		}else{
+picreload:
+			generate_pic_code(user);
+			fxcode = fx_code_new(fxmain , user->verification->text
+					, user->verification->tips , CODE_NOT_ERROR );
+			gdk_threads_enter();
+			fx_code_initialize(fxcode);
+			ret = gtk_dialog_run(GTK_DIALOG(fxcode->dialog));
+			if(ret == GTK_RESPONSE_CANCEL){
+				bzero(text , sizeof(text));
+				sprintf(text , "消息发送失败"
+						, to , user->verification->text);
+				fx_dsms_add_information(fxdsms , text);
+				gtk_widget_destroy(fxcode->dialog);
+				gdk_threads_leave();
+				fetion_verification_free(user->verification);
+				user->verification = NULL;
+				break;
+			}
+			if(ret == GTK_RESPONSE_OK){
+				code = gtk_entry_get_text(GTK_ENTRY(fxcode->codeentry));
+				ret1 = fetion_directsms_send_subscribe(user
+						, code , &error);
+				gtk_widget_destroy(fxcode->dialog);
+				if(ret1 == PIC_ERROR){
+					debug_info("%s" , error);
+					free(error);
+					gdk_threads_leave();
+					goto picreload;
+				}else{
+					fxconfirm = fx_confirm_new(fxmain);
+					fx_confirm_initialize(fxconfirm);
+					ret2 = gtk_dialog_run(GTK_DIALOG(fxconfirm->dialog));
+					if(ret2 == GTK_RESPONSE_CANCEL){
+						bzero(text , sizeof(text));
+						sprintf(text , "消息发送失败"
+								, to , user->verification->text);
+						fx_dsms_add_information(fxdsms , text);
+						gtk_widget_destroy(fxconfirm->dialog);
+						gdk_threads_leave();
+						fetion_verification_free(user->verification);
+						user->verification = NULL;
+						break;
+					}else{
+						bzero(user->verification->guid
+								, strlen(user->verification->guid) + 1);	
+						strcpy(user->verification->guid , user->mobileno);
+						code = gtk_entry_get_text(GTK_ENTRY(fxconfirm->codeEntry));
+						ret3 = fetion_directsms_send_option(user , code);
+						gtk_widget_destroy(fxconfirm->dialog);
+						if(ret3 == DSMS_OPTION_SUCCESS){
+							gdk_threads_leave();
+						}else{
+							gdk_threads_leave();
+							goto picreload;
+						}
+					}
+				}
+			}
+		}
+		bzero(text , sizeof(text));
+		fx_dsms_add_information(fxdsms , text);
+		free(to);
+	}while(gtk_tree_model_iter_next(model , &iter));
 }
 
 static void
@@ -255,7 +429,7 @@ fx_dsms_send_message(FxDSMS *fxdsms)
 	char color[10] = { 0 };
 	char time[30] = { 0 };
 	const char *message;
-	char *to;
+	char *to , msg[1024];
 	struct tm *datetime;
 
 	GtkWidget *pb = NULL;
@@ -280,6 +454,14 @@ fx_dsms_send_message(FxDSMS *fxdsms)
 	message = gtk_text_buffer_get_text(buffer1 , &begin , &end , TRUE);
 	if(strlen(message) == 0)
 		return;
+	bzero(msg , sizeof(msg));
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxdsms->checkBtn))){
+		sprintf(msg , "%s:%s"
+				, gtk_entry_get_text(GTK_ENTRY(fxdsms->sigEntry))
+				, message);
+	}else{
+		strcpy(msg , message);
+	}
 	strftime(time , sizeof(time) , "%H:%M:%S" , datetime);
 
 	sprintf(text , "%s 说 (%s):\n" , user->nickname , time);
@@ -287,7 +469,7 @@ fx_dsms_send_message(FxDSMS *fxdsms)
 	gtk_text_buffer_insert_with_tags_by_name(buffer
 					, &iter , text , -1 , "blue" , NULL);
 	gtk_text_buffer_insert_with_tags_by_name(buffer
-					, &iter, message , strlen(message) , "lm10" , NULL);
+					, &iter, msg , strlen(msg) , "lm10" , NULL);
 	gtk_text_buffer_insert(buffer , &iter , "\n" , -1);
 
 	gtk_text_iter_set_line_offset (&iter, 0);
@@ -295,18 +477,7 @@ fx_dsms_send_message(FxDSMS *fxdsms)
 	gtk_text_buffer_move_mark (buffer, mark, &iter);
 	gtk_text_view_scroll_mark_onscreen (GTK_TEXT_VIEW(fxdsms->recvText), mark);
 
-	gtk_text_buffer_delete(buffer1 , &begin , &end);
-	do
-	{
-		gtk_tree_model_get(model , &posIter
-				, NUMBER_COL , &to , -1);
-		if(fetion_directsms_send_sms(user , to , message))
-		{
-			
-		}
-		free(to);
-	}while(gtk_tree_model_iter_next(model , &posIter));
-
+	g_thread_create(fx_dsms_send_thread , fxdsms , FALSE , NULL);
 }
 
 static gboolean
@@ -376,7 +547,7 @@ void fx_dsms_initialize(FxDSMS *fxdsms)
 	fxdsms->dialog = gtk_dialog_new();
 	gtk_widget_set_usize(fxdsms->dialog , 650 , 490);
 	gtk_window_set_resizable(GTK_WINDOW(fxdsms->dialog) , FALSE);
-	pb = gdk_pixbuf_new_from_file(SKIN_DIR"user_online.png" , NULL);
+	pb = gdk_pixbuf_new_from_file(SKIN_DIR"groupsend.png" , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxdsms->dialog) , pb);
 	gtk_window_set_title(GTK_WINDOW(fxdsms->dialog) , "直接短信");
 
@@ -410,7 +581,7 @@ void fx_dsms_initialize(FxDSMS *fxdsms)
 
 	recvBuffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(fxdsms->recvText));
 	gtk_text_buffer_create_tag(recvBuffer , "blue" , "foreground" , "#639900" , NULL);
-	gtk_text_buffer_create_tag(recvBuffer , "red" , "foreground" , "red" , NULL);
+	gtk_text_buffer_create_tag(recvBuffer , "grey" , "foreground" , "#808080" , NULL);
 	gtk_text_buffer_create_tag(recvBuffer , "lm10" , "left_margin" , 10 , NULL);
 	gtk_text_buffer_get_end_iter(recvBuffer , &recvIter);
 	gtk_text_buffer_create_mark(recvBuffer , "scroll" , &recvIter , FALSE);
@@ -464,7 +635,6 @@ void fx_dsms_initialize(FxDSMS *fxdsms)
 	gtk_tree_view_set_level_indentation(GTK_TREE_VIEW(fxdsms->chooseList) , -30);
 	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(fxdsms->chooseList) , FALSE);
  	gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (fxdsms->chooseList), TRUE);
-	gtk_tree_view_set_hover_selection(GTK_TREE_VIEW(fxdsms->chooseList) , TRUE);
 	gtk_box_pack_start(GTK_BOX(rvbox) , fxdsms->chooseList , TRUE , TRUE , 0);
 	g_signal_connect(fxdsms->chooseList
 				   , "button_press_event"
@@ -507,13 +677,13 @@ void fx_dsms_initialize(FxDSMS *fxdsms)
 	gtk_widget_set_usize(okBtn , 100 , 0);
 	g_signal_connect(okBtn , "clicked"
 			, G_CALLBACK(fx_dsms_on_send_clicked) , fxdsms);
-	cancelBtn = gtk_button_new_with_label("取消");
+	cancelBtn = gtk_button_new_with_label("关闭");
 	g_signal_connect(cancelBtn , "clicked"
 			, G_CALLBACK(fx_dsms_on_close_clicked) , fxdsms->dialog);
 	gtk_widget_set_usize(cancelBtn , 100 , 0);
 
-	gtk_box_pack_start(abox	, okBtn , FALSE , FALSE , 0);
 	gtk_box_pack_start(abox	, cancelBtn , FALSE , FALSE , 0);
+	gtk_box_pack_start(abox	, okBtn , FALSE , FALSE , 0);
 
 	gtk_widget_show_all(fxdsms->dialog);
 	gtk_widget_hide(fxdsms->chooseList);

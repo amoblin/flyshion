@@ -43,7 +43,7 @@ void fx_addbuddy_initialize(FxAddbuddy* fxaddbuddy)
 	DEBUG_FOOTPRINT();
 
 	fxaddbuddy->dialog = gtk_dialog_new();
-	icon = gdk_pixbuf_new_from_file(SKIN_DIR"user_online.png" , NULL);
+	icon = gdk_pixbuf_new_from_file(SKIN_DIR"addbuddy.png" , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxaddbuddy->dialog) , icon);
 	gtk_window_set_title(GTK_WINDOW(fxaddbuddy->dialog) , "添加好友");
 	gtk_dialog_set_has_separator(GTK_DIALOG(fxaddbuddy->dialog) , FALSE);
@@ -273,8 +273,11 @@ addbuddy:
 								 , B_SIPURI_COL 	, contact->sipuri
 								 , B_USERID_COL 	, contact->userId
 								 , B_NAME_COL 	    , contact->localname
+								 , B_CARRIERSTATUS_COL , "CMCC"
 								 , B_STATE_COL     ,  0
-								 , B_STATUS_COL		, contact->serviceStatus
+								 , B_SERVICESTATUS_COL	, contact->serviceStatus
+								 , B_CARRIERSTATUS_COL , 0
+								 , B_RELATIONSTATUS_COL , RELATION_STATUS_UNAUTHENTICATED
 								 , B_IMAGE_CHANGED_COL , -1
 								 , B_SIZE_COL		, config->iconSize
 								 , -1);

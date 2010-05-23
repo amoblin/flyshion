@@ -189,7 +189,7 @@ void fx_main_process_presence(FxMain* fxmain , const char* xml)
 	char *name = NULL;
 	int oldstate , count;
 	Contact *contactlist = NULL;
-	Contact *contact = NULL;
+	Contact *contact , *contactToDelete;
 	User* user = fxmain->user;
 	GtkWidget* treeView = fxmain->mainPanel->treeView;
 	GtkTreeModel* model = NULL;
@@ -247,12 +247,18 @@ void fx_main_process_presence(FxMain* fxmain , const char* xml)
 						 , B_STATE_COL			 , contact->state
 						 , B_IDENTITY_COL		 , contact->identity
 						 , B_DEVICE_COL			 , contact->devicetype
-						 , B_STATUS_COL			 , contact->serviceStatus
-						 , B_IMAGE_CHANGED_COL	 , crc == NULL ? IMAGE_CHANGED : (strcmp(crc , contact->portraitCrc) == 0 ? IMAGE_NOT_CHANGED : IMAGE_CHANGED)
+						 , B_RELATIONSTATUS_COL  , contact->relationStatus
+						 , B_SERVICESTATUS_COL	 , contact->serviceStatus
+						 , B_CARRIERSTATUS_COL   , contact->carrierStatus
+						 , B_CARRIER_COL		 , contact->carrier
+						 , B_IMAGE_CHANGED_COL	 , crc == NULL ? IMAGE_CHANGED :
+						 (strcmp(crc , contact->portraitCrc) == 0 ? IMAGE_NOT_CHANGED : IMAGE_CHANGED)
 						 , -1);
 
 		gdk_threads_leave();
+		contactToDelete = contact;
 		contact = contact->nextNode;
+		free(contactToDelete);
 	}
 }
 
@@ -598,7 +604,7 @@ void fx_main_process_syncuserinfo(FxMain* fxmain , const char* xml)
 
 					gtk_tree_store_set(GTK_TREE_STORE(model) , &cIter
 									 , B_SIPURI_COL			 , contact->sipuri
-									 , B_STATUS_COL			 , contact->serviceStatus
+									 , B_RELATIONSTATUS_COL	 , contact->relationStatus
 									 , -1);
 					free(userid);
 					break;
@@ -768,8 +774,10 @@ void fx_main_tray_popmenu_func(GtkWidget* widget , guint button , guint activate
 			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(muteItem) , FALSE);
 		g_signal_connect(muteItem , "activate" , G_CALLBACK(fx_main_mute_clicked) , fxmain);
 		gtk_menu_shell_append(GTK_MENU_SHELL(menu) , muteItem);
+		fx_main_create_menu("信息查询" , SKIN_DIR"find.png"
+						 , menu , fx_main_info_lookup_clicked , fxmain);
 		if(fxmain->user->boundToMobile == BOUND_MOBILE_ENABLE){
-			fx_main_create_menu("短信自己" , SKIN_DIR"phone.png"
+			fx_main_create_menu("短信自己" , SKIN_DIR"myselfsms.png"
 							 , menu , fx_main_send_to_myself_clicked , fxmain);
 		}
 		statemenu = fx_main_create_menu("修改状态" , SKIN_DIR"user_online.png" , menu , NULL , NULL);
@@ -785,15 +793,13 @@ void fx_main_tray_popmenu_func(GtkWidget* widget , guint button , guint activate
 							 , submenu , fx_main_set_state_clicked , args);
 		}
 		gtk_menu_item_set_submenu(GTK_MENU_ITEM(statemenu) , submenu);
-		fx_main_create_menu("信息查询" , SKIN_DIR"find.png"
-						 , menu , fx_main_info_lookup_clicked , fxmain);
-		fx_main_create_menu("短信群发" , SKIN_DIR"sms.gif"
+		fx_main_create_menu("短信群发" , SKIN_DIR"groupsend.png"
 						 , menu , fx_main_send_to_many_clicked , fxmain);
 		fx_main_create_menu("添加好友" , SKIN_DIR"addbuddy.png"
 						 , menu , fx_main_add_buddy_clicked , fxmain);
 		fx_main_create_menu("个人设置" , SKIN_DIR"personal.png"
 						 , menu , fx_main_personal_setting_clicked , fxmain);
-		fx_main_create_menu("系统设置" , SKIN_DIR"options.gif"
+		fx_main_create_menu("系统设置" , SKIN_DIR"options.png"
 						 , menu , fx_main_system_setting_clicked , fxmain);
 	}
 	fx_main_create_menu("退出Openfetion   " , SKIN_DIR"exit.png"
@@ -941,7 +947,7 @@ void fx_main_about_fetion_clicked(GtkWidget* widget , gpointer data)
 
 	gtk_window_set_modal(GTK_WINDOW(dialog) , TRUE);
 	gtk_about_dialog_set_name(GTK_ABOUT_DIALOG(dialog), "OpenFetion");
-	gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), "1.4"); 
+	gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), FETION_VERSION); 
 	gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog), 
 	"(c) Li Wenpeng");
 	logo = gdk_pixbuf_new_from_file(SKIN_DIR"warning_icon.png" , NULL);

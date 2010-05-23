@@ -202,7 +202,7 @@ void fx_many_text_cell_data_func(GtkTreeViewColumn *col , GtkCellRenderer   *ren
 						,  S_SIPURI_COL     , &sipuri
 						, -1);
 		sid = fetion_sip_get_sid_by_sipuri(sipuri);
-		sprintf(text , "<b>%s</b>"
+		sprintf(text , "%s"
 					 , name == NULL ? sid : name);
 		g_object_set(renderer 
 				   , "markup" , text
@@ -326,7 +326,7 @@ void fx_many_initialize(FxMany* fxmany)
 	DEBUG_FOOTPRINT();
 
 	fxmany->dialog = gtk_dialog_new();
-	pb = gdk_pixbuf_new_from_file(SKIN_DIR"user_online.png" , NULL);
+	pb = gdk_pixbuf_new_from_file(SKIN_DIR"groupsend.png" , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxmany->dialog) , pb);
 	gtk_window_set_title(GTK_WINDOW(fxmany->dialog) , "短信群发");
 	gtk_widget_set_usize(fxmany->dialog , 560 , 520);
@@ -336,11 +336,12 @@ void fx_many_initialize(FxMany* fxmany)
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(fxmany->dialog)->vbox) , fxmany->hbox , TRUE , TRUE , 0);
 	rbox = gtk_vbox_new(FALSE , 0);
 	lbox = gtk_vbox_new(FALSE , 0);
-	gtk_box_pack_start(GTK_BOX(fxmany->hbox) , lbox , TRUE , TRUE , 5);
 	gtk_box_pack_start(GTK_BOX(fxmany->hbox) , rbox , TRUE , TRUE , 5);
+	gtk_box_pack_start(GTK_BOX(fxmany->hbox) , lbox , FALSE , FALSE , 5);
 	action_area = GTK_DIALOG(fxmany->dialog)->action_area;
 	/*left top area*/
 	lt_frame = gtk_frame_new("请选择好友");
+	gtk_widget_set_usize(lt_frame , 160 , 0);
 	model = fx_many_create_all_model(fxmany);
 	fxmany->tree = gtk_tree_view_new_with_model(model);
 	scrollwindow = gtk_scrolled_window_new(NULL , NULL);
@@ -376,7 +377,8 @@ void fx_many_initialize(FxMany* fxmany)
 	
 	fx_many_create_selected_column(fxmany);
 	lb_frame = gtk_frame_new("已选择的好友");
-	gtk_box_pack_start(GTK_BOX(lbox) , lb_frame , TRUE , TRUE , 5);
+	gtk_widget_set_usize(lb_frame , 0 , 160);
+	gtk_box_pack_start(GTK_BOX(lbox) , lb_frame , FALSE , FALSE , 5);
 	gtk_container_add(GTK_CONTAINER(lb_frame) , scrollwindow1);
 	/*right area*/
 	fxmany->label = gtk_label_new("");

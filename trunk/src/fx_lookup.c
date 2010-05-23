@@ -34,7 +34,7 @@ FxLookup* fx_lookup_new(FxMain* fxmain)
 void fx_lookup_initialize(FxLookup* fxlookup)
 {
 	fxlookup->dialog = gtk_dialog_new();
-	GdkPixbuf* pb = gdk_pixbuf_new_from_file(SKIN_DIR"user_online.png" , NULL);
+	GdkPixbuf* pb = gdk_pixbuf_new_from_file(SKIN_DIR"find.png" , NULL);
 
 	DEBUG_FOOTPRINT();
 

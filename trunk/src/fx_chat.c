@@ -64,11 +64,14 @@ void fx_chat_add_message(FxChat* fxchat , const char* msg , const struct tm* dat
 	usid = fetion_sip_get_sid_by_sipuri(contact->sipuri);
 	if(issendmsg == 0){
 		sprintf(text , "%s 说 (%s):\n" , contact->nickname , time);
-		history = fetion_history_message_new(contact->nickname , contact->userId , *datetime , msg , issendmsg);
+		history = fetion_history_message_new(contact->nickname
+				, contact->userId , *datetime , msg , issendmsg);
 	}else{
 		sprintf(text , "%s 说 (%s):\n" , user->nickname , time);
-		history = fetion_history_message_new(user->nickname , contact->userId , *datetime , msg , issendmsg);
+		history = fetion_history_message_new(user->nickname
+				, contact->userId , *datetime , msg , issendmsg);
 	}
+	printf("%d\n" , strlen(msg));
 	fetion_history_add(fxchat->fhistory , history);
 	fetion_history_message_free(history);
 	gtk_text_buffer_get_end_iter(buffer , &iter );
@@ -276,19 +279,25 @@ void fx_chat_on_emotion_clicked(GtkWidget *widget , gpointer data)
 void fx_chat_initialize(FxChat* fxchat)
 {
 	GtkWidget *vbox , *halign , *halign1 , *tophone_icon;
+	GtkWidget *hbox , *lvbox , *rvbox;
 	GtkWidget *history_icon , *nouge_icon , *label , *action_area ;
 	GtkWidget *send_button , *close_button;
-	char nametext[512] , *sid , *name;
+	char nametext[512] , portraitPath[512] , *sid , *name;
 	Contact* contact = fxchat->conv->currentContact;
 	GdkPixbuf *pb;
 	GtkToolItem *emotionBtn;
+	GtkWidget *frame , *img;
+
+	FxMain *fxmain = fxchat->fxmain;
+	User *user = fxmain->user;
+	Config *config = user->config;
 
 	DEBUG_FOOTPRINT();
 
 	fxchat->dialog = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_widget_set_name(fxchat->dialog , "mainwindow");
 	gtk_window_set_modal(GTK_WINDOW(fxchat->dialog) , FALSE);
-	gtk_window_set_default_size(GTK_WINDOW(fxchat->dialog) , 550 , 490);
+	gtk_window_set_default_size(GTK_WINDOW(fxchat->dialog) , 600 , 430);
 	gtk_widget_set_size_request(fxchat->dialog , 550 , 0);
 	name = (contact->localname == NULL || strlen(contact->localname) == 0) ? contact->nickname : contact->localname;
 	bzero(nametext , sizeof(nametext));
@@ -298,7 +307,8 @@ void fx_chat_initialize(FxChat* fxchat)
 
 	g_signal_connect(fxchat->dialog , "destroy" , G_CALLBACK(fx_chat_destroy) , fxchat);
 
-	vbox = gtk_vbox_new(FALSE , 0);
+	vbox = gtk_vbox_new(FALSE , 2);
+	hbox = gtk_hbox_new(FALSE , 6);
 	gtk_container_add(GTK_CONTAINER(fxchat->dialog) , vbox);
 	action_area = gtk_hbox_new(FALSE , 0);
 
@@ -343,10 +353,14 @@ void fx_chat_initialize(FxChat* fxchat)
 	halign = gtk_alignment_new( 0 , 0 , 0 , 0);
 	gtk_container_add(GTK_CONTAINER(halign) , fxchat->headbox);
 
-	gtk_box_pack_start(GTK_BOX(vbox) , halign , FALSE , TRUE , 5);
-
+	gtk_box_pack_start(GTK_BOX(vbox) , halign , FALSE , FALSE , 5);
+	gtk_box_pack_start(GTK_BOX(vbox) , hbox , TRUE , TRUE , 0);
+	lvbox = gtk_vbox_new(FALSE , 0);
+	rvbox = gtk_vbox_new(FALSE , 0);
+	gtk_box_pack_start(GTK_BOX(hbox) , lvbox , TRUE , TRUE , 0);
+	gtk_box_pack_start(GTK_BOX(hbox) , rvbox , FALSE , FALSE , 0);
 	fxchat->recv_scroll = gtk_scrolled_window_new(NULL , NULL);
-	gtk_box_pack_start(GTK_BOX(vbox) , fxchat->recv_scroll , TRUE , TRUE , 0);
+	gtk_box_pack_start(GTK_BOX(lvbox) , fxchat->recv_scroll , TRUE , TRUE , 0);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(fxchat->recv_scroll)
 								 , GTK_POLICY_NEVER
 								 , GTK_POLICY_AUTOMATIC);
@@ -371,7 +385,7 @@ void fx_chat_initialize(FxChat* fxchat)
 	/*toolbar begin*/
 	fxchat->toolbar = gtk_toolbar_new();
 	gtk_toolbar_set_style(GTK_TOOLBAR(fxchat->toolbar) , GTK_TOOLBAR_ICONS);
-	gtk_box_pack_start(GTK_BOX(vbox) , fxchat->toolbar , FALSE , FALSE , 0);
+	gtk_box_pack_start(GTK_BOX(lvbox) , fxchat->toolbar , FALSE , FALSE , 0);
 
 	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"face_images/3.gif" , 16 , 16 , NULL);
 	nouge_icon = gtk_image_new_from_pixbuf(pb);
@@ -409,13 +423,14 @@ void fx_chat_initialize(FxChat* fxchat)
 	gtk_container_add(GTK_CONTAINER(fxchat->toolbar) , fxchat->countLabel);
 	/*toolbar end*/
 	fxchat->send_scroll = gtk_scrolled_window_new(NULL , NULL);
-	gtk_box_pack_start(GTK_BOX(vbox) , fxchat->send_scroll , TRUE , TRUE , 0);
+	gtk_box_pack_start(GTK_BOX(lvbox) , fxchat->send_scroll , FALSE , FALSE , 0);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(fxchat->send_scroll)
 								 , GTK_POLICY_NEVER
 								 , GTK_POLICY_AUTOMATIC);
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(fxchat->send_scroll)
 									  , GTK_SHADOW_ETCHED_IN);
 	fxchat->send_text = gtk_text_view_new();
+	gtk_widget_set_usize(fxchat->send_text , 0 , 100);
 	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(fxchat->send_text) , GTK_WRAP_WORD_CHAR);
 	g_signal_connect(fxchat->send_text , "key_press_event" , G_CALLBACK(fx_chat_on_key_pressed) , fxchat);
 	gtk_container_add(GTK_CONTAINER(fxchat->send_scroll) , fxchat->send_text);
@@ -442,11 +457,44 @@ void fx_chat_initialize(FxChat* fxchat)
 
 	fx_chat_bind(fxchat);
 
-	g_signal_connect(fxchat->dialog , "focus-in-event" , GTK_SIGNAL_FUNC(fx_chat_focus_in_func) , fxchat );
+	g_signal_connect(fxchat->dialog , "focus-in-event"
+			, GTK_SIGNAL_FUNC(fx_chat_focus_in_func) , fxchat );
 
-	g_signal_connect(fxchat->dialog , "focus-out-event" , GTK_SIGNAL_FUNC(fx_chat_focus_out_func) , fxchat );
+	g_signal_connect(fxchat->dialog , "focus-out-event"
+			, GTK_SIGNAL_FUNC(fx_chat_focus_out_func) , fxchat );
 
-	g_signal_connect(fxchat->send_buffer , "changed" , G_CALLBACK(fx_chat_on_text_buffer_changed) , fxchat);
+	g_signal_connect(fxchat->send_buffer , "changed"
+			, G_CALLBACK(fx_chat_on_text_buffer_changed) , fxchat);
+	/*right box */
+
+	frame = gtk_frame_new(NULL);
+	gtk_frame_set_shadow_type(GTK_FRAME(frame) , GTK_SHADOW_ETCHED_IN);
+	gtk_widget_set_usize(frame , 160 , 160);
+	bzero(portraitPath , sizeof(portraitPath));
+	sprintf(portraitPath , "%s/%s.jpg" , config->iconPath , contact->sId);
+	pb = gdk_pixbuf_new_from_file_at_size(portraitPath , 140 , 140 , NULL);
+	if(pb == NULL){
+		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.jpg" , 140 , 140 , NULL);
+	}
+	img = gtk_image_new_from_pixbuf(pb);
+	gtk_container_add(GTK_CONTAINER(frame) , img);
+	gtk_box_pack_start(GTK_BOX(rvbox) , frame , FALSE , FALSE , 0);
+
+	GtkWidget *spliter = gtk_label_new(NULL);
+	gtk_box_pack_start(GTK_BOX(rvbox) , spliter , TRUE , TRUE , 0);
+	
+	frame = gtk_frame_new(NULL);
+	gtk_frame_set_shadow_type(GTK_FRAME(frame) , GTK_SHADOW_ETCHED_IN);
+	gtk_widget_set_usize(frame , 160 , 160);
+	bzero(portraitPath , sizeof(portraitPath));
+	sprintf(portraitPath , "%s/%s.jpg" , config->iconPath , user->sId);
+	pb = gdk_pixbuf_new_from_file_at_size(portraitPath , 140 , 140 , NULL);
+	if(pb == NULL){
+		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.jpg" , 140 , 140 , NULL);
+	}
+	img = gtk_image_new_from_pixbuf(pb);
+	gtk_container_add(GTK_CONTAINER(frame) , img);
+	gtk_box_pack_start(GTK_BOX(rvbox) , frame , FALSE , FALSE , 0);
 
 	gtk_widget_show_all (vbox);
 	gtk_widget_show(fxchat->dialog);

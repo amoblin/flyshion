@@ -54,6 +54,10 @@ char* fx_util_get_state_name(StateType type)
 			strcpy(name , "[电话中]");
 			break;
 		default:
+			if(type > 400 && type < 500)
+				strcpy(name , "[在线]");
+			else
+				strcpy(name , "[未知状态]");
 			break;
 	}
 	return name;

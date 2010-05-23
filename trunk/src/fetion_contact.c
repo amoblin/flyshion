@@ -171,6 +171,7 @@ Contact* fetion_contact_get_contact_info(User* user , const char* userid)
 	tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
 	res = fetion_sip_get_response(sip);
+	printf("%s\n" , res);
 	pos = strstr(res , "\r\n\r\n") + 4;
 	doc = xmlParseMemory(pos , strlen(pos));
 	node = xmlDocGetRootElement(doc);
@@ -394,7 +395,9 @@ Contact* fetion_contact_add_buddy(User* user , const char* no
 	}
 }
 
-Contact* fetion_contact_handle_contact_request(User* user, const char* sipuri , const char* userid , const char* localname , int buddylist , int result)
+Contact* fetion_contact_handle_contact_request(User* user
+		, const char* sipuri , const char* userid
+		, const char* localname , int buddylist , int result)
 {
 	FetionSip* sip = user->sip;
 	SipHeader* eheader;
@@ -410,7 +413,6 @@ Contact* fetion_contact_handle_contact_request(User* user, const char* sipuri , 
 	tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
 	res = fetion_sip_get_response(sip);
-			printf("%s\n" , res);
 	ret = fetion_sip_get_code(res);
 	switch(ret)
 	{
@@ -575,7 +577,9 @@ char* generate_set_mobileno_perssion(const char* userid , int show)
 	xmlFreeDoc(doc);
 	return xml_convert(buf);
 }
-char* generate_handle_contact_request_body(const char* sipuri , const char* userid , const char* localname , int buddylist , int result )
+char* generate_handle_contact_request_body(const char* sipuri
+		, const char* userid , const char* localname
+		, int buddylist , int result )
 {
 	char args[] = "<args></args>";
 	char result_s[4];
@@ -654,7 +658,9 @@ char* generate_delete_buddy_body(const char* userid)
 	xmlFreeDoc(doc);
 	return xml_convert(res);
 }
-char* generate_add_buddy_body(const char* no , NumberType notype , int buddylist , const char* localname , const char* desc , int phraseid)
+char* generate_add_buddy_body(const char* no 
+		, NumberType notype , int buddylist 
+		, const char* localname , const char* desc , int phraseid)
 {
 	char args[] = "<args></args>";
 	char uri[48];
@@ -911,7 +917,7 @@ Contact* parse_handle_contact_request_response(const char* sipmsg)
 		contact->groupid = atoi((char*)res);
 		xmlFree(res);
 	}
-	contact->serviceStatus = STATUS_NORMAL;
+	contact->serviceStatus = RELATION_STATUS_UNAUTHENTICATED;
 	xmlFreeDoc(doc);
 	return contact;
 }
