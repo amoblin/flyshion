@@ -138,7 +138,7 @@ extern void fetion_sip_set_connection(FetionSip* sip
 
 extern SipMsg* fetion_sip_listen(FetionSip* sip);
 
-extern void fetion_sip_keep_alive(FetionSip* sip);
+extern int fetion_sip_keep_alive(FetionSip* sip);
 
 extern void fetion_sip_message_free(SipMsg* msg);
 

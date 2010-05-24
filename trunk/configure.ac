@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.63])
-AC_INIT([OpenFetion], [1.4], [http://basiccoder.com/openfetion])
+AC_INIT([OpenFetion], [1.5], [http://basiccoder.com/openfetion])
 AC_CONFIG_SRCDIR([src/fx_main.c])
 AC_CONFIG_HEADERS([config.h])
 
@@ -66,7 +66,7 @@ AC_OUTPUT
 if test "x$enable_gst" == "xno"; then
 	echo "-----------------------------------------------------------"
 	echo "|                                                         |"
-	echo "|            Welcome To OpenFetion v1.4                   |"
+	echo "|            Welcome To OpenFetion v1.5                   |"
 	echo "|                                                         |"
 	echo "| You have not installed gstreamer-0.10 on your system    |"
 	echo "| for which you can not use the sound reminder function   |"

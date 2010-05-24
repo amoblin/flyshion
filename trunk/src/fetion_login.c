@@ -257,7 +257,6 @@ void parse_ssi_auth_response(const char* ssi_response , User* user)
 	char* xml = strstr(ssi_response , "\r\n\r\n") + 4;
 
 	DEBUG_FOOTPRINT();
-	printf("%s\n" , ssi_response);
 
 	doc = xmlReadMemory(xml , strlen(xml) , NULL , "UTF-8" , XML_PARSE_RECOVER);
 	node = xmlDocGetRootElement(doc);

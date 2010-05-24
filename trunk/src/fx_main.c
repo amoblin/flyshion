@@ -388,7 +388,7 @@ void fx_main_process_user_left(FxMain* fxmain , const char* msg)
 	if(fxchat == NULL)
 	{
 		debug_info("User %s left conversation" , sipuri);
-		debug_info("THREAD LEFT");
+		debug_info("Thread exit");
 		free(sipuri);
 		g_thread_exit(0);
 	}
@@ -396,7 +396,7 @@ void fx_main_process_user_left(FxMain* fxmain , const char* msg)
 	conv->currentSip = NULL;
 
 	debug_info("User %s left conversation" , sipuri);
-	debug_info("Thread LEFT");
+	debug_info("Thread exit");
 	free(sipuri);
 	g_thread_exit(0);
 
@@ -550,13 +550,10 @@ void fx_main_process_incoming(FxMain* fxmain
 			{
 				switch(action){
 					case INCOMING_ACTION_ACCEPT :
-						printf("%s\n\n%s\n" , sipmsg , sipuri );
 						process_share_action_accept(fxmain , sip , sipmsg , sipuri);
 						break;
 					case INCOMING_ACTION_CANCEL :
 						process_share_action_cancel(fxmain , sip , sipmsg , sipuri);
-						printf("%s\r\n\r\n%s , %d\n" , sipmsg , sipuri , action);
-						printf("###\n%s\n" , sipmsg);
 						break;
 					default:
 						break;
@@ -721,6 +718,20 @@ static void fx_main_mute_clicked(GtkWidget *widget , gpointer data)
 
 }
 
+static void fx_main_direct_sms_clicked(GtkWidget *widget , gpointer data)
+{
+	FxMain *fxmain = (FxMain*)data;
+	FxDSMS *fxdsms = fx_dsms_new(fxmain);
+
+	DEBUG_FOOTPRINT();
+
+	if(fxmain->user->carrierStatus == CARRIER_STATUS_DOWN){
+		fx_util_popup_warning(fxmain , SERVICE_DOWN_MESSAGE);
+		return;
+	}
+	fx_dsms_initialize(fxdsms);
+}
+
 void fx_main_tray_popmenu_func(GtkWidget* widget , guint button , guint activate_time , gpointer data)
 {
 	FxMain* fxmain = (FxMain*)data;
@@ -795,6 +806,8 @@ void fx_main_tray_popmenu_func(GtkWidget* widget , guint button , guint activate
 		gtk_menu_item_set_submenu(GTK_MENU_ITEM(statemenu) , submenu);
 		fx_main_create_menu("短信群发" , SKIN_DIR"groupsend.png"
 						 , menu , fx_main_send_to_many_clicked , fxmain);
+		fx_main_create_menu("直接短信" , SKIN_DIR"directsms.png"
+						 , menu , fx_main_direct_sms_clicked , fxmain);
 		fx_main_create_menu("添加好友" , SKIN_DIR"addbuddy.png"
 						 , menu , fx_main_add_buddy_clicked , fxmain);
 		fx_main_create_menu("个人设置" , SKIN_DIR"personal.png"
@@ -837,7 +850,7 @@ void* fx_main_listen_thread_func(void* data)
 
 	DEBUG_FOOTPRINT();
 
-	debug_info("THREAD ENTERED");
+	debug_info("A new thread entered");
 
 	sip = (sip == NULL ? fxmain->user->sip : sip);
 	while(1){
@@ -850,7 +863,6 @@ void* fx_main_listen_thread_func(void* data)
 		gdk_threads_leave();
 		pos = msg;
 		while(pos != NULL){
-			printf("%s\n" , pos->message);
 			type = fetion_sip_get_type(pos->message);
 			switch(type){
 				case SIP_NOTIFICATION :
@@ -921,13 +933,18 @@ void fx_main_message_func(GtkWidget* widget , gpointer data)
 }
 gboolean fx_main_register_func(User* user)
 {
-	fetion_user_keep_alive(user);
+	if(fetion_user_keep_alive(user) < 0){
+		debug_info("网络连接已断开,请重新登录");
+		gtk_main_quit();
+		return;
+	}
 	return TRUE;
 }
 
 gboolean fx_main_chat_keep_alive_func(TimeOutArgs* args)
 {
-	fetion_sip_keep_alive(args->sip);
+	if(fetion_sip_keep_alive(args->sip) < 0)
+		return FALSE;
 	if(args->terminated == TRUE)
 	{
 		fx_list_remove_timeout_by_sipuri(&(args->fxmain->tlist) , args->sipuri);
