@@ -531,16 +531,18 @@ SipMsg* fetion_sip_listen(FetionSip* sip)
 		}
 	}
 }
-void fetion_sip_keep_alive(FetionSip* sip)
+int fetion_sip_keep_alive(FetionSip* sip)
 {
 	char *res = NULL;
+	int ret;
 
 	debug_info("Send a periodical chat keep alive request");
 
 	fetion_sip_set_type(sip , SIP_REGISTER);
 	res = fetion_sip_to_string(sip , NULL);
-	tcp_connection_send(sip->tcp , res , strlen(res));
+	ret = tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
+	return ret;
 }
 void fetion_sip_message_free(SipMsg* msg)
 {

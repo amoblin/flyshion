@@ -248,6 +248,7 @@ int fetion_user_keep_alive(User* user)
 {
 	FetionSip* sip = user->sip;
 	SipHeader* eheader = NULL;
+	int ret;
 	char *res = NULL , *body = NULL;
 	fetion_sip_set_type(sip , SIP_REGISTER);
 	debug_info("send a keep alive request");
@@ -256,9 +257,9 @@ int fetion_user_keep_alive(User* user)
 	body = generate_keep_alive_body();
 	res = fetion_sip_to_string(sip , body);
 	free(body);
-	tcp_connection_send(sip->tcp , res , strlen(res));
+	ret = tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res); 
-	return 1;
+	return ret;
 }
 Group* fetion_group_new()
 {

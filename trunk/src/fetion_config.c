@@ -232,10 +232,8 @@ void fetion_config_download_configuration(User* user)
 				   "Connection: Close\r\n"
 				   "Content-Length: %d\r\n\r\n%s"
 				 , uri , strlen(body) , body);
-	printf("%s\n" , http);
 	tcp_connection_send(conn , http , strlen(http));
 	res = http_connection_get_response(conn);
-	printf("%s\n" , res);
 	refresh_configuration_xml(res , path , user);
 	free(res);
 }

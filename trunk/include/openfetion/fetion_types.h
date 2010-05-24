@@ -48,6 +48,8 @@
 #define CARRIER_STATUS_CLOSED           2 
 #define RELATION_STATUS_AUTHENTICATED   1
 #define RELATION_STATUS_UNAUTHENTICATED 0
+
+#define SERVICE_DOWN_MESSAGE "您目前无法使用此功能\n\n您的手机已停机，无法使\n用手机相关功能，请缴费\n后重试"
 /**
  * some other buddylists
  */

@@ -20,7 +20,6 @@
 
 #include "fx_include.h"
 
-#define SERVICE_DOWN_MESSAGE "您目前无法使用此功能\n\n您的手机已停机，无法使\n用手机相关功能，请缴费\n后重试"
 
 FxBottom* fx_bottom_new()
 {

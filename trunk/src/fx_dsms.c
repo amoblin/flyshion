@@ -547,7 +547,7 @@ void fx_dsms_initialize(FxDSMS *fxdsms)
 	fxdsms->dialog = gtk_dialog_new();
 	gtk_widget_set_usize(fxdsms->dialog , 650 , 490);
 	gtk_window_set_resizable(GTK_WINDOW(fxdsms->dialog) , FALSE);
-	pb = gdk_pixbuf_new_from_file(SKIN_DIR"groupsend.png" , NULL);
+	pb = gdk_pixbuf_new_from_file(SKIN_DIR"directsms.png" , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxdsms->dialog) , pb);
 	gtk_window_set_title(GTK_WINDOW(fxdsms->dialog) , "直接短信");
 
