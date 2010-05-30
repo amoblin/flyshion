@@ -30,11 +30,10 @@ uname -v = #2 SMP Mon Aug 17 00:52:54 CDT 2009
 PATH: /usr/local/bin
 PATH: /usr/bin
 PATH: /bin
-PATH: /usr/games
+PATH: /usr/sbin
 PATH: /sbin
 PATH: /usr/bin
 PATH: /usr/lib/java/bin
-PATH: /usr/lib/kde4/libexec
 PATH: /usr/kerberos/bin
 PATH: /usr/lib/qt/bin
 PATH: /usr/share/texmf/bin
@@ -131,43 +130,21 @@ configure:3718: $? = 0
 configure:3739: result: yes
 configure:3752: checking for main in -lnotify
 configure:3781: gcc -o conftest -g -O2   conftest.c -lnotify  -lcrypto  >&5
-/usr/lib/gcc/i486-slackware-linux/4.3.3/../../../../i486-slackware-linux/bin/ld: cannot find -lnotify
-collect2: ld returned 1 exit status
-configure:3788: $? = 1
-configure: failed program was:
-| /* confdefs.h.  */
-| #define PACKAGE_NAME "OpenFetion"
-| #define PACKAGE_TARNAME "openfetion"
-| #define PACKAGE_VERSION "1.5"
-| #define PACKAGE_STRING "OpenFetion 1.5"
-| #define PACKAGE_BUGREPORT "http://basiccoder.com/openfetion"
-| #define PACKAGE "openfetion"
-| #define VERSION "1.5"
-| #define HAVE_LIBCRYPTO 1
-| /* end confdefs.h.  */
-| 
-| 
-| int
-| main ()
-| {
-| return main ();
-|   ;
-|   return 0;
-| }
-configure:3809: result: no
+configure:3788: $? = 0
+configure:3809: result: yes
 configure:3822: checking for main in -lpthread
-configure:3851: gcc -o conftest -g -O2   conftest.c -lpthread  -lcrypto  >&5
+configure:3851: gcc -o conftest -g -O2   conftest.c -lpthread  -lnotify -lcrypto  >&5
 configure:3858: $? = 0
 configure:3879: result: yes
 configure:3892: checking for main in -lssl
-configure:3921: gcc -o conftest -g -O2   conftest.c -lssl  -lpthread -lcrypto  >&5
+configure:3921: gcc -o conftest -g -O2   conftest.c -lssl  -lpthread -lnotify -lcrypto  >&5
 configure:3928: $? = 0
 configure:3949: result: yes
 configure:3967: checking how to run the C preprocessor
 configure:4007: gcc -E  conftest.c
 configure:4014: $? = 0
 configure:4045: gcc -E  conftest.c
-conftest.c:13:28: error: ac_nonexistent.h: No such file or directory
+conftest.c:14:28: error: ac_nonexistent.h: No such file or directory
 configure:4052: $? = 1
 configure: failed program was:
 | /* confdefs.h.  */
@@ -179,6 +156,7 @@ configure: failed program was:
 | #define PACKAGE "openfetion"
 | #define VERSION "1.5"
 | #define HAVE_LIBCRYPTO 1
+| #define HAVE_LIBNOTIFY 1
 | #define HAVE_LIBPTHREAD 1
 | #define HAVE_LIBSSL 1
 | /* end confdefs.h.  */
@@ -187,7 +165,7 @@ configure:4085: result: gcc -E
 configure:4114: gcc -E  conftest.c
 configure:4121: $? = 0
 configure:4152: gcc -E  conftest.c
-conftest.c:13:28: error: ac_nonexistent.h: No such file or directory
+conftest.c:14:28: error: ac_nonexistent.h: No such file or directory
 configure:4159: $? = 1
 configure: failed program was:
 | /* confdefs.h.  */
@@ -199,6 +177,7 @@ configure: failed program was:
 | #define PACKAGE "openfetion"
 | #define VERSION "1.5"
 | #define HAVE_LIBCRYPTO 1
+| #define HAVE_LIBNOTIFY 1
 | #define HAVE_LIBPTHREAD 1
 | #define HAVE_LIBSSL 1
 | /* end confdefs.h.  */
@@ -210,7 +189,7 @@ configure:4328: result: /usr/bin/grep -E
 configure:4333: checking for ANSI C header files
 configure:4363: gcc -c -g -O2  conftest.c >&5
 configure:4370: $? = 0
-configure:4469: gcc -o conftest -g -O2   conftest.c -lssl -lpthread -lcrypto  >&5
+configure:4469: gcc -o conftest -g -O2   conftest.c -lssl -lpthread -lnotify -lcrypto  >&5
 configure:4473: $? = 0
 configure:4479: ./conftest
 configure:4483: $? = 0
@@ -323,16 +302,16 @@ configure:4768: checking for pkg-config
 configure:4786: found /usr/bin/pkg-config
 configure:4799: result: /usr/bin/pkg-config
 configure:4821: checking for GTK+ - version >= 2.0.0
-configure:4941: gcc -o conftest -g -O2 -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/libpng12     conftest.c -lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 -lgio-2.0 -lpangoft2-1.0 -lgdk_pixbuf-2.0 -lpangocairo-1.0 -lcairo -lpango-1.0 -lfreetype -lfontconfig -lgobject-2.0 -lgmodule-2.0 -lglib-2.0   -lssl -lpthread -lcrypto  >&5
+configure:4941: gcc -o conftest -g -O2 -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/libpng12     conftest.c -lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 -lgio-2.0 -lpangoft2-1.0 -lgdk_pixbuf-2.0 -lpangocairo-1.0 -lcairo -lpango-1.0 -lfreetype -lfontconfig -lgobject-2.0 -lgmodule-2.0 -lglib-2.0   -lssl -lpthread -lnotify -lcrypto  >&5
 configure:4945: $? = 0
 configure:4951: ./conftest
 configure:4955: $? = 0
-configure:4976: result: yes (version 2.14.7)
+configure:4976: result: yes (version 2.16.6)
 configure:5109: checking for xml2-config
 configure:5127: found /usr/bin/xml2-config
 configure:5140: result: /usr/bin/xml2-config
 configure:5149: checking for libxml - version >= 2.0.0
-configure:5261: gcc -o conftest -g -O2  -I/usr/include/libxml2  conftest.c -lxml2 -lz -lm -lssl -lpthread -lcrypto  >&5
+configure:5261: gcc -o conftest -g -O2  -I/usr/include/libxml2  conftest.c -lxml2 -lz -lm -lssl -lpthread -lnotify -lcrypto  >&5
 configure:5265: $? = 0
 configure:5271: ./conftest
 configure:5275: $? = 0
@@ -350,7 +329,7 @@ configure:5622: gcc -c -g -O2  conftest.c >&5
 configure:5629: $? = 0
 configure:5656: gcc -c -g -O2  conftest.c >&5
 conftest.c: In function 'main':
-conftest.c:70: error: expected expression before ')' token
+conftest.c:71: error: expected expression before ')' token
 configure:5663: $? = 1
 configure: failed program was:
 | /* confdefs.h.  */
@@ -362,6 +341,7 @@ configure: failed program was:
 | #define PACKAGE "openfetion"
 | #define VERSION "1.5"
 | #define HAVE_LIBCRYPTO 1
+| #define HAVE_LIBNOTIFY 1
 | #define HAVE_LIBPTHREAD 1
 | #define HAVE_LIBSSL 1
 | #define STDC_HEADERS 1
@@ -430,7 +410,7 @@ configure: failed program was:
 configure:5686: result: yes
 configure:5714: checking vfork.h usability
 configure:5731: gcc -c -g -O2  conftest.c >&5
-conftest.c:67:19: error: vfork.h: No such file or directory
+conftest.c:68:19: error: vfork.h: No such file or directory
 configure:5738: $? = 1
 configure: failed program was:
 | /* confdefs.h.  */
@@ -442,6 +422,7 @@ configure: failed program was:
 | #define PACKAGE "openfetion"
 | #define VERSION "1.5"
 | #define HAVE_LIBCRYPTO 1
+| #define HAVE_LIBNOTIFY 1
 | #define HAVE_LIBPTHREAD 1
 | #define HAVE_LIBSSL 1
 | #define STDC_HEADERS 1
@@ -503,7 +484,7 @@ configure: failed program was:
 configure:5752: result: no
 configure:5756: checking vfork.h presence
 configure:5771: gcc -E  conftest.c
-conftest.c:34:19: error: vfork.h: No such file or directory
+conftest.c:35:19: error: vfork.h: No such file or directory
 configure:5778: $? = 1
 configure: failed program was:
 | /* confdefs.h.  */
@@ -515,6 +496,7 @@ configure: failed program was:
 | #define PACKAGE "openfetion"
 | #define VERSION "1.5"
 | #define HAVE_LIBCRYPTO 1
+| #define HAVE_LIBNOTIFY 1
 | #define HAVE_LIBPTHREAD 1
 | #define HAVE_LIBSSL 1
 | #define STDC_HEADERS 1
@@ -544,16 +526,16 @@ configure:5792: result: no
 configure:5825: checking for vfork.h
 configure:5834: result: no
 configure:5854: checking for fork
-configure:5910: gcc -o conftest -g -O2   conftest.c -lssl -lpthread -lcrypto  >&5
-conftest.c:57: warning: conflicting types for built-in function 'fork'
+configure:5910: gcc -o conftest -g -O2   conftest.c -lssl -lpthread -lnotify -lcrypto  >&5
+conftest.c:58: warning: conflicting types for built-in function 'fork'
 configure:5917: $? = 0
 configure:5939: result: yes
 configure:5854: checking for vfork
-configure:5910: gcc -o conftest -g -O2   conftest.c -lssl -lpthread -lcrypto  >&5
+configure:5910: gcc -o conftest -g -O2   conftest.c -lssl -lpthread -lnotify -lcrypto  >&5
 configure:5917: $? = 0
 configure:5939: result: yes
 configure:5952: checking for working fork
-configure:5984: gcc -o conftest -g -O2   conftest.c -lssl -lpthread -lcrypto  >&5
+configure:5984: gcc -o conftest -g -O2   conftest.c -lssl -lpthread -lnotify -lcrypto  >&5
 configure:5988: $? = 0
 configure:5994: ./conftest
 configure:5998: $? = 0
@@ -563,44 +545,44 @@ configure:6177: result: yes
 configure:6213: checking for stdlib.h
 configure:6220: result: yes
 configure:6359: checking for GNU libc compatible malloc
-configure:6393: gcc -o conftest -g -O2   conftest.c -lssl -lpthread -lcrypto  >&5
+configure:6393: gcc -o conftest -g -O2   conftest.c -lssl -lpthread -lnotify -lcrypto  >&5
 configure:6397: $? = 0
 configure:6403: ./conftest
 configure:6407: $? = 0
 configure:6424: result: yes
 configure:6463: checking for bzero
-configure:6519: gcc -o conftest -g -O2   conftest.c -lssl -lpthread -lcrypto  >&5
-conftest.c:63: warning: conflicting types for built-in function 'bzero'
+configure:6519: gcc -o conftest -g -O2   conftest.c -lssl -lpthread -lnotify -lcrypto  >&5
+conftest.c:64: warning: conflicting types for built-in function 'bzero'
 configure:6526: $? = 0
 configure:6548: result: yes
 configure:6463: checking for gethostbyname
-configure:6519: gcc -o conftest -g -O2   conftest.c -lssl -lpthread -lcrypto  >&5
+configure:6519: gcc -o conftest -g -O2   conftest.c -lssl -lpthread -lnotify -lcrypto  >&5
 configure:6526: $? = 0
 configure:6548: result: yes
 configure:6463: checking for memset
-configure:6519: gcc -o conftest -g -O2   conftest.c -lssl -lpthread -lcrypto  >&5
-conftest.c:65: warning: conflicting types for built-in function 'memset'
+configure:6519: gcc -o conftest -g -O2   conftest.c -lssl -lpthread -lnotify -lcrypto  >&5
+conftest.c:66: warning: conflicting types for built-in function 'memset'
 configure:6526: $? = 0
 configure:6548: result: yes
 configure:6463: checking for mkdir
-configure:6519: gcc -o conftest -g -O2   conftest.c -lssl -lpthread -lcrypto  >&5
+configure:6519: gcc -o conftest -g -O2   conftest.c -lssl -lpthread -lnotify -lcrypto  >&5
 configure:6526: $? = 0
 configure:6548: result: yes
 configure:6463: checking for select
-configure:6519: gcc -o conftest -g -O2   conftest.c -lssl -lpthread -lcrypto  >&5
+configure:6519: gcc -o conftest -g -O2   conftest.c -lssl -lpthread -lnotify -lcrypto  >&5
 configure:6526: $? = 0
 configure:6548: result: yes
 configure:6463: checking for socket
-configure:6519: gcc -o conftest -g -O2   conftest.c -lssl -lpthread -lcrypto  >&5
+configure:6519: gcc -o conftest -g -O2   conftest.c -lssl -lpthread -lnotify -lcrypto  >&5
 configure:6526: $? = 0
 configure:6548: result: yes
 configure:6463: checking for strstr
-configure:6519: gcc -o conftest -g -O2   conftest.c -lssl -lpthread -lcrypto  >&5
-conftest.c:69: warning: conflicting types for built-in function 'strstr'
+configure:6519: gcc -o conftest -g -O2   conftest.c -lssl -lpthread -lnotify -lcrypto  >&5
+conftest.c:70: warning: conflicting types for built-in function 'strstr'
 configure:6526: $? = 0
 configure:6548: result: yes
 configure:6463: checking for strtol
-configure:6519: gcc -o conftest -g -O2   conftest.c -lssl -lpthread -lcrypto  >&5
+configure:6519: gcc -o conftest -g -O2   conftest.c -lssl -lpthread -lnotify -lcrypto  >&5
 configure:6526: $? = 0
 configure:6548: result: yes
 configure:6679: creating ./config.status
@@ -620,16 +602,15 @@ generated by GNU Autoconf 2.63.  Invocation command line was
 
 on levin
 
-config.status:813: creating Makefile
-config.status:813: creating src/Makefile
-config.status:813: creating skin/Makefile
-config.status:813: creating skin/face_images/Makefile
-config.status:813: creating include/Makefile
-config.status:813: creating include/openfetion/Makefile
-config.status:813: creating resource/Makefile
-config.status:813: creating config.h
-config.status:1035: config.h is unchanged
-config.status:1087: executing depfiles commands
+config.status:814: creating Makefile
+config.status:814: creating src/Makefile
+config.status:814: creating skin/Makefile
+config.status:814: creating skin/face_images/Makefile
+config.status:814: creating include/Makefile
+config.status:814: creating include/openfetion/Makefile
+config.status:814: creating resource/Makefile
+config.status:814: creating config.h
+config.status:1088: executing depfiles commands
 
 ## ---------------- ##
 ## Cache variables. ##
@@ -691,7 +672,7 @@ ac_cv_header_sys_types_h=yes
 ac_cv_header_unistd_h=yes
 ac_cv_header_vfork_h=no
 ac_cv_lib_crypto_main=yes
-ac_cv_lib_notify_main=no
+ac_cv_lib_notify_main=yes
 ac_cv_lib_pthread_main=yes
 ac_cv_lib_ssl_main=yes
 ac_cv_objext=o
@@ -750,7 +731,7 @@ INSTALL_SCRIPT='${INSTALL}'
 INSTALL_STRIP_PROGRAM='$(install_sh) -c -s'
 LDFLAGS=''
 LIBOBJS=''
-LIBS='-lssl -lpthread -lcrypto '
+LIBS='-lssl -lpthread -lnotify -lcrypto '
 LTLIBOBJS=''
 MAKEINFO='${SHELL} /home/ouclwp/code/ofetion/missing --run makeinfo'
 MKDIR_P='/usr/bin/mkdir -p'
@@ -819,6 +800,7 @@ target_alias=''
 #define PACKAGE "openfetion"
 #define VERSION "1.5"
 #define HAVE_LIBCRYPTO 1
+#define HAVE_LIBNOTIFY 1
 #define HAVE_LIBPTHREAD 1
 #define HAVE_LIBSSL 1
 #define STDC_HEADERS 1
@@ -858,73 +840,3 @@ target_alias=''
 #define HAVE_STRTOL 1
 
 configure: exit 0
-
-## ---------------------- ##
-## Running config.status. ##
-## ---------------------- ##
-
-This file was extended by OpenFetion config.status 1.5, which was
-generated by GNU Autoconf 2.63.  Invocation command line was
-
-  CONFIG_FILES    = 
-  CONFIG_HEADERS  = 
-  CONFIG_LINKS    = 
-  CONFIG_COMMANDS = 
-  $ ./config.status resource/Makefile
-
-on levin
-
-config.status:813: creating resource/Makefile
-
-## ---------------------- ##
-## Running config.status. ##
-## ---------------------- ##
-
-This file was extended by OpenFetion config.status 1.5, which was
-generated by GNU Autoconf 2.63.  Invocation command line was
-
-  CONFIG_FILES    = 
-  CONFIG_HEADERS  = 
-  CONFIG_LINKS    = 
-  CONFIG_COMMANDS = 
-  $ ./config.status resource/Makefile
-
-on levin
-
-config.status:813: creating resource/Makefile
-
-## ---------------------- ##
-## Running config.status. ##
-## ---------------------- ##
-
-This file was extended by OpenFetion config.status 1.5, which was
-generated by GNU Autoconf 2.63.  Invocation command line was
-
-  CONFIG_FILES    = 
-  CONFIG_HEADERS  = 
-  CONFIG_LINKS    = 
-  CONFIG_COMMANDS = 
-  $ ./config.status src/Makefile depfiles
-
-on levin
-
-config.status:813: creating src/Makefile
-config.status:1087: executing depfiles commands
-
-## ---------------------- ##
-## Running config.status. ##
-## ---------------------- ##
-
-This file was extended by OpenFetion config.status 1.5, which was
-generated by GNU Autoconf 2.63.  Invocation command line was
-
-  CONFIG_FILES    = 
-  CONFIG_HEADERS  = 
-  CONFIG_LINKS    = 
-  CONFIG_COMMANDS = 
-  $ ./config.status src/Makefile depfiles
-
-on levin
-
-config.status:813: creating src/Makefile
-config.status:1087: executing depfiles commands

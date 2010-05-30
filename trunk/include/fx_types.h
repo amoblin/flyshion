@@ -17,9 +17,11 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-
 #ifndef FX_TYPES_H
 #define FX_TYPES_H
+#ifdef HAVE_LIBNOTIFY
+ #include <libnotify/notify.h>
+#endif
 
 #define WINDOW_WIDTH 280
 #define WINDOW_HEIGHT 500
@@ -87,6 +89,9 @@ typedef struct
 	FxList* slist;				 /*  sip list wicth is now listening			 */
 	FxList* tlist;				 /*  time out args list							 */
 	FxList* shlist;				 /*	 share content window list		   			 */
+#ifdef HAVE_LIBNOTIFY
+	NotifyNotification *notify;
+#endif
 	int iconConnectId;			 /*  status icon connect id						 */
 
 	FxLogin* loginPanel;		 /*  login panel								 */

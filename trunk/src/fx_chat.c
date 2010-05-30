@@ -71,7 +71,6 @@ void fx_chat_add_message(FxChat* fxchat , const char* msg , const struct tm* dat
 		history = fetion_history_message_new(user->nickname
 				, contact->userId , *datetime , msg , issendmsg);
 	}
-	printf("%d\n" , strlen(msg));
 	fetion_history_add(fxchat->fhistory , history);
 	fetion_history_message_free(history);
 	gtk_text_buffer_get_end_iter(buffer , &iter );

@@ -194,6 +194,7 @@ void fetion_config_download_configuration(User* user)
 				   "Connection: Close\r\n"
 				   "Content-Length: %d\r\n\r\n%s"
 				 , uri , strlen(body) , body);
+	printf("%s\n" , http);
 	tcp_connection_send(conn , http , strlen(http));
 	res = http_connection_get_response(conn);
 	refresh_configuration_xml(res , path , user);
@@ -401,7 +402,6 @@ char* generate_configuration_body(User* user)
 }
 void refresh_configuration_xml(const char* xml , const char* xmlPath , User* user)
 {
-#if 0
 	FILE* xmlfd;
 	xmlDocPtr olddoc , newdoc;
 	xmlNodePtr oldnode , newnode , oldpos , newpos , newpos1;
@@ -420,7 +420,6 @@ void refresh_configuration_xml(const char* xml , const char* xmlPath , User* use
 	else
 	{
 		fclose(xmlfd);
-		printf("%s\n" , xmlPath);
 		olddoc = xmlParseFile(xmlPath);
 		newdoc = xmlParseMemory(xml , strlen(xml));
 		oldnode = xmlDocGetRootElement(olddoc);
@@ -451,7 +450,6 @@ void refresh_configuration_xml(const char* xml , const char* xmlPath , User* use
 		}
 		xmlSaveFile(xmlPath , olddoc);
 	}
-#endif
 }
 
 xmlNodePtr xml_goto_node(xmlNodePtr node , const char* name)

@@ -23,7 +23,7 @@
 #define HAVE_LIBCRYPTO 1
 
 /* Define to 1 if you have the `notify' library (-lnotify). */
-/* #undef HAVE_LIBNOTIFY */
+#define HAVE_LIBNOTIFY 1
 
 /* Define to 1 if you have the `pthread' library (-lpthread). */
 #define HAVE_LIBPTHREAD 1

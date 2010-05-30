@@ -201,15 +201,12 @@ void fx_tree_get_group_iter_by_id(GtkTreeModel* model , int id , GtkTreeIter* it
 {
 	int idt;
 
-	if(gtk_tree_model_get_iter_root(model , iter))
-	{
-		do
-		{
+	if(gtk_tree_model_get_iter_root(model , iter)){
+		do{
 			gtk_tree_model_get(model , iter , G_ID_COL , &idt , -1);
 			if(idt == id)
 				break;
-		}
-		while(gtk_tree_model_iter_next(model , iter));
+		}while(gtk_tree_model_iter_next(model , iter));
 	}
 }
 int fx_tree_get_buddy_iter_by_userid(GtkTreeModel* model , const char* userid , GtkTreeIter* iter)
@@ -217,24 +214,18 @@ int fx_tree_get_buddy_iter_by_userid(GtkTreeModel* model , const char* userid , 
 	char *id = NULL;
 	GtkTreeIter pos;
 
-	if(gtk_tree_model_get_iter_root(model , &pos))
-	{
-		do
-		{
-			if(gtk_tree_model_iter_children(model , iter , &pos))
-			{
-				do
-				{
+	if(gtk_tree_model_get_iter_root(model , &pos)){
+		do{
+			if(gtk_tree_model_iter_children(model , iter , &pos)){
+				do{
 					gtk_tree_model_get(model , iter , B_USERID_COL , &id , -1);
 					if(id == NULL)
 						continue;
 					if(strcmp(userid , id) == 0)
 						return 1;
-				}
-				while(gtk_tree_model_iter_next(model , iter));
+				}while(gtk_tree_model_iter_next(model , iter));
 			}
-		}
-		while(gtk_tree_model_iter_next(model , &pos));
+		}while(gtk_tree_model_iter_next(model , &pos));
 	}
 	return -1;
 }
@@ -566,13 +557,12 @@ void* fx_tree_update_portrait_thread_func(void* data)
 	char portraitPath[256] , *sipuri , *sid;
 
 	DEBUG_FOOTPRINT();
+	sleep(1);
 
 	fetion_user_save(user);
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(fxmain->mainPanel->treeView));
 	gtk_tree_model_get_iter_root(model , &iter);
-	sleep(1);
-	do
-	{
+	do{
 		if(gtk_tree_model_iter_children(model , &pos , &iter))
 		{
 			do
@@ -584,13 +574,11 @@ void* fx_tree_update_portrait_thread_func(void* data)
 				sid = fetion_sip_get_sid_by_sipuri(sipuri);
 				sprintf(portraitPath , "%s/%s.jpg" , config->iconPath , sid);
 				pb = gdk_pixbuf_new_from_file_at_size(portraitPath , size , size , NULL);
-				if(pb == NULL)
-				{
+				if(pb == NULL){
 					fetion_user_download_portrait(user , sipuri);
 					pb = gdk_pixbuf_new_from_file_at_size(portraitPath , size , size , NULL);
 				}
-				if(pb != NULL)
-				{
+				if(pb != NULL){
 					gdk_threads_enter();
 					gtk_tree_store_set(GTK_TREE_STORE(model) , &pos , B_PIXBUF_COL , pb , -1);
 					gdk_threads_leave();

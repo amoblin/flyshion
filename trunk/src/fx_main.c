@@ -19,7 +19,7 @@
  ***************************************************************************/
 
 #include "fx_include.h"
-
+#include "libnotify/notify.h"
 int window_pos_x;
 int window_pos_y;
 
@@ -36,9 +36,8 @@ void fx_main_initialize(FxMain* fxmain)
 {
 	int window_width , window_height;
 	GdkScreen *screen;
-	DEBUG_FOOTPRINT();
 
-	
+	DEBUG_FOOTPRINT();
 	fxmain->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_widget_set_name(fxmain->window , "mainwindow");
 	gtk_window_set_title(GTK_WINDOW(fxmain->window) , "OpenFetion");
@@ -69,6 +68,11 @@ void fx_main_initialize(FxMain* fxmain)
 	gtk_window_set_icon(GTK_WINDOW(fxmain->window) , icon);
 	fxmain->trayIcon = gtk_status_icon_new_from_file(SKIN_DIR"user_offline.png");
 	gtk_status_icon_set_tooltip(fxmain->trayIcon , "OpenFetion");
+#ifdef HAVE_LIBNOTIFY
+	fxmain->notify = notify_notification_new_with_status_icon("welcome"
+			, "hehe" , NULL , fxmain->trayIcon);
+#endif
+
 	fxmain->iconConnectId = g_signal_connect(GTK_STATUS_ICON(fxmain->trayIcon)
 									, "activate"
 									, GTK_SIGNAL_FUNC(fx_main_tray_activate_func)
@@ -288,7 +292,8 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const char* sipms
 	FxList* clist = fxmain->clist;
 	FxList* mitem = NULL;
 	FxChat* fxchat = NULL;
-	Config* config = fxmain->user->config;
+	User *user = fxmain->user;
+	Config* config = user->config;
 	char path[256] , *sid = NULL;
 	GdkPixbuf *pb = NULL;
 
@@ -325,6 +330,27 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const char* sipms
 			{
 				mitem = fx_list_new(msg);
 				fx_list_append(&(fxmain->mlist) , mitem );
+
+#ifdef HAVE_LIBNOTIFY
+				char iconPath[256];
+				char notifySum[256];
+				char *senderSid;
+				GdkPixbuf *notifyIcon;
+				Contact *senderContact;
+
+				senderContact = fetion_contact_list_find_by_sipuri(user->contactList , msg->sipuri);
+				bzero(notifySum , sizeof(notifySum));
+				bzero(iconPath , sizeof(iconPath));
+				sprintf(iconPath , "%s/%s.jpg" , config->iconPath , senderContact->sId);
+				senderSid = fetion_sip_get_sid_by_sipuri(msg->sipuri);
+				sprintf(notifySum , "%s(%s) 说:" , senderContact->nickname , senderContact->sId);
+				notifyIcon = gdk_pixbuf_new_from_file_at_size(iconPath , 48 , 48 , NULL);
+				notify_notification_update(fxmain->notify , notifySum
+						, msg->message , NULL);
+				notify_notification_set_icon_from_pixbuf(fxmain->notify , notifyIcon);
+				notify_notification_show(fxmain->notify , NULL);
+				g_object_unref(notifyIcon);
+#endif
 			}
 		}
 		else
@@ -834,6 +860,9 @@ int main(int argc , char* argv[])
 	gst_init(&argc , &argv);
 #endif
 
+#ifdef HAVE_LIBNOTIFY
+	notify_init("Openfetion");
+#endif
 	gtk_init(&argc , &argv);
 
 	gtk_rc_parse(RESOURCE_DIR"style.rc");
@@ -911,7 +940,6 @@ void fx_main_message_func(GtkWidget* widget , gpointer data)
 		if(fxchat == NULL){
 			sid = fetion_sip_get_sid_by_sipuri(msg->sipuri);
 			if(strcmp(sid , "100") == 0){
-				debug_info("Received a system message,ignored");
 				pos = pos->next;
 				continue;
 			}else{
