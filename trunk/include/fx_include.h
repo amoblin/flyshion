@@ -24,6 +24,9 @@
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <gdk/gdkkeysyms.h>
 #include <glib.h>
+#ifdef HAVE_LIBNOTIFY
+ #include <libnotify/notify.h>
+#endif
 #include "fetion_include.h"
 #include "fx_types.h"
 #include "fx_util.h"

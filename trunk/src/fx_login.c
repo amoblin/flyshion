@@ -273,8 +273,7 @@ void* fx_login_thread_func(void* data)
 	fx_main_set_user(fxmain , user);
 
 	config = fetion_config_new();
-	if(user == NULL)
-	{
+	if(user == NULL){
 		fx_login_show_msg(fxlogin , "登录失败");
 		return NULL;
 	}
@@ -284,13 +283,9 @@ void* fx_login_thread_func(void* data)
 	/* set the config structure to user */
 	fetion_user_set_config(user , config);
 
-	
-
-
 login:
 	pos = ssi_auth_action(user);
-	if(pos == NULL)
-	{
+	if(pos == NULL){
 		fx_login_show_msg(fxlogin , "登录失败");
 		return NULL;
 	}
@@ -337,9 +332,7 @@ login:
 	stateModel = gtk_combo_box_get_model(GTK_COMBO_BOX(fxlogin->statecombo));
 	gtk_tree_model_get(stateModel , &stateIter , 2 , &state , -1);
 
-	/**
-	 * set user list to be stored in local file
-	 */
+	/* set user list to be stored in local file	 */
 	ul = fetion_user_list_load(config);
 	newul = fetion_user_list_find_by_no(ul , no);
 	if(newul == NULL){
@@ -361,9 +354,7 @@ login:
 	}
 	fetion_user_list_save(config , ul);
 
-	/**
-	 * download xml configuration file from the server
-	 */
+	/* download xml configuration file from the server */
 	fx_login_show_msg(fxlogin , "正在下载配置文件");
 	fetion_user_load(user);
 	fetion_config_download_configuration(user);
@@ -375,10 +366,7 @@ login:
 
 	user->state = state;
 
-	/**
-	 * start a new tcp connection for registering to sipc server
-	 */
-	
+	/* start a new tcp connection for registering to sipc server */
 	conn = tcp_connection_new();
 	if(config->proxy != NULL && config->proxy->proxyEnabled)
 	{
@@ -410,9 +398,7 @@ login:
 	free(key);
 	free(aeskey);
 
-	/**
-	 * start sipc authentication using the response created just now
-	 */
+	/* start sipc authentication using the response created just now */
 	fx_login_show_msg(fxlogin , "正在进行SIPC身份验证");
 auth:
 	pos = sipc_aut_action(user , response);
@@ -457,6 +443,31 @@ auth:
 	
 	fx_login_show_msg(fxlogin , "登录成功");
 	gdk_threads_enter();
+#ifdef HAVE_LIBNOTIFY
+	char notifyText[1024];
+	char iconPath[256];
+	GdkPixbuf *pb;
+	bzero(iconPath , sizeof(iconPath));
+	sprintf(iconPath , "%s/%s.jpg" , config->iconPath , user->sId);
+	bzero(notifyText , sizeof(notifyText));
+	sprintf(notifyText , "公网IP地址：%s\n"
+						 "上次登录IP地址：%s\n"
+						 "上次登录时间%s\n"
+				, user->publicIp , user->lastLoginIp , user->lastLoginTime);
+	pb = gdk_pixbuf_new_from_file_at_size(iconPath , 48 , 48 , NULL);
+	if(pb == NULL){
+		fetion_user_download_portrait(user , user->sipuri);
+		pb = gdk_pixbuf_new_from_file_at_size(iconPath , 48 , 48 , NULL);
+		if(pb == NULL){
+			pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.jpg" , 48 , 48 , NULL);
+		}
+	}
+	notify_notification_update(fxmain->notify , "登录成功"// notifySummary
+			, notifyText , NULL);
+	notify_notification_set_icon_from_pixbuf(fxmain->notify , pb);
+	notify_notification_show(fxmain->notify , NULL);
+	g_object_unref(pb);
+#endif
 	gtk_window_set_resizable(GTK_WINDOW(fxmain->window) , TRUE);
 	gdk_threads_leave();
 
@@ -482,54 +493,36 @@ auth:
 	fx_login_free(fxlogin);
 	gdk_threads_leave();
 	fxmain->loginPanel = NULL;
-	/**
-	 * initialize main panel which in fact only contains a treeview
-	 */
+	/* initialize head panel */
 	gdk_threads_enter();
 	fx_head_initialize(fxmain);
 	DEBUG_FOOTPRINT();
 	gdk_threads_leave();
-
-	DEBUG_FOOTPRINT();
+	/* initialize main panel which in fact only contains a treeview*/
 	gdk_threads_enter();
 	fxmain->mainPanel = fx_tree_new();
 	fx_tree_initilize(fxmain);
-	DEBUG_FOOTPRINT();
 	gdk_threads_leave();
-	
-	DEBUG_FOOTPRINT();
+	/* initialize bottom panel */
 	gdk_threads_enter();
-	DEBUG_FOOTPRINT();
 	fx_bottom_initialize(fxmain);
-	DEBUG_FOOTPRINT();
 	gdk_threads_leave();
-	/**
-	 * set tooltip of status icon
-	 */
-	DEBUG_FOOTPRINT();
+	/* set tooltip of status icon */
 	bzero(statusTooltip , sizeof(statusTooltip));
 	sprintf(statusTooltip , "%s\n%s" , user->nickname , user->mobileno);
 
-	DEBUG_FOOTPRINT();
 	gdk_threads_enter();
-	DEBUG_FOOTPRINT();
 	gtk_status_icon_set_tooltip(GTK_STATUS_ICON(fxmain->trayIcon) , statusTooltip);
-	/**
-	 * set title of main window
-	 */
-	DEBUG_FOOTPRINT();
+	/* set title of main window*/
 	gtk_window_set_title(GTK_WINDOW(fxmain->window) , user->nickname );
 	gdk_threads_leave();
-	/**
-	 * start sending keep alive request periodically
-	 */
+	/* start sending keep alive request periodically */
 	g_timeout_add_seconds(180 , (GSourceFunc)fx_main_register_func , user);
 
 	/*====================================*/
 
 	/*====================================*/
 
-	DEBUG_FOOTPRINT();
 	g_thread_exit(0);
 	return NULL;
 }

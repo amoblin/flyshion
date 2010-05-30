@@ -100,7 +100,6 @@ int fetion_conversation_send_sms_to_phone(Conversation* conversation , const cha
 	}
 	fetion_sip_add_header(sip , eheader);
 	res = fetion_sip_to_string(sip , message);
-	printf("%s\n" , res);
 	debug_info("Sent a message to (%s)`s mobile phone" , sipuri);
 	tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
@@ -143,7 +142,6 @@ int fetion_conversation_send_sms_to_phone_with_reply(Conversation* conversation
 	free(res);
 	bzero(rep , sizeof(rep));
 	tcp_connection_recv(sip->tcp , rep , sizeof(rep));
-	printf("%s\n" , rep);
 	if(fetion_sip_get_code(rep) == 280)
 	{
 		xml = strstr(rep , "\r\n\r\n") + 4;
@@ -213,7 +211,6 @@ int fetion_conversation_invite_friend(Conversation* conversation)
 	eheader = fetion_sip_event_header_new(SIP_EVENT_INVITEBUDDY);
 	fetion_sip_add_header(sip , eheader);
 	body = generate_invite_friend_body(conversation->currentContact->sipuri);
-	printf("%s\n" , body);
 	res = fetion_sip_to_string(sip , body);	
 	free(body); body = NULL;
 	tcp_connection_send(sip->tcp , res , strlen(res));
