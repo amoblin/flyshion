@@ -85,7 +85,7 @@ void fx_login_initialize(FxMain* fxmain)
 	char text[1024];
 
 	DEBUG_FOOTPRINT();
-	
+
 	config = fetion_config_new();
 	/**
 	 * load proxy information
@@ -254,9 +254,7 @@ void* fx_login_thread_func(void* data)
 	User* user = NULL;								 /* global user information 	   */
 	char code[20];									 /* store reply code   			   */
 	char statusTooltip[128];
-	UserList* ul = NULL;
-	UserList* newEntry = NULL;
-	UserList* ulPos = NULL;
+	struct userlist *ul , *newul , *ul_cur;
 
 	GtkTreeIter stateIter;
 	GtkTreeModel* stateModel = NULL;
@@ -285,6 +283,10 @@ void* fx_login_thread_func(void* data)
 	config->proxy = fxlogin->proxy;
 	/* set the config structure to user */
 	fetion_user_set_config(user , config);
+
+	
+
+
 login:
 	pos = ssi_auth_action(user);
 	if(pos == NULL)
@@ -339,28 +341,23 @@ login:
 	 * set user list to be stored in local file
 	 */
 	ul = fetion_user_list_load(config);
-	if(ul == NULL)
-	{
-		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxlogin->remember)))
-			newEntry = fetion_user_list_new(no , password , state , 1);
-		else
-			newEntry = fetion_user_list_new(no , NULL , state , 1);
-		ul = newEntry;
-	}
-	else
-	{
-		newEntry = fetion_user_list_find_by_no(ul , no);
-		bzero(newEntry->password , sizeof(newEntry->password));
-		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxlogin->remember)))
-			strcpy(newEntry->password , password);
-		newEntry->laststate = state;
-		ulPos = ul;
-		while(ulPos != NULL)
-		{
-			ulPos->islastuser = 0;
-			ulPos = ulPos->next;
+	newul = fetion_user_list_find_by_no(ul , no);
+	if(newul == NULL){
+		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxlogin->remember))){
+			newul = fetion_user_list_new(no , password , state , 1);
+		}else{
+			newul = fetion_user_list_new(no , NULL , state , 1);
 		}
-		newEntry->islastuser = 1;
+		fetion_user_list_append(ul , newul);
+	}else{
+		bzero(newul->password , sizeof(newul->password));
+		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxlogin->remember)))
+			strcpy(newul->password , password);
+		newul->laststate = state;
+		foreach_userlist(ul , ul_cur){
+			ul_cur->islastuser = 0;
+		}
+		newul->islastuser = 1;
 	}
 	fetion_user_list_save(config , ul);
 
@@ -370,7 +367,10 @@ login:
 	fx_login_show_msg(fxlogin , "正在下载配置文件");
 	fetion_user_load(user);
 	fetion_config_download_configuration(user);
-	fetion_config_load_xml(user);
+	if(fetion_config_load_xml(user) < 0){
+		fx_login_show_msg(fxlogin , "登录失败");
+		return;
+	}
 	fetion_config_load_data(user);
 
 	user->state = state;
@@ -475,7 +475,7 @@ auth:
 		group = fetion_group_new();
 		group->groupid = BUDDY_LIST_STRANGER;
 		strcpy(group->groupname , "陌生人");
-		fetion_group_list_append(user->groupList , group);
+		fetion_group_list_prepend(user->groupList , group);
 	}
 
 	gdk_threads_enter();
@@ -545,22 +545,21 @@ GtkTreeModel* fx_login_create_user_model(Config* config)
 										   , G_TYPE_STRING
 										   , G_TYPE_INT
 										   , G_TYPE_INT);
-	UserList* list = fetion_user_list_load(config);
-	UserList* pos = list;
-
+	struct userlist *ul , *ul_cur;
+	GtkTreeIter iter;
+	
 	DEBUG_FOOTPRINT();
+	
+	ul = fetion_user_list_load(config);
 
-	while(pos != NULL)
-	{
-		GtkTreeIter iter;
+	foreach_userlist(ul , ul_cur){
 		gtk_tree_store_append(model , &iter , NULL);
 		gtk_tree_store_set(model    , &iter 
-						 , L_NO_COL   , pos->no
-						 , L_PWD_COL  , pos->password
-						 , L_STATE_COL, pos->laststate
-						 , L_LAST_COL , pos->islastuser
+						 , L_NO_COL   , ul_cur->no
+						 , L_PWD_COL  , ul_cur->password
+						 , L_STATE_COL, ul_cur->laststate
+						 , L_LAST_COL , ul_cur->islastuser
 						 , -1);
-		pos = pos->next;
 	}
 	return GTK_TREE_MODEL(model);
 }

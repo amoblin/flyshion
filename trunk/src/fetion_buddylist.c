@@ -69,7 +69,7 @@ int fetion_buddylist_delete(User* user , int id)
 	free(res);
 	if(ret == 200)
 	{
-		fetion_group_remove(&user->groupList , id);
+		fetion_group_remove(user->groupList , id);
 		debug_info("Delete buddy list success");
 		return 1;
 	}
@@ -98,7 +98,6 @@ int fetion_buddylist_edit(User* user , int id , const char* name)
 	free(res);
 	if(ret == 200)
 	{
-		fetion_group_remove(&user->groupList , id);
 		debug_info("Set buddy list name to %s success" , name);
 		return 1;
 	}
@@ -113,7 +112,7 @@ int fetion_buddylist_save(User* user)
 	FILE* fd;
 	char filename[] = "buddylist.dat";
 	char* filepath;
-	Group* pos = user->groupList;	
+	Group *gl_cur;
 	Config* config = user->config;
 	int n;
 
@@ -126,16 +125,13 @@ int fetion_buddylist_save(User* user)
 	
 	fd = fopen(filepath , "wb+");
 	debug_info("Storing buddy list to local disk");
-	if(fd == NULL)
-	{
+	if(fd == NULL){
 		debug_info("Store buddy list to local disk failed");
 		return -1;
 	}
-	while(pos != NULL)
-	{
-		fwrite(pos , sizeof(Group) , 1 , fd);
+	foreach_grouplist(user->groupList , gl_cur){
+		fwrite(gl_cur , sizeof(Group) , 1 , fd);
 		fflush(fd);
-		pos = pos->nextNode;
 	}
 	fclose(fd);
 	free(filepath);
@@ -150,7 +146,7 @@ int fetion_buddylist_load(User* user)
 	Group *pos , *buddylist = NULL;	
 	Config* config = user->config;
 	int n ;
-	n = strlen(config->userPath) + strlen(filename) + 2;
+	n = strlen(config->userPath) + strlen(filename) + 4;
 	filepath = (char*)malloc(n);
 	bzero(filepath , n);
 	strcpy(filepath , config->userPath);
@@ -158,22 +154,19 @@ int fetion_buddylist_load(User* user)
 	strcat(filepath , filename);
 	fd = fopen(filepath , "r");
 	debug_info("Reading buddy list from local disk");
-	if(fd == NULL)
-	{
+	if(fd == NULL){
 		debug_info("Reading buddy list from local disk failed");
 		return -1;
 	}
+	buddylist = fetion_group_new();
 	while(!feof(fd))
 	{
 		pos = fetion_group_new();
 		n = fread(pos , sizeof(Group) , 1 , fd);
-		pos->preNode = NULL;
-		pos->nextNode = NULL;
+		pos->next = pos;
+		pos->pre = pos;
 		if(n > 0)
-			if(buddylist == NULL)
-				buddylist = pos;
-			else
-				fetion_group_list_append(buddylist , pos);
+			fetion_group_list_append(buddylist , pos);
 		else
 			free(pos);
 	}

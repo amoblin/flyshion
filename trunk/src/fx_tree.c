@@ -123,7 +123,6 @@ GtkTreeModel* fx_tree_create_model(User* user)
 	DEBUG_FOOTPRINT();
 
 	group = user->groupList;
-	contact = user->contactList;
 	config = user->config;	
 
 	store = gtk_tree_store_new(COL_NUM
@@ -145,18 +144,15 @@ GtkTreeModel* fx_tree_create_model(User* user)
 							 , G_TYPE_INT
 							 , G_TYPE_INT);
 	
-	while(group != NULL)
-	{
+	foreach_grouplist(user->groupList , group){
 		gtk_tree_store_append(store , &iter , NULL);
 		gtk_tree_store_set(store , &iter
 						 , G_NAME_COL 		  , group->groupname
 						 , G_ID_COL           , group->groupid
 						 , G_ALL_COUNT_COL    , 0
 						 , G_ONLINE_COUNT_COL , 0 , -1);
-		group = group->nextNode;
 	}
-	while(contact != NULL)
-	{
+	foreach_contactlist(user->contactList , contact){
 		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.jpg"
 				, config->iconSize , config->iconSize , NULL);
 		fx_tree_get_group_iter_by_id(GTK_TREE_MODEL(store) , contact->groupid , &iter );
@@ -196,7 +192,6 @@ GtkTreeModel* fx_tree_create_model(User* user)
 						 , G_ALL_COUNT_COL		, count
 						 , G_ONLINE_COUNT_COL	, count1
 						 , -1);
-		contact = contact->nextNode;
 	}
 	return GTK_TREE_MODEL(store);
 

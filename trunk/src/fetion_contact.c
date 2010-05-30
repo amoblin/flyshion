@@ -25,80 +25,58 @@ Contact* fetion_contact_new()
 	memset(list , 0 , sizeof(Contact));
 	list->imageChanged = IMAGE_NOT_INITIALIZED;
 	list->state = P_HIDDEN;
-	list->preNode = NULL;
-	list->nextNode = NULL;
+	list->pre = list;
+	list->next = list;
 	return list;
 }
-void fetion_contact_list_append(Contact* contactlist , Contact* contact)
+void fetion_contact_list_append(Contact* cl , Contact* contact)
 {
-	Contact* pos = contactlist;
-	if(contactlist == NULL)
-	{
-	debug_info("Try to append a contact to a NULL contactlist at fetion_contact_list_append");
-		return;
-	}
-	while(1)
-	{
-		if(pos->nextNode == NULL)
-		{
-			pos->nextNode = contact;
-			contact->preNode = pos;
-			contact->nextNode = NULL;
-			break;
-		}
-		pos = pos->nextNode;
-	}
+	cl->next->pre = contact;
+	contact->next = cl->next;
+	contact->pre = cl;
+	cl->next = contact;
 }
 Contact* fetion_contact_list_find_by_userid(Contact* contactlist , const char* userid)
 {
-	Contact* pos = contactlist;
-	while(pos != NULL)
-	{
-		if(strcmp(pos->userId , userid) == 0)
-			return pos;
-		pos = pos->nextNode;
+	Contact* cl_cur;
+	foreach_contactlist(contactlist , cl_cur){
+		if(strcmp(cl_cur->userId , userid) == 0)
+			return cl_cur;
 	}
 	return NULL;
 }
 Contact* fetion_contact_list_find_by_sipuri(Contact* contactlist , const char* sipuri)
 {
-	Contact* pos = contactlist;
-	while(pos != NULL)
-	{
-		if(strcmp(pos->sipuri , sipuri) == 0)
-			return pos;
-		pos = pos->nextNode;
+	Contact *cl_cur;
+	foreach_contactlist(contactlist , cl_cur){
+		if(strcmp(cl_cur->sipuri , sipuri) == 0)
+			return cl_cur;
 	}
 	return NULL;
 }
-void fetion_contact_list_remove_by_userid(Contact** contactlist , const char* userid)
+void fetion_contact_list_remove_by_userid(Contact* contactlist , const char* userid)
 {
-	Contact* pos = *contactlist;
-	if(strcmp((*contactlist)->userId , userid) == 0)
-	{
-		*contactlist = (*contactlist)->nextNode;
-		return;
-	}
-	while(pos != NULL)
-	{
-		if(strcmp(pos->userId , userid) == 0)	
-		{
-			pos->preNode->nextNode = pos->nextNode;
-			if(pos->nextNode != NULL)
-				pos->nextNode->preNode = pos->preNode;
+	Contact *cl_cur;
+	foreach_contactlist(contactlist , cl_cur){
+		if(strcmp(cl_cur->userId , userid) == 0){
+			cl_cur->pre->next = cl_cur->next;
+			cl_cur->next->pre = cl_cur->pre;
+			free(cl_cur);
 			break;
 		}
-		pos = pos->nextNode;
 	}
 }
 void fetion_contact_list_free(Contact* contact)
 {
-	Contact* pos = contact;
-	debug_info("Free contact list");
-	while(contact != NULL)
-	{ 
-		contact = contact->nextNode;
+	Contact *cl_cur , *del_cur;
+	for(cl_cur = contact->next ; cl_cur != contact ;){
+		cl_cur->pre->next = cl_cur->next;
+		cl_cur->next->pre = cl_cur->pre;
+		del_cur = cl_cur;
+		cl_cur = cl_cur->next;
+		free(del_cur);
 	}
+	free(contact);
 }
 int fetion_contact_subscribe_only(User* user)
 {
@@ -330,7 +308,7 @@ int fetion_contact_delete_buddy(User* user , const char* userid)
 	free(res);
 	if(ret == 200)
 	{
-		fetion_contact_list_remove_by_userid(&(user->contactList) , userid);
+		fetion_contact_list_remove_by_userid(user->contactList , userid);
 		debug_info("Delete buddy(%s) success" , userid);
 		return 1;
 	}

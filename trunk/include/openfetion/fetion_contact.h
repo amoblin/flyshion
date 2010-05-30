@@ -35,15 +35,18 @@ typedef enum
 	BUDDY_BAD_REQUEST = 400
 } AddBuddyType;
 
+#define foreach_contactlist(head , cl) \
+	for(cl = head ; (cl = cl->next) != head ;)
+
 extern Contact* fetion_contact_new();
 
-extern void fetion_contact_list_append(Contact* contactlist , Contact* contact);
+extern void fetion_contact_list_append(Contact* cl , Contact* contact);
 
 extern Contact* fetion_contact_list_find_by_userid(Contact* contactlist , const char* userid);
 
 extern Contact* fetion_contact_list_find_by_sipuri(Contact* contactlist , const char* sipuri);
 
-extern void fetion_contact_list_remove_by_userid(Contact** contactlist , const char* userid);
+extern void fetion_contact_list_remove_by_userid(Contact* contactlist , const char* userid);
 
 extern void fetion_contact_list_free(Contact* contactlist);
 

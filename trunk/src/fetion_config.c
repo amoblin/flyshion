@@ -30,27 +30,17 @@ Config* fetion_config_new()
 	homepath = getenv("HOME");
 	config = (Config*)malloc(sizeof(Config));
 	memset(config , 0 , sizeof(Config));
-	n = strlen(homepath) + strlen(".openfetion") + 2;
-	config->globalPath = (char*)malloc(n);
-	memset(config->globalPath , 0 , n);
+
 	sprintf(config->globalPath , "%s/.openfetion" , homepath);
 	dir = opendir(config->globalPath);
-	if(dir == NULL)
-	{
+	if(dir == NULL){
 		e = mkdir(config->globalPath , S_IRWXU|S_IRWXO|S_IRWXG);
-		if(e == -1)
-		{
+		if(e == -1){
 			debug_error("Create directory: %s failed" , config->globalPath);
 			return NULL;
 		}
 	}
-	n += 10;
-	config->userPath = (char*)malloc(n);
-	memset(config->userPath , 0 , n);
-	n += 5;
-	config->iconPath = (char*)malloc(n);
-	memset(config->iconPath , 0 , n);
-	config->userList = NULL;
+	config->ul = NULL;
 	config->iconSize = 25;
 	return config;
 }
@@ -58,7 +48,7 @@ Config* fetion_config_new()
 FxList* fetion_config_get_phrase(Config* config)
 {
 	
-	char path[128] ;
+	char path[256] ;
 	xmlDocPtr doc;
 	xmlNodePtr node;
 	xmlChar *res;
@@ -90,117 +80,89 @@ void fetion_phrase_free(Phrase* phrase)
 		free(phrase->content);
 	free(phrase);
 }
-UserList* fetion_user_list_new(const char* no , const char* password , int laststate , int islastuser)
+struct userlist* fetion_user_list_new(const char* no , const char* password
+		, int laststate , int islastuser)
 {
-	UserList* userlist = (UserList*)malloc(sizeof(UserList));
-	memset(userlist , 0 , sizeof(UserList));
-	strcpy(userlist->no , no);
+	struct userlist* ul;
+
+	ul = (struct userlist*)malloc(sizeof(struct userlist));
+	memset(ul , 0 , sizeof(struct userlist));
+	if(no != NULL)
+		strcpy(ul->no , no);
 	if(password != NULL)
-		strcpy(userlist->password , password);
-	userlist->laststate = laststate;
-	userlist->islastuser = islastuser;
-	userlist->next = NULL;
-	return userlist;
+		strcpy(ul->password , password);
+	ul->laststate = laststate;
+	ul->islastuser = islastuser;
+	ul->next = ul;
+	ul->pre = ul;
+	return ul;
 }
-void fetion_user_list_append(UserList* userList , UserList* ul)
+void fetion_user_list_append(struct userlist* head , struct userlist* ul)
 {
-	UserList* pos;
-	if(userList == NULL)
-	{
-		debug_error("Try to append a node to a NULL userList porinter");
-		return;
-	}
-	pos = userList;
-	while(pos != NULL)
-	{
-		if(ul->islastuser == 1)
-		{
-			pos->islastuser = 0;
-		}
-		if(pos->next == NULL)
-		{
-			pos->next = ul;
-			break;
-		}
-		pos = pos->next;
-	}
-	
+	head->next->pre = ul;
+	ul->next = head->next;
+	ul->pre = head;
+	head->next = ul;
 }
-void fetion_user_list_save(Config* config , UserList* ul)
+void fetion_user_list_save(Config* config , struct userlist* ul)
 {	
-	char path[128];
+	char path[256];
 	FILE* file;
-	UserList* pos = ul;
+	struct userlist* pos;
 	bzero(path , sizeof(path));
 	sprintf(path , "%s/global.dat" , config->globalPath);
 	file = fopen(path , "wb+");
-	while(pos != NULL)
-	{
-		fwrite(pos , sizeof(UserList) , 1 , file);
-		pos = pos->next;
+	foreach_userlist(ul , pos){
+		fwrite(pos , sizeof(struct userlist) , 1 , file);
 	}
 	fclose(file);
 }
 
-void fetion_user_list_set_lastuser_by_no(UserList* userList , const char* no)
+void fetion_user_list_set_lastuser_by_no(struct userlist* ul , const char* no)
 {
-	UserList* pos = userList;
-	while(pos != NULL)
-	{
+	struct userlist* pos;
+	foreach_userlist(ul , pos){
 		if(strcmp(pos->no , no) == 0)
 			pos->islastuser = 1;
 		else
 			pos->islastuser = 0;
-		pos = pos->next;
 	}
 }
-UserList* fetion_user_list_find_by_no(UserList* list , const char* no)
+struct userlist* fetion_user_list_find_by_no(struct userlist* list , const char* no)
 {
-	UserList* pos = list;
-	UserList* tmp;
-	if(list == NULL)
-	{
-		debug_error("UserList NULL");
-		return NULL;
-	}
-	while(pos != NULL)
-	{
+	struct userlist* pos;
+	foreach_userlist(list , pos){
 		if(strcmp(pos->no , no) == 0)
 			return pos;
-		pos = pos->next;
 	}
-	tmp = fetion_user_list_new(no , NULL , 0 , 0 );
-	fetion_user_list_append(list , tmp);
-	return tmp;
+	return NULL;
 }
 
-UserList* fetion_user_list_load(Config* config)
+struct userlist* fetion_user_list_load(Config* config)
 {
-	char path[128];
+	char path[256];
 	FILE* file;
-	UserList *res = NULL , *pos;
+	struct userlist *res = NULL , *pos;
 	int n;
+
+	res = fetion_user_list_new(NULL , NULL , 0 , 0);
+
 	bzero(path , sizeof(path));
 	sprintf(path , "%s/global.dat" , config->globalPath);
+
 	file = fopen(path , "rb");
 	if(file == NULL)
-		return NULL;
+		return res;
 	debug_info("Loading user list store in local data file");
-	while(!feof(file))
-	{
-		pos = (UserList*)malloc(sizeof(UserList));
-		n = fread(pos , sizeof(UserList) , 1 , file);
+	while(!feof(file)){
+		pos = (struct userlist*)malloc(sizeof(struct userlist));
+		n = fread(pos , sizeof(struct userlist) , 1 , file);
 		pos->next = NULL;
-		if(n > 0 )
-		{
-			if(res == NULL)
-				res = pos;
-			else
-				fetion_user_list_append(res , pos);
-		}
-		else
-		{
+		if(n > 0 ){
+			fetion_user_list_append(res , pos);
+		}else{
 			free(pos);
+			break;
 		}
 	}
 	fclose(file);
@@ -239,25 +201,25 @@ void fetion_config_download_configuration(User* user)
 }
 int fetion_config_initialize(Config* config , const char* userid)
 {
+
+	DIR *userdir , *icondir;
+
 	sprintf(config->userPath , "%s/%s" , config->globalPath , userid);
 	sprintf(config->iconPath , "%s/icons" , config->userPath );
 
-	DIR* userdir = opendir(config->userPath);
-	if(userdir == NULL)
-	{
+	userdir = opendir(config->userPath);
+
+	if(userdir == NULL){
 		int e = mkdir(config->userPath , S_IRWXU|S_IRWXO|S_IRWXG);
-		if(e == -1)
-		{
+		if(e == -1){
 			debug_error("Create directory: %s failed" , config->userPath);
 			return e;
 		}
 	}
-	DIR* icondir = opendir(config->iconPath);
-	if(icondir == NULL)
-	{
+	icondir = opendir(config->iconPath);
+	if(icondir == NULL){
 		int e = mkdir(config->iconPath , S_IRWXU|S_IRWXO|S_IRWXG);
-		if(e == -1)
-		{
+		if(e == -1){
 			debug_error("Create directory: %s failed" , config->iconPath);
 			return e;
 		}
@@ -267,18 +229,20 @@ int fetion_config_initialize(Config* config , const char* userid)
 int fetion_config_load_xml(User* user)
 {
 	Config* config = user->config;
-	char configFilePath[128];
-	char sipcIP[17] , sipcPort[5]; 
+	char configFilePath[256];
+	char sipcIP[20] , sipcPort[6]; 
 	char* pos;
 	int n;
 	xmlChar* res;
 	xmlDocPtr doc;
 	xmlNodePtr node;
 	xmlNodePtr cnode;
+
 	bzero(configFilePath , sizeof(configFilePath));
 	bzero(sipcIP , sizeof(sipcIP));
 	bzero(sipcPort , sizeof(sipcPort));
 	sprintf(configFilePath , "%s/configuration.xml" , config->userPath);
+
 	doc = xmlParseFile(configFilePath);
 	if(doc == NULL)
 	{
@@ -306,7 +270,7 @@ int fetion_config_load_xml(User* user)
 }
 int fetion_config_load_data(User* user)
 {
-	char path[128];
+	char path[256];
 	FILE *file;
 	Config config;
 	Config *cfg = user->config;
@@ -381,7 +345,7 @@ void fetion_config_save_proxy(Proxy *proxy)
 
 int fetion_config_save(User* user)
 {
-	char path[128];
+	char path[256];
 	Config *config = user->config;
 	FILE *file;
 
@@ -432,22 +396,21 @@ char* generate_configuration_body(User* user)
 	cnode = xmlNewChild(node , NULL , BAD_CAST "services" , NULL);
 	xmlNewProp(cnode , BAD_CAST "version" , BAD_CAST "0");*/
 	xmlDocDumpMemory(doc , &buf , NULL);
-	
-	pos = strstr((char*)buf , "?>") + 2;
-	res = (char*)malloc(strlen(pos) + 1);
-	bzero(res , strlen(pos) + 1);
-	strcpy(res , pos);
-	xmlFree(buf);
-	xmlFreeDoc(doc);
-	return res;
+	xmlFreeDoc(doc);	
+	return xml_convert(buf);
 }
 void refresh_configuration_xml(const char* xml , const char* xmlPath , User* user)
 {
+#if 0
 	FILE* xmlfd;
 	xmlDocPtr olddoc , newdoc;
 	xmlNodePtr oldnode , newnode , oldpos , newpos , newpos1;
 	xmlChar* c;
+
+	if(xml == NULL)
+		return;
 	xmlfd = fopen(xmlPath , "r");
+
 	if(xmlfd == NULL)
 	{
 		xmlfd = fopen(xmlPath , "wb+");
@@ -457,6 +420,7 @@ void refresh_configuration_xml(const char* xml , const char* xmlPath , User* use
 	else
 	{
 		fclose(xmlfd);
+		printf("%s\n" , xmlPath);
 		olddoc = xmlParseFile(xmlPath);
 		newdoc = xmlParseMemory(xml , strlen(xml));
 		oldnode = xmlDocGetRootElement(olddoc);
@@ -487,6 +451,7 @@ void refresh_configuration_xml(const char* xml , const char* xmlPath , User* use
 		}
 		xmlSaveFile(xmlPath , olddoc);
 	}
+#endif
 }
 
 xmlNodePtr xml_goto_node(xmlNodePtr node , const char* name)

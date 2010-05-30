@@ -23,11 +23,12 @@
 #include <openssl/sha.h>
 
 
-char* generate_response(const char* nouce , const char* userid , const char* password , const char* publickey , const char* key)
+char* generate_response(const char* nouce , const char* userid 
+		, const char* password , const char* publickey , const char* key)
 {
 	char* psdhex = hash_password_v4(userid , password);
-	char modulus[257] = { 0 };
-	char exponent[7] = { 0 };
+	char modulus[257];
+	char exponent[7];
 	int ret, flen;
 	BIGNUM *bnn, *bne;
 	unsigned char *out;
@@ -37,10 +38,13 @@ char* generate_response(const char* nouce , const char* userid , const char* pas
 
 	DEBUG_FOOTPRINT();
 
+	bzero(modulus , sizeof(modulus));
+	bzero(exponent , sizeof(exponent));
+
 	memcpy(modulus , publickey , 256);
 	memcpy(exponent , publickey + 256 , 6);
-	nonce = (unsigned char*)malloc(strlen(nouce));
-	memset(nonce , 0 , strlen(nouce));
+	nonce = (unsigned char*)malloc(strlen(nouce) + 1);
+	memset(nonce , 0 , strlen(nouce) + 1);
 	memcpy(nonce , (unsigned char*)nouce , strlen(nouce));
 	nonce_len = strlen(nouce);
 	psd = strtohex(psdhex , &psd_len);
@@ -56,7 +60,7 @@ char* generate_response(const char* nouce , const char* userid , const char* pas
 	BN_hex2bn(&bnn, modulus);
 	BN_hex2bn(&bne, exponent);
 	r->n = bnn;	r->e = bne;	r->d = NULL;
-	/*RSA_print_fp(stdout, r, 5);*/
+	RSA_print_fp(stdout, r, 5);
 	flen = RSA_size(r);
 	out =  (unsigned char*)malloc(flen);
 	memset(out , 0 , flen);
@@ -159,15 +163,15 @@ char* ssi_auth_action(User* user)
 	FetionConnection* ssl;
 	ssl = tcp_connection_new();
 
-	if(user->config->proxy != NULL && user->config->proxy->proxyEnabled)
-	{
+	if(user->config->proxy != NULL && user->config->proxy->proxyEnabled){
 		ret = tcp_connection_connect_with_proxy(ssl , ssi_ip , 443 , user->config->proxy);
 		if(ret < 0)
 			return NULL;
 	}
-	else
+	else{
 		if(tcp_connection_connect(ssl , ssi_ip , 443) < 0)
 			return NULL;
+	}
 
 	debug_info("Start ssi login with %s password , user number %s"
 			, passwordType == 1 ? "v3Temp" : "v4"
@@ -515,8 +519,7 @@ void parse_contact_list(xmlNodePtr node , User* user)
 
 	buf = xmlGetProp(node , BAD_CAST "version");
 	debug_info("Start reading contact list ");
-	if(strcmp(user->contactVersion , (char*) buf) == 0)
-	{
+	if(strcmp(user->contactVersion , (char*) buf) == 0){
 		debug_info("Contact list is the same as that stored in the local disk!");
 		return ;
 	}
@@ -524,12 +527,10 @@ void parse_contact_list(xmlNodePtr node , User* user)
 	xmlFree(buf);
 	node1 = node->xmlChildrenNode;
 	node2 = node1->xmlChildrenNode;
-	while(node2 != NULL)
-	{
+	while(node2 != NULL){
 		buf = xmlGetProp(node2 , BAD_CAST "id");
 		group = fetion_group_list_find_by_id(user->groupList , atoi((char*)buf));
-		if(group == NULL)
-		{
+		if(group == NULL){
 			hasGroup = 0;
 			group = fetion_group_new();
 		}
@@ -539,22 +540,16 @@ void parse_contact_list(xmlNodePtr node , User* user)
 		strcpy(group->groupname , (char*)buf);
 		xmlFree(buf);
 		
-		if(hasGroup == 0)
-		{
-			if(user->groupList == NULL)
-				user->groupList = group;
-			else
-				fetion_group_list_append(user->groupList , group);
+		if(hasGroup == 0){
+			fetion_group_list_append(user->groupList , group);
 		}
 		node2 = node2->next;
 	}
 	node1 = node1->next->xmlChildrenNode;
-	while(node1 != NULL)
-	{
+	while(node1 != NULL){
 		buf = xmlGetProp(node1 , BAD_CAST "i");
 		contact = fetion_contact_list_find_by_userid(user->contactList , (char*)buf);
-		if(contact == NULL)
-		{
+		if(contact == NULL){
 			hasBuddy = 0;
 			contact = fetion_contact_new();
 		}
@@ -581,12 +576,8 @@ void parse_contact_list(xmlNodePtr node , User* user)
 		//	contact->serviceStatus = STATUS_SMS_ONLINE;
 		xmlFree(buf);
 
-		if(hasBuddy == 0)
-		{
-			if(user->contactList == NULL)
-				user->contactList = contact;
-			else
-				fetion_contact_list_append(user->contactList , contact);
+		if(hasBuddy == 0){
+			fetion_contact_list_append(user->contactList , contact);
 		}
 		node1 = node1->next;
 	}
@@ -597,13 +588,12 @@ void parse_stranger_list(xmlNodePtr node , User* user)
 	xmlNodePtr node1 = node->xmlChildrenNode;
 	xmlChar *buf = NULL;
 	Contact *contact = NULL;
-	int hasBuddy;
+	int hasBuddy = 1;
 	while(node1 != NULL)
 	{
 		buf = xmlGetProp(node1 , BAD_CAST "u");
 		contact = fetion_contact_list_find_by_userid(user->contactList , (char*)buf);
-		if(contact == NULL)
-		{
+		if(contact == NULL){
 			hasBuddy = 0;
 			contact = fetion_contact_new();
 		}
@@ -612,12 +602,8 @@ void parse_stranger_list(xmlNodePtr node , User* user)
 		buf = xmlGetProp(node1 , BAD_CAST "i");
 		strcpy(contact->userId , (char*)buf);
 		contact->groupid = BUDDY_LIST_STRANGER;
-		if(hasBuddy == 0)
-		{
-			if(user->contactList == NULL)
-				user->contactList = contact;
-			else
-				fetion_contact_list_append(user->contactList , contact);
+		if(hasBuddy == 0){
+			fetion_contact_list_append(user->contactList , contact);
 		}
 		node1 = node1->next;
 	}
