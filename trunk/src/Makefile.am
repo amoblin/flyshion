@@ -1,7 +1,7 @@
 bin_PROGRAMS = openfetion
 
 openfetion_CPPFLAGS=`xml2-config --cflags` `pkg-config --cflags gtk+-2.0 gthread-2.0` \
-					$(GSTREAMER_CFLAGS) -g \
+					$(GSTREAMER_CFLAGS) -g\
 					-I../include -I../include/openfetion -I ../. \
 					-DSKIN_DIR=\"$(pkgdatadir)/skin/\" \
 					-DRESOURCE_DIR=\"$(pkgdatadir)/resource/\"

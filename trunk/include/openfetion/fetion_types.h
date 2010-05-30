@@ -162,10 +162,10 @@ typedef struct sipmsg
  */
 typedef struct group
 {
-	struct group* preNode;				/* previous buddy list node */
 	char groupname[32];					/* current buddy list name  */
 	int groupid;						/* current buddy list Id	*/
-	struct group* nextNode;				/* next buddy list node		*/
+	struct group *next;
+	struct group *pre;
 } Group;
 
 /**
@@ -173,7 +173,6 @@ typedef struct group
  */
 typedef struct contact
 {
-	struct contact* preNode;			/* previous contact list node         				*/
 	char userId[16];					/* userid used since v4 protocal      				*/
 	char sId[16];						/* fetion no					      				*/
 	char sipuri[48];					/* sipuri like 'sip:100@fetion.com.cn'				*/
@@ -197,7 +196,8 @@ typedef struct contact
 	int groupid;						/* buddylist id										*/
 	int gender;							/* gender 1 for male 2 for female,0 for private		*/
 	int imageChanged;					/* whether user`s portrait has changed				*/
-	struct contact* nextNode;
+	struct contact* next;
+	struct contact* pre;
 } Contact;
 
 /**
@@ -216,14 +216,15 @@ typedef struct
 /**
  * User list store in local data file  (One-way linked list)
  */
-typedef struct userlist
+struct userlist
 {
 	char no[24];						/* fetion no or mobile no  		*/
 	char password[48];					/* password 			   		*/
 	int laststate;						/* last state when logining		*/
 	int islastuser;						/* is the last logined user		*/
-	struct userlist* next;				/* next User node				*/
-} UserList;
+	struct userlist *pre;
+	struct userlist *next;				/* next User node				*/
+};
 
 /**
  * structure used to describe global proxy information
@@ -244,9 +245,9 @@ typedef struct
  */
 typedef struct
 {
-	char* globalPath;					/* global path,default $(HOME)/.openfetion                */
-	char* userPath;						/* user path , directory name by user`s sid in globalPath */
-	char* iconPath;						/* path stores user`s friend portraits in user`s path     */	
+	char globalPath[256];					/* global path,default $(HOME)/.openfetion                */
+	char userPath[256];						/* user path , directory name by user`s sid in globalPath */
+	char iconPath[256];						/* path stores user`s friend portraits in user`s path     */	
 	char sipcProxyIP[17];				/* sipc proxy server`s ip ,read from configuration.xml    */
 	int sipcProxyPort;					/* sipc proxy server`s port , read from configuration.xml */
 	char portraitServerName[48];		/* portrait server`s hostname ,read from configuration.xml*/
@@ -258,7 +259,7 @@ typedef struct
 	int autoPopup;						/* whether auto pupup chat dialog enabled				  */
 	int sendMode;						/* press enter to send message or ctrl + enter 			  */
 	int closeMode;						/* close button clicked to close window or iconize it	  */
-	UserList* userList;					/* user list stored in local data file					  */
+	struct userlist* ul;				/* user list stored in local data file					  */
 	Proxy *proxy;						/* structure stores the global proxy information 		  */
 } Config;
 

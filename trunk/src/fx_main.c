@@ -38,9 +38,11 @@ void fx_main_initialize(FxMain* fxmain)
 	GdkScreen *screen;
 	DEBUG_FOOTPRINT();
 
+	
 	fxmain->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_widget_set_name(fxmain->window , "mainwindow");
 	gtk_window_set_title(GTK_WINDOW(fxmain->window) , "OpenFetion");
+
 
 	screen = gdk_screen_get_default();
 	window_width = gdk_screen_get_width(screen);
@@ -83,7 +85,9 @@ void fx_main_initialize(FxMain* fxmain)
 	fx_login_initialize(fxmain);
 	gtk_widget_show_all(fxmain->window);
 
+	gdk_threads_enter();
 	gtk_main();
+	gdk_threads_leave();
 }
 void fx_main_free(FxMain* fxmain)
 {
@@ -199,8 +203,7 @@ void fx_main_process_presence(FxMain* fxmain , const char* xml)
 	contactlist = fetion_user_parse_presence_body(xml , user);
 	contact = contactlist;
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeView));
-	while(contact != NULL)
-	{
+	foreach_contactlist(contactlist , contact){
 		fx_tree_get_buddy_iter_by_userid(model , contact->userId , &iter);
 		gtk_tree_model_get(model , &iter
 						 , B_CRC_COL    , &crc
@@ -256,9 +259,6 @@ void fx_main_process_presence(FxMain* fxmain , const char* xml)
 						 , -1);
 
 		gdk_threads_leave();
-		contactToDelete = contact;
-		contact = contact->nextNode;
-		free(contactToDelete);
 	}
 }
 
@@ -823,22 +823,26 @@ void fx_main_tray_popmenu_func(GtkWidget* widget , guint button , guint activate
 }
 int main(int argc , char* argv[])
 {
+
+	FxMain* fxmain = fx_main_new();
+
 	if(!g_thread_supported())
 		g_thread_init(NULL);
 	gdk_threads_init();
+
 #ifdef USE_GSTREAMER
 	gst_init(&argc , &argv);
 #endif
+
 	gtk_init(&argc , &argv);
+
 	gtk_rc_parse(RESOURCE_DIR"style.rc");
-	FxMain* fxmain = fx_main_new();
 
 	DEBUG_FOOTPRINT();
 
 	fx_main_initialize(fxmain);
 
-
-	exit(0);
+	return 0;
 }
 void* fx_main_listen_thread_func(void* data)
 {

@@ -309,8 +309,8 @@ char* get_ip_by_name(const char* hostname)
 	struct hostent *hst;
 	char *name , *pos;
 	int len;
-	char* ip = (char*)malloc(17);
-	memset(ip , 0 , 17);
+	char* ip = (char*)malloc(20);
+	memset(ip , 0 , 20);
 	pos = strstr(hostname , "//");
 	if(pos != NULL)
 		pos += 2;
@@ -328,6 +328,7 @@ reget:
 	if(hst == NULL)
 		goto reget;
 	inet_ntop(AF_INET , hst->h_addr , ip , 16);
+	free(name);
 	return ip;
 }
 char* http_connection_encode_url(const char* url)

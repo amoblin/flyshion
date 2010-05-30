@@ -65,15 +65,20 @@ extern int fetion_user_update_info(User* user);
 
 extern int fetion_user_keep_alive(User* user);
 
+#define foreach_grouplist(head , gl) \
+	for(gl = head ; (gl = gl->next) != head ;)
+
 extern Group* fetion_group_new();
 
-extern void fetion_group_list_append(Group* grouplist , Group* group);
+extern void fetion_group_list_append(Group* head , Group* group);
 
-extern void fetion_group_remove(Group** grouplist , int groupid);
+extern void fetion_group_list_prepend(Group* head , Group* group);
 
-extern Group* fetion_group_list_find_by_id(Group* grouplist , int id);
+extern void fetion_group_remove(Group* head , int groupid);
 
-extern void fetion_group_list_free(Contact* grouplist);
+extern Group* fetion_group_list_find_by_id(Group* head , int id);
+
+//extern void fetion_group_list_free(Contact* grouplist);
 
 extern Verification* fetion_verification_new();
 

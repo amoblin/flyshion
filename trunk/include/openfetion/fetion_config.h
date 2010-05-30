@@ -50,20 +50,23 @@ extern char* fetion_config_get_province_name(const char* province);
 extern FxList* fetion_config_get_phrase(Config* config);
 
 extern void fetion_phrase_free(Phrase* phrase);
-/*user list*/
 
-extern UserList* fetion_user_list_new(const char* no 
+/*user list*/
+#define foreach_userlist(head , ul) \
+	for(ul = head ; (ul = ul->next) != head;)
+
+extern struct userlist* fetion_user_list_new(const char* no 
 		, const char* password , int laststate , int islastuser);
 
-extern void fetion_user_list_append(UserList* userList , UserList* ul);
+extern void fetion_user_list_append(struct userlist *head , struct userlist *ul);
 
-extern void fetion_user_list_save(Config* config , UserList* ul);
+extern void fetion_user_list_save(Config* config , struct userlist* ul);
 
-extern void fetion_user_list_set_lastuser_by_no(UserList* userList , const char* no);
+extern void fetion_user_list_set_lastuser_by_no(struct userlist *ul , const char* no);
 
-extern UserList* fetion_user_list_find_by_no(UserList* list , const char* no);
+extern struct userlist* fetion_user_list_find_by_no(struct userlist* list , const char* no);
 
-extern UserList* fetion_user_list_load(Config* config);
+extern struct userlist* fetion_user_list_load(Config* config);
 
 
 /*private*/

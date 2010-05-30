@@ -41,8 +41,8 @@ User* fetion_user_new(const char* no , const char* password)
 	strcpy(user->configServersVersion , "0");
 	strcpy(user->configHintsVersion , "0");
 	strcpy(user->customConfigVersion , "0");
-	user->groupList = NULL;
-	user->contactList = NULL;
+	user->contactList = fetion_contact_new();
+	user->groupList = fetion_group_new();
 	user->sip = NULL;
 	user->verification = NULL;
 	user->customConfig = NULL;
@@ -265,61 +265,45 @@ Group* fetion_group_new()
 {
 	Group* list = (Group*)malloc(sizeof(Group));
 	memset(list , 0 , sizeof(Group));
-	list->preNode = NULL;
-	list->nextNode = NULL;
+	list->pre = list;
+	list->next = list;
 	return list;
 }
-void fetion_group_list_append(Group* grouplist , Group* group)
+void fetion_group_list_append(Group* head , Group* group)
 {
-	Group* pos = grouplist;
-	if(grouplist == NULL)
-	{
-		debug_error("Try to append a group to a NULL grouplist(fetion_group_list_append)");
-		return;
-	}
-	while(1)
-	{
-		if(pos->nextNode == NULL)
-		{
-			pos->nextNode = group;
-			group->preNode = pos;
+	head->next->pre = group;
+	group->next = head->next;
+	group->pre = head;
+	head->next = group;
+}
+
+void fetion_group_list_prepend(Group* head , Group* group)
+{
+	head->pre->next = group;
+	group->next = head;
+	group->pre = head->pre;
+	head->pre = group;
+}
+
+void fetion_group_remove(Group* head , int groupid)
+{
+	Group *gl_cur;
+	foreach_grouplist(head , gl_cur){
+		if(gl_cur->groupid == groupid){
+			gl_cur->pre->next = gl_cur->next;
+			gl_cur->next->pre = gl_cur->pre;
+			free(gl_cur);
 			break;
 		}
-		pos = pos->nextNode;
 	}
 }
-void fetion_group_remove(Group** grouplist , int groupid)
+Group* fetion_group_list_find_by_id(Group* head , int id)
 {
-	Group* pos = *grouplist;
-	while(1)
-	{
-		if(pos->groupid == groupid)
-		{
-			if(pos == *grouplist)
-			{
-				*grouplist = pos->nextNode;
-				(*grouplist)->preNode = NULL;
-			}
-			else
-			{
-				pos->preNode->nextNode = pos->nextNode;
-				if(pos->nextNode != NULL)
-					pos->nextNode->preNode = pos->preNode;
-				free(pos);
-			}
-			return;
+	Group *gl_cur;
+	foreach_grouplist(head , gl_cur){
+		if(gl_cur->groupid == id){
+			return gl_cur;
 		}
-		pos = pos->nextNode;
-	}
-}
-Group* fetion_group_list_find_by_id(Group* grouplist , int id)
-{
-	Group* pos = grouplist;
-	while(pos != NULL)
-	{
-		if(pos->groupid == id)
-			return pos;
-		pos = pos->nextNode;
 	}
 	return NULL;
 }
@@ -636,10 +620,12 @@ Contact* fetion_user_parse_presence_body(const char* body , User* user)
 	xmlDocPtr doc;
 	xmlNodePtr node , cnode;
 	xmlChar* pos;
-	Contact* contact = NULL;
-	Contact* contactres = NULL;
+	Contact* contact;
+	Contact* contactres;
 	Contact* contactlist = user->contactList;
 	Contact* currentContact;
+
+	contactres = fetion_contact_new();
 
 	doc = xmlParseMemory(body , strlen(body));
 	node = xmlDocGetRootElement(doc);
@@ -648,7 +634,6 @@ Contact* fetion_user_parse_presence_body(const char* body , User* user)
 	{
 		pos = xmlGetProp(node , BAD_CAST "id");
 		currentContact = fetion_contact_list_find_by_userid(contactlist , (char*)pos);
-		//currentContact = fetion_contact_new();
 		if(currentContact == NULL)
 		{
 			/*not a valid information*/
@@ -738,12 +723,7 @@ Contact* fetion_user_parse_presence_body(const char* body , User* user)
 		contact = fetion_contact_new();
 		memset(contact , 0 , sizeof(contact));
 		memcpy(contact , currentContact , sizeof(Contact));
-		contact->preNode = NULL;
-		contact->nextNode = NULL;
-		if(contactres == NULL)
-			contactres = contact;
-		else
-			fetion_contact_list_append(contactres , contact);
+		fetion_contact_list_append(contactres , contact);
 		node = node->next;
 	}
 	xmlFreeDoc(doc);
