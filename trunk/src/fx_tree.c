@@ -762,14 +762,14 @@ static void* fx_tree_on_send_thread(void *data){
 			targs->sip = conv->currentSip;
 
 			fxlist = fx_list_new(conv->currentSip);
-			fx_list_append(&(fxmain->slist) , fxlist);
+			fx_list_append(fxmain->slist , fxlist);
 
 			g_thread_create(fx_main_listen_thread_func , targs , FALSE , NULL);
 
 			debug_info("Start periodically sending keep alive request");
 			oargs = timeout_args_new(fxmain , conv->currentSip , sipuri);
 			fxlist = fx_list_new(oargs);
-			fx_list_append(&(fxmain->tlist) , fxlist);
+			fx_list_append(fxmain->tlist , fxlist);
 			g_timeout_add_seconds(120 , (GSourceFunc)fx_main_chat_keep_alive_func , oargs);
 		}
 	}
@@ -848,7 +848,7 @@ void fx_tree_on_sendfile_clicked(GtkWidget* widget , gpointer data)
 	fxshare->share = share;
 	fx_share_initialize(fxshare);
 	fxlist = fx_list_new(fxshare);
-	fx_list_append(&(fxmain->shlist) , fxlist);
+	fx_list_append(fxmain->shlist , fxlist);
 
 	threadargs->fxmain = fxmain;
 	threadargs->fxshare = fxshare;
@@ -1299,7 +1299,7 @@ gboolean fx_tree_on_show_tooltip(GtkWidget* widget
 				   " <span color='#808080'>飞信:</span>  %s\n"
 				   " <span color='#808080'>心情:</span>  %s"
 		  		  , name == NULL ? "" : g_markup_escape_text(name , strlen(name))
-				  , sid , phonetext
+				  ,  phonetext , sid
 				  , impression == NULL ? "" : g_markup_escape_text(impression , strlen(impression)));
 	free(name);
 	free(impression);

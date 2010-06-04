@@ -52,15 +52,16 @@ FxList* fetion_config_get_phrase(Config* config)
 	xmlDocPtr doc;
 	xmlNodePtr node;
 	xmlChar *res;
-	FxList* list = NULL;
-	FxList* pos;
-	Phrase* phrase;
+	FxList *list;
+	FxList *pos;
+	Phrase *phrase;
 	sprintf(path , "%s/configuration.xml" , config->userPath);
 	
 	doc = xmlParseFile(path);
 	node = xmlDocGetRootElement(doc);
 	node = xml_goto_node(node , "addbuddy-phrases");
 	node = node->xmlChildrenNode;
+	list = fx_list_new(NULL);
 	while(node != NULL)
 	{
 		phrase = (Phrase*)malloc(sizeof(Phrase));
@@ -69,7 +70,7 @@ FxList* fetion_config_get_phrase(Config* config)
 		res = xmlGetProp(node , BAD_CAST "id");
 		phrase->phraseid = atoi((char*)res);
 		pos = fx_list_new(phrase);
-		fx_list_append(&list , pos);
+		fx_list_append(list , pos);
 		node = node->next;
 	}
 	return list;

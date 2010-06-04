@@ -30,6 +30,11 @@ FxMain* fx_main_new()
 	DEBUG_FOOTPRINT();
 
 	memset(fxmain , 0 , sizeof(FxMain));
+	fxmain->clist = fx_list_new(NULL);
+	fxmain->mlist = fx_list_new(NULL);
+	fxmain->slist = fx_list_new(NULL);
+	fxmain->tlist = fx_list_new(NULL);
+	fxmain->shlist = fx_list_new(NULL);
 	return fxmain;
 }
 void fx_main_initialize(FxMain* fxmain)
@@ -328,7 +333,7 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const char* sipms
 			else
 			{
 				mitem = fx_list_new(msg);
-				fx_list_append(&(fxmain->mlist) , mitem );
+				fx_list_append(fxmain->mlist , mitem );
 
 #ifdef HAVE_LIBNOTIFY
 				char iconPath[256];
@@ -399,7 +404,7 @@ void fx_main_process_user_left(FxMain* fxmain , const char* msg)
 	/**
 	 * remove sip struct from stack
 	 */
-	fx_list_remove_sip_by_sipuri(&(fxmain->slist) , sipuri);
+	fx_list_remove_sip_by_sipuri(fxmain->slist , sipuri);
 
 	/**
 	 * mark timeout struct to TERMINATED
@@ -432,11 +437,11 @@ void fx_main_process_user_left(FxMain* fxmain , const char* msg)
 }
 FxChat* fx_main_create_chat_window(FxMain* fxmain , const char* sipuri)
 {
-	Conversation* conv = NULL;
-	FxChat* fxchat = NULL;
-	FxList* citem = NULL;
-	Contact* contact = NULL;
-	char* sid = NULL;
+	Conversation *conv;
+	FxChat *fxchat;
+	FxList *citem;
+	Contact *contact;
+	char *sid;
 
 	DEBUG_FOOTPRINT();
 
@@ -464,7 +469,8 @@ FxChat* fx_main_create_chat_window(FxMain* fxmain , const char* sipuri)
 	fxchat = fx_chat_new(fxmain , conv);
 	fx_chat_initialize(fxchat);
 	citem = fx_list_new(fxchat);
-	fx_list_append(&(fxmain->clist) , citem);
+	fx_list_append(fxmain->clist , citem);
+
 	return fxchat;
 }
 void fx_main_process_invitation(FxMain* fxmain , const char* sipmsg)
@@ -486,7 +492,7 @@ void fx_main_process_invitation(FxMain* fxmain , const char* sipmsg)
 	fetion_sip_parse_invitation(sip , fxmain->user->config->proxy , sipmsg , &osip , &sipuri);
 
 	list = fx_list_new(osip);
-	fx_list_append(&(fxmain->slist) , list);
+	fx_list_append(fxmain->slist , list);
 
 	args->fxmain = fxmain;
 	args->sip = osip;
@@ -501,7 +507,7 @@ void fx_main_process_invitation(FxMain* fxmain , const char* sipmsg)
 	debug_info("Start periodically sending keep alive request");
 	timeout = timeout_args_new(fxmain , osip , sipuri);
 	list = fx_list_new(timeout);
-	fx_list_append(&(fxmain->tlist) , list);
+	fx_list_append(fxmain->tlist , list);
 	g_timeout_add_seconds(120 , (GSourceFunc)fx_main_chat_keep_alive_func , timeout);
 } 
 
@@ -957,20 +963,22 @@ void* fx_main_listen_thread_func(void* data)
 }
 void fx_main_message_func(GtkWidget* widget , gpointer data)
 {
-	FxMain* fxmain = (FxMain*)data;
-	FxList* mlist = fxmain->mlist;
-	FxList* pos = mlist;
-	FxList* tmp = NULL;
-	FxChat* fxchat = NULL;
-	Message* msg = NULL;
+	FxMain *fxmain = (FxMain*)data;
+	FxList *mlist = fxmain->mlist;
+	FxList *cur = mlist->next;
+	FxList *tmp = NULL;
+	FxChat *fxchat = NULL;
+	Message *msg = NULL;
 	char *sid = NULL;
 
 	DEBUG_FOOTPRINT();
 
-	while(pos != NULL){
-		msg = (Message*)(pos->data);
+	while(cur != fxmain->mlist){
+		msg = (Message*)(cur->data);
 		fxchat = fx_main_create_chat_window(fxmain , msg->sipuri);
+
 		if(fxchat == NULL){
+#if 0
 			sid = fetion_sip_get_sid_by_sipuri(msg->sipuri);
 			if(strcmp(sid , "100") == 0){
 				pos = pos->next;
@@ -980,14 +988,17 @@ void fx_main_message_func(GtkWidget* widget , gpointer data)
 				pos = pos->next;
 				continue;
 			}
+#endif 
+			printf("Unknow Message\n");
+			continue;
 		}
 		fx_chat_add_message(fxchat , msg->message , &(msg->sendtime) , 0);
 		free(msg);
-		tmp = pos;
-		pos = pos->next;
+		tmp = cur;
+		cur = cur->next;
+		fx_list_remove(tmp);
 		free(tmp);
 	}
-	fxmain->mlist = NULL;
 	fx_head_set_state_image(fxmain , fxmain->user->state);
 	gtk_status_icon_set_blinking(GTK_STATUS_ICON(fxmain->trayIcon) , FALSE);
 	g_signal_handler_disconnect(fxmain->trayIcon , fxmain->iconConnectId);
@@ -1012,7 +1023,7 @@ gboolean fx_main_chat_keep_alive_func(TimeOutArgs* args)
 		return FALSE;
 	if(args->terminated == TRUE)
 	{
-		fx_list_remove_timeout_by_sipuri(&(args->fxmain->tlist) , args->sipuri);
+		fx_list_remove_timeout_by_sipuri(args->fxmain->tlist , args->sipuri);
 
 		fetion_sip_free(args->sip);
 		free(args);
@@ -1101,149 +1112,105 @@ void fx_main_info_lookup_clicked(GtkWidget* widget , gpointer data)
 
 FetionSip* fx_list_find_sip_by_sipuri(FxList* fxlist , const char* sipuri)
 {
-	FxList *pos = fxlist;
-	FetionSip *sip = NULL;
-	while(pos != NULL)
-	{
-		sip = (FetionSip*)(pos->data);
-		if(strcmp(sip->sipuri , sipuri) == 0)
-		{
+	FxList *cur;
+	FetionSip *sip;
+	foreach_list(fxlist , cur){
+		sip = (FetionSip*)(cur->data);
+		if(strcmp(sip->sipuri , sipuri) == 0){
 			return sip;
 		}
-		pos = pos->next;
 	}
 	return NULL;
 }
-void fx_list_remove_sip_by_sipuri(FxList** fxlist , const char* sipuri)
+void fx_list_remove_sip_by_sipuri(FxList* fxlist , const char* sipuri)
 {
-	FxList* pos = *fxlist;
-	FetionSip* sip = NULL;
+	FxList *cur;
+	FetionSip *sip;
 
 	DEBUG_FOOTPRINT();
 
-	while(pos != NULL)
-	{
-		sip = (FetionSip*)(pos->data);
+	foreach_list(fxlist , cur){
+		sip = (FetionSip*)(cur->data);
 		if(strcmp(sip->sipuri , sipuri) == 0)
 		{	
 			debug_info("Removing sip from sip list");
-			if(pos == *fxlist)
-			{
-				*fxlist = pos->next;
-			}
-			else
-			{
-				pos->pre->next = pos->next;
-				if(pos->next != NULL)
-				{
-					pos->next->pre = pos->pre;
-				}
-			}
-			free(pos);
+			cur->next->pre = cur->pre;
+			cur->pre->next = cur->next;
+			free(cur);
 			break;
 		}	
-		pos = pos->next;
 	}
 }
 
 FxChat* fx_list_find_chat_by_sipuri(FxList* fxlist , const char* sipuri)
 {
-	FxChat* fxchat;
-	Contact* contact;
-	FxList* pos = fxlist;
+	FxChat *fxchat;
+	FxList *cur;
+	Contact *contact;
 
 	DEBUG_FOOTPRINT();
 
-	while(pos != NULL)
-	{
-		fxchat = (FxChat*)(pos->data);
+	foreach_list(fxlist , cur){
+		fxchat = (FxChat*)(cur->data);
 		contact = fxchat->conv->currentContact;
 		if(strcmp(contact->sipuri , sipuri) == 0)
 			return fxchat;
-		pos = pos->next;
 	}
 	return NULL;
 }
-void fx_list_remove_chat_by_sipuri(FxList** fxlist , const char* sipuri)
+void fx_list_remove_chat_by_sipuri(FxList *fxlist , const char *sipuri)
 {
-	FxList* pos = *fxlist;
-	Contact* contact;
-	FxChat* fxchat;
+	FxList *cur;
+	Contact *contact;
+	FxChat *fxchat;
 
 	DEBUG_FOOTPRINT();
 
-	while(pos != NULL)
-	{
-		fxchat = (FxChat*)(pos->data);
+	foreach_list(fxlist , cur){
+		fxchat = (FxChat*)(cur->data);
 		contact = fxchat->conv->currentContact;
-		if(strcmp(contact->sipuri , sipuri) == 0)
-		{	
+		if(!contact){
+			printf("Unknown FxChat\n");
+			continue;
+		}
+		if(strcmp(contact->sipuri , sipuri) == 0){
 			debug_info("Removing chat struct from chat list");
-			if(pos == *fxlist)
-			{
-				*fxlist = pos->next;
-			}
-			else
-			{
-				pos->pre->next = pos->next;
-				if(pos->next != NULL)
-				{
-					pos->next->pre = pos->pre;
-				}
-			}
-			free(pos);
+			cur->next->pre = cur->pre;
+			cur->pre->next = cur->next;
 			break;
 		}	
-		pos = pos->next;
 	}
 }
 
 TimeOutArgs* fx_list_find_timeout_by_sipuri(FxList* fxlist , const char* sipuri)
 {
 	TimeOutArgs *args = NULL;
-	FxList* pos = fxlist;
+	FxList *cur;
 
 	DEBUG_FOOTPRINT();
-
-	while(pos != NULL)
-	{
-		args = (TimeOutArgs*)(pos->data);
+	foreach_list(fxlist , cur){
+		args = (TimeOutArgs*)(cur->data);
 		if(strcmp(args->sipuri , sipuri) == 0)
 			return args;
-		pos = pos->next;
 	}
 	return NULL;
 }
 
-void fx_list_remove_timeout_by_sipuri(FxList** fxlist , const char* sipuri)
+void fx_list_remove_timeout_by_sipuri(FxList* fxlist , const char* sipuri)
 {
-	FxList* pos = *fxlist;
+	FxList *cur;
 	TimeOutArgs *args = NULL;
 
 	DEBUG_FOOTPRINT();
 
-	while(pos != NULL)
-	{
-		args = (TimeOutArgs*)(pos->data);
-		if(strcmp(args->sipuri , sipuri) == 0)
-		{	
-			debug_info("Removing timeout struct from timeout list");
-			if(pos == *fxlist)
-			{
-				*fxlist = pos->next;
-			}
-			else
-			{
-				pos->pre->next = pos->next;
-				if(pos->next != NULL)
-				{
-					pos->next->pre = pos->pre;
-				}
-			}
-			free(pos);
+	foreach_list(fxlist , cur){
+		args = (TimeOutArgs*)(cur->data);
+		if(strcmp(args->sipuri , sipuri) == 0){
+			cur->next->pre = cur->pre;
+			cur->pre->next = cur->next;
+			free(cur);
 			break;
 		}	
-		pos = pos->next;
 	}
 
 }

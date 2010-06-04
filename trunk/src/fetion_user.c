@@ -361,13 +361,15 @@ int fetion_user_upload_portrait(User* user , const char* filename)
 	debug_info("uploading portrait....");
 	bzero(http , sizeof(http));
 	sprintf(http , "POST /%s/setportrait.aspx HTTP/1.1\r\n"
-		    	   "User-Agent: IIC2.0/PC "PROTO_VERSION"\r\n"
-		    	   "Content-Type: image/jpeg\r\n"
-		    	   "Host: %s\r\n"
 		    	   "Cookie: ssic=%s\r\n"
+				   "Accept: */*\r\n"
+		    	   "Host: %s\r\n"
 		    	   "Content-Length: %ld\r\n"
-				   "Connection: Keep-Alive\r\n\r\n"
-		  		  , portraitPath , server , user->ssic , filelength);
+		    	   "Content-Type: image/jpeg\r\n"
+		    	   "User-Agent: IIC2.0/PC 4.0.0000\r\n"
+				   "Connection: Keep-Alive\r\n"
+				   "Cache-Control: no-cache\r\n\r\n"
+		  		  , portraitPath , user->ssic , server , filelength);
 
 	tcp = tcp_connection_new();
 	if(proxy != NULL && proxy->proxyEnabled)
@@ -378,10 +380,10 @@ int fetion_user_upload_portrait(User* user , const char* filename)
 	tcp_connection_send(tcp , http , strlen(http));
 
 	memset(buf , 0 , sizeof(buf));
+	int ret;
 	while((n = fread(buf , 1 , sizeof(buf) , f)))
 	{
-		fflush(f);
-		tcp_connection_send(tcp , buf , n) ;
+		ret = tcp_connection_send(tcp , buf , n) ;
 		memset(buf , 0 , sizeof(buf));
 	}
 	fclose(f);

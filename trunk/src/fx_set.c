@@ -212,7 +212,7 @@ void fx_set_initialize_personal(FxSet* fxset)
 	fxset->nick_entry = gtk_entry_new();
 	gtk_fixed_put(GTK_FIXED(box) , fxset->nick_entry , 310 , 80 );
 
-	fxset->impre_label = gtk_label_new("个姓签名:");
+	fxset->impre_label = gtk_label_new("个性签名:");
 	gtk_misc_set_alignment(GTK_MISC(fxset->impre_label) , 0 , 0);
 	gtk_fixed_put(GTK_FIXED(box) , fxset->impre_label , 10 , 115 );
 
