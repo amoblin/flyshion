@@ -49,4 +49,5 @@ openfetion_SOURCES = fetion_buddylist.c \
 					 fx_share.c \
 					 fx_sound.c \
 					 fx_sysmsg.c \
-					 fx_util.c 
+					 fx_util.c \
+					 fx_close.c 

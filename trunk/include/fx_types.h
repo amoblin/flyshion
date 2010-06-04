@@ -384,6 +384,7 @@ typedef struct
 	GtkWidget *smallBtn;
 	GtkWidget *ctBtn;
 	GtkWidget *etBtn;
+	GtkWidget *alertBtn;
 	/* personal setting */
 	GtkWidget* image ;
 	GtkWidget* sid_label ;
@@ -455,4 +456,14 @@ typedef struct
 	GtkWidget *checkBtn;
 	GtkWidget *sigEntry;
 } FxDSMS;
+
+typedef struct
+{
+	FxMain *fxmain;
+
+	GtkWidget *dialog;
+	GtkWidget *closeBtn;
+	GtkWidget *iconBtn;
+	GtkWidget *notalert;
+} FxClose;
 #endif

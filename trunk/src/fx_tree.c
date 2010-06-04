@@ -232,9 +232,9 @@ int fx_tree_get_buddy_iter_by_userid(GtkTreeModel* model , const char* userid , 
 void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* tree
 		, GtkTreePath* path , GdkEventButton* event , GtkTreeIter iter)
 {
-	char *sipuri , *groupname , *userid;
+	char *sipuri , *groupname , *userid , *mobileno , *carrier;
 	int groupid , iconsize;
-	int serviceStatus , relationStatus;
+	int serviceStatus , relationStatus , carrierStatus;
 	GtkWidget* menu = NULL;
 	GtkWidget* groupSubmenu = NULL;
 	GtkWidget* moveItem = NULL;
@@ -258,15 +258,19 @@ void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* tree
 
 		gtk_tree_model_get(GTK_TREE_MODEL(model) , &iter
 						 , B_SIPURI_COL			 , &sipuri
+						 , B_PHONENUM_COL		 , &mobileno
 						 , B_USERID_COL		     , &userid
 						 , B_SERVICESTATUS_COL	 , &serviceStatus
 						 , B_RELATIONSTATUS_COL  , &relationStatus
+						 , B_CARRIER_COL		 , &carrier
+						 , B_CARRIERSTATUS_COL	 , &carrierStatus
 						 , B_SIZE_COL			 , &iconsize
 						 , -1);
 		profileargs = fx_args_new(fxmain , iter , userid , 0);
 		chatargs = fx_args_new(fxmain , iter , sipuri , 0);
 		fx_tree_create_menu("发送即时消息" , SKIN_DIR"im.gif" , menu
-						  , (serviceStatus == BASIC_SERVICE_ABNORMAL
+						  , ((serviceStatus == BASIC_SERVICE_ABNORMAL
+								  && (carrierStatus == CARRIER_STATUS_CLOSED || (strlen(carrier)!= 0 && strlen(mobileno) == 0)))
 						  || relationStatus == RELATION_STATUS_UNAUTHENTICATED)
 						  ? FALSE : TRUE
 						  , fx_tree_on_chatmenu_clicked , chatargs);
@@ -335,7 +339,7 @@ void fx_tree_create_group_menu(FxMain* fxmain , GtkWidget* tree
 	gtk_tree_model_get(model ,  &iter
 					 , G_ALL_COUNT_COL , &count
 					 , G_ID_COL		   , &groupid , -1);
-	fx_tree_create_menu("添加新分组" , SKIN_DIR"sms.gif"
+	fx_tree_create_menu("添加新分组" , SKIN_DIR"myselfsms.png"
 					, menu , TRUE , fx_tree_on_gaddmenu_clicked , fxmain);
 	fx_tree_create_menu("修改分组名称" , SKIN_DIR"rename.gif"
 					, menu , (groupid == BUDDY_LIST_NOT_GROUPED || groupid == BUDDY_LIST_STRANGER) ? FALSE : TRUE
@@ -441,11 +445,14 @@ void fx_tree_pixbuf_cell_data_func(GtkTreeViewColumn *col
 								 , GtkTreeIter *iter
 								 , gpointer user_data)
 {
+	int state;
 	GtkTreePath* path = gtk_tree_model_get_path(model , iter);
 
 	if(gtk_tree_path_get_depth(path) > 1)
 	{
+		gtk_tree_model_get(model , iter , B_STATE_COL , &state , -1);
 		g_object_set(renderer , "visible" , TRUE , NULL);
+		g_object_set(renderer , "sensitive" , state > 0 ? TRUE : FALSE , NULL);
 
 	}
 	else
@@ -462,7 +469,7 @@ void fx_tree_text_cell_data_func(GtkTreeViewColumn *col,
 	GtkTreePath* path = gtk_tree_model_get_path(model , iter);
 	char text[1024];
 	/*contact data*/
-	char *name , *impression , *sipuri , *sid , *stateStr , *device , *carrier;
+	char *name , *impression , *sipuri , *sid , *stateStr , *mobileno , *device , *carrier;
 	char stateStr1[256];
 	char statusStr[256];
 	int presence , status , size;
@@ -480,6 +487,7 @@ void fx_tree_text_cell_data_func(GtkTreeViewColumn *col,
 						, B_SIPURI_COL     , &sipuri
 						, B_STATE_COL   , &presence
 						, B_IMPRESSION_COL , &impression
+						, B_PHONENUM_COL	, &mobileno
 						, B_CARRIER_COL     , &carrier
 						, B_CARRIERSTATUS_COL , &carrierStatus
 						, B_RELATIONSTATUS_COL , &relationStatus
@@ -493,7 +501,18 @@ void fx_tree_text_cell_data_func(GtkTreeViewColumn *col,
 		if(relationStatus == RELATION_STATUS_UNAUTHENTICATED){
 			sprintf(statusStr , "<span color='#d4b4b4'>[等待验证]</span>");
 		}else if(serviceStatus == BASIC_SERVICE_ABNORMAL){
-			sprintf(statusStr , "<span color='#d4b4b4'>[已关闭飞信服务]</span>");
+			if(carrierStatus == CARRIER_STATUS_CLOSED){
+				sprintf(statusStr , "<span color='#d4b4b4'>[已关闭飞信服务]</span>");
+			}else{
+				if(strlen(carrier) != 0){
+					sprintf(statusStr , "<span color='#d4b4b4'>[短信在线]</span>");
+					if(strlen(mobileno) == 0){
+						sprintf(statusStr , "<span color='#d4b4b4'>[已关闭飞信服务]</span>");
+					}
+				}else{
+					sprintf(statusStr , "<span color='#d4b4b4'>[已关闭飞信服务]</span>");
+				}
+			}
 		}else if(carrierStatus == CARRIER_STATUS_DOWN){
 			if(strlen(carrier) != 0){
 				sprintf(statusStr , "<span color='#d4b4b4'>[停机]</span>");
@@ -529,8 +548,10 @@ void fx_tree_text_cell_data_func(GtkTreeViewColumn *col,
 		free(stateStr);
 		free(impression);
 		free(sipuri);
+		free(mobileno);
 		free(sid);
 		free(device);
+		free(carrier);
 	}
 	/*render group list text*/
 	else
@@ -603,8 +624,8 @@ void fx_tree_on_double_click(GtkTreeView *treeview
 	GtkTreeIter iter;
 	gtk_tree_model_get_iter(model , &iter , path);
 	int depth = gtk_tree_path_get_depth(path);
-	char* sipuri;
-	int serviceStatus , relationStatus;
+	char *sipuri , *mobileno , *carrier;
+	int serviceStatus , relationStatus , carrierStatus;
 
 	DEBUG_FOOTPRINT();
 
@@ -612,7 +633,10 @@ void fx_tree_on_double_click(GtkTreeView *treeview
 	{
 		gtk_tree_model_get(model      , &iter
 						 , B_SIPURI_COL , &sipuri
+						 , B_PHONENUM_COL	 , &mobileno
 						 , B_SERVICESTATUS_COL , &serviceStatus
+						 , B_CARRIER_COL	   , &carrier
+						 , B_CARRIERSTATUS_COL , &carrierStatus
 						 , B_RELATIONSTATUS_COL , &relationStatus
 						 , -1);
 		if(relationStatus == RELATION_STATUS_UNAUTHENTICATED)
@@ -621,13 +645,18 @@ void fx_tree_on_double_click(GtkTreeView *treeview
 					",所以您不能给对方发送消息");
 			return;
 		}
-		if(serviceStatus == BASIC_SERVICE_ABNORMAL)
+		if(serviceStatus == BASIC_SERVICE_ABNORMAL && 
+			(carrierStatus == CARRIER_STATUS_CLOSED ||
+			 (strlen(carrier) != 0 && strlen(mobileno) == 0)))
 		{
 			fx_util_popup_warning(fxmain , "该用户已关闭飞信服务，"
 					"不能给他发消息");
 			return;
 		}
 		fx_main_create_chat_window(fxmain , sipuri);
+		free(sipuri);
+		free(mobileno);
+		free(carrier);
 	}
 	else
 	{

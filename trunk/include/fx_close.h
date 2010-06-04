@@ -16,43 +16,21 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************/ 
-#ifndef FX_INCLUDE_H
-#define FX_INCLUDE_H
+ ***************************************************************************/
 
-#include <gtk/gtk.h>
-#include <gdk-pixbuf/gdk-pixbuf.h>
-#include <gdk/gdkkeysyms.h>
-#include <glib.h>
-#ifdef HAVE_LIBNOTIFY
- #include <libnotify/notify.h>
-#endif
-#include "fetion_include.h"
-#include "fx_types.h"
-#include "fx_util.h"
-#include "fx_tree.h"
-#include "fx_head.h"
-#include "fx_bottom.h"
-#include "fx_main.h"
-#include "fx_login.h"
-#include "fx_proxy.h"
-#include "fx_add_group.h"
-#include "fx_profile.h"
-#include "fx_dsms.h"
-#include "fx_edit.h"
-#include "fx_gedit.h"
-#include "fx_chat.h"
-#include "fx_myself.h"
-#include "fx_history.h"
-#include "fx_many.h"
-#include "fx_lookup.h"
-#include "fx_lookupres.h"
-#include "fx_addbuddy.h"
-#include "fx_code.h"
-#include "fx_app.h"
-#include "fx_set.h"
-#include "fx_emotion.h"
-#include "fx_share.h"
-#include "fx_sysmsg.h"
-#include "fx_close.h"
+#ifndef FX_CLOSE_H
+#define FX_CLOSE_H
+
+
+extern FxClose *fx_close_new(FxMain *fxmain);
+
+extern void fx_close_initialize(FxClose *fxclose);
+
+extern int fx_close_get_action(FxClose *fxclose);
+
+/**
+ * whether the "not alert" has been toggled
+ */
+extern int fx_close_alert(FxClose *fxclose);
+
 #endif

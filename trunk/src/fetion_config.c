@@ -295,6 +295,8 @@ int fetion_config_load_data(User* user)
 	cfg->sendMode = config.sendMode;
 	cfg->closeMode = config.closeMode;
 	cfg->iconSize = config.iconSize;
+	cfg->closeAlert = config.closeAlert;
+	cfg->msgAlert = config.msgAlert;
 	return 1;
 }
 

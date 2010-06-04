@@ -262,8 +262,7 @@ char* http_connection_get_response(FetionConnection* conn)
 	res = (char*)malloc(len + 1);
 	memset(res , 0 , len + 1);
 	strcpy(res , pos);
-	while(1)
-	{
+	for(;;){
 		bzero(buf , sizeof(buf));
 		c = tcp_connection_recv(conn , buf , sizeof(buf) - 1);
 		strcpy(res + n , buf);
@@ -340,7 +339,6 @@ char* http_connection_encode_url(const char* url)
 	res = (char*)malloc(2048);
 	pos = url[0];
 	memset(res , 0 , 2048);
-	bzero(tmp , sizeof(tmp));
 	while(pos != '\0')
 	{
 		if(pos == '/')
@@ -353,10 +351,10 @@ char* http_connection_encode_url(const char* url)
 			strcat(res , "%3a");
 		else if(pos == ';')
 			strcat(res , "%3b");
-		else if(pos == '+')
+		else if(pos == '+'){
 			strcat(res , "%2b");
-		else
-		{
+		}else{
+			bzero(tmp , sizeof(tmp));
 			sprintf(tmp , "%c" , pos);
 			strcat(res , tmp);
 		}

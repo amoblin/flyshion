@@ -33,7 +33,7 @@
 #endif
 
 #define FETION_NAME "OpenFetion"
-#define FETION_VERSION "1.5"
+#define FETION_VERSION "1.6"
 #define PROTO_VERSION "4.0.2380"
 #define NAVIGATION_URI "nav.fetion.com.cn"
 #define LOGIN_TYPE_FETIONNO    			1
@@ -240,22 +240,30 @@ typedef struct
 
 } Proxy;
 
+/* for close action */
+#define CLOSE_ALERT_ENABLE   0
+#define CLOSE_ALERT_DISABLE  1
+/* for nitification action */
+#define MSG_ALERT_ENABLE   0
+#define MSG_ALERT_DISABLE  1
 /**
  * Configuration information 
  */
 typedef struct
 {
-	char globalPath[256];					/* global path,default $(HOME)/.openfetion                */
-	char userPath[256];						/* user path , directory name by user`s sid in globalPath */
-	char iconPath[256];						/* path stores user`s friend portraits in user`s path     */	
+	char globalPath[256];				/* global path,default $(HOME)/.openfetion                */
+	char userPath[256];					/* user path , directory name by user`s sid in globalPath */
+	char iconPath[256];					/* path stores user`s friend portraits in user`s path     */	
 	char sipcProxyIP[17];				/* sipc proxy server`s ip ,read from configuration.xml    */
 	int sipcProxyPort;					/* sipc proxy server`s port , read from configuration.xml */
 	char portraitServerName[48];		/* portrait server`s hostname ,read from configuration.xml*/
 	char portraitServerPath[32];		/* portrait server`s path , such as /HD_POOL8             */
 	int iconSize;						/* portrait`s display size default 25px					  */
+	int closeAlert;						/* whether popup an alert when quiting					  */
 	int autoReply;						/* whether auto reply enabled							  */
 	int isMute;
 	char autoReplyMessage[180];			/* auto reply message content							  */
+	int msgAlert;
 	int autoPopup;						/* whether auto pupup chat dialog enabled				  */
 	int sendMode;						/* press enter to send message or ctrl + enter 			  */
 	int closeMode;						/* close button clicked to close window or iconize it	  */

@@ -21,7 +21,8 @@
 #include "fx_include.h"
 
 
-FxCode* fx_code_new(FxMain* fxmain , const char* reason , const char* tips , ErrorType error)
+FxCode* fx_code_new(FxMain* fxmain , const char* reason
+		, const char* tips , ErrorType error)
 {
 	FxCode* fxcode = (FxCode*)malloc(sizeof(FxCode));
 
@@ -43,7 +44,7 @@ void fx_code_initialize(FxCode *fxcode)
 	GtkWidget *vbox , *action_area;
 	GtkWidget *ok_button , *cancel_button;
 	GdkPixbuf *pb , *icon;
-	char codePath[128];
+	char codePath[256];
 
 	DEBUG_FOOTPRINT();
 

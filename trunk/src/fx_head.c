@@ -51,7 +51,7 @@ void fx_head_initialize(FxMain* fxmain)
 	
 	DEBUG_FOOTPRINT();
 
-	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.jpg" , 50 , 50 , NULL);
+	pb = gdk_pixbuf_new_from_file_at_scale(SKIN_DIR"fetion.jpg" , 50 , 50 , TRUE , NULL);
 	fxhead->portrait = gtk_image_new_from_pixbuf(pb);
 	fxhead->portraitbox = gtk_event_box_new();
 	gtk_container_add(GTK_CONTAINER(fxhead->portraitbox) , fxhead->portrait);
@@ -149,7 +149,7 @@ void fx_head_bind(FxMain* fxmain)
 	FxHead* fxhead = fxmain->headPanel;
 	User* user = fxmain->user;
 	Config* config = user->config;
-	char name[100];
+	char name[256];
 	char tooltip[1024];
 	char* statename = NULL;
 	GdkPixbuf* portrait_pix = NULL;
@@ -179,9 +179,11 @@ void fx_head_bind(FxMain* fxmain)
 
 	fetion_user_download_portrait(user , user->sipuri);
 	portrait_pix = gdk_pixbuf_new_from_file_at_size(name , 50 , 50 , NULL);
-
-	if(portrait_pix != NULL)
+	if(! portrait_pix)
+		portrait_pix = gdk_pixbuf_new_from_file_at_size(name , 50 , 50 , NULL);
+	if(portrait_pix)
 		gtk_image_set_from_pixbuf(GTK_IMAGE(fxhead->portrait) , portrait_pix);
+
 	statename = fx_util_get_state_name(user->state);
 	gtk_label_set_markup(GTK_LABEL(fxhead->state_label) , statename);
 	fx_head_set_state_image(fxmain , user->state);
@@ -223,6 +225,7 @@ void fx_head_set_state_image(FxMain* fxmain , StateType type)
 										, SKIN_DIR"user_away.png");
 			break;
 	}
+	free(statename);
 }
 void fx_head_popup_statemenu_func(GtkWidget* widget
 		, GdkEventButton* event , gpointer data)
