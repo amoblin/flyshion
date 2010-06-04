@@ -267,8 +267,15 @@ void parse_ssi_auth_response(const char* ssi_response , User* user)
 	xmlNodePtr node;
 	char* pos;
 	char* xml = strstr(ssi_response , "\r\n\r\n") + 4;
+	int n;
 
 	DEBUG_FOOTPRINT();
+
+	pos = strstr(ssi_response , "ssic=") + 5;
+	n = strlen(pos) - strlen(strstr(pos , ";"));
+	user->ssic = (char*)malloc(n + 1);
+	bzero(user->ssic , n + 1);
+	strncpy(user->ssic , pos , n);
 
 	doc = xmlReadMemory(xml , strlen(xml) , NULL , "UTF-8" , XML_PARSE_RECOVER);
 	node = xmlDocGetRootElement(doc);
@@ -632,10 +639,6 @@ void parse_ssi_auth_success(xmlNodePtr node , User* user)
 	pos = (char*)xmlGetProp(node , BAD_CAST "user-id");
 	strcpy(user->userId , pos);
 	free(pos);
-	node1 = node->xmlChildrenNode->xmlChildrenNode;
-	pos = (char*)xmlGetProp(node1 , BAD_CAST "c");
-	user->ssic = pos;
-
 }
 void parse_ssi_auth_failed(xmlNodePtr node , User* user)
 {

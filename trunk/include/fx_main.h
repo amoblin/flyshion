@@ -111,13 +111,13 @@ extern void fx_main_info_lookup_clicked(GtkWidget* widget , gpointer data);
 
 extern FetionSip* fx_list_find_sip_by_sipuri(FxList* fxlist , const char* sipuri);
 
-extern void fx_list_remove_sip_by_sipuri(FxList** fxlist , const char* sipuri);
+extern void fx_list_remove_sip_by_sipuri(FxList* fxlist , const char* sipuri);
 
 extern FxChat* fx_list_find_chat_by_sipuri(FxList* clist , const char* sipuri);
 
-extern void fx_list_remove_chat_by_sipuri(FxList** fxlist , const char* sipuri);
+extern void fx_list_remove_chat_by_sipuri(FxList* fxlist , const char* sipuri);
 
 extern TimeOutArgs* fx_list_find_timeout_by_sipuri(FxList* fxlist , const char* sipuri);
 
-extern void fx_list_remove_timeout_by_sipuri(FxList** fxlist , const char* sipuri);
+extern void fx_list_remove_timeout_by_sipuri(FxList* fxlist , const char* sipuri);
 #endif

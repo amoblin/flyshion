@@ -154,7 +154,7 @@ gboolean fx_chat_focus_in_func(GtkWidget *widget , GdkEventFocus *event , gpoint
 
 	DEBUG_FOOTPRINT();
 
-	if(ctlist == NULL)
+	if(list_empty(ctlist))
 	{
 		fx_head_set_state_image(fxmain , fxmain->user->state);
 		gtk_status_icon_set_blinking(GTK_STATUS_ICON(fxmain->trayIcon) , FALSE);
@@ -515,7 +515,7 @@ void fx_chat_destroy(GtkWidget* widget , gpointer data)
 
 	DEBUG_FOOTPRINT();
 
-	fx_list_remove_chat_by_sipuri(&(fxchat->fxmain->clist)
+	fx_list_remove_chat_by_sipuri(fxchat->fxmain->clist
 								, fxchat->conv->currentContact->sipuri);
 	fx_chat_free(fxchat);
 
@@ -556,7 +556,7 @@ void* fx_chat_send_message_thread(void* data)
 		args->sip = conv->currentSip;
 
 		fxlist = fx_list_new(conv->currentSip);
-		fx_list_append(&(fxchat->fxmain->slist) , fxlist);
+		fx_list_append(fxchat->fxmain->slist , fxlist);
 
 		g_thread_create(fx_main_listen_thread_func , args , FALSE , NULL);
 
@@ -570,7 +570,7 @@ void* fx_chat_send_message_thread(void* data)
 		debug_info("Start periodically sending keep alive request");
 		targs = timeout_args_new(fxchat->fxmain , conv->currentSip , conv->currentContact->sipuri);
 		fxlist = fx_list_new(targs);
-		fx_list_append(&(fxchat->fxmain->tlist) , fxlist);
+		fx_list_append(fxchat->fxmain->tlist , fxlist);
 		g_timeout_add_seconds(120 , (GSourceFunc)fx_main_chat_keep_alive_func , targs);
 	}
 	return NULL;
@@ -715,7 +715,7 @@ void* fx_chat_send_nudge_thread(void* data)
 		args->sip = conv->currentSip;
 
 		fxlist = fx_list_new(conv->currentSip);
-		fx_list_append(&(fxchat->fxmain->slist) , fxlist);
+		fx_list_append(fxchat->fxmain->slist , fxlist);
 
 		g_thread_create(fx_main_listen_thread_func , args , FALSE , NULL);
 		fetion_conversation_send_nudge(conv);
@@ -726,7 +726,7 @@ void* fx_chat_send_nudge_thread(void* data)
 		 */
 		targs = timeout_args_new(fxchat->fxmain , conv->currentSip , conv->currentContact->sipuri);
 		fxlist = fx_list_new(targs);
-		fx_list_append(&(fxchat->fxmain->tlist) , fxlist);
+		fx_list_append(fxchat->fxmain->tlist , fxlist);
 		debug_info("Start periodically sending keep alive request");
 		g_timeout_add_seconds(120 , (GSourceFunc)fx_main_chat_keep_alive_func , targs);
 	}

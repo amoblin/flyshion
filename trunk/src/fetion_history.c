@@ -54,8 +54,7 @@ FetionHistory* fetion_history_new(User* user)
 
 void fetion_history_free(FetionHistory* fhistory)
 {
-	if(fhistory != NULL)
-	{
+	if(fhistory != NULL){
 		if(fhistory->file != NULL)
 			fclose(fhistory->file);
 		free(fhistory);
@@ -63,8 +62,7 @@ void fetion_history_free(FetionHistory* fhistory)
 }
 void fetion_history_add(FetionHistory* fhistory , History* history)
 {
-	if(fhistory->file != NULL)
-	{
+	if(fhistory->file != NULL){
 		fwrite(history , sizeof(History) , 1 , fhistory->file);
 		fflush(fhistory->file);
 	}
@@ -74,40 +72,36 @@ FxList* fetion_history_get_list(Config* config , const char* userid , int count)
 {
 	int len = 0;
 	History* his;
-	FxList* hislist = NULL;
+	FxList* hislist;
 	FxList* pos = NULL;
 	FILE* file;
 	char path[128];
 	int n = 0;
+
 	bzero(path , sizeof(path));
 	sprintf(path , "%s/history.dat" , config->userPath);
 	file = fopen(path , "r");
 	if(file == NULL)
 		return NULL;
+	hislist = fx_list_new(NULL);
 	while(!feof(file))
 	{
 		his = (History*)malloc(sizeof(History));
 		memset(his , 0 , sizeof(History));
 		len = fread(his , sizeof(History) , 1 , file);
-		if(len > 0 && strcmp(userid , his->userid) == 0)
-		{
+		if(len > 0 && strcmp(userid , his->userid) == 0){
 			pos = fx_list_new(his);
-			fx_list_append(&hislist , pos);
-		}
-		else
-		{
+			fx_list_prepend(hislist , pos);
+		}else{
 			free(his);
 		}
 	}
 	fclose(file);
-	while(pos != NULL)
-	{
-		if(n ++ == count || pos->pre == NULL)
-		{
-			hislist = pos;
+	foreach_list_back(hislist , pos){
+		if(n ++ == count){
+			hislist->next = pos->next;
 			break;
 		}
-		pos = pos->pre;
 	}
 	return hislist;
 }

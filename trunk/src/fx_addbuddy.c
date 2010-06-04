@@ -155,24 +155,21 @@ GtkTreeModel* fx_addbuddy_create_group_model(FxAddbuddy* fxaddbuddy)
 
 void fx_addbuddy_bind(FxAddbuddy* fxaddbuddy)
 {
-	GtkWidget* button;
-	GSList* msglist = NULL; 
+	GtkWidget *button;
+	GSList *msglist = NULL; 
 	FxList *pos;
-	Phrase* phrase;
-	User* user = fxaddbuddy->fxmain->user;
+	Phrase *phrase;
+	User *user = fxaddbuddy->fxmain->user;
 
 	DEBUG_FOOTPRINT();
 
-	pos = fxaddbuddy->phraselist;
 
-	while(pos != NULL)
-	{
+	foreach_list(fxaddbuddy->phraselist , pos){
 		phrase = (Phrase*)(pos->data);
 		button = gtk_radio_button_new_with_label(msglist , phrase->content);
 		msglist = gtk_radio_button_get_group(GTK_RADIO_BUTTON(button));
 		g_signal_connect(G_OBJECT(button) , "toggled" , G_CALLBACK(fx_addbuddy_on_phrase_change) , fxaddbuddy);
 		gtk_box_pack_start(GTK_BOX(fxaddbuddy->msgbox) , button , FALSE , FALSE , 1);
-		pos = pos->next;
 	}
 	gtk_combo_box_set_active (GTK_COMBO_BOX(fxaddbuddy->group_combo), 0);
 
@@ -322,10 +319,10 @@ void fx_addbuddy_on_cancel_clicked(GtkWidget* widget , gpointer data)
 }
 void fx_addbuddy_on_phrase_change(GtkWidget* widget , gpointer data)
 {
-	FxAddbuddy* fxaddbuddy = (FxAddbuddy*)data;
-	const char* label;
-	FxList* pos;
-	Phrase* phrase;
+	FxAddbuddy *fxaddbuddy = (FxAddbuddy*)data;
+	const char *label;
+	FxList *pos;
+	Phrase *phrase;
 
 	DEBUG_FOOTPRINT();
 
@@ -333,15 +330,12 @@ void fx_addbuddy_on_phrase_change(GtkWidget* widget , gpointer data)
 		return;
 	label = gtk_button_get_label(GTK_BUTTON(widget));
 	pos = fxaddbuddy->phraselist;
-	while(pos != NULL)
-	{
+	foreach_list(fxaddbuddy->phraselist , pos){
 		phrase = (Phrase*)(pos->data);
-		if(strcmp(phrase->content , label) == 0)
-		{
+		if(strcmp(phrase->content , label) == 0){
 			fxaddbuddy->phraseid = phrase->phraseid;
 			break;
 		}
-		pos = pos->next;
 	}
 }
 void fx_addbuddy_no_type_change(GtkWidget* widget , gpointer data)

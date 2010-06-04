@@ -24,35 +24,36 @@ FxList* fx_list_new(void* data)
 {
 	FxList* fxlist = (FxList*)malloc(sizeof(FxList));
 	memset(fxlist , 0 , sizeof(FxList));
-	fxlist->pre = NULL;
+	fxlist->pre = fxlist;
 	fxlist->data = data;
-	fxlist->next = NULL;
+	fxlist->next = fxlist;
 	return fxlist;
 }
 
-void fx_list_free(FxList* fxlist)
+void fx_list_free(FxList *fxlist)
 {
 	if(fxlist != NULL)
 		free(fxlist);
 }
 
-void fx_list_append(FxList** fxlist , FxList* fxitem)
+void fx_list_append(FxList *fxlist , FxList *fxitem)
 {
-	FxList* pos = *fxlist;
-	if(*fxlist == NULL)
-	{
-		*fxlist = fxitem;
-		return;
-	}
-	while(pos != NULL)
-	{
-		if(pos->next == NULL)
-		{
-			pos->next = fxitem;
-			fxitem->pre = pos;
-			break;
-		}
-		pos = pos->next;
-	}
+	fxlist->next->pre = fxitem;
+	fxitem->next = fxlist->next;
+	fxitem->pre = fxlist;
+	fxlist->next = fxitem;
 }
 
+void fx_list_prepend(FxList *fxlist , FxList *fxitem)
+{
+	fxlist->pre->next = fxitem;
+	fxitem->pre = fxlist->pre;
+	fxitem->next = fxlist;
+	fxlist->pre = fxitem;
+}
+
+void fx_list_remove(FxList *fxitem)
+{
+	fxitem->next->pre = fxitem->pre;
+	fxitem->pre->next = fxitem->next;
+}

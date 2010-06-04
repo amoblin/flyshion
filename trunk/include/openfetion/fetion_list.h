@@ -21,11 +21,22 @@
 #ifndef FETION_LIST_H
 #define FETION_LIST_H
 
-extern FxList* fx_list_new(void* data);
+#define foreach_list(head , item) \
+	for(item = head; (item = item->next) != head; )
+
+#define foreach_list_back(head , item) \
+	for(item = head; (item = item->pre) != head; )
+
+#define list_empty(list) (list->next == list)
+
+extern FxList* fx_list_new(void *data);
 
 extern void fx_list_free();
 
-extern void fx_list_append(FxList** fxlist , FxList* fxitem);
+extern void fx_list_append(FxList *fxlist , FxList *fxitem);
 
+extern void fx_list_prepend(FxList *fxlist , FxList *fxitem);
+
+extern void fx_list_remove(FxList *fxitem);
 
 #endif

@@ -93,31 +93,27 @@ void fx_history_bind(FxHistory* fxhistory , int count)
 	Config* config = fxmain->user->config;
 	char text[100];
 	char time[30];
-	FxList *list , *pos;
+	FxList *list , *cur;
 	History* history;
 	GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(fxhistory->textview));
 	GtkTextIter begin , end;
 	
 	list = fetion_history_get_list(config , fxhistory->userid , count);
-	pos = list;
+
 	gtk_text_buffer_get_start_iter(buffer , &begin);
 	gtk_text_buffer_get_end_iter(buffer , &end);
 	gtk_text_buffer_delete(buffer , &begin , &end);
 
-	while(pos != NULL)
-	{
+	foreach_list(list , cur){
 		bzero(text , sizeof(text));
 		bzero(time , sizeof(time));
-		history = (History*)(pos->data);
+		history = (History*)(cur->data);
 		strftime(time , sizeof(time) , "%m月%d日 %H:%M:%S" , &(history->sendtime));
-		if(history->issend)
-		{
+		if(history->issend){
 			sprintf(text , "%s(%s) %s" , history->name , fxmain->user->sId , time );
 			gtk_text_buffer_insert_with_tags_by_name(buffer
 							, &end , text , -1 , "blue" , NULL);
-		}
-		else
-		{
+		}else{
 			sprintf(text , "%s(%s) %s" , history->name , fxmain->user->sId , time );
 			gtk_text_buffer_insert_with_tags_by_name(buffer
 							, &end , text , -1 , "red" , NULL);
@@ -126,7 +122,6 @@ void fx_history_bind(FxHistory* fxhistory , int count)
 		gtk_text_buffer_insert_with_tags_by_name(buffer
 						, &end , history->message , -1 , "lm10" , NULL);
 		gtk_text_buffer_insert(buffer , &end , "\n" , -1);
-		pos = pos->next;
 	}
 }
 GtkTreeModel* fx_history_create_count_model()
@@ -134,8 +129,7 @@ GtkTreeModel* fx_history_create_count_model()
 	GtkTreeStore* store = gtk_tree_store_new(1 , G_TYPE_STRING);
 	char count[5];
 	int i;
-	for(i = 10 ; i != 100 ; i += 10)
-	{
+	for(i = 10 ; i != 100 ; i += 10){
 		GtkTreeIter iter;
 		gtk_tree_store_append(store , &iter , NULL);
 		bzero(count , sizeof(count));
