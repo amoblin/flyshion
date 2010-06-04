@@ -128,7 +128,14 @@ void fx_set_bind_system(FxSet* fxset)
 	{
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->muteBtn) , FALSE);
 	}
-
+	if(config->msgAlert == MSG_ALERT_ENABLE)
+	{
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->alertBtn) , FALSE);
+	}
+	else
+	{
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->alertBtn) , TRUE);
+	}
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(fxset->apEty));
 	gtk_text_buffer_get_start_iter(buffer , &startIter);
 	gtk_text_buffer_get_end_iter(buffer , &endIter);
@@ -300,6 +307,7 @@ void fx_set_initialize_system(FxSet* fxset)
 	GtkWidget *label3 = NULL;
 	GtkWidget *label4 = NULL;
 	GtkWidget *label5 = NULL;
+	GtkWidget *label6 = NULL;
 	GSList	  *gl = NULL;
 	
 	DEBUG_FOOTPRINT();
@@ -342,6 +350,13 @@ void fx_set_initialize_system(FxSet* fxset)
 
 	fxset->smallBtn = gtk_check_button_new_with_label("开启");
 	gtk_fixed_put(GTK_FIXED(fixed) , fxset->smallBtn , 220 , 180);
+
+	label6 = gtk_label_new("");
+	gtk_label_set_markup(GTK_LABEL(label6) , "<b>消息提示</b>");
+	gtk_fixed_put(GTK_FIXED(fixed) , label6 , 360 , 150);
+
+	fxset->alertBtn = gtk_check_button_new_with_label("关闭");
+	gtk_fixed_put(GTK_FIXED(fixed) , fxset->alertBtn , 370 , 180);
 
 	label4 = gtk_label_new("");
 	gtk_label_set_markup(GTK_LABEL(label4) , "<b>消息发送方式</b>");
@@ -435,6 +450,11 @@ void fx_set_on_ok_clicked(GtkWidget* widget , gpointer data)
 			config->isMute = MUTE_ENABLE;
 		else
 			config->isMute = MUTE_DISABLE;
+
+		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxset->alertBtn)))
+			config->msgAlert = MSG_ALERT_DISABLE;
+		else
+			config->msgAlert = MSG_ALERT_ENABLE;
 
 		gtk_text_buffer_get_start_iter(buffer , &startIter);
 		gtk_text_buffer_get_end_iter(buffer , &endIter);

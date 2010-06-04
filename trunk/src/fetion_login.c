@@ -83,11 +83,13 @@ void generate_pic_code(User* user)
 {
 	char buf[1024] , *res , *code;
 	char codePath[128];
+	char cookie[1024];
 	char* ip;
 
 	FILE* picfd;
 	int piclen;
 	unsigned char* pic;
+	int n;
 
 	xmlDocPtr doc;
 	xmlNodePtr node;
@@ -98,13 +100,16 @@ void generate_pic_code(User* user)
 	ip = get_ip_by_name(NAVIGATION_URI);
 	FetionConnection* con = tcp_connection_new();
 	tcp_connection_connect(con , ip , 80);
+	bzero(cookie , sizeof(cookie));
+	if(user->ssic){
+		sprintf(cookie , "Cookie: ssic=%s\r\n" , user->ssic);
+	}
 	sprintf(buf , "GET /nav/GetPicCodeV4.aspx?algorithm=%s HTTP/1.1\r\n"
-				  "Cookie: ssic=%s\r\n"
-				  "Host: %s\r\n"
+				  "%sHost: %s\r\n"
 				  "User-Agent: IIC2.0/PC "PROTO_VERSION"\r\n"
 				  "Connection: close\r\n\r\n"
 				, user->verification->algorithm == NULL ? "" : user->verification->algorithm
-				, user->ssic , NAVIGATION_URI);
+				, user->ssic == NULL ? "" : cookie , NAVIGATION_URI);
 	tcp_connection_send(con , buf , strlen(buf));
 	res = http_connection_get_response(con);
 	tcp_connection_free(con);
@@ -120,7 +125,10 @@ void generate_pic_code(User* user)
 	bzero(codePath , sizeof(codePath));
 	sprintf(codePath , "%s/code.gif" , user->config->globalPath);
 	picfd = fopen(codePath , "wb+");
-	fwrite(pic , piclen , 1 , picfd);
+	n = 0;
+	for(; n != piclen ;){
+		n += fwrite(pic + n , 1 , piclen - n , picfd);
+	}
 	fclose(picfd);
 	free(res);
 }

@@ -361,7 +361,7 @@ int fetion_user_upload_portrait(User* user , const char* filename)
 	debug_info("uploading portrait....");
 	bzero(http , sizeof(http));
 	sprintf(http , "POST /%s/setportrait.aspx HTTP/1.1\r\n"
-		    	   "User-Agent: IIC2.0/PC 3.6.1900\r\n"
+		    	   "User-Agent: IIC2.0/PC "PROTO_VERSION"\r\n"
 		    	   "Content-Type: image/jpeg\r\n"
 		    	   "Host: %s\r\n"
 		    	   "Cookie: ssic=%s\r\n"
@@ -404,11 +404,9 @@ int fetion_user_upload_portrait(User* user , const char* filename)
 
 int fetion_user_download_portrait(User* user , const char* sipuri)
 {
-	char buf[2048] = { 0 };
-	char *ip = NULL;
-	char *pos = NULL;
+	char buf[2048] , *ip , *pos = NULL;
 	FILE *f = NULL;
-	char filename[128] = { 0 };
+	char filename[256];
 	char *server = user->config->portraitServerName;
 	char *portraitPath = user->config->portraitServerPath;
 	char *encodedSipuri , *encodedSsic , replyCode[4] = { 0 };
@@ -422,6 +420,8 @@ int fetion_user_download_portrait(User* user , const char* sipuri)
 		debug_error("Parse server ip address failed , %s" , server);
 		return -1;
 	}
+	if(! sipuri || strlen(sipuri) == 0)
+		return -1;
 	friendSid = fetion_sip_get_sid_by_sipuri(sipuri);
 	if(friendSid == NULL)
 		return -1;
@@ -445,14 +445,15 @@ int fetion_user_download_portrait(User* user , const char* sipuri)
 		tcp_connection_connect(tcp , ip , 80);
 	free(ip);
 	tcp_connection_send(tcp , buf , strlen(buf));	
-	memset( buf , 0 , sizeof(buf)); 
 	//read reply
 
 	/* 200 OK begin to download protrait ,
 	 * 302 need to redirect ,404 not found */
-	while((chunkLength = tcp_connection_recv(tcp , buf , sizeof(buf) -1)) > 0 )
-	{
-		buf[chunkLength] = '\0';
+	for(;;){
+		bzero(buf , sizeof(buf));
+		chunkLength = tcp_connection_recv(tcp , buf , sizeof(buf) -1);
+		if(chunkLength < 0)
+			break;
 		if(isFirstChunk == 0)
 		{	
 			/* check the code num for the first segment*/
@@ -555,8 +556,7 @@ int fetion_user_download_portrait_again(const char* filepath , const char* buf ,
 				   "Host: %s\r\n"
 				   "Connection: Keep-Alive\r\n\r\n" , httpPath , httpHost);
 	ip = get_ip_by_name(httpHost);
-	if(ip == NULL)
-	{
+	if(ip == NULL){
 		debug_error("Parse portrait server ip address failed , %s" , httpHost);
 		return -1;
 	}
@@ -571,9 +571,11 @@ int fetion_user_download_portrait_again(const char* filepath , const char* buf ,
 	tcp_connection_send(tcp , http , strlen(http));
 	//read portrait data
 	f = fopen(filepath , "wb+");
-	while((chunkLength = tcp_connection_recv(tcp , img , sizeof(img)-1)) > 0)
-	{
-		img[chunkLength] = '\0';
+	for(;;){
+		bzero(img , sizeof(img));
+		chunkLength = tcp_connection_recv(tcp , img , sizeof(img)-1);
+		if(chunkLength <= 0)
+			break;
 		if(isFirstChunk ++ == 0)
 		{
 			char* pos = (char*)(img);

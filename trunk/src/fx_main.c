@@ -19,7 +19,7 @@
  ***************************************************************************/
 
 #include "fx_include.h"
-#include "libnotify/notify.h"
+
 int window_pos_x;
 int window_pos_y;
 
@@ -110,10 +110,9 @@ void fx_main_set_user(FxMain* fxmain , User* user)
 void update()
 {
 	g_usleep(1);
-	while(gtk_events_pending())
-	{ 
+	while(gtk_events_pending()){
 		 gtk_main_iteration();         
-	};        
+	}
 }
 TimeOutArgs* timeout_args_new(FxMain *fxmain , FetionSip *sip , const char *sipuri)
 {
@@ -337,19 +336,23 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const char* sipms
 				char *senderSid;
 				GdkPixbuf *notifyIcon;
 				Contact *senderContact;
-
-				senderContact = fetion_contact_list_find_by_sipuri(user->contactList , msg->sipuri);
-				bzero(notifySum , sizeof(notifySum));
-				bzero(iconPath , sizeof(iconPath));
-				sprintf(iconPath , "%s/%s.jpg" , config->iconPath , senderContact->sId);
-				senderSid = fetion_sip_get_sid_by_sipuri(msg->sipuri);
-				sprintf(notifySum , "%s(%s) 说:" , senderContact->nickname , senderContact->sId);
-				notifyIcon = gdk_pixbuf_new_from_file_at_size(iconPath , 48 , 48 , NULL);
-				notify_notification_update(fxmain->notify , notifySum
-						, msg->message , NULL);
-				notify_notification_set_icon_from_pixbuf(fxmain->notify , notifyIcon);
-				notify_notification_show(fxmain->notify , NULL);
-				g_object_unref(notifyIcon);
+				if(config->msgAlert == MSG_ALERT_ENABLE){	
+					senderContact = fetion_contact_list_find_by_sipuri(user->contactList , msg->sipuri);
+					bzero(notifySum , sizeof(notifySum));
+					bzero(iconPath , sizeof(iconPath));
+					sprintf(iconPath , "%s/%s.jpg" , config->iconPath , senderContact->sId);
+					senderSid = fetion_sip_get_sid_by_sipuri(msg->sipuri);
+					sprintf(notifySum , "%s(%s) 说:" , senderContact->nickname , senderContact->sId);
+					free(senderSid);
+					notifyIcon = gdk_pixbuf_new_from_file_at_size(iconPath , 48 , 48 , NULL);
+					notify_notification_update(fxmain->notify , notifySum
+							, msg->message , NULL);
+					if(notifyIcon)
+						notify_notification_set_icon_from_pixbuf(fxmain->notify , notifyIcon);
+					g_signal_connect(fxmain->notify , "closed" , G_CALLBACK(fx_main_message_func) , fxmain);
+					notify_notification_show(fxmain->notify , NULL);
+					g_object_unref(notifyIcon);
+				}
 #endif
 			}
 		}
@@ -684,20 +687,50 @@ void fx_main_destroy(GtkWidget* widget , gpointer data)
 gboolean fx_main_delete(GtkWidget* widget , GdkEvent* event , gpointer data)
 {
 	FxMain *fxmain = (FxMain*)data;
-	Config *config = NULL;
+	FxClose *fxclose;
+	Config *config;
+	int ret;
 
 	DEBUG_FOOTPRINT();
 
-	if(fxmain->user != NULL && fxmain->user->loginStatus != -1)
-	{
+	if(fxmain->user){
 		config = fxmain->user->config;
-		if(config->closeMode == CLOSE_ICON_MODE)
-		{
+		if(config->closeAlert == CLOSE_ALERT_ENABLE){
+			fxclose = fx_close_new(fxmain);
+			fx_close_initialize(fxclose);
+			ret = gtk_dialog_run(GTK_DIALOG(fxclose->dialog));
+			if(ret == GTK_RESPONSE_OK){
+				if(fx_close_alert(fxclose) == CLOSE_ALERT_DISABLE){
+					config->closeMode = fx_close_get_action(fxclose);
+					config->closeAlert = CLOSE_ALERT_DISABLE;
+					fetion_config_save(fxmain->user);
+				}
+				if(fx_close_get_action(fxclose) == CLOSE_DESTROY_MODE){
+					gtk_widget_destroy(fxclose->dialog);
+					free(fxclose);
+					gtk_widget_destroy(widget);
+					return FALSE;
+				}else{
+					gtk_widget_destroy(fxclose->dialog);
+					gtk_widget_hide_on_delete(widget);
+					return TRUE;
+				}
+			}else{
+				gtk_widget_destroy(fxclose->dialog);
+				return TRUE;
+			}
+		}
+	}else{
+		fx_main_destroy(widget , NULL);
+		return FALSE;
+	}
+
+	if(fxmain->user != NULL && fxmain->user->loginStatus != -1){
+		config = fxmain->user->config;
+		if(config->closeMode == CLOSE_ICON_MODE){
 			gtk_widget_hide_on_delete(widget);
 			return TRUE;
-		}
-		else
-		{
+		}else{
 			gtk_widget_destroy(widget);
 			return FALSE;
 		}
@@ -886,7 +919,7 @@ void* fx_main_listen_thread_func(void* data)
 	debug_info("A new thread entered");
 
 	sip = (sip == NULL ? fxmain->user->sip : sip);
-	while(1){
+	for(;;){
 		
 		if(fxmain == NULL)
 			g_thread_exit(0);
