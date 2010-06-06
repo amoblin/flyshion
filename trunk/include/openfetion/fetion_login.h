@@ -33,7 +33,7 @@ extern void parse_ssi_auth_response(const char* ssi_response , User* user);
 
 extern void parse_sipc_reg_response(const char* reg_response , char** nouce , char** key) ;
 
-extern void parse_sipc_auth_response(const char* auth_response , User* user);
+extern int parse_sipc_auth_response(const char* auth_response , User* user);
 
 extern char* sipc_aut_action(User* sip , const char* response);
 

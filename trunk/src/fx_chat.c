@@ -388,6 +388,7 @@ void fx_chat_initialize(FxChat* fxchat)
 
 	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"face_images/3.gif" , 16 , 16 , NULL);
 	nouge_icon = gtk_image_new_from_pixbuf(pb);
+	g_object_unref(pb);
 	fxchat->nouge = gtk_toolbar_append_item(GTK_TOOLBAR(fxchat->toolbar)
 					 						   , "表情" , "" , NULL , nouge_icon
 					  						   , G_CALLBACK(fx_chat_on_emotion_clicked)
@@ -476,6 +477,7 @@ void fx_chat_initialize(FxChat* fxchat)
 		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.jpg" , 140 , 140 , NULL);
 	}
 	img = gtk_image_new_from_pixbuf(pb);
+	g_object_unref(pb);
 	gtk_container_add(GTK_CONTAINER(frame) , img);
 	gtk_box_pack_start(GTK_BOX(rvbox) , frame , FALSE , FALSE , 0);
 
@@ -492,6 +494,7 @@ void fx_chat_initialize(FxChat* fxchat)
 		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.jpg" , 140 , 140 , NULL);
 	}
 	img = gtk_image_new_from_pixbuf(pb);
+	g_object_unref(pb);
 	gtk_container_add(GTK_CONTAINER(frame) , img);
 	gtk_box_pack_start(GTK_BOX(rvbox) , frame , FALSE , FALSE , 0);
 
@@ -501,8 +504,10 @@ void fx_chat_initialize(FxChat* fxchat)
 
 void fx_chat_free(FxChat* fxchat)
 {
-
-	fetion_history_free(fxchat->fhistory);
+	if(fxchat){
+		fetion_history_free(fxchat->fhistory);
+		free(fxchat->conv);
+	}
 
 	DEBUG_FOOTPRINT();
 
@@ -518,6 +523,8 @@ void fx_chat_destroy(GtkWidget* widget , gpointer data)
 	fx_list_remove_chat_by_sipuri(fxchat->fxmain->clist
 								, fxchat->conv->currentContact->sipuri);
 	fx_chat_free(fxchat);
+
+	printf("destroy\n");
 
 }
 
@@ -610,8 +617,7 @@ void fx_chat_send_message(FxChat* fxchat)
 		 * show message sent,and truncate the send text area
 		 */
 		text = gtk_text_buffer_get_text(fxchat->send_buffer , &begin , &end , TRUE);
-		if(strlen(text) == 0)
-		{
+		if(strlen(text) == 0){
 			fx_chat_add_information(fxchat , "不允许发送空信息");
 			return;
 		}
@@ -622,7 +628,7 @@ send:
 			generate_pic_code(user);
 			bzero(reason , sizeof(reason));
 			if(user->smsDayLimit == user->smsDayCount){
-				fx_chat_add_information(fxchat , "对不起，你本");
+				fx_chat_add_information(fxchat , "对不起，你今天的免费短信限额已经用完,不能再发送短信");
 				return;
 			}
 			sprintf(reason , "您还可以发送%d条免费短信（含本条），"

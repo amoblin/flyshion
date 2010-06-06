@@ -270,10 +270,10 @@ addbuddy:
 								 , B_SIPURI_COL 	, contact->sipuri
 								 , B_USERID_COL 	, contact->userId
 								 , B_NAME_COL 	    , contact->localname
-								 , B_CARRIERSTATUS_COL , "CMCC"
-								 , B_STATE_COL     ,  0
+								 , B_CARRIER_COL	, "CMCC"
+								 , B_STATE_COL     ,    0
 								 , B_SERVICESTATUS_COL	, contact->serviceStatus
-								 , B_CARRIERSTATUS_COL , 0
+								 , B_CARRIERSTATUS_COL ,  CARRIER_STATUS_NORMAL
 								 , B_RELATIONSTATUS_COL , RELATION_STATUS_UNAUTHENTICATED
 								 , B_IMAGE_CHANGED_COL , -1
 								 , B_SIZE_COL		, config->iconSize

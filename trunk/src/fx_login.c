@@ -231,6 +231,7 @@ GtkTreeModel* fx_login_create_state_model()
 				, PIXBUF_COL , pb 
 				, TEXT_COL , presence[i].name
 				, INT_COL , presence[i].type , -1);
+		g_object_unref(pb);
 	}
 	return GTK_TREE_MODEL(store);
 
@@ -306,11 +307,13 @@ login:
 			strcpy(code , gtk_entry_get_text(GTK_ENTRY(fxcode->codeentry)));
 			fetion_user_set_verification_code(user , code);
 			gtk_widget_destroy(fxcode->dialog);
+			free(fxcode);
 			gdk_threads_leave();
 		}
 		else
 		{
 			gtk_widget_destroy(fxcode->dialog);
+			free(fxcode);
 			gdk_threads_leave();
 			g_thread_exit(0);
 		}
@@ -360,7 +363,7 @@ login:
 	fetion_config_download_configuration(user);
 	if(fetion_config_load_xml(user) < 0){
 		fx_login_show_msg(fxlogin , "登录失败");
-		return;
+		return NULL;
 	}
 	fetion_config_load_data(user);
 
@@ -402,12 +405,15 @@ login:
 	fx_login_show_msg(fxlogin , "正在进行SIPC身份验证");
 auth:
 	pos = sipc_aut_action(user , response);
-	if(pos == NULL)
-	{
+	if(pos == NULL){
 		fx_login_show_msg(fxlogin , "登录失败");
 		return;
 	}
-	parse_sipc_auth_response(pos , user);
+	if(parse_sipc_auth_response(pos , user) < 0){
+		debug_info("Password error , login failed!!!");
+		fx_login_show_msg(fxlogin , "身份验证失败，手机号或密码错误");
+		return NULL;
+	}
 	free(pos); pos = NULL;
 	if(user->loginStatus == 401 || user->loginStatus == 400)
 	{
@@ -583,6 +589,8 @@ void fx_login_set_last_login_user(FxLogin* fxlogin)
 			fx_login_set_last_login_state(fxlogin , state);	
 			if(strlen(pwd) != 0)
 				gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxlogin->remember) , TRUE);
+			free(no);
+			free(pwd);
 			break;
 		}
 	}
@@ -624,4 +632,6 @@ void fx_login_user_change_func(GtkWidget* widget , gpointer data)
 	fx_login_set_last_login_state(fxlogin , state);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxlogin->remember)
 							   , strlen(pwd) == 0 ? FALSE : TRUE);
+
+	free(pwd);
 }

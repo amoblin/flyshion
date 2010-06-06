@@ -50,7 +50,7 @@ void fx_app_initialize(FxApp* fxapp)
 
 	FxMain *fxmain = fxapp->fxmain;
 	Config *config = fxmain->user->config;
-	FxList *phraseList = NULL;
+	FxList *phraseList , *pl_cur;
 	Phrase *phrase = NULL;
 
 	char text[1024];
@@ -70,16 +70,13 @@ void fx_app_initialize(FxApp* fxapp)
 
 	fxapp->msgLabel = gtk_label_new("");
 	phraseList = fetion_config_get_phrase(config);
-	while(phraseList != NULL)
-	{
-		phrase = (Phrase*)phraseList->data;
-		if(fxapp->phraseid == phrase->phraseid)
-		{
+	foreach_list(phraseList , pl_cur){
+		phrase = (Phrase*)pl_cur->data;
+		if(fxapp->phraseid == phrase->phraseid){
 			bzero(text , sizeof(text));
 			sprintf(text , "您好，我是%s，%s" , fxapp->desc , phrase->content);
 		}
 		fetion_phrase_free(phrase);
-		phraseList = phraseList->next;
 	}
 	gtk_label_set_markup(GTK_LABEL(fxapp->msgLabel) , text);
 	gtk_label_set_line_wrap(GTK_LABEL(fxapp->msgLabel) , TRUE);
@@ -146,8 +143,7 @@ GtkTreeModel* fx_app_create_group_model(FxMain* fxmain)
 	store = gtk_tree_store_new(APP_G_COL_NUM , G_TYPE_STRING , G_TYPE_INT);
 
 	gtk_tree_model_get_iter_root(model , &oIter);
-	do
-	{
+	do{
 		gtk_tree_model_get(model 	   , &oIter
 						 , G_NAME_COL , &groupname
 						 , G_ID_COL	  , &groupid
@@ -157,8 +153,7 @@ GtkTreeModel* fx_app_create_group_model(FxMain* fxmain)
 						 , APP_G_NAME_COL , groupname
 						 , APP_G_ID_COL	  , groupid
 						 , -1);
-	}
-	while(gtk_tree_model_iter_next(model , &oIter));
+	}while(gtk_tree_model_iter_next(model , &oIter));
 
 	return GTK_TREE_MODEL(store);
 }
@@ -195,13 +190,11 @@ void* fx_app_ok_thread(void* data)
 	else
 		result = APP_REJECT;
 
-	contact = fetion_contact_handle_contact_request(fxmain->user
-					, fxapp->sipuri , fxapp->userid , localname , buddylist , result);
-
-	if(result == APP_REJECT)
+	if(result == APP_REJECT){
+		contact = fetion_contact_handle_contact_request(fxmain->user
+						, fxapp->sipuri , fxapp->userid , localname , buddylist , result);
 		return NULL;
-	if(contact == NULL)
-		return NULL;
+	}
 
 	gtk_tree_model_get_iter_root(model , &piter);
 	do
@@ -223,6 +216,7 @@ void* fx_app_ok_thread(void* data)
 	}
 	while(gtk_tree_model_iter_next(model , &piter));
 
+
 	gtk_tree_store_append(GTK_TREE_STORE(model) , &iter1 , &piter);
 
 	fetion_user_download_portrait(fxmain->user , fxapp->sipuri);
@@ -241,12 +235,27 @@ void* fx_app_ok_thread(void* data)
 		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"user_online.png"
 				, config->iconSize , config->iconSize , NULL);
 
+	gtk_tree_store_set(GTK_TREE_STORE(model) , &iter1
+					, B_PIXBUF_COL , pb
+					, B_SIPURI_COL , fxapp->sipuri
+					, -1);
+
+	contact = fetion_contact_handle_contact_request(fxmain->user
+					, fxapp->sipuri , fxapp->userid , localname , buddylist , result);
+	printf("CONTACT : %d\n" , contact == NULL);
+
+	if(contact == NULL){
+		gtk_tree_store_remove(GTK_TREE_STORE(model) , &iter1);
+		return;
+	}	
+
 	gtk_tree_store_set(GTK_TREE_STORE(model)		 , &iter1
-					, B_PIXBUF_COL			, pb
-					, B_SIPURI_COL			, contact->sipuri
 					, B_USERID_COL			, contact->userId
 					, B_NAME_COL			, contact->localname
-					, B_RELATIONSTATUS_COL	, RELATION_STATUS_AUTHENTICATED
+					, B_SERVICESTATUS_COL	, BASIC_SERVICE_NORMAL
+					, B_RELATIONSTATUS_COL	, contact->relationStatus
+					, B_CARRIER_COL			, "CMCC"
+					, B_CARRIERSTATUS_COL	, CARRIER_STATUS_NORMAL
 					, B_DEVICE_COL			, "PC"
 					, -1);
 
@@ -260,8 +269,6 @@ void fx_app_on_ok_clicked(GtkWidget* widget , gpointer data)
 	DEBUG_FOOTPRINT();
 
 	thread = g_thread_create(fx_app_ok_thread , data , TRUE , NULL);
-
-	g_thread_join(thread);
 
 	gtk_dialog_response(GTK_DIALOG(fxapp->dialog) , GTK_RESPONSE_OK);
 }

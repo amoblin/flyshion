@@ -344,7 +344,8 @@ static void parse_sms_frequency(xmlNodePtr node , User *user){
 		xmlFree(res);
 	}
 }
-void parse_sipc_auth_response(const char* auth_response , User* user)
+
+int parse_sipc_auth_response(const char* auth_response , User* user)
 {
 	char *pos;
 	xmlChar* buf = NULL;
@@ -367,12 +368,12 @@ void parse_sipc_auth_response(const char* auth_response , User* user)
 	else if(code == 421 || code == 420)
 	{
 		parse_add_buddy_verification(user , auth_response);
-		return;
+		return -1;
 	}
 	else
 	{
 		debug_error("Sipc authentication failed , error code:421");
-		return;
+		return -1;
 	}
 	pos = strstr(auth_response , "\r\n\r\n") + 4;
 	doc = xmlReadMemory( pos , strlen(pos) , NULL , "UTF-8" , XML_PARSE_RECOVER);
@@ -410,6 +411,7 @@ void parse_sipc_auth_response(const char* auth_response , User* user)
 		parse_sms_frequency(node1 , user);
 	}
 	xmlFreeDoc(doc);
+	return 1;
 }
 char* generate_auth_body(User* user)
 {

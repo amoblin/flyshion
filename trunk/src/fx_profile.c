@@ -60,8 +60,8 @@ void fx_profile_initialize(FxProfile* fxprofile)
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxprofile->dialog)->vbox) , box);
 
 	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.jpg" , 90 , 90 , NULL);
-
 	fxprofile->image = gtk_image_new_from_pixbuf(pb);
+	g_object_unref(pb);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxprofile->image , 0 , 1 , 0 , 4);
 
 	fxprofile->sid_label = gtk_label_new("飞信号:");

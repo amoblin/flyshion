@@ -451,7 +451,7 @@ void* fx_head_change_portrait_thread(void* data)
 										GTK_MESSAGE_WARNING,
 										GTK_BUTTONS_OK,
 										"上传头像失败，友情提示：本程序暂不提供图片自动压缩功能,"
-										"上传头像大小请不要超过5K(自己想办法压缩吧，不好意思)");
+										"上传头像尺寸请控制在150px × 150px以内");
 		gtk_window_set_title(GTK_WINDOW(dialog), "Warning");
 		gtk_dialog_run(GTK_DIALOG(dialog));
 		gtk_widget_destroy(dialog);

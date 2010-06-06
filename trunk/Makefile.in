@@ -603,7 +603,7 @@ uninstall-am:
 install: install-recursive
 	@echo "----------------------------------------------------------";
 	@echo "|                                                        |";
-	@echo "|       OpenFetion 1.5 by lwp(levin108@gmail.com)        |";
+	@echo "|       OpenFetion 1.6 by lwp(levin108@gmail.com)        |";
 	@echo "|                                                        |";
 	@echo "|  OpenFetion a fetion client for linux based on GTK+2.0,|";
 	@echo "|  using Fetion Protocol Version 4. It supports most     |";
@@ -611,6 +611,13 @@ install: install-recursive
 	@echo "|  It\`s small and fast,and is better in look.            |";
 	@echo "|  More information at http://basiccoder.com/openfetion  |";
 	@echo "----------------------------------------------------------";
+	@if [ -d ~/.openfetion ];\
+	then \
+		echo "you have installed previous version of openfetion,do some clean job"; \
+		cd ~/.openfetion; \
+		rm global.dat 2>/dev/null; \
+		find . -name "config.dat" -exec rm {} \;;\
+	fi
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
