@@ -20,6 +20,8 @@
 
 #include "fx_include.h"
 
+int all_light = 0;
+
 Args* fx_args_new(FxMain* fxmain , GtkTreeIter iter , const char* ss , int ii)
 {
 	Args* args = (Args*)malloc(sizeof(Args));
@@ -164,9 +166,9 @@ GtkTreeModel* fx_tree_create_model(User* user)
 
 		gtk_tree_store_set(store , &iter1
 						 , B_PIXBUF_COL 	, pb
-						 , B_SIPURI_COL 	, contact->sipuri
-						 , B_USERID_COL 	, contact->userId
-						 , B_NAME_COL 	    , g_markup_escape_text(name , strlen(name))
+						 , B_SIPURI_COL 	, contact->sipuri ? contact->sipuri : ""
+						 , B_USERID_COL 	, contact->userId ? contact->userId : ""
+						 , B_NAME_COL 	    , name ? g_markup_escape_text(name , strlen(name)) : ""
 						 , B_IMPRESSION_COL , contact->impression
 						 , B_PHONENUM_COL   , contact->mobileno
 						 , B_DEVICE_COL     , contact->devicetype
@@ -229,6 +231,13 @@ int fx_tree_get_buddy_iter_by_userid(GtkTreeModel* model , const char* userid , 
 	}
 	return -1;
 }
+static void fx_tree_on_hightlight_clicked(GtkWidget *widget , gpointer data)
+{
+	if(all_light)
+		all_light = 0;
+	else
+		all_light = 1;
+}
 void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* tree
 		, GtkTreePath* path , GdkEventButton* event , GtkTreeIter iter)
 {
@@ -290,6 +299,9 @@ void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* tree
 		fx_tree_create_menu("修改备注名称" , SKIN_DIR"rename.gif"
 						, menu , TRUE , fx_tree_on_editmenu_clicked , profileargs);
 
+		fx_tree_create_menu( !all_light ? "所有好友高亮" : "在线友好高亮" , SKIN_DIR"sendfile.png"
+						, menu , TRUE , fx_tree_on_hightlight_clicked , NULL);
+
 		fx_tree_create_menu(iconsize > 30 ? "使用小图标" : "使用大图标"
 						, SKIN_DIR"bigimage.png" , menu , TRUE , fx_tree_on_iconchange_clicked , fxmain);
 
@@ -315,12 +327,17 @@ void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* tree
 				fx_tree_create_menu(groupname 	  , SKIN_DIR"group.png"
 								  , groupSubmenu , TRUE , fx_tree_on_movemenu_clicked
 								  , moveargs);
+				free(groupname);
 			}
 			while(gtk_tree_model_iter_next(GTK_TREE_MODEL(model) , &groupiter));
 			gtk_menu_item_set_submenu(GTK_MENU_ITEM(moveItem) , groupSubmenu);
 		}
 	}
 	gtk_widget_show_all(menu);
+	free(userid);
+	free(sipuri);
+	free(mobileno);
+	free(carrier);
 	gtk_menu_popup(GTK_MENU(menu) , NULL , NULL , NULL , NULL 
 			, (event != NULL) ? event->button : 0 , gdk_event_get_time((GdkEvent*)event));
 }
@@ -452,13 +469,14 @@ void fx_tree_pixbuf_cell_data_func(GtkTreeViewColumn *col
 	{
 		gtk_tree_model_get(model , iter , B_STATE_COL , &state , -1);
 		g_object_set(renderer , "visible" , TRUE , NULL);
-		g_object_set(renderer , "sensitive" , state > 0 ? TRUE : FALSE , NULL);
+		g_object_set(renderer , "sensitive" , all_light ? TRUE : (state > 0 ? TRUE : FALSE) , NULL);
 
 	}
 	else
 	{
 		g_object_set(renderer , "visible" , FALSE , NULL);
 	}
+	gtk_tree_path_free(path);
 }
 void fx_tree_text_cell_data_func(GtkTreeViewColumn *col,
 	   							 GtkCellRenderer   *renderer,
@@ -470,7 +488,7 @@ void fx_tree_text_cell_data_func(GtkTreeViewColumn *col,
 	char text[1024];
 	/*contact data*/
 	char *name , *impression , *sipuri , *sid , *stateStr , *mobileno , *device , *carrier;
-	char stateStr1[256];
+	char stateStr1[96];
 	char statusStr[256];
 	int presence , status , size;
 	int carrierStatus , relationStatus , serviceStatus;
@@ -504,9 +522,9 @@ void fx_tree_text_cell_data_func(GtkTreeViewColumn *col,
 			if(carrierStatus == CARRIER_STATUS_CLOSED){
 				sprintf(statusStr , "<span color='#d4b4b4'>[已关闭飞信服务]</span>");
 			}else{
-				if(strlen(carrier) != 0){
+				if(carrier != NULL || strlen(carrier) != 0){
 					sprintf(statusStr , "<span color='#d4b4b4'>[短信在线]</span>");
-					if(strlen(mobileno) == 0){
+					if(mobileno == NULL || strlen(mobileno) == 0){
 						sprintf(statusStr , "<span color='#d4b4b4'>[已关闭飞信服务]</span>");
 					}
 				}else{
@@ -518,8 +536,10 @@ void fx_tree_text_cell_data_func(GtkTreeViewColumn *col,
 				sprintf(statusStr , "<span color='#d4b4b4'>[停机]</span>");
 			}
 		}
-		if(sipuri == NULL)
+		if(sipuri == NULL){
+			printf("NULL\n");
 			return;
+		}
 		sid = fetion_sip_get_sid_by_sipuri(sipuri);
 		bzero(stateStr1 , sizeof(stateStr1));
 		sprintf(stateStr1 , "<span color='#0099FF'>%s</span>" , stateStr);
@@ -565,6 +585,7 @@ void fx_tree_text_cell_data_func(GtkTreeViewColumn *col,
 		g_object_set(renderer , "text" , text , NULL);
 		free(buddylistName);
 	}
+	gtk_tree_path_free(path);
 }
 void* fx_tree_update_portrait_thread_func(void* data)
 {
@@ -602,6 +623,7 @@ void* fx_tree_update_portrait_thread_func(void* data)
 				if(pb != NULL){
 					gdk_threads_enter();
 					gtk_tree_store_set(GTK_TREE_STORE(model) , &pos , B_PIXBUF_COL , pb , -1);
+					g_object_unref(pb);
 					gdk_threads_leave();
 				}
 				gdk_threads_enter();
@@ -691,12 +713,9 @@ gboolean fx_tree_on_rightbutton_click(GtkWidget* tree
 		gtk_tree_model_get_iter(GTK_TREE_MODEL(model) , &iter , path);
 
 		depth = gtk_tree_path_get_depth(path);
-		if(depth == 2)
-		{
+		if(depth == 2){
 			fx_tree_create_buddy_menu(fxmain , fxtree->treeView , path , event , iter);
-		}
-		else
-		{
+		}else{
 			fx_tree_create_group_menu(fxmain , fxtree->treeView , path , event , iter);
 		}
 		gtk_tree_path_free(path);
@@ -988,6 +1007,7 @@ void* fx_tree_reload_thread(void* data)
 					 , B_CRC_COL        , contact->portraitCrc
 					 , B_IDENTITY_COL	, contact->identity
 					 , -1);
+	g_object_unref(pb);
 	return NULL;
 
 }
@@ -1249,14 +1269,14 @@ gboolean fx_tree_on_show_tooltip(GtkWidget* widget
 {
 	FxMain* fxmain = (FxMain*)data;
 	Config* config = fxmain->user->config;
-	GtkTreePath* path = NULL;
+	GtkTreePath *path;
 	GtkTreeIter iter;
-	GtkTreeView* tree = NULL;
-	GtkTreeModel* model = NULL;
-	GdkPixbuf* pb = NULL;
+	GtkTreeView *tree;
+	GtkTreeModel *model;
+	GdkPixbuf *pb;
 	char *sipuri , *name , *impression , *sid , *mobileno , *carrier;
 	int serviceStatus , carrierStatus , relationStatus;
-	char text[2048];
+	char text[1024];
 	char phonetext[128];
 	char iconpath[100];
 
@@ -1264,10 +1284,12 @@ gboolean fx_tree_on_show_tooltip(GtkWidget* widget
 	model = gtk_tree_view_get_model(tree);
 
 	if(!gtk_tree_view_get_tooltip_context(tree , &x , &y , keybord_mode 
-									, &model , &path , &iter))
+									, &model , &path , &iter)){
 		return FALSE;
-	if(gtk_tree_path_get_depth(path) == 1)
+	}
+	if(gtk_tree_path_get_depth(path) == 1){
 		return FALSE;
+	}
 
 	gtk_tree_model_get(model          , &iter 
 			         , B_SIPURI_COL     , &sipuri
@@ -1290,8 +1312,8 @@ gboolean fx_tree_on_show_tooltip(GtkWidget* widget
 		}
 	}else if (carrierStatus == CARRIER_STATUS_NORMAL){
 		sprintf(phonetext , "<span color='#0088bf'>%s</span>"
-				, strlen(carrier) == 0 ? "未绑定手机号"
-				: (strlen(mobileno) == 0 ? "未公开手机号" : mobileno));
+				, (carrier == NULL || strlen(carrier) == 0) ? "未绑定手机号"
+				: (mobileno == NULL || strlen(mobileno) == 0 ? "未公开手机号" : mobileno));
 	}
 	bzero(text , sizeof(text));
 	sprintf(text , " <span color='#808080'>昵称:</span>  <b>%s</b>\n"
@@ -1312,9 +1334,10 @@ gboolean fx_tree_on_show_tooltip(GtkWidget* widget
 	pb = gdk_pixbuf_new_from_file_at_size(iconpath , 80 , 80 , NULL);
 	if(pb == NULL)
 		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.jpg" , 80 , 80 , NULL);
-
 	gtk_tooltip_set_markup(tip , text);
 	gtk_tooltip_set_icon(tip , pb);	
+	g_object_unref(pb);
 	gtk_tree_view_set_tooltip_row(tree , tip , path);
+	gtk_tree_path_free(path);
 	return TRUE;
 }

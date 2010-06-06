@@ -739,43 +739,54 @@ Contact* fetion_user_parse_syncuserinfo_body(const char* body , User* user)
 	xmlNodePtr node;
 	xmlChar* pos;
 	Contact* contactlist = user->contactList;
-	Contact* currentContact;
+	Contact* currentContact = NULL;
 
 	doc = xmlParseMemory(body , strlen(body));
 	node = xmlDocGetRootElement(doc);
 	node = xml_goto_node(node , "buddy");
 	if(node == NULL)
 		return NULL;
-
-	pos = xmlGetProp(node , BAD_CAST "user-id");
-	currentContact = fetion_contact_list_find_by_userid(contactlist , (char*)pos);
-	//currentContact = fetion_contact_new();
-	debug_info("synchronize user information");
-	if(currentContact == NULL)
-	{
-		/*not a valid information*/
-		debug_error("User %s is not a valid user" , (char*)pos);
-		return NULL;
-	}
-	if(xmlHasProp(node , BAD_CAST "uri"))
-	{
-		pos = xmlGetProp(node , BAD_CAST "uri");
-		strcpy(currentContact->sipuri ,  (char*)pos);
-		xmlFree(pos);
-	}
-	if(xmlHasProp(node , BAD_CAST "relation-status"))
-	{
-		pos = xmlGetProp(node , BAD_CAST "relation-status");
-		currentContact->relationStatus = atoi((char*)pos);
-		if(atoi((char*)pos) == 1)
-		{
-			debug_info("User %s accepted your request" , currentContact->userId);
+	while(node){
+		if(xmlHasProp(node , BAD_CAST "action")){
+			pos = xmlGetProp(node , BAD_CAST "action");
+			if(xmlStrcmp(pos , BAD_CAST "add") != 0){
+				xmlFree(pos);
+				node = node->next;
+				continue;
+			}
+			xmlFree(pos);
 		}
-		else
+		
+		pos = xmlGetProp(node , BAD_CAST "user-id");
+		currentContact = fetion_contact_list_find_by_userid(contactlist , (char*)pos);
+		//currentContact = fetion_contact_new();
+		debug_info("synchronize user information");
+		if(currentContact == NULL)
 		{
-			debug_info("User %s refused your request" , currentContact->userId);
+			/*not a valid information*/
+			debug_error("User %s is not a valid user" , (char*)pos);
+			return NULL;
 		}
-		xmlFree(pos);
+		if(xmlHasProp(node , BAD_CAST "uri"))
+		{
+			pos = xmlGetProp(node , BAD_CAST "uri");
+			strcpy(currentContact->sipuri ,  (char*)pos);
+			xmlFree(pos);
+		}
+		if(xmlHasProp(node , BAD_CAST "relation-status"))
+		{
+			pos = xmlGetProp(node , BAD_CAST "relation-status");
+			currentContact->relationStatus = atoi((char*)pos);
+			if(atoi((char*)pos) == 1){
+				debug_info("User %s accepted your request" , currentContact->userId);
+			}else{
+				debug_info("User %s refused your request" , currentContact->userId);
+			}
+			xmlFree(pos);
+		}
+		xmlFreeDoc(doc);
+		return currentContact;
+		node = node->next;
 	}
 	xmlFreeDoc(doc);
 	return currentContact;

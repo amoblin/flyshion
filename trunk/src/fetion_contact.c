@@ -387,10 +387,12 @@ Contact* fetion_contact_handle_contact_request(User* user
 	body = generate_handle_contact_request_body(sipuri , userid , localname , buddylist , result);
 	res = fetion_sip_to_string(sip , body);
 	free(body);
+	printf("%s\n" , res);
 	tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
 	res = fetion_sip_get_response(sip);
 	ret = fetion_sip_get_code(res);
+	printf("%s \n CODE %d\n" , res , ret);
 	switch(ret)
 	{
 		case 200 :
@@ -564,7 +566,7 @@ char* generate_handle_contact_request_body(const char* sipuri
 	xmlChar *res;
 	xmlDocPtr doc;
 	xmlNodePtr node;
-	doc = xmlReadMemory(args , strlen(args) , NULL , "UTF-8" , XML_PARSE_RECOVER);
+	doc = xmlParseMemory(args , strlen(args));
 	node = xmlDocGetRootElement(doc);
 	node = xmlNewChild(node , NULL , BAD_CAST "contacts" , NULL);
 	node = xmlNewChild(node , NULL , BAD_CAST "buddies" , NULL);
@@ -810,6 +812,9 @@ Contact* parse_add_buddy_response(const char* sipmsg , int* statuscode)
 	doc = xmlParseMemory(pos , strlen(pos));
 	node = xmlDocGetRootElement(doc);
 	node = xml_goto_node(node , "buddy");
+
+	printf("%s\n" , sipmsg);
+
 	if(node == NULL)
 	{
 		*statuscode = 400;
@@ -849,12 +854,19 @@ Contact* parse_add_buddy_response(const char* sipmsg , int* statuscode)
 	{
 		res = xmlGetProp(node , BAD_CAST "status-code");
 		*statuscode = atoi((char*)res);
+		xmlFree(res);
 	}
 	else
 	{
 		*statuscode = 200;
 	}
-	contact->serviceStatus = STATUS_NOT_AUTHENTICATED;
+	if(xmlHasProp(node , BAD_CAST "basic-service-status"))
+	{
+		res = xmlGetProp(node , BAD_CAST "basic-service-status");
+		contact->serviceStatus = atoi((char*)res);
+		xmlFree(res);
+	}
+	contact->relationStatus = STATUS_NOT_AUTHENTICATED;
 	xmlFreeDoc(doc);
 	return contact;
 }
@@ -866,6 +878,9 @@ Contact* parse_handle_contact_request_response(const char* sipmsg)
 	xmlDocPtr doc;
 	xmlNodePtr node;
 	contact = fetion_contact_new();
+
+	printf("%s\n" , sipmsg);
+
 	pos = strstr(sipmsg , "\r\n\r\n") + 4;
 	doc = xmlParseMemory(pos , strlen(pos));
 	node = xmlDocGetRootElement(doc);
@@ -894,7 +909,13 @@ Contact* parse_handle_contact_request_response(const char* sipmsg)
 		contact->groupid = atoi((char*)res);
 		xmlFree(res);
 	}
-	contact->serviceStatus = RELATION_STATUS_UNAUTHENTICATED;
+	if(xmlHasProp(node , BAD_CAST "relation-status")){
+		res = xmlGetProp(node , BAD_CAST "relation-status");
+		contact->relationStatus = atoi((char*)res);
+		xmlFree(res);
+	}else{
+		contact->relationStatus = RELATION_STATUS_AUTHENTICATED;
+	}
 	xmlFreeDoc(doc);
 	return contact;
 }

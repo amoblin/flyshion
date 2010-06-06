@@ -209,6 +209,7 @@ void fx_main_process_presence(FxMain* fxmain , const char* xml)
 	GtkTreeIter iter;
 	GtkTreeIter parentIter;
 	contactlist = fetion_user_parse_presence_body(xml , user);
+
 	contact = contactlist;
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeView));
 	foreach_contactlist(contactlist , contact){
@@ -265,7 +266,7 @@ void fx_main_process_presence(FxMain* fxmain , const char* xml)
 						 , B_IMAGE_CHANGED_COL	 , crc == NULL ? IMAGE_CHANGED :
 						 (strcmp(crc , contact->portraitCrc) == 0 ? IMAGE_NOT_CHANGED : IMAGE_CHANGED)
 						 , -1);
-
+		free(crc);
 		gdk_threads_leave();
 	}
 }
@@ -374,6 +375,7 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const char* sipms
 		if(pb == NULL)
 			pb = gdk_pixbuf_new_from_file(SKIN_DIR"user_online.png" , NULL);
 		gtk_status_icon_set_from_pixbuf(GTK_STATUS_ICON(fxmain->trayIcon) , pb);
+		g_object_unref(pb);
 		gtk_status_icon_set_blinking(GTK_STATUS_ICON(fxmain->trayIcon) , TRUE);
 		g_signal_handler_disconnect(fxmain->trayIcon , fxmain->iconConnectId);
 		
@@ -631,6 +633,7 @@ void fx_main_process_syncuserinfo(FxMain* fxmain , const char* xml)
 			do
 			{
 				gtk_tree_model_get(model , &cIter , B_USERID_COL , &userid , -1);
+				printf("%s , %s\n" , userid , contact->userId);
 				if(strcmp(userid , contact->userId) == 0)
 				{
 
@@ -639,7 +642,7 @@ void fx_main_process_syncuserinfo(FxMain* fxmain , const char* xml)
 									 , B_RELATIONSTATUS_COL	 , contact->relationStatus
 									 , -1);
 					free(userid);
-					break;
+					goto end;
 				}
 				free(userid);
 			}
@@ -647,6 +650,8 @@ void fx_main_process_syncuserinfo(FxMain* fxmain , const char* xml)
 		}
 	}
 	while(gtk_tree_model_iter_next(model , &iter));
+end:
+	return;
 }
 void* fx_main_process_addbuddyapplication_thread(void* data)
 {
@@ -936,6 +941,7 @@ void* fx_main_listen_thread_func(void* data)
 		pos = msg;
 		while(pos != NULL){
 			type = fetion_sip_get_type(pos->message);
+			printf("%s\n" , pos->message);
 			switch(type){
 				case SIP_NOTIFICATION :
 					fx_main_process_notification(fxmain , pos->message);
@@ -951,7 +957,7 @@ void* fx_main_listen_thread_func(void* data)
 				case SIP_SIPC_4_0:
 					break;
 				default:
-					printf("%s\n" , pos->message);
+					//printf("%s\n" , pos->message);
 					break;
 			}
 			pos = pos->next;
