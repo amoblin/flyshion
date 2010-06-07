@@ -266,6 +266,10 @@ void* fx_login_thread_func(void* data)
 
 	DEBUG_FOOTPRINT();
 
+	gdk_threads_enter();
+	gtk_widget_set_sensitive(fxlogin->loginbutton , FALSE);
+	gdk_threads_leave();
+
 	fx_login_show_msg(fxlogin , "正在准备登录");	
 
 	no = gtk_combo_box_get_active_text(GTK_COMBO_BOX(fxlogin->username));

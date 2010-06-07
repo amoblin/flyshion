@@ -196,9 +196,11 @@ int fetion_user_set_moodphrase(User* user , const char* moodphrase)
 	res = fetion_sip_to_string(sip , body);
 	free(body);
 	tcp_connection_send(sip->tcp , res , strlen(res));
+	printf("%s\n" , res);
 	free(res) ; 
 	res = fetion_sip_get_response(sip);
 	ret = fetion_sip_get_code(res);
+	printf("%s\n" , res);
 	if(ret == 200)
 	{
 		parse_set_moodphrase_response(user , res);

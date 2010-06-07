@@ -91,6 +91,7 @@ void fx_app_initialize(FxApp* fxapp)
 	gtk_fixed_put(GTK_FIXED(fixed) , lnLabel , 40 , 85);
 	
 	fxapp->lnEntry = gtk_entry_new();
+	printf("%s , %d\n" , fxapp->desc , strlen(fxapp->desc) );
 	gtk_entry_set_text(GTK_ENTRY(fxapp->lnEntry) , fxapp->desc);
 	gtk_widget_set_usize(fxapp->lnEntry , 200 , 28);
 	gtk_fixed_put(GTK_FIXED(fixed) , fxapp->lnEntry , 120 , 80);
@@ -183,12 +184,17 @@ void* fx_app_ok_thread(void* data)
 	gtk_combo_box_get_active_iter(GTK_COMBO_BOX(fxapp->agCombo) , &iter);
 	gtk_tree_model_get(gmodel , &iter , APP_G_ID_COL , &buddylist , -1);
 
-	localname = gtk_entry_get_text(GTK_ENTRY(fxapp->lnEntry));
+
+
 
 	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxapp->aptButton)))
 		result = APP_ACCEPT;
 	else
 		result = APP_REJECT;
+
+	localname = gtk_entry_get_text(GTK_ENTRY(fxapp->lnEntry));
+
+	localname = "";
 
 	if(result == APP_REJECT){
 		contact = fetion_contact_handle_contact_request(fxmain->user
@@ -251,7 +257,7 @@ void* fx_app_ok_thread(void* data)
 
 	gtk_tree_store_set(GTK_TREE_STORE(model)		 , &iter1
 					, B_USERID_COL			, contact->userId
-					, B_NAME_COL			, contact->localname
+					, B_NAME_COL			, contact->nickname ? contact->nickname : ""
 					, B_SERVICESTATUS_COL	, BASIC_SERVICE_NORMAL
 					, B_RELATIONSTATUS_COL	, contact->relationStatus
 					, B_CARRIER_COL			, "CMCC"

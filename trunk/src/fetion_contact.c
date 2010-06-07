@@ -48,9 +48,17 @@ Contact* fetion_contact_list_find_by_userid(Contact* contactlist , const char* u
 Contact* fetion_contact_list_find_by_sipuri(Contact* contactlist , const char* sipuri)
 {
 	Contact *cl_cur;
+	char *sid , *sid1;
 	foreach_contactlist(contactlist , cl_cur){
-		if(strcmp(cl_cur->sipuri , sipuri) == 0)
+		sid = fetion_sip_get_sid_by_sipuri(cl_cur->sipuri);
+		sid1 = fetion_sip_get_sid_by_sipuri(sipuri);
+		if(strcmp(sid , sid1) == 0){
+			free(sid);
+			free(sid1);
 			return cl_cur;
+		}
+		free(sid);
+		free(sid1);
 	}
 	return NULL;
 }
@@ -387,12 +395,10 @@ Contact* fetion_contact_handle_contact_request(User* user
 	body = generate_handle_contact_request_body(sipuri , userid , localname , buddylist , result);
 	res = fetion_sip_to_string(sip , body);
 	free(body);
-	printf("%s\n" , res);
 	tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
 	res = fetion_sip_get_response(sip);
 	ret = fetion_sip_get_code(res);
-	printf("%s \n CODE %d\n" , res , ret);
 	switch(ret)
 	{
 		case 200 :

@@ -21,6 +21,8 @@
 #ifndef FX_UTIL_H
 #define FX_UTIL_H
 
+extern gchar * _(const gchar *string);
+
 extern char* fx_util_get_state_name(StateType type);
 
 extern void fx_util_popup_warning(FxMain* fxmain , const char* message);

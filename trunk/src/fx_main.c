@@ -75,7 +75,8 @@ void fx_main_initialize(FxMain* fxmain)
 	gtk_status_icon_set_tooltip(fxmain->trayIcon , "OpenFetion");
 #ifdef HAVE_LIBNOTIFY
 	fxmain->notify = notify_notification_new_with_status_icon("welcome"
-			, "hehe" , NULL , fxmain->trayIcon);
+			, "" , NULL , fxmain->trayIcon);
+	notify_notification_set_timeout(fxmain->notify , 2500);
 #endif
 
 	fxmain->iconConnectId = g_signal_connect(GTK_STATUS_ICON(fxmain->trayIcon)
@@ -203,6 +204,7 @@ void fx_main_process_presence(FxMain* fxmain , const char* xml)
 	Contact *contactlist = NULL;
 	Contact *contact , *contactToDelete;
 	User* user = fxmain->user;
+	Config *config = user->config;
 	GtkWidget* treeView = fxmain->mainPanel->treeView;
 	GtkTreeModel* model = NULL;
 	FxChat *fxchat = NULL;
@@ -244,6 +246,35 @@ void fx_main_process_presence(FxMain* fxmain , const char* xml)
 							 , -1);
 			fx_tree_move_to_the_last(model , &iter);
 			fx_tree_move_to_the_first(model , &iter);
+
+#ifdef HAVE_LIBNOTIFY
+			if(strcmp(crc , "unlogin")){
+				char notifySummary[256];
+				char notifyText[1024];
+				char iconPath[256];
+				GdkPixbuf *pb;
+				bzero(iconPath , sizeof(iconPath));
+				sprintf(iconPath , "%s/%s.jpg" , config->iconPath , contact->sId);
+				bzero(notifyText , sizeof(notifyText));
+				bzero(notifySummary , sizeof(notifySummary));
+				sprintf(notifySummary , "%s , 上线啦" , contact->nickname);
+				sprintf(notifyText , "手机号 : %s \n"
+									 "飞信号 : %s\n"
+									 "个性签名：%s"
+						, contact->mobileno == NULL || strlen(contact->mobileno) == 0 ? "未知" : contact->mobileno
+						, contact->sId
+						, contact->impression );
+				pb = gdk_pixbuf_new_from_file_at_size(iconPath , 48 , 48 , NULL);
+				if(pb == NULL){
+					pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.jpg" , 48 , 48 , NULL);
+				}
+				notify_notification_update(fxmain->notify , notifySummary
+						, notifyText , NULL);
+				notify_notification_set_icon_from_pixbuf(fxmain->notify , pb);
+				notify_notification_show(fxmain->notify , NULL);
+				g_object_unref(pb);
+			}
+#endif
 		}
 		if(fxchat != NULL)
 		{
@@ -263,6 +294,7 @@ void fx_main_process_presence(FxMain* fxmain , const char* xml)
 						 , B_SERVICESTATUS_COL	 , contact->serviceStatus
 						 , B_CARRIERSTATUS_COL   , contact->carrierStatus
 						 , B_CARRIER_COL		 , contact->carrier
+						 , B_CRC_COL			 , contact->portraitCrc
 						 , B_IMAGE_CHANGED_COL	 , crc == NULL ? IMAGE_CHANGED :
 						 (strcmp(crc , contact->portraitCrc) == 0 ? IMAGE_NOT_CHANGED : IMAGE_CHANGED)
 						 , -1);
@@ -344,20 +376,22 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const char* sipms
 				Contact *senderContact;
 				if(config->msgAlert == MSG_ALERT_ENABLE){	
 					senderContact = fetion_contact_list_find_by_sipuri(user->contactList , msg->sipuri);
-					bzero(notifySum , sizeof(notifySum));
-					bzero(iconPath , sizeof(iconPath));
-					sprintf(iconPath , "%s/%s.jpg" , config->iconPath , senderContact->sId);
-					senderSid = fetion_sip_get_sid_by_sipuri(msg->sipuri);
-					sprintf(notifySum , "%s(%s) 说:" , senderContact->nickname , senderContact->sId);
-					free(senderSid);
-					notifyIcon = gdk_pixbuf_new_from_file_at_size(iconPath , 48 , 48 , NULL);
-					notify_notification_update(fxmain->notify , notifySum
-							, msg->message , NULL);
-					if(notifyIcon)
-						notify_notification_set_icon_from_pixbuf(fxmain->notify , notifyIcon);
-					g_signal_connect(fxmain->notify , "closed" , G_CALLBACK(fx_main_message_func) , fxmain);
-					notify_notification_show(fxmain->notify , NULL);
-					g_object_unref(notifyIcon);
+					if( senderContact){
+						bzero(notifySum , sizeof(notifySum));
+						bzero(iconPath , sizeof(iconPath));
+						sprintf(iconPath , "%s/%s.jpg" , config->iconPath , senderContact->sId);
+						senderSid = fetion_sip_get_sid_by_sipuri(msg->sipuri);
+						sprintf(notifySum , "%s(%s) 说:" , senderContact->nickname , senderContact->sId);
+						free(senderSid);
+						notifyIcon = gdk_pixbuf_new_from_file_at_size(iconPath , 48 , 48 , NULL);
+						notify_notification_update(fxmain->notify , notifySum
+								, msg->message , NULL);
+						if(notifyIcon)
+							notify_notification_set_icon_from_pixbuf(fxmain->notify , notifyIcon);
+						//g_signal_connect(fxmain->notify , "closed" , G_CALLBACK(fx_main_message_func) , fxmain);
+						notify_notification_show(fxmain->notify , NULL);
+						g_object_unref(notifyIcon);
+					}
 				}
 #endif
 			}
@@ -633,7 +667,6 @@ void fx_main_process_syncuserinfo(FxMain* fxmain , const char* xml)
 			do
 			{
 				gtk_tree_model_get(model , &cIter , B_USERID_COL , &userid , -1);
-				printf("%s , %s\n" , userid , contact->userId);
 				if(strcmp(userid , contact->userId) == 0)
 				{
 
@@ -941,7 +974,6 @@ void* fx_main_listen_thread_func(void* data)
 		pos = msg;
 		while(pos != NULL){
 			type = fetion_sip_get_type(pos->message);
-			printf("%s\n" , pos->message);
 			switch(type){
 				case SIP_NOTIFICATION :
 					fx_main_process_notification(fxmain , pos->message);
@@ -971,13 +1003,17 @@ void fx_main_message_func(GtkWidget* widget , gpointer data)
 {
 	FxMain *fxmain = (FxMain*)data;
 	FxList *mlist = fxmain->mlist;
-	FxList *cur = mlist->next;
+	FxList *cur = mlist->pre;
 	FxList *tmp = NULL;
 	FxChat *fxchat = NULL;
 	Message *msg = NULL;
 	char *sid = NULL;
 
 	DEBUG_FOOTPRINT();
+
+#ifdef HAVE_LIBNOTIFY
+	notify_notification_close(fxmain->notify , NULL);
+#endif
 
 	while(cur != fxmain->mlist){
 		msg = (Message*)(cur->data);
@@ -996,12 +1032,13 @@ void fx_main_message_func(GtkWidget* widget , gpointer data)
 			}
 #endif 
 			printf("Unknow Message\n");
+			printf("%s:%s\n" , msg->sipuri ,  msg->message);
 			continue;
 		}
 		fx_chat_add_message(fxchat , msg->message , &(msg->sendtime) , 0);
 		free(msg);
 		tmp = cur;
-		cur = cur->next;
+		cur = cur->pre;
 		fx_list_remove(tmp);
 		free(tmp);
 	}
@@ -1120,11 +1157,19 @@ FetionSip* fx_list_find_sip_by_sipuri(FxList* fxlist , const char* sipuri)
 {
 	FxList *cur;
 	FetionSip *sip;
+	char *sid , *sid1;
+
 	foreach_list(fxlist , cur){
 		sip = (FetionSip*)(cur->data);
-		if(strcmp(sip->sipuri , sipuri) == 0){
+		sid = fetion_sip_get_sid_by_sipuri(sip->sipuri);
+		sid1 = fetion_sip_get_sid_by_sipuri(sipuri);
+		if(strcmp(sid , sid1) == 0){
+			free(sid); sid = NULL;
+			free(sid1); sid1 = NULL;
 			return sip;
 		}
+		free(sid); sid = NULL;
+		free(sid1); sid1 = NULL;
 	}
 	return NULL;
 }
@@ -1132,19 +1177,26 @@ void fx_list_remove_sip_by_sipuri(FxList* fxlist , const char* sipuri)
 {
 	FxList *cur;
 	FetionSip *sip;
+	char *sid , *sid1;
 
 	DEBUG_FOOTPRINT();
 
 	foreach_list(fxlist , cur){
 		sip = (FetionSip*)(cur->data);
-		if(strcmp(sip->sipuri , sipuri) == 0)
+		sid = fetion_sip_get_sid_by_sipuri(sip->sipuri);
+		sid1 = fetion_sip_get_sid_by_sipuri(sipuri);
+		if(strcmp(sid , sid1) == 0)
 		{	
 			debug_info("Removing sip from sip list");
 			cur->next->pre = cur->pre;
 			cur->pre->next = cur->next;
+			free(sid);sid = NULL;
+			free(sid1);sid1 = NULL;
 			free(cur);
 			break;
 		}	
+		free(sid);sid = NULL;
+		free(sid1);sid1 = NULL;
 	}
 }
 
@@ -1153,14 +1205,22 @@ FxChat* fx_list_find_chat_by_sipuri(FxList* fxlist , const char* sipuri)
 	FxChat *fxchat;
 	FxList *cur;
 	Contact *contact;
+	char *sid , *sid1;
 
 	DEBUG_FOOTPRINT();
 
 	foreach_list(fxlist , cur){
 		fxchat = (FxChat*)(cur->data);
 		contact = fxchat->conv->currentContact;
-		if(strcmp(contact->sipuri , sipuri) == 0)
+		sid = fetion_sip_get_sid_by_sipuri(contact->sipuri);
+		sid1 = fetion_sip_get_sid_by_sipuri(sipuri);
+		if(strcmp(sid , sid1) == 0){
+			free(sid);
+			free(sid1);
 			return fxchat;
+		}
+		free(sid);
+		free(sid1);
 	}
 	return NULL;
 }
@@ -1169,6 +1229,7 @@ void fx_list_remove_chat_by_sipuri(FxList *fxlist , const char *sipuri)
 	FxList *cur;
 	Contact *contact;
 	FxChat *fxchat;
+	char *sid , *sid1;
 
 	DEBUG_FOOTPRINT();
 
@@ -1179,12 +1240,18 @@ void fx_list_remove_chat_by_sipuri(FxList *fxlist , const char *sipuri)
 			printf("Unknown FxChat\n");
 			continue;
 		}
-		if(strcmp(contact->sipuri , sipuri) == 0){
+		sid = fetion_sip_get_sid_by_sipuri(contact->sipuri);
+		sid1 = fetion_sip_get_sid_by_sipuri(sipuri);
+		if(strcmp(sid , sid1) == 0){
 			debug_info("Removing chat struct from chat list");
+			free(sid);sid = NULL;
+			free(sid1);sid1 = NULL;
 			cur->next->pre = cur->pre;
 			cur->pre->next = cur->next;
 			break;
 		}	
+		free(sid);sid = NULL;
+		free(sid1);sid1 = NULL;
 	}
 }
 
@@ -1192,12 +1259,20 @@ TimeOutArgs* fx_list_find_timeout_by_sipuri(FxList* fxlist , const char* sipuri)
 {
 	TimeOutArgs *args = NULL;
 	FxList *cur;
+	char *sid , *sid1;
 
 	DEBUG_FOOTPRINT();
 	foreach_list(fxlist , cur){
 		args = (TimeOutArgs*)(cur->data);
-		if(strcmp(args->sipuri , sipuri) == 0)
+		sid = fetion_sip_get_sid_by_sipuri(args->sipuri);
+		sid1 = fetion_sip_get_sid_by_sipuri(sipuri);
+		if(strcmp(sid , sid1) == 0){
+			free(sid);sid = NULL;
+			free(sid1);sid1 = NULL;
 			return args;
+		}
+		free(sid);sid = NULL;
+		free(sid1);sid1 = NULL;
 	}
 	return NULL;
 }
@@ -1206,17 +1281,24 @@ void fx_list_remove_timeout_by_sipuri(FxList* fxlist , const char* sipuri)
 {
 	FxList *cur;
 	TimeOutArgs *args = NULL;
+	char *sid , *sid1;
 
 	DEBUG_FOOTPRINT();
 
 	foreach_list(fxlist , cur){
 		args = (TimeOutArgs*)(cur->data);
-		if(strcmp(args->sipuri , sipuri) == 0){
+		sid = fetion_sip_get_sid_by_sipuri(args->sipuri);
+		sid1 = fetion_sip_get_sid_by_sipuri(sipuri);
+		if(strcmp(sid , sid1) == 0){
 			cur->next->pre = cur->pre;
 			cur->pre->next = cur->next;
+			free(sid);sid = NULL;
+			free(sid1);sid1 = NULL;
 			free(cur);
 			break;
 		}	
+		free(sid);sid = NULL;
+		free(sid1);sid1 = NULL;
 	}
 
 }

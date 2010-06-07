@@ -20,6 +20,11 @@
 
 #include "fx_include.h"
 
+gchar * _(const gchar *string)
+{
+	return(g_locale_to_utf8(string, -1, NULL, NULL, NULL));
+}
+
 char* fx_util_get_state_name(StateType type)
 {
 	char *name = (char*)malloc(48);

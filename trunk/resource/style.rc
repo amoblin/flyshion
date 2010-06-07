@@ -1,4 +1,4 @@
-pixmap_path "/usr/include/X11R6/pixmaps:/home/imain/pixmaps:/usr/share/openfetion/skin:/usr/local/share/openfetion/skin:../skin:../share/openfetion/skin"
+pixmap_path "/usr/include/X11R6/pixmaps:/home/imain/pixmaps:/opt/openfetion/share/openfetion/skin:/usr/share/openfetion/skin:/usr/local/share/openfetion/skin:../skin:../share/openfetion/skin"
 
 
 style "window"
