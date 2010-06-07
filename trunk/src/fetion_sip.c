@@ -742,8 +742,8 @@ void fetion_sip_parse_addbuddyapplication(const char* sipmsg
 	xmlFree(res);
 
 	res = xmlGetProp(node , BAD_CAST "desc");
-	*desc = (char*)malloc(strlen((char*)res) + 1);
-	bzero(*desc , strlen((char*)res) + 1);
+	*desc = (char*)malloc(xmlStrlen(res) + 1);
+	bzero(*desc , xmlStrlen(res) + 1);
 	strcpy(*desc , (char*)res);
 	xmlFree(res);
 

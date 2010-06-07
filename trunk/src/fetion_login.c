@@ -368,11 +368,11 @@ int parse_sipc_auth_response(const char* auth_response , User* user)
 	else if(code == 421 || code == 420)
 	{
 		parse_add_buddy_verification(user , auth_response);
-		return -1;
+		return 2;
 	}
 	else
 	{
-		debug_error("Sipc authentication failed , error code:421");
+		debug_error("Sipc authentication failed");
 		return -1;
 	}
 	pos = strstr(auth_response , "\r\n\r\n") + 4;
@@ -592,6 +592,8 @@ void parse_contact_list(xmlNodePtr node , User* user)
 		//if(strstr((char*)buf , "tel") != NULL)
 		//	contact->serviceStatus = STATUS_SMS_ONLINE;
 		xmlFree(buf);
+
+		strcpy(contact->portraitCrc , "unlogin");
 
 		if(hasBuddy == 0){
 			fetion_contact_list_append(user->contactList , contact);

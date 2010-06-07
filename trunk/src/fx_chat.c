@@ -453,7 +453,7 @@ void fx_chat_initialize(FxChat* fxchat)
 	g_signal_connect(send_button , "clicked" , G_CALLBACK(fx_chat_on_send_clicked) , fxchat);
 
 	gtk_window_set_position(GTK_WINDOW(fxchat->dialog) , GTK_WIN_POS_CENTER);
-	gtk_window_set_opacity(GTK_WINDOW(fxchat->dialog) , 0.9);
+	//gtk_window_set_opacity(GTK_WINDOW(fxchat->dialog) , 0.9);
 
 	fx_chat_bind(fxchat);
 
