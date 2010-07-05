@@ -42,7 +42,7 @@ static void fx_proxy_set_sensitive(FxProxy *fxproxy , gboolean enable)
 	gtk_widget_set_sensitive(fxproxy->passEntry , enable);
 }
 
-static void fx_proxy_enable_toggled(GtkWidget *widget , gpointer data)
+static void fx_proxy_enable_toggled(GtkWidget *UNUSED(widget) , gpointer data)
 {
 	FxProxy *fxproxy = (FxProxy*)data;
 
@@ -162,7 +162,7 @@ void fx_proxy_initialize(FxProxy *fxproxy)
 
 }
 
-void fx_proxy_on_ok_clicked(GtkWidget *widget , gpointer data)
+void fx_proxy_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 {
 	FxProxy *fxproxy = (FxProxy*)data;
 	FxLogin *fxlogin = fxproxy->fxlogin;
@@ -217,7 +217,7 @@ void fx_proxy_on_ok_clicked(GtkWidget *widget , gpointer data)
 	gtk_dialog_response(GTK_DIALOG(fxproxy->dialog) , GTK_RESPONSE_OK);
 }
 
-void fx_proxy_on_cancel_clicked(GtkWidget *widget , gpointer data)
+void fx_proxy_on_cancel_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 {
 	FxProxy *fxproxy = (FxProxy*)data;
 

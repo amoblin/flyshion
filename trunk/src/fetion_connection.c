@@ -125,7 +125,7 @@ int tcp_connection_connect_with_proxy(FetionConnection* connection
 	{
 		bzero(authen , sizeof(authen));
 		sprintf(authen , "%s:%s" , proxy->proxyUser , proxy->proxyPass);
-		EVP_EncodeBlock(authentication , (char*)authen , strlen(authen));
+		EVP_EncodeBlock(authentication , (unsigned char*)authen , strlen(authen));
 		sprintf(authorization , "Proxy-Authorization: Basic %s\r\n" , (char*)authentication);
 	}
 
@@ -250,9 +250,11 @@ char* ssl_connection_get(FetionConnection* conn , const char* buf)
 char* http_connection_get_response(FetionConnection* conn)
 {
 	char buf[1024] , ls[10] , *pos , *res;
-	int  n , c , len;
+	int  n = 0 , c , len;
 	bzero(buf , sizeof(buf));
-	n = tcp_connection_recv(conn , buf , sizeof(buf) - 1);
+	do{
+		n += tcp_connection_recv(conn , buf + n , sizeof(buf) - n - 1);
+	}while(strstr(buf , "\r\n\r\n") == NULL);
 	pos = strstr(buf , "Content-Length: ") + 16;
 	len = strlen(pos) - strlen(strstr(pos , "\r\n\r\n"));
 	strncpy(ls , pos , len);
@@ -390,7 +392,7 @@ char *hexip_to_dotip(const char *ip){
 	char *out;
 	char tmp[3];
 	char tmp1[4];
-	int i , j = 0;
+	unsigned int i , j = 0;
 	long res;
 
 	out = (char*)malloc(18);

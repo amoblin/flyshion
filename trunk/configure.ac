@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.63])
-AC_INIT([OpenFetion], [1.6], [http://basiccoder.com/openfetion])
+AC_INIT([OpenFetion], [1.6.1], [http://basiccoder.com/openfetion])
 AC_CONFIG_SRCDIR([src/fx_main.c])
 AC_CONFIG_HEADERS([config.h])
 
@@ -29,10 +29,10 @@ AC_CHECK_LIB([ssl], [main])
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h netinet/in.h stdint.h stdlib.h string.h sys/ioctl.h sys/socket.h unistd.h])
 
 # checks for gtk+2.0
-AM_PATH_GTK_2_0(,,AC_MSG_ERROR(OpenFetion 1.4 needs GTK+ 2.0))
+AM_PATH_GTK_2_0(,,AC_MSG_ERROR(OpenFetion 1.6.1 needs GTK+ 2.0))
 
 # checks for libxml2
-AM_PATH_XML2(,,AC_MSG_ERROR(OpenFetion 1.4 needs LIBXML2))
+AM_PATH_XML2(,,AC_MSG_ERROR(OpenFetion 1.6.1 needs LIBXML2))
 
 # checks for gstreamer-0.10
 PKG_CHECK_MODULES(GSTREAMER, [gstreamer-0.10], [
@@ -40,6 +40,13 @@ PKG_CHECK_MODULES(GSTREAMER, [gstreamer-0.10], [
 			AC_SUBST(GSTREAMER_CFLAGS)
 			AC_SUBST(GSTREAMER_LIBS)
 		] , [enable_gst="no"])
+
+# checks for libnotify
+PKG_CHECK_MODULES(LIBNOTIFY, [libnotify], [
+			AC_DEFINE(USE_LIBNOTIFY, 1, [Use libnotify for notification])
+			AC_SUBST(LIBNOTIFY_CFLAGS)
+			AC_SUBST(LIBNOTIFY_LIBS)
+		] , [enable_libnotify="no"])
 
 AC_ARG_ENABLE(debug,
         [ --enable-debug turn on debug],
@@ -66,7 +73,7 @@ AC_OUTPUT
 if test "x$enable_gst" == "xno"; then
 	echo "-----------------------------------------------------------"
 	echo "|                                                         |"
-	echo "|            Welcome To OpenFetion v1.5                   |"
+	echo "|            Welcome To OpenFetion v1.6.1                 |"
 	echo "|                                                         |"
 	echo "| You have not installed gstreamer-0.10 on your system    |"
 	echo "| for which you can not use the sound reminder function   |"

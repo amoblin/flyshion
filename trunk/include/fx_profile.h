@@ -29,7 +29,7 @@ extern void fx_profile_bind(FxProfile* fxprofile);
 
 extern void fx_profile_free(FxProfile* fxprofile);
 
-extern void fx_profile_on_button_clicked(GtkWidget* widget , gpointer data);
+extern void fx_profile_on_button_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 
 
 

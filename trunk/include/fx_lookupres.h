@@ -25,6 +25,6 @@ extern FxLookupres* fx_lookupres_new(FxMain* fxmain , Contact* contact);
 
 extern void fx_lookupres_initialize(FxLookupres* fxlookupres);
 
-extern void fx_lookupres_on_ok_clicked(GtkWidget* widget , gpointer data);
+extern void fx_lookupres_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 
 #endif

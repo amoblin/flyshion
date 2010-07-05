@@ -65,18 +65,20 @@ FxEmotion *fx_emotion_new(FxChat *fxchat)
 	DEBUG_FOOTPRINT();
 
 	fxemotion->fxchat = fxchat;
+
+	return fxemotion;
 }
 
-gboolean fx_emotion_focus_out(GtkWidget *widget 
-		, GdkEventFocus *event , gpointer data)
+static gboolean fx_emotion_focus_out(GtkWidget *UNUSED(widget)
+		, GdkEventFocus *UNUSED(event) , gpointer data)
 {
 	FxEmotion *fxemotion = (FxEmotion*)data;
 	gtk_widget_destroy(fxemotion->dialog);
 	free(fxemotion);
 	return TRUE;
 }
-gboolean fx_emotion_ok_clicked(GtkWidget *widget
-		, GdkEventButton *event , gpointer data)
+static gboolean fx_emotion_ok_clicked(GtkWidget *UNUSED(widget)
+		, GdkEventButton *UNUSED(event) , gpointer data)
 {
 	struct args{
 		FxEmotion *fxemotion;
@@ -86,7 +88,6 @@ gboolean fx_emotion_ok_clicked(GtkWidget *widget
 	FxEmotion *fxemotion = emotionArgs->fxemotion;
 	FxChat *fxchat = fxemotion->fxchat;
 	GtkTextBuffer* buffer;
-	GtkTextChildAnchor *anchor;
 	GtkTextIter iter;
 
 	DEBUG_FOOTPRINT();
@@ -126,6 +127,7 @@ void fx_emotion_initialize(FxEmotion *fxemotion , int x , int y)
 	gtk_window_set_icon(GTK_WINDOW(fxemotion->dialog) , pb);
 	gtk_widget_set_name(fxemotion->dialog , "mainwindow");
 	gtk_window_set_default_size(GTK_WINDOW(fxemotion->dialog) , 300 , 180);
+        gtk_window_set_skip_taskbar_hint (GTK_WINDOW(fxemotion->dialog), TRUE);
 	gtk_window_move(GTK_WINDOW(fxemotion->dialog) , x , y);
 
 	table = gtk_table_new(10 , 6 , FALSE);

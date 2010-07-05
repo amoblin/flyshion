@@ -138,12 +138,12 @@ GtkTreeModel* fx_history_create_count_model()
 	}
 	return GTK_TREE_MODEL(store);
 }
-void fx_history_on_close_clicked(GtkWidget* widget , gpointer data)
+void fx_history_on_close_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	GtkDialog* dialog = GTK_DIALOG(data);
 	gtk_dialog_response(dialog , GTK_RESPONSE_OK);
 }
-void fx_history_on_refresh_clicked(GtkWidget* widget , gpointer data)
+void fx_history_on_refresh_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	FxHistory *fxhistory = (FxHistory*)data;
 	GtkWidget* entry = gtk_bin_get_child(GTK_BIN(fxhistory->daycombo));

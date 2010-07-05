@@ -33,13 +33,13 @@ FxClose *fx_close_new(FxMain *fxmain)
 }
 
 static void
-fx_close_on_ok_clicked(GtkWidget *widget , gpointer data)
+fx_close_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 {
 	gtk_dialog_response(GTK_DIALOG(data) , GTK_RESPONSE_OK);
 }
 
 static void
-fx_close_on_cancel_clicked(GtkWidget *widget , gpointer data)
+fx_close_on_cancel_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 {
 	gtk_dialog_response(GTK_DIALOG(data) , GTK_RESPONSE_CANCEL);
 }

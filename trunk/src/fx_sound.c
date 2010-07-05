@@ -40,7 +40,6 @@ fx_sound_play_file(const char *filename){
 
 #ifdef USE_GSTREAMER
 	GstElement *pipeline;
-	GstBus *bus;
 	GstElement *source , *parser , *sink;
 
 	DEBUG_FOOTPRINT();

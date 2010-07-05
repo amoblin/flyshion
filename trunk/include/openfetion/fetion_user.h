@@ -49,10 +49,6 @@ extern void fetion_user_set_verification_code(User* user , const char* code);
 
 extern void fetion_user_free(User* user);
 
-extern void fetion_user_save(User* user);
-
-extern void fetion_user_load(User* user);
-
 extern int fetion_user_upload_portrait(User* user , const char* filename);
 
 extern int fetion_user_download_portrait(User* user , const char* sipuri);

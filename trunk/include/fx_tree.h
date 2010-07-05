@@ -98,14 +98,6 @@ extern void fx_tree_get_group_iter_by_id(GtkTreeModel* model
 extern int fx_tree_get_buddy_iter_by_userid(GtkTreeModel* model
 		, const char* userid , GtkTreeIter* iter);
 
-extern void fx_tree_create_buddy_menu(FxMain* fxmain
-		, GtkWidget* tree , GtkTreePath* path
-		, GdkEventButton* event , GtkTreeIter iter);
-
-extern void fx_tree_create_group_menu(FxMain* fxmain
-		, GtkWidget* tree , GtkTreePath* path
-		, GdkEventButton* event , GtkTreeIter iter);
-
 extern GtkWidget* fx_tree_create_menu(const char* name
 		, const char* iconpath , GtkWidget* parent
 		, gboolean sensitive
@@ -116,46 +108,38 @@ extern void fx_tree_add_new_buddy(FxMain* fxmain , Contact* contact);
 
 /*signal function*/
 
-extern void fx_tree_text_cell_data_func(GtkTreeViewColumn *col 
-		, GtkCellRenderer *renderer , GtkTreeModel *model
-		, GtkTreeIter *iter , gpointer user_data);
-
-extern void fx_tree_pixbuf_cell_data_func(GtkTreeViewColumn *col
-		, GtkCellRenderer *renderer , GtkTreeModel *model
-		, GtkTreeIter *iter , gpointer user_data);
-
 extern void* fx_tree_update_portrait_thread_func(void* data);
 
-extern gboolean fx_tree_on_rightbutton_click(GtkWidget* tree
+extern gboolean fx_tree_on_rightbutton_click(GtkWidget* UNUSED(tree)
 		, GdkEventButton* event , gpointer data);
 
 extern void fx_tree_on_double_click(GtkTreeView *treeview
-		, GtkTreePath *path , GtkTreeViewColumn  *col
+		, GtkTreePath *path , GtkTreeViewColumn  *UNUSED(col)
 		, gpointer data);
 
-extern void fx_tree_on_chatmenu_clicked(GtkWidget* widget , gpointer data);
+extern void fx_tree_on_chatmenu_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 
-extern void fx_tree_on_profilemenu_clicked(GtkWidget* widget , gpointer data);
+extern void fx_tree_on_profilemenu_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 
-extern void fx_tree_on_sendfile_clicked(GtkWidget* widget , gpointer data);
+extern void fx_tree_on_sendfile_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 
-extern void fx_tree_on_historymenu_clicked(GtkWidget* widget , gpointer data);
+extern void fx_tree_on_historymenu_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 
-extern void fx_tree_on_editmenu_clicked(GtkWidget* widget , gpointer data);
+extern void fx_tree_on_editmenu_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 
-extern void fx_tree_on_deletemenu_clicked(GtkWidget* widget , gpointer data);
+extern void fx_tree_on_deletemenu_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 
-extern void fx_tree_on_reload_clicked(GtkWidget* widget , gpointer data);
+extern void fx_tree_on_reload_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 
-extern void fx_tree_on_iconchange_clicked(GtkWidget* widget , gpointer data);
+extern void fx_tree_on_iconchange_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 
-extern void fx_tree_on_gaddmenu_clicked(GtkWidget* widget , gpointer data);
+extern void fx_tree_on_gaddmenu_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 
-extern void fx_tree_on_gdeletemenu_clicked(GtkWidget* widget , gpointer data);
+extern void fx_tree_on_gdeletemenu_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 
-extern void fx_tree_on_geditmenu_clicked(GtkWidget* widget , gpointer data);
+extern void fx_tree_on_geditmenu_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 
-extern void fx_tree_on_movemenu_clicked(GtkWidget* widget , gpointer data);
+extern void fx_tree_on_movemenu_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 
 extern gboolean fx_tree_on_show_tooltip(GtkWidget* widget
 		, int x , int y , gboolean keybord_mode

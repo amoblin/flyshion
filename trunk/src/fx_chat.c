@@ -46,7 +46,7 @@ void fx_chat_add_message(FxChat* fxchat , const char* msg , const struct tm* dat
 	char color[10] = { 0 };
 	char time[30] = { 0 };
 
-	int i = 0 , p = 0 , n = 0;
+	unsigned int i = 0 , p = 0 , n = 0;
 	GtkWidget *pb = NULL;
 	GtkTextChildAnchor *anchor; 
 	char path[1024];
@@ -140,7 +140,8 @@ void fx_chat_add_information(FxChat* fxchat , const char* msg)
 
 	gtk_text_view_scroll_mark_onscreen (GTK_TEXT_VIEW(fxchat->recv_text), fxchat->mark);
 }
-gboolean fx_chat_focus_in_func(GtkWidget *widget , GdkEventFocus *event , gpointer data)  
+gboolean fx_chat_focus_in_func(GtkWidget *UNUSED(widget)
+		, GdkEventFocus *UNUSED(event) , gpointer data)  
 { 
 	FxChat* fxchat = (FxChat*)data;
 	FxMain* fxmain = fxchat->fxmain;
@@ -186,7 +187,8 @@ gboolean fx_chat_focus_in_func(GtkWidget *widget , GdkEventFocus *event , gpoint
 	fxchat->hasFocus = CHAT_DIALOG_FOCUSED;
 	return FALSE;
 }
-gboolean fx_chat_focus_out_func(GtkWidget *widget , GdkEventFocus *event , gpointer data)  
+gboolean fx_chat_focus_out_func(GtkWidget *UNUSED(widget)
+		, GdkEventFocus *UNUSED(event) , gpointer data)  
 {
 	FxChat* fxchat = (FxChat*)data;
 
@@ -221,7 +223,7 @@ void fx_chat_bind(FxChat* fxchat)
 
 }
 
-static void fx_chat_name_box_func(GtkWidget *widget
+static void fx_chat_name_box_func(GtkWidget *UNUSED(widget)
 		, GdkEventButton *event , gpointer data)
 {
 	FxChat *fxchat = (FxChat*)data;
@@ -284,7 +286,6 @@ void fx_chat_initialize(FxChat* fxchat)
 	char nametext[512] , portraitPath[512] , *sid , *name;
 	Contact* contact = fxchat->conv->currentContact;
 	GdkPixbuf *pb;
-	GtkToolItem *emotionBtn;
 	GtkWidget *frame , *img;
 
 	FxMain *fxmain = fxchat->fxmain;
@@ -313,7 +314,7 @@ void fx_chat_initialize(FxChat* fxchat)
 
 	fxchat->headbox = gtk_table_new(2 , 10 , FALSE );
 
-	fxchat->headpix = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.jpg" , 40 , 40 , NULL);
+	fxchat->headpix = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.png" , 40 , 40 , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxchat->dialog) , fxchat->headpix);
 	fxchat->headimage = gtk_image_new_from_pixbuf(fxchat->headpix);
 	gtk_table_attach(GTK_TABLE(fxchat->headbox) , fxchat->headimage
@@ -386,7 +387,7 @@ void fx_chat_initialize(FxChat* fxchat)
 	gtk_toolbar_set_style(GTK_TOOLBAR(fxchat->toolbar) , GTK_TOOLBAR_ICONS);
 	gtk_box_pack_start(GTK_BOX(lvbox) , fxchat->toolbar , FALSE , FALSE , 0);
 
-	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"face_images/3.gif" , 16 , 16 , NULL);
+	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"emotions.png" , 18 , 18 , NULL);
 	nouge_icon = gtk_image_new_from_pixbuf(pb);
 	g_object_unref(pb);
 	fxchat->nouge = gtk_toolbar_append_item(GTK_TOOLBAR(fxchat->toolbar)
@@ -394,14 +395,18 @@ void fx_chat_initialize(FxChat* fxchat)
 					  						   , G_CALLBACK(fx_chat_on_emotion_clicked)
 											   , fxchat );									   
 	gtk_toolbar_append_space(GTK_TOOLBAR(fxchat->toolbar));
-	tophone_icon = gtk_image_new_from_file(SKIN_DIR"phone.png");
+	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"phone.png" , 16 , 16 , NULL);
+	tophone_icon = gtk_image_new_from_pixbuf(pb);
+	g_object_unref(pb);
 	fxchat->tophone = gtk_toolbar_append_element(GTK_TOOLBAR(fxchat->toolbar)
 					 						   , GTK_TOOLBAR_CHILD_TOGGLEBUTTON , NULL
 											   , "对方手机" , "消息将以长短信的方式发送到对方手机" , NULL , tophone_icon
 					  						   , G_CALLBACK(fx_chat_on_tophone_clicked)
 											   , fxchat );
 	gtk_toolbar_append_space(GTK_TOOLBAR(fxchat->toolbar));
-	history_icon = gtk_image_new_from_file(SKIN_DIR"history.png");
+	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"history.png" , 18 , 18 , NULL);
+	history_icon = gtk_image_new_from_pixbuf(pb);
+	g_object_unref(pb);
 	fxchat->historybutton = gtk_toolbar_append_item(GTK_TOOLBAR(fxchat->toolbar)
 					 						   , " 聊天记录" , "查看聊天记录" , NULL , history_icon
 					  						   , G_CALLBACK(fx_chat_on_history_clicked)
@@ -514,7 +519,7 @@ void fx_chat_free(FxChat* fxchat)
 	free(fxchat);
 }
 
-void fx_chat_destroy(GtkWidget* widget , gpointer data)
+void fx_chat_destroy(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	FxChat* fxchat = (FxChat*)data;
 
@@ -588,7 +593,6 @@ void fx_chat_send_message(FxChat* fxchat)
 	Conversation* conv = fxchat->conv;
 	Contact* contact = conv->currentContact;
 	User *user = fxchat->fxmain->user;
-	Config *config = user->config;
 	GtkTextIter begin , end;
 	char* text;
 	struct tm* now;
@@ -738,7 +742,7 @@ void* fx_chat_send_nudge_thread(void* data)
 	}
 	return NULL;
 }
-void fx_chat_on_nudge_clicked(GtkWidget* widget , gpointer data)
+void fx_chat_on_nudge_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	FxChat* fxchat = (FxChat*)data;
 	Conversation* conv = fxchat->conv;
@@ -848,7 +852,7 @@ void fx_chat_on_tophone_clicked(GtkWidget* widget , gpointer data)
 		fx_chat_add_information(fxchat , "消息将直接发送到对方飞信");
 	}
 }
-void fx_chat_on_close_clicked(GtkWidget* widget , gpointer data)
+void fx_chat_on_close_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	FxChat* fxchat = (FxChat*)data;
 
@@ -857,13 +861,13 @@ void fx_chat_on_close_clicked(GtkWidget* widget , gpointer data)
 	gtk_widget_destroy(fxchat->dialog);
 }
 
-void fx_chat_on_send_clicked(GtkWidget* widget , gpointer data)
+void fx_chat_on_send_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	DEBUG_FOOTPRINT();
 
 	fx_chat_send_message((FxChat*)data);
 }
-void fx_chat_on_history_clicked(GtkWidget* widget , gpointer data)
+void fx_chat_on_history_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	FxChat* fxchat = (FxChat*)data;
 	Conversation* conv = fxchat->conv;
@@ -879,7 +883,8 @@ void fx_chat_on_history_clicked(GtkWidget* widget , gpointer data)
 	free(fxhistory);
 }
 
-gboolean fx_chat_on_key_pressed(GtkWidget* widget , GdkEventKey* event , gpointer data)
+gboolean fx_chat_on_key_pressed(GtkWidget* UNUSED(widget)
+		, GdkEventKey* event , gpointer data)
 {
 
 	FxChat *fxchat = NULL;

@@ -25,8 +25,8 @@ extern FxLookup* fx_lookup_new(FxMain* fxmain);
 
 extern void fx_lookup_initialize(FxLookup* fxlookup);
 
-extern void fx_lookup_on_ok_clicked(GtkWidget* widget , gpointer data);
+extern void fx_lookup_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 
-extern void fx_lookup_on_cancel_clicked(GtkWidget* widget , gpointer data);
+extern void fx_lookup_on_cancel_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 
 #endif

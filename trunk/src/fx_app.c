@@ -248,11 +248,10 @@ void* fx_app_ok_thread(void* data)
 
 	contact = fetion_contact_handle_contact_request(fxmain->user
 					, fxapp->sipuri , fxapp->userid , localname , buddylist , result);
-	printf("CONTACT : %d\n" , contact == NULL);
 
 	if(contact == NULL){
 		gtk_tree_store_remove(GTK_TREE_STORE(model) , &iter1);
-		return;
+		return NULL;
 	}	
 
 	gtk_tree_store_set(GTK_TREE_STORE(model)		 , &iter1
@@ -267,7 +266,7 @@ void* fx_app_ok_thread(void* data)
 
 	return NULL;
 }
-void fx_app_on_ok_clicked(GtkWidget* widget , gpointer data)
+void fx_app_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	FxApp *fxapp = (FxApp*)data;
 	GThread *thread;
@@ -279,7 +278,7 @@ void fx_app_on_ok_clicked(GtkWidget* widget , gpointer data)
 	gtk_dialog_response(GTK_DIALOG(fxapp->dialog) , GTK_RESPONSE_OK);
 }
 
-void fx_app_on_cancel_clicked(GtkWidget* widget , gpointer data)
+void fx_app_on_cancel_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	FxApp *fxapp = (FxApp*)data;
 
@@ -319,7 +318,7 @@ void* fx_app_check_thread(void* data)
 	gdk_threads_leave();	
 	return NULL;
 }
-void fx_app_on_check_clicked(GtkWidget* widget , gpointer data)
+void fx_app_on_check_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	g_thread_create(fx_app_check_thread , data , FALSE , NULL);
 }

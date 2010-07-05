@@ -20,6 +20,16 @@
 
 #include "fx_include.h"
 
+static void fx_many_add_information(FxMany* fxmany , const char* text);
+
+static void fx_many_on_close_clicked(GtkWidget* UNUSED(widget) , gpointer data);
+
+static void fx_many_on_send_clicked(GtkWidget* UNUSED(widget) , gpointer data);
+
+static void* fx_many_sms_send_func(void* data);
+
+static GtkTreeModel* fx_many_create_all_model(FxMany* fxmany);
+
 FxMany* fx_many_new(FxMain* fxmain)
 {
 	FxMany* fxmany = (FxMany*)malloc(sizeof(FxMany));
@@ -30,7 +40,7 @@ FxMany* fx_many_new(FxMain* fxmain)
 	fxmany->fxmain = fxmain;
 	return fxmany;
 }
-GtkTreeModel* fx_many_create_all_model(FxMany* fxmany)
+static GtkTreeModel* fx_many_create_all_model(FxMany* fxmany)
 {
 	char *name , *sipuri;
 	GdkPixbuf* pb;
@@ -87,7 +97,7 @@ GtkTreeModel* fx_many_create_all_model(FxMany* fxmany)
 	return GTK_TREE_MODEL(store);
 }
 
-GtkTreeModel* fx_many_create_choosed_model(FxMany* fxmany)
+static GtkTreeModel* fx_many_create_choosed_model()
 {
 	GtkTreeStore* store = gtk_tree_store_new(C_COLS_NUM
 									   , GDK_TYPE_PIXBUF
@@ -99,7 +109,8 @@ GtkTreeModel* fx_many_create_choosed_model(FxMany* fxmany)
 
 	return GTK_TREE_MODEL(store);
 }
-void fx_many_item_toggled(GtkCellRendererToggle *cell , char* path_str , gpointer data)
+static void fx_many_item_toggled(GtkCellRendererToggle *UNUSED(cell)
+		, char* path_str , gpointer data)
 {
 	FxMany* fxmany = (FxMany*)data;
 	GtkTreeView* tree = GTK_TREE_VIEW(fxmany->tree);
@@ -183,7 +194,9 @@ void fx_many_item_toggled(GtkCellRendererToggle *cell , char* path_str , gpointe
 	free(sipuri);
 }
 
-void fx_many_text_cell_data_func(GtkTreeViewColumn *col , GtkCellRenderer   *renderer, GtkTreeModel *model , GtkTreeIter *iter , gpointer user_data)
+static void fx_many_text_cell_data_func(GtkTreeViewColumn *UNUSED(col)
+		, GtkCellRenderer   *renderer, GtkTreeModel *model
+		, GtkTreeIter *iter , gpointer UNUSED(user_data))
 {
 	GtkTreePath* path = gtk_tree_model_get_path(model , iter);
 	char* name;
@@ -226,7 +239,7 @@ void fx_many_text_cell_data_func(GtkTreeViewColumn *col , GtkCellRenderer   *ren
 		free(name);
 	}
 }
-void fx_many_create_all_column(FxMany* fxmany)
+static void fx_many_create_all_column(FxMany* fxmany)
 {
 	GtkCellRenderer* renderer;
 	GtkTreeViewColumn *col , *col1;
@@ -266,7 +279,7 @@ void fx_many_create_all_column(FxMany* fxmany)
 
 }
 
-void fx_many_create_selected_column(FxMany* fxmany)
+static void fx_many_create_selected_column(FxMany* fxmany)
 {
 	GtkCellRenderer* renderer;
 	GtkTreeViewColumn *col0 , *col1;
@@ -361,7 +374,7 @@ void fx_many_initialize(FxMany* fxmany)
 	gtk_container_add(GTK_CONTAINER(lt_frame) , scrollwindow);
 	gtk_frame_set_shadow_type(GTK_FRAME(lt_frame) , GTK_SHADOW_IN);
 	/*left bottom area*/
-	model1 = fx_many_create_choosed_model(fxmany);
+	model1 = fx_many_create_choosed_model();
 	fxmany->selected = gtk_tree_view_new_with_model(model1);
 	scrollwindow1 = gtk_scrolled_window_new(NULL , NULL);
 	gtk_container_add(GTK_CONTAINER(scrollwindow1) , fxmany->selected);
@@ -439,14 +452,14 @@ void fx_many_initialize(FxMany* fxmany)
 	gtk_widget_show_all(fxmany->dialog);
 	gtk_widget_hide(fxmany->dialog);
 }
-void fx_many_on_close_clicked(GtkWidget* widget , gpointer data)
+static void fx_many_on_close_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 
 	DEBUG_FOOTPRINT();
 
 	gtk_dialog_response(GTK_DIALOG(data) , GTK_RESPONSE_CANCEL);
 }
-void fx_many_on_send_clicked(GtkWidget* widget , gpointer data)
+static void fx_many_on_send_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	FxMany* fxmany = (FxMany*)data;
 
@@ -460,7 +473,7 @@ void fx_many_on_send_clicked(GtkWidget* widget , gpointer data)
 	
 	g_thread_create(fx_many_sms_send_func , fxmany , FALSE , NULL);
 }
-void* fx_many_sms_send_func(void* data)
+static void* fx_many_sms_send_func(void* data)
 {
 	FxMany* fxmany = (FxMany*)data;
 	GtkTreeModel* model;
@@ -482,7 +495,7 @@ void* fx_many_sms_send_func(void* data)
 	if(strlen(text) == 0)
 	{
 		fx_many_add_information(fxmany , "请输入消息内容");
-		return;
+		return NULL;
 	}
 	gtk_text_buffer_delete(fxmany->send_buffer , &begin , &end);
 	

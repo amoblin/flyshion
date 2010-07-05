@@ -27,13 +27,13 @@ extern void fx_bottom_initialize(FxMain* fxmain);
 
 extern void fx_bottom_free(FxBottom* fxbottom);
 
-extern void fx_bottom_on_setting_clicked(GtkWidget* widget , gpointer data);
+extern void fx_bottom_on_setting_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 
-extern void fx_bottom_on_sendtome_clicked(GtkWidget* widget , gpointer data);
+extern void fx_bottom_on_sendtome_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 
-extern void fx_bottom_on_sendtomany_clicked(GtkWidget* widget , gpointer data);
+extern void fx_bottom_on_sendtomany_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 
-extern void fx_bottom_on_addfriend_clicked(GtkWidget* widget , gpointer data);
+extern void fx_bottom_on_addfriend_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 
-extern void fx_bottom_on_lookup_clicked(GtkWidget* widget , gpointer data);
+extern void fx_bottom_on_lookup_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 #endif

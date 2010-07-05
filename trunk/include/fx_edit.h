@@ -27,8 +27,8 @@ extern void fx_edit_initialize(FxEdit* fxedit);
 
 extern void fx_edit_free(FxEdit* fxedit);
 
-extern void fx_edit_on_ok_clicked(GtkWidget* widget , gpointer data);
+extern void fx_edit_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 
-extern void fx_edit_on_cancel_clicked(GtkWidget* widget , gpointer data);
+extern void fx_edit_on_cancel_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 
 #endif

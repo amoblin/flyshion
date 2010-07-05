@@ -32,7 +32,7 @@ FxBottom* fx_bottom_new()
 }
 
 static void 
-fx_bottom_on_directsms_clicked(GtkWidget *widget , gpointer data)
+fx_bottom_on_directsms_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 {
 	FxMain *fxmain = (FxMain*)data;
 	FxDSMS *fxdsms = fx_dsms_new(fxmain);
@@ -47,7 +47,7 @@ fx_bottom_on_directsms_clicked(GtkWidget *widget , gpointer data)
 }
 
 static void
-fx_bottom_on_help_clicked(GtkWidget* widget , gpointer data)
+fx_bottom_on_help_clicked(GtkWidget* UNUSED(widget) , gpointer UNUSED(data))
 {
 	if(fork() == 0)
 	{
@@ -56,11 +56,12 @@ fx_bottom_on_help_clicked(GtkWidget* widget , gpointer data)
 }
 void fx_bottom_initialize(FxMain* fxmain)
 {
-	FxBottom* fxbottom = fx_bottom_new();
-	GtkWidget* icon;
+	FxBottom *fxbottom = fx_bottom_new();
+	GtkWidget *icon;
+	GdkPixbuf *pb;
 	fxmain->bottomPanel = fxbottom;
 	User *user = fxmain->user;
-	GtkWidget* mainbox = fxmain->mainbox;
+	GtkWidget *mainbox = fxmain->mainbox;
 
 	DEBUG_FOOTPRINT();
 
@@ -80,17 +81,23 @@ void fx_bottom_initialize(FxMain* fxmain)
 						  , G_CALLBACK(fx_bottom_on_addfriend_clicked)
 						  , fxmain);
 	if(user->boundToMobile == BOUND_MOBILE_ENABLE){
-		icon = gtk_image_new_from_file(SKIN_DIR"myselfsms.png");
+		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"myselfsms.png" , 16 , 16 , NULL);
+		icon = gtk_image_new_from_pixbuf(pb);
+		g_object_unref(pb);
 		gtk_toolbar_append_item(GTK_TOOLBAR(fxbottom->toolbar)
 							  , "自己" , "给自己发短信" , NULL , icon
 							  , G_CALLBACK(fx_bottom_on_sendtome_clicked)
 							  , fxmain);
-		icon = gtk_image_new_from_file(SKIN_DIR"groupsend.png");
+		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"groupsend.png" , 16 , 16 , NULL);
+		icon = gtk_image_new_from_pixbuf(pb);
+		g_object_unref(pb);
 		gtk_toolbar_append_item(GTK_TOOLBAR(fxbottom->toolbar)
 							  , "群发" , "群发短信" , NULL , icon
 							  , G_CALLBACK(fx_bottom_on_sendtomany_clicked)
 							  , fxmain);
-		icon = gtk_image_new_from_file(SKIN_DIR"directsms.png");
+		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"directsms.png" , 16 , 16 , NULL);
+		icon = gtk_image_new_from_pixbuf(pb);
+		g_object_unref(pb);
 		gtk_toolbar_append_item(GTK_TOOLBAR(fxbottom->toolbar)
 							  , "短信" , "发送直接短信" , NULL , icon
 							  , G_CALLBACK(fx_bottom_on_directsms_clicked)
@@ -101,7 +108,9 @@ void fx_bottom_initialize(FxMain* fxmain)
 						  , "查询" , "查询任意移动用户信息(归属地等)" , NULL , icon
 						  , G_CALLBACK(fx_bottom_on_lookup_clicked)
 						  , fxmain);
-	icon = gtk_image_new_from_file(SKIN_DIR"home.png");
+	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"home.png" , 16 , 16 , NULL);
+	icon = gtk_image_new_from_pixbuf(pb);
+	g_object_unref(pb);
 	gtk_toolbar_append_item(GTK_TOOLBAR(fxbottom->toolbar)
 						  , "帮助" , "到Openfetion页面获取帮助或外馈意见"
 						  , NULL , icon , G_CALLBACK(fx_bottom_on_help_clicked) , NULL);
@@ -113,7 +122,7 @@ void fx_bottom_free(FxBottom* fxbottom)
 	DEBUG_FOOTPRINT();
 	free(fxbottom);
 }
-void fx_bottom_on_setting_clicked(GtkWidget* widget , gpointer data)
+void fx_bottom_on_setting_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	FxMain *fxmain = (FxMain*)data;
 	FxSet *fxset = fx_set_new(fxmain);
@@ -125,7 +134,7 @@ void fx_bottom_on_setting_clicked(GtkWidget* widget , gpointer data)
 	gtk_widget_destroy(fxset->dialog);
 }
 
-void fx_bottom_on_sendtome_clicked(GtkWidget* widget , gpointer data)
+void fx_bottom_on_sendtome_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	FxMain* fxmain = (FxMain*)data;
 	FxMyself* fxmyself = fx_myself_new(fxmain);
@@ -142,7 +151,7 @@ void fx_bottom_on_sendtome_clicked(GtkWidget* widget , gpointer data)
 	gtk_widget_destroy(fxmyself->dialog);
 }
 
-void fx_bottom_on_sendtomany_clicked(GtkWidget* widget , gpointer data)
+void fx_bottom_on_sendtomany_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	FxMain* fxmain = (FxMain*)data;
 	FxMany* fxmany = fx_many_new(fxmain);
@@ -160,7 +169,7 @@ void fx_bottom_on_sendtomany_clicked(GtkWidget* widget , gpointer data)
 	free(fxmany);
 }
 
-void fx_bottom_on_addfriend_clicked(GtkWidget* widget , gpointer data)
+void fx_bottom_on_addfriend_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	FxMain* fxmain = (FxMain*)data;
 	FxAddbuddy *fxaddbuddy = fx_addbuddy_new(fxmain);
@@ -172,7 +181,7 @@ void fx_bottom_on_addfriend_clicked(GtkWidget* widget , gpointer data)
 	gtk_widget_destroy(fxaddbuddy->dialog);
 	free(fxaddbuddy);
 }
-void fx_bottom_on_lookup_clicked(GtkWidget* widget , gpointer data)
+void fx_bottom_on_lookup_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	FxMain* fxmain = (FxMain*)data;
 	FxLookup* fxlookup = fx_lookup_new(fxmain);

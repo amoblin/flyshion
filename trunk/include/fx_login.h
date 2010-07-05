@@ -45,10 +45,11 @@ extern void fx_login_set_last_login_state(FxLogin* fxlogin , StateType state);
 
 extern void* fx_login_thread_func(void* data);
 
-extern void fx_login_action_func(GtkWidget* widget , gpointer data);
+extern void fx_login_action_func(GtkWidget* UNUSED(widget) , gpointer data);
 
 extern void fx_login_user_change_func(GtkWidget* widget , gpointer data);
 
-extern gboolean fx_login_proxy_button_func(GtkWidget *widget , GdkEventButton *event , gpointer data);
+extern gboolean fx_login_proxy_button_func(GtkWidget *UNUSED(widget)
+		, GdkEventButton *event , gpointer data);
 
 #endif

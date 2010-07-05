@@ -331,7 +331,7 @@ int fetion_sip_get_type(const char* sip)
 char* fetion_sip_get_response(FetionSip* sip)
 {
 	char *res;
-	int len , n , c , c1;
+	unsigned int len , n , c , c1;
 	char buf[2048];
 	bzero(buf , sizeof(buf));
 	c = tcp_connection_recv(sip->tcp , buf , sizeof(buf) - 2);
@@ -366,8 +366,9 @@ SipMsg* fetion_sip_listen(FetionSip* sip)
 {
 	char *buf , *pos , *missingStr = NULL , *tmp = NULL;
 	char *strBeforeSpt = NULL;
-	int strBeforeSptLen = 0;
-	int bodyLen , len , msglen , missingLen , rereceiveLen , msgCurrentLen;
+	unsigned int strBeforeSptLen = 0;
+	unsigned int len , msglen , missingLen , rereceiveLen , msgCurrentLen;
+	int bodyLen;
 	SipMsg *msglist = NULL;
 	SipMsg* msg; 
 	bzero(buffer , sizeof(buffer));
@@ -474,7 +475,7 @@ SipMsg* fetion_sip_listen(FetionSip* sip)
 			bzero(msg->message , msglen + 1);
 			strncpy(msg->message , buf , len + 4);
 			pos += 4;
-			if(strlen(pos) == bodyLen)
+			if(strlen(pos) == (unsigned int)bodyLen)
 			{
 				strcpy(msg->message + len + 4 , pos);
 				if(msglist == NULL)
@@ -488,7 +489,7 @@ SipMsg* fetion_sip_listen(FetionSip* sip)
 				}
 				return msglist;
 			}
-			if(strlen(pos) < bodyLen)
+			if(strlen(pos) < (unsigned int)bodyLen)
 			{
 				msgCurrentLen = len + 4;
 				strcpy(msg->message + msgCurrentLen , pos);
@@ -848,8 +849,7 @@ static char *generate_action_accept_body(Share *share)
 {
 	xmlChar *buf = NULL;
 	xmlDocPtr doc;
-	xmlNodePtr node , fnode , root;
-	char size[16];
+	xmlNodePtr node , root;
 	char body[] = "<share-content></share-content>";
 
 	DEBUG_FOOTPRINT();
@@ -963,7 +963,7 @@ void fetion_sip_parse_sysmsg(const char* sipmsg , int *type
 	xmlFree(res);
 
 }
-
+#define _XOPEN_SOURCE
 struct tm convert_date(const char* date)
 {
 	char* pos = strstr(date , ",") + 2;

@@ -108,13 +108,13 @@ void* fx_lookup_ok_thread(void* data)
 	gdk_threads_leave();	
 	return NULL;
 }
-void fx_lookup_on_ok_clicked(GtkWidget* widget , gpointer data)
+void fx_lookup_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	DEBUG_FOOTPRINT();
 
 	g_thread_create(fx_lookup_ok_thread , data , FALSE , NULL);
 }
-void fx_lookup_on_cancel_clicked(GtkWidget* widget , gpointer data)
+void fx_lookup_on_cancel_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	DEBUG_FOOTPRINT();
 

@@ -127,6 +127,9 @@
 /* Use Gstreamer for playing sound */
 #undef USE_GSTREAMER
 
+/* Use libnotify for notification */
+#undef USE_LIBNOTIFY
+
 /* Version number of package */
 #undef VERSION
 

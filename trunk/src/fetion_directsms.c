@@ -24,7 +24,7 @@ static void
 parse_option_verification(User *user , const char *in)
 {
 	int n;
-	char *pos , *pos1 , w[256];
+	char *pos , w[256];
 	xmlDocPtr doc;
 	xmlNodePtr node;
 	xmlChar *res;
@@ -32,9 +32,7 @@ parse_option_verification(User *user , const char *in)
 	user->verification = fetion_verification_new();
 	bzero(w , sizeof(w));
 	fetion_sip_get_attr(in , "W" , w);
-	printf("%s\n" , w);
 	pos = strstr(w , "thm=\"") + 5;
-	printf("%s\n" , pos);
 	n = strlen(pos) - strlen(strstr(pos , "\""));
 	user->verification->algorithm = (char*)malloc(n + 1);
 	bzero(user->verification->algorithm , n + 1);
@@ -108,7 +106,7 @@ static int
 parse_subscribe_response(const char *in , char **error)
 {
 	char *pos , c[4];
-	int code , n;
+	int n;
 	xmlDocPtr doc;
 	xmlNodePtr node;
 	xmlChar *res;
@@ -176,12 +174,6 @@ int fetion_directsms_send_subscribe(User *user , const char *code , char **error
 	tcp_connection_recv(tcp , http , sizeof(http));
 	printf("%s\n" , http);
 	return parse_subscribe_response(http , error);
-
-}
-
-static void
-parse_send_sms_response(User *user , const char *msg)
-{
 
 }
 

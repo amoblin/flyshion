@@ -1,5 +1,6 @@
 #include "fetion_include.h"
 #include <openssl/md5.h>
+#include <libgen.h>
 
 #define GUID "9741dc51-43d3-448b-bfc2-dbf4661a27f7"
 #define SESSIONID "xz4BBcV9741dc5143d3448bbfc2dbf4661a27f7"
@@ -29,7 +30,7 @@ Share *fetion_share_new_with_path(const char *sipuri , const char *absolutePath)
 	strcpy(share->sipuri , sipuri);
 	strcpy(share->absolutePath , absolutePath);
 
-	name = (char*)basename(absolutePath);
+	name = basename((char*)absolutePath);
 	strcpy(share->filename , name);
 	share->filesize = fetion_share_get_filesize(absolutePath);
 	md5 = fetion_share_compute_md5(absolutePath);
@@ -62,7 +63,6 @@ static char* generate_share_request_body(Share *share)
 	fnode = xmlNewChild(node , NULL , BAD_CAST "file" , NULL);
 	xmlNewProp(fnode , BAD_CAST "name" , BAD_CAST share->filename);
 	bzero(size , sizeof(size));
-	sprintf(size , "%ld" , share->filesize);
 	xmlNewProp(fnode , BAD_CAST "size" , BAD_CAST size);
 	xmlNewProp(fnode , BAD_CAST "url" , BAD_CAST "");
 	xmlNewProp(fnode , BAD_CAST "md5" , BAD_CAST share->md5);
@@ -79,7 +79,6 @@ static void fetion_start_transfer(FetionSip *sip){
 	SipHeader *kheader = NULL;
 	SipHeader *theader = NULL;
 	char *res = NULL;
-	char *body = NULL;
 	char buf[2048];
 
 	DEBUG_FOOTPRINT();

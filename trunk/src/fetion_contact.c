@@ -40,6 +40,7 @@ Contact* fetion_contact_list_find_by_userid(Contact* contactlist , const char* u
 {
 	Contact* cl_cur;
 	foreach_contactlist(contactlist , cl_cur){
+		//printf("%s , %s\n" , cl_cur->userId , userid);
 		if(strcmp(cl_cur->userId , userid) == 0)
 			return cl_cur;
 	}
@@ -102,41 +103,6 @@ int fetion_contact_subscribe_only(User* user)
 	debug_info("Start subscribe contact list");
 	tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
-	return 1;
-}
-int fetion_contact_subscribe(User* user)
-{
-
-	FetionSip* sip;
-	SipMsg *msg , *pos;
-	int messageType , notificationEvent , notificationType;
-	char* notificationBody;
-	fetion_contact_subscribe_only(user);
-	while(1)
-	{
-		if(tcp_connection_select_read(sip->tcp) > 0)
-			msg = fetion_sip_listen(sip);
-		else
-			break;
-		pos = msg;
-		while(pos != NULL)
-		{
-			messageType = fetion_sip_get_type(pos->message);
-			if(messageType != SIP_NOTIFICATION )
-				goto gotonext;
-			fetion_sip_parse_notification(pos->message
-										, &notificationType
-										, &notificationEvent
-										, &notificationBody);
-		   	if(notificationType == NOTIFICATION_TYPE_PRESENCE && notificationEvent == NOTIFICATION_EVENT_PRESENCECHANGED)
-				fetion_user_parse_presence_body(notificationBody , user);
-		gotonext:
-			pos = pos->next;
-		}
-		if(msg != NULL)
-			fetion_sip_message_free(msg);
-	}
-	debug_info("Subscribe contact list success");
 	return 1;
 }
 Contact* fetion_contact_get_contact_info(User* user , const char* userid)
@@ -415,83 +381,6 @@ Contact* fetion_contact_handle_contact_request(User* user
 	return NULL;
 }
 
-int fetion_contact_save(User* user)
-{
-#if 0
-	FILE* fd;
-	char filename[] = "contact.dat";
-	char* filepath;
-	Contact* pos = user->contactList;	
-	Config* config = user->config;
-	int n;
-
-	n = strlen(config->userPath) + strlen(filename) + 2;
-	filepath = (char*)malloc(n);
-	bzero(filepath , n);
-	strcpy(filepath , config->userPath);
-	strcat(filepath , "/");
-	strcat(filepath , filename);
-	
-	fd = fopen(filepath , "w+");
-	debug_info("Storing contact list to local disk");
-	if(fd == NULL)
-	{
-		debug_info("Store contact list to local disk failed");
-		return -1;
-	}
-	while(pos != NULL)
-	{
-		fwrite(pos , sizeof(Contact) , 1 , fd);
-		pos = pos->nextNode;
-	}
-	fclose(fd);
-	free(filepath);
-	return 1;
-#endif
-}
-void fetion_contact_load(User* user)
-{
-#if 0
-	FILE* fd;
-	char filename[] = "contact.dat";
-	char* filepath;
-	Contact *pos , *contactlist = NULL;	
-	Config* config = user->config;
-	int n ;
-	n = strlen(config->userPath) + strlen(filename) + 2;
-	filepath = (char*)malloc(n);
-	bzero(filepath , n);
-	strcpy(filepath , config->userPath);
-	strcat(filepath , "/");
-	strcat(filepath , filename);
-	fd = fopen(filepath , "r");
-	debug_info("Reading contact list from local disk");
-	if(fd == NULL)
-	{
-		debug_info("Reading contact list from local disk failed");
-		return;
-	}
-	while(!feof(fd))
-	{
-		pos = fetion_contact_new();
-		n = fread(pos , sizeof(Contact) , 1 , fd);
-		pos->preNode = NULL;
-		pos->nextNode = NULL;
-		pos->imageChanged = IMAGE_NOT_INITIALIZED;
-		pos->state = 0;
-		if(n > 0)
-			if(contactlist == NULL)
-				contactlist = pos;
-			else
-				fetion_contact_list_append(contactlist , pos);
-		else
-			free(pos);
-	}
-	user->contactList = contactlist;
-	fclose(fd);
-	free(filepath);
-#endif
-}
 char* generate_subscribe_body(const char* version)
 {
 	xmlChar *buf;

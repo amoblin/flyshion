@@ -72,7 +72,7 @@ void fx_edit_free(FxEdit* fxedit)
 	DEBUG_FOOTPRINT();
 	free(fxedit);
 }
-void fx_edit_on_ok_clicked(GtkWidget* widget , gpointer data)
+void fx_edit_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	FxEdit* fxedit = (FxEdit*)data;
 	FxMain* fxmain = fxedit->fxmain;
@@ -99,7 +99,7 @@ void fx_edit_on_ok_clicked(GtkWidget* widget , gpointer data)
 	}
 }
 
-void fx_edit_on_cancel_clicked(GtkWidget* widget , gpointer data)
+void fx_edit_on_cancel_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	GtkWidget* dialog = (GtkWidget*)data;
 

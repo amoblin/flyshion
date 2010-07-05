@@ -74,7 +74,7 @@ void fx_gedit_free(FxGEdit* fxgedit)
 
 	free(fxgedit);
 }
-void fx_gedit_on_ok_clicked(GtkWidget* widget , gpointer data)
+void fx_gedit_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	FxGEdit* fxgedit = (FxGEdit*)data;
 	FxMain* fxmain = fxgedit->fxmain;
@@ -102,7 +102,7 @@ void fx_gedit_on_ok_clicked(GtkWidget* widget , gpointer data)
 	}
 }
 
-void fx_gedit_on_cancel_clicked(GtkWidget* widget , gpointer data)
+void fx_gedit_on_cancel_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	GtkWidget* dialog = (GtkWidget*)data;
 

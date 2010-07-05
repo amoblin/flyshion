@@ -118,7 +118,7 @@ void fx_myself_initialize(FxMyself* fxmyself)
 
 	fxmyself->headbox = gtk_table_new(2 , 10 , FALSE );
 
-	fxmyself->headpix = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.jpg" ,
+	fxmyself->headpix = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.png" ,
 			40 , 40 , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxmyself->dialog) , fxmyself->headpix);
 	fxmyself->headimage = gtk_image_new_from_pixbuf(fxmyself->headpix);
@@ -197,7 +197,7 @@ void fx_myself_initialize(FxMyself* fxmyself)
 	gtk_widget_show_all(fxmyself->dialog);
 	gtk_widget_hide(fxmyself->dialog);
 }
-void fx_myself_on_close_clicked(GtkWidget* widget , gpointer data)
+void fx_myself_on_close_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 {
 	FxMyself* fxmyself = (FxMyself*)data;
 
@@ -206,7 +206,7 @@ void fx_myself_on_close_clicked(GtkWidget* widget , gpointer data)
 	gtk_dialog_response(GTK_DIALOG(fxmyself->dialog) , GTK_RESPONSE_OK);
 }
 
-void fx_myself_on_send_clicked(GtkWidget* widget , gpointer data)
+void fx_myself_on_send_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 {
 
 	FxMyself* fxmyself = (FxMyself*)data;
