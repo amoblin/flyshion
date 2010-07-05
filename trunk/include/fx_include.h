@@ -24,12 +24,13 @@
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <gdk/gdkkeysyms.h>
 #include <glib.h>
-#ifdef HAVE_LIBNOTIFY
+#ifdef USE_LIBNOTIFY
  #include <libnotify/notify.h>
 #endif
 #include "fetion_include.h"
 #include "fx_types.h"
 #include "fx_util.h"
+#include "fx_sound.h"
 #include "fx_tree.h"
 #include "fx_head.h"
 #include "fx_bottom.h"

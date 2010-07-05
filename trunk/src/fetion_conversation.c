@@ -272,7 +272,6 @@ int fetion_conversation_send_nudge(Conversation* conversation)
 char* generate_invite_friend_body(const char* sipuri)
 {
 	xmlChar *buf;
-	char *pos , *res;
 	xmlDocPtr doc;
 	xmlNodePtr node;
 	char body[] = "<args></args>";
@@ -288,7 +287,6 @@ char* generate_invite_friend_body(const char* sipuri)
 char* generate_send_nudge_body()
 {
 	xmlChar *buf;
-	char *pos , *res;
 	xmlDocPtr doc;
 	xmlNodePtr node;
 	char body[] = "<is-composing></is-composing>";

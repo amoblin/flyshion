@@ -155,7 +155,7 @@ GtkTreeModel* fx_tree_create_model(User* user)
 						 , G_ONLINE_COUNT_COL , 0 , -1);
 	}
 	foreach_contactlist(user->contactList , contact){
-		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.jpg"
+		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.png"
 				, config->iconSize , config->iconSize , NULL);
 		fx_tree_get_group_iter_by_id(GTK_TREE_MODEL(store) , contact->groupid , &iter );
 		if(contact->state > 0)
@@ -231,14 +231,14 @@ int fx_tree_get_buddy_iter_by_userid(GtkTreeModel* model , const char* userid , 
 	}
 	return -1;
 }
-static void fx_tree_on_hightlight_clicked(GtkWidget *widget , gpointer data)
+static void fx_tree_on_hightlight_clicked(GtkWidget *UNUSED(widget) , gpointer UNUSED(data))
 {
 	if(all_light)
 		all_light = 0;
 	else
 		all_light = 1;
 }
-void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* tree
+static void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* UNUSED(tree)
 		, GtkTreePath* path , GdkEventButton* event , GtkTreeIter iter)
 {
 	char *sipuri , *groupname , *userid , *mobileno , *carrier;
@@ -277,14 +277,14 @@ void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* tree
 						 , -1);
 		profileargs = fx_args_new(fxmain , iter , userid , 0);
 		chatargs = fx_args_new(fxmain , iter , sipuri , 0);
-		fx_tree_create_menu("发送即时消息" , SKIN_DIR"im.gif" , menu
+		fx_tree_create_menu("发送即时消息" , SKIN_DIR"myselfsms.png" , menu
 						  , ((serviceStatus == BASIC_SERVICE_ABNORMAL
 								  && (carrierStatus == CARRIER_STATUS_CLOSED || (strlen(carrier)!= 0 && strlen(mobileno) == 0)))
 						  || relationStatus == RELATION_STATUS_UNAUTHENTICATED)
 						  ? FALSE : TRUE
 						  , fx_tree_on_chatmenu_clicked , chatargs);
 
-		fx_tree_create_menu("查看好友信息" , SKIN_DIR"profile.gif"
+		fx_tree_create_menu("查看好友信息" , SKIN_DIR"profile.png"
 						, menu , TRUE , fx_tree_on_profilemenu_clicked , profileargs);
 #if 0
 		fx_tree_create_menu("发送文件" , SKIN_DIR"sendfile.png"
@@ -293,13 +293,13 @@ void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* tree
 		fx_tree_create_menu("查看聊天记录" , SKIN_DIR"history.png"
 						, menu , TRUE ,  fx_tree_on_historymenu_clicked , profileargs);
 
-		fx_tree_create_menu("刷新好友信息" , SKIN_DIR"refresh.gif"
+		fx_tree_create_menu("刷新好友信息" , SKIN_DIR"refresh.png"
 						, menu , TRUE ,  fx_tree_on_reload_clicked , profileargs);
 
-		fx_tree_create_menu("修改备注名称" , SKIN_DIR"rename.gif"
+		fx_tree_create_menu("修改备注名称" , SKIN_DIR"edit.png"
 						, menu , TRUE , fx_tree_on_editmenu_clicked , profileargs);
 
-		fx_tree_create_menu( !all_light ? "所有好友高亮" : "在线友好高亮" , SKIN_DIR"sendfile.png"
+		fx_tree_create_menu( !all_light ? "所有好友高亮" : "在线友好高亮" , SKIN_DIR"hilight.png"
 						, menu , TRUE , fx_tree_on_hightlight_clicked , NULL);
 
 		fx_tree_create_menu(iconsize > 30 ? "使用小图标" : "使用大图标"
@@ -314,7 +314,7 @@ void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* tree
 		if(groupid != BUDDY_LIST_STRANGER)
 		{
 
-			moveItem = fx_tree_create_menu("将好友移动到" , SKIN_DIR"move.gif"
+			moveItem = fx_tree_create_menu("将好友移动到" , SKIN_DIR"move.png"
 							, menu , TRUE , NULL , NULL);
 			/*add group child menu*/
 			gtk_tree_model_get_iter_root(GTK_TREE_MODEL(model) , &groupiter);
@@ -342,8 +342,8 @@ void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* tree
 			, (event != NULL) ? event->button : 0 , gdk_event_get_time((GdkEvent*)event));
 }
 
-void fx_tree_create_group_menu(FxMain* fxmain , GtkWidget* tree
-		, GtkTreePath* path , GdkEventButton* event , GtkTreeIter iter)
+static void fx_tree_create_group_menu(FxMain* fxmain , GtkWidget* tree
+		, GdkEventButton* event , GtkTreeIter iter)
 {
 	GtkWidget* menu = NULL;
 	Args* args = fx_args_new(fxmain , iter ,  NULL , 0);
@@ -358,7 +358,7 @@ void fx_tree_create_group_menu(FxMain* fxmain , GtkWidget* tree
 					 , G_ID_COL		   , &groupid , -1);
 	fx_tree_create_menu("添加新分组" , SKIN_DIR"myselfsms.png"
 					, menu , TRUE , fx_tree_on_gaddmenu_clicked , fxmain);
-	fx_tree_create_menu("修改分组名称" , SKIN_DIR"rename.gif"
+	fx_tree_create_menu("修改分组名称" , SKIN_DIR"edit.png"
 					, menu , (groupid == BUDDY_LIST_NOT_GROUPED || groupid == BUDDY_LIST_STRANGER) ? FALSE : TRUE
 					, fx_tree_on_geditmenu_clicked , args);
 	fx_tree_create_menu("删除该分组" , SKIN_DIR"delete.png"
@@ -376,8 +376,11 @@ GtkWidget* fx_tree_create_menu(const char* name
 							 , void (*func)(GtkWidget* item , gpointer data)
 							 , gpointer data)
 {
-	GtkWidget* item = gtk_image_menu_item_new_with_label(name);
-	GtkWidget* img = gtk_image_new_from_file(iconpath);
+	GtkWidget *item = gtk_image_menu_item_new_with_label(name);
+	GdkPixbuf *pb = gdk_pixbuf_new_from_file_at_size(iconpath , 16 , 16 , NULL);
+	GtkWidget *img = gtk_image_new_from_pixbuf(pb);
+
+	g_object_unref(pb);
 
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item) , img);
 	gtk_menu_shell_append(GTK_MENU_SHELL(parent) , item);
@@ -410,7 +413,7 @@ void fx_tree_add_new_buddy(FxMain* fxmain , Contact* contact)
 						 , -1);
 		if(groupid == contact->groupid)
 		{
-			pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.jpg" , config->iconSize , config->iconSize , NULL);
+			pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.png" , config->iconSize , config->iconSize , NULL);
 			gtk_tree_store_append(GTK_TREE_STORE(model) , &nIter , &oIter);
 			gtk_tree_store_set(GTK_TREE_STORE(model), &nIter
 							, B_PIXBUF_COL		, pb
@@ -427,40 +430,11 @@ void fx_tree_add_new_buddy(FxMain* fxmain , Contact* contact)
 	while(gtk_tree_model_iter_next(model , &oIter));
 }
 
-void fx_tree_create_column(GtkWidget* tree , FxMain* fxmain)
-{
-	GtkCellRenderer* renderer;
-	GtkTreeViewColumn *col , *col0;
-
-	DEBUG_FOOTPRINT();
-
-	renderer = gtk_cell_renderer_pixbuf_new();
-	col = gtk_tree_view_column_new(); 
-    gtk_tree_view_column_pack_start(col, renderer , FALSE);
-	gtk_tree_view_column_add_attribute(col, renderer, "pixbuf", B_PIXBUF_COL);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(tree), col);
-	gtk_tree_view_column_set_cell_data_func(col
-										  , renderer
-										  , fx_tree_pixbuf_cell_data_func
-										  , fxmain
-										  , NULL);
-
-    renderer = gtk_cell_renderer_text_new();
-    col0 = gtk_tree_view_column_new(); 
-    gtk_tree_view_column_pack_start(col0, renderer , FALSE);
-	gtk_tree_view_column_set_cell_data_func(col0
-										  , renderer
-										  , fx_tree_text_cell_data_func
-										  , NULL
-										  , NULL);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(tree), col0);
-
-}
-void fx_tree_pixbuf_cell_data_func(GtkTreeViewColumn *col
+static void fx_tree_pixbuf_cell_data_func(GtkTreeViewColumn *UNUSED(col)
 								 , GtkCellRenderer *renderer
 								 , GtkTreeModel *model
 								 , GtkTreeIter *iter
-								 , gpointer user_data)
+								 , gpointer UNUSED(user_data))
 {
 	int state;
 	GtkTreePath* path = gtk_tree_model_get_path(model , iter);
@@ -478,11 +452,11 @@ void fx_tree_pixbuf_cell_data_func(GtkTreeViewColumn *col
 	}
 	gtk_tree_path_free(path);
 }
-void fx_tree_text_cell_data_func(GtkTreeViewColumn *col,
+static void fx_tree_text_cell_data_func(GtkTreeViewColumn *UNUSED(col),
 	   							 GtkCellRenderer   *renderer,
 								 GtkTreeModel      *model,
 								 GtkTreeIter       *iter,
-								 gpointer           user_data)
+								 gpointer           UNUSED(user_data))
 {
 	GtkTreePath* path = gtk_tree_model_get_path(model , iter);
 	char text[1024];
@@ -490,7 +464,7 @@ void fx_tree_text_cell_data_func(GtkTreeViewColumn *col,
 	char *name , *impression , *sipuri , *sid , *stateStr , *mobileno , *device , *carrier;
 	char stateStr1[96];
 	char statusStr[256];
-	int presence , status , size;
+	int presence , size;
 	int carrierStatus , relationStatus , serviceStatus;
 	/*buddylist data*/
 	int allCount , onlineCount;
@@ -587,6 +561,36 @@ void fx_tree_text_cell_data_func(GtkTreeViewColumn *col,
 	}
 	gtk_tree_path_free(path);
 }
+
+void fx_tree_create_column(GtkWidget* tree , FxMain* fxmain)
+{
+	GtkCellRenderer* renderer;
+	GtkTreeViewColumn *col , *col0;
+
+	DEBUG_FOOTPRINT();
+
+	renderer = gtk_cell_renderer_pixbuf_new();
+	col = gtk_tree_view_column_new(); 
+    gtk_tree_view_column_pack_start(col, renderer , FALSE);
+	gtk_tree_view_column_add_attribute(col, renderer, "pixbuf", B_PIXBUF_COL);
+	gtk_tree_view_append_column(GTK_TREE_VIEW(tree), col);
+	gtk_tree_view_column_set_cell_data_func(col
+										  , renderer
+										  , fx_tree_pixbuf_cell_data_func
+										  , fxmain
+										  , NULL);
+
+    renderer = gtk_cell_renderer_text_new();
+    col0 = gtk_tree_view_column_new(); 
+    gtk_tree_view_column_pack_start(col0, renderer , FALSE);
+	gtk_tree_view_column_set_cell_data_func(col0
+										  , renderer
+										  , fx_tree_text_cell_data_func
+										  , NULL
+										  , NULL);
+	gtk_tree_view_append_column(GTK_TREE_VIEW(tree), col0);
+
+}
 void* fx_tree_update_portrait_thread_func(void* data)
 {
 	FxMain* fxmain = (FxMain*)data;
@@ -601,7 +605,6 @@ void* fx_tree_update_portrait_thread_func(void* data)
 	DEBUG_FOOTPRINT();
 	sleep(1);
 
-	fetion_user_save(user);
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(fxmain->mainPanel->treeView));
 	gtk_tree_model_get_iter_root(model , &iter);
 	do{
@@ -638,8 +641,9 @@ void* fx_tree_update_portrait_thread_func(void* data)
 	while(gtk_tree_model_iter_next(model , &iter));
 	return NULL;
 }
+
 void fx_tree_on_double_click(GtkTreeView *treeview
-		, GtkTreePath *path , GtkTreeViewColumn  *col , gpointer data)
+		, GtkTreePath *path , GtkTreeViewColumn  *UNUSED(col) , gpointer data)
 {
 	FxMain* fxmain = (FxMain*)data;
 	GtkTreeModel* model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
@@ -688,7 +692,7 @@ void fx_tree_on_double_click(GtkTreeView *treeview
 			gtk_tree_view_expand_row(treeview , path , TRUE);
 	}
 }
-gboolean fx_tree_on_rightbutton_click(GtkWidget* tree
+gboolean fx_tree_on_rightbutton_click(GtkWidget* UNUSED(tree)
 		, GdkEventButton* event , gpointer data)
 {
 	GtkTreeIter iter;
@@ -716,14 +720,14 @@ gboolean fx_tree_on_rightbutton_click(GtkWidget* tree
 		if(depth == 2){
 			fx_tree_create_buddy_menu(fxmain , fxtree->treeView , path , event , iter);
 		}else{
-			fx_tree_create_group_menu(fxmain , fxtree->treeView , path , event , iter);
+			fx_tree_create_group_menu(fxmain , fxtree->treeView , event , iter);
 		}
 		gtk_tree_path_free(path);
 		return TRUE;
 	}
 	return FALSE;
 }
-void fx_tree_on_chatmenu_clicked(GtkWidget* widget , gpointer data)
+void fx_tree_on_chatmenu_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	Args* args = (Args*)data;
 	FxMain* fxmain = args->fxmain;
@@ -735,7 +739,7 @@ void fx_tree_on_chatmenu_clicked(GtkWidget* widget , gpointer data)
 	free(args);
 }
 
-void fx_tree_on_profilemenu_clicked(GtkWidget* widget , gpointer data)
+void fx_tree_on_profilemenu_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	Args* args = (Args*)data;
 	FxMain* fxmain = args->fxmain;
@@ -809,7 +813,7 @@ static void* fx_tree_on_send_thread(void *data){
 	return NULL;
 }
 
-void fx_tree_on_sendfile_clicked(GtkWidget* widget , gpointer data)
+void fx_tree_on_sendfile_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	Args *args = (Args*)data;
 	FxMain *fxmain = args->fxmain;
@@ -823,9 +827,8 @@ void fx_tree_on_sendfile_clicked(GtkWidget* widget , gpointer data)
 	char *filename = NULL;
 	char *sipuri = NULL;
 	Share *share = NULL;
-	FetionSip *sip = NULL;
 	FxList *fxlist = NULL;
-	GThread thread;
+
 	long long filesize;
 	char text[1024];
 	int response = 0;
@@ -877,7 +880,7 @@ void fx_tree_on_sendfile_clicked(GtkWidget* widget , gpointer data)
 	gtk_widget_destroy(fxshare->dialog);
 }
 
-void fx_tree_on_historymenu_clicked(GtkWidget* widget , gpointer data)
+void fx_tree_on_historymenu_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	Args* args = (Args*)data;
 	FxMain* fxmain = args->fxmain;
@@ -901,7 +904,7 @@ void fx_tree_on_historymenu_clicked(GtkWidget* widget , gpointer data)
 	free(args);
 }
 
-void fx_tree_on_editmenu_clicked(GtkWidget* widget , gpointer data)
+void fx_tree_on_editmenu_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	Args* args = (Args*)data;
 	FxMain* fxmain = args->fxmain;
@@ -917,17 +920,8 @@ void fx_tree_on_editmenu_clicked(GtkWidget* widget , gpointer data)
 	free(fxedit);
 	free(args);
 }
-void* save_contact(void* data)
-{
-	User* user = (User*)data;
 
-	DEBUG_FOOTPRINT();
-
-	fetion_contact_save(user);
-	return NULL;
-}
-
-void fx_tree_on_deletemenu_clicked(GtkWidget* widget , gpointer data)
+void fx_tree_on_deletemenu_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	Args* args = (Args*)data;
 	FxMain* fxmain = args->fxmain;
@@ -949,7 +943,6 @@ void fx_tree_on_deletemenu_clicked(GtkWidget* widget , gpointer data)
 	{
 		fetion_contact_delete_buddy(fxmain->user , userid);
 		gtk_tree_store_remove(GTK_TREE_STORE(model) , &iter);
-		g_thread_create(save_contact , fxmain->user , FALSE , NULL);
 	}
 	free(args);
 	gtk_widget_destroy(dialog);
@@ -992,7 +985,7 @@ void* fx_tree_reload_thread(void* data)
 	sprintf(portraitPath , "%s/%s.jpg" , config->iconPath , sid);
 	pb = gdk_pixbuf_new_from_file_at_size(portraitPath , 25 , 25 , NULL);
 	if(pb == NULL)
-		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.jpg" , 25 , 25 , NULL);
+		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.png" , 25 , 25 , NULL);
 
 	name = (contact->nickname == NULL || strlen(contact->localname) == 0)
 			? contact->nickname : contact->localname;
@@ -1012,14 +1005,14 @@ void* fx_tree_reload_thread(void* data)
 
 }
 
-void fx_tree_on_reload_clicked(GtkWidget* widget , gpointer data)
+void fx_tree_on_reload_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	DEBUG_FOOTPRINT();
 
 	g_thread_create(fx_tree_reload_thread , data , FALSE , NULL);
 }
 
-void fx_tree_on_iconchange_clicked(GtkWidget* widget , gpointer data)
+void fx_tree_on_iconchange_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	FxMain *fxmain = (FxMain*)data;
 	FxTree *fxtree = fxmain->mainPanel;
@@ -1071,7 +1064,7 @@ void fx_tree_on_iconchange_clicked(GtkWidget* widget , gpointer data)
 					free(sid);
 					pb = gdk_pixbuf_new_from_file(path , NULL);
 					if(pb == NULL)
-						pb = gdk_pixbuf_new_from_file(SKIN_DIR"fetion.jpg" , NULL);
+						pb = gdk_pixbuf_new_from_file(SKIN_DIR"fetion.png" , NULL);
 				}
 				pb = gdk_pixbuf_scale_simple(pb , config->iconSize , config->iconSize , GDK_INTERP_NEAREST);
 				gtk_tree_store_set(GTK_TREE_STORE(model) , &pointer
@@ -1085,7 +1078,7 @@ void fx_tree_on_iconchange_clicked(GtkWidget* widget , gpointer data)
 	}
 	while(gtk_tree_model_iter_next(model , &iter));
 }
-void fx_tree_on_gaddmenu_clicked(GtkWidget* widget , gpointer data)
+void fx_tree_on_gaddmenu_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	FxMain* fxmain = (FxMain*)data;
 	FxAddGroup* fxaddgroup = fx_add_group_new(fxmain);
@@ -1098,7 +1091,7 @@ void fx_tree_on_gaddmenu_clicked(GtkWidget* widget , gpointer data)
 	fx_add_group_free(fxaddgroup);
 }
 
-void fx_tree_on_gdeletemenu_clicked(GtkWidget* widget , gpointer data)
+void fx_tree_on_gdeletemenu_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	Args* args = (Args*)data;
 	FxMain* fxmain = args->fxmain;
@@ -1128,7 +1121,7 @@ void fx_tree_on_gdeletemenu_clicked(GtkWidget* widget , gpointer data)
 	free(args);
 	gtk_widget_destroy(dialog);
 }
-void fx_tree_on_geditmenu_clicked(GtkWidget* widget , gpointer data)
+void fx_tree_on_geditmenu_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	Args* args = (Args*)data;
 	FxMain* fxmain = args->fxmain;
@@ -1147,7 +1140,7 @@ void fx_tree_on_geditmenu_clicked(GtkWidget* widget , gpointer data)
 	gtk_widget_destroy(fxgedit->dialog);
 	free(args);
 }
-void fx_tree_on_movemenu_clicked(GtkWidget* widget , gpointer data)
+void fx_tree_on_movemenu_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	Args *args = (Args*)data;
 	int groupid = args->i;
@@ -1276,7 +1269,7 @@ gboolean fx_tree_on_show_tooltip(GtkWidget* widget
 	GdkPixbuf *pb;
 	char *sipuri , *name , *impression , *sid , *mobileno , *carrier;
 	int serviceStatus , carrierStatus , relationStatus;
-	char text[1024];
+	char text[2048];
 	char phonetext[128];
 	char iconpath[100];
 
@@ -1333,7 +1326,7 @@ gboolean fx_tree_on_show_tooltip(GtkWidget* widget
 	free(sid);
 	pb = gdk_pixbuf_new_from_file_at_size(iconpath , 80 , 80 , NULL);
 	if(pb == NULL)
-		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.jpg" , 80 , 80 , NULL);
+		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.png" , 80 , 80 , NULL);
 	gtk_tooltip_set_markup(tip , text);
 	gtk_tooltip_set_icon(tip , pb);	
 	g_object_unref(pb);

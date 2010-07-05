@@ -25,8 +25,8 @@ extern FxProxy *fx_proxy_new(FxLogin *fxlogin);
 
 extern void fx_proxy_initialize(FxProxy *fxproxy);
 
-extern void fx_proxy_on_ok_clicked(GtkWidget *widget , gpointer data);
+extern void fx_proxy_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data);
 
-extern void fx_proxy_on_cancel_clicked(GtkWidget *widget , gpointer data);
+extern void fx_proxy_on_cancel_clicked(GtkWidget *UNUSED(widget) , gpointer data);
 
 #endif

@@ -51,7 +51,7 @@ void fx_head_initialize(FxMain* fxmain)
 	
 	DEBUG_FOOTPRINT();
 
-	pb = gdk_pixbuf_new_from_file_at_scale(SKIN_DIR"fetion.jpg" , 50 , 50 , TRUE , NULL);
+	pb = gdk_pixbuf_new_from_file_at_scale(SKIN_DIR"fetion.png" , 50 , 50 , TRUE , NULL);
 	fxhead->portrait = gtk_image_new_from_pixbuf(pb);
 	fxhead->portraitbox = gtk_event_box_new();
 	gtk_container_add(GTK_CONTAINER(fxhead->portraitbox) , fxhead->portrait);
@@ -227,7 +227,7 @@ void fx_head_set_state_image(FxMain* fxmain , StateType type)
 	}
 	free(statename);
 }
-void fx_head_popup_statemenu_func(GtkWidget* widget
+void fx_head_popup_statemenu_func(GtkWidget* UNUSED(widget)
 		, GdkEventButton* event , gpointer data)
 {
 	FxMain* fxmain = (FxMain*)data;
@@ -313,7 +313,8 @@ void fx_head_impre_event_func(GtkWidget* widget , GdkEventButton* event , gpoint
 			break;
 	};
 }
-gboolean fx_head_impre_focus_out_func(GtkWidget* widget , GdkEventFocus* event , gpointer data)
+gboolean fx_head_impre_focus_out_func(GtkWidget* UNUSED(widget)
+		, GdkEventFocus* UNUSED(event) , gpointer data)
 {
 	FxMain* fxmain = (FxMain*)data;
 	FxHead* fxhead = fxmain->headPanel;
@@ -350,7 +351,7 @@ gboolean fx_head_impre_activate_func(GtkWidget* widget , gpointer data)
 	}
 	return TRUE;
 }
-void fx_head_change_state_func(GtkWidget* widget , gpointer data)
+void fx_head_change_state_func(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	typedef struct 
 	{

@@ -114,13 +114,13 @@
 #define PACKAGE_NAME "OpenFetion"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "OpenFetion 1.6"
+#define PACKAGE_STRING "OpenFetion 1.6.1"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "openfetion"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1.6"
+#define PACKAGE_VERSION "1.6.1"
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
@@ -128,8 +128,11 @@
 /* Use Gstreamer for playing sound */
 #define USE_GSTREAMER 1
 
+/* Use libnotify for notification */
+#define USE_LIBNOTIFY 1
+
 /* Version number of package */
-#define VERSION "1.6"
+#define VERSION "1.6.1"
 
 /* Define to rpl_malloc if the replacement function should be used. */
 /* #undef malloc */

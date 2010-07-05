@@ -71,27 +71,29 @@ extern void fx_main_process_user_left(FxMain* fxmain , const char* sipmsg);
 /**
  * signal function
  */
-extern void fx_main_destroy(GtkWidget* widget , gpointer data);
+extern void fx_main_destroy(GtkWidget* UNUSED(widget) , gpointer UNUSED(data));
 
-extern gboolean fx_main_delete(GtkWidget* widget , GdkEvent* event , gpointer data);
+extern gboolean fx_main_delete(GtkWidget *widget , GdkEvent *UNUSED(event) , gpointer data);
 
-extern gboolean fx_main_window_state_func(GtkWidget* widget , GdkEventWindowState* event , gpointer data);
+extern gboolean fx_main_window_state_func(GtkWidget *widget
+		, GdkEventWindowState *event , gpointer UNUSED(data));
 
-extern void fx_main_tray_activate_func(GtkWidget* widget , gpointer data);
+extern void fx_main_tray_activate_func(GtkWidget *UNUSED(widget) , gpointer data);
 
-extern void fx_main_tray_popmenu_func(GtkWidget* widget , guint button , guint activate_time , gpointer data);
+extern void fx_main_tray_popmenu_func(GtkWidget* UNUSED(widget)
+		, guint button , guint activate_time , gpointer data);
 
 extern void* fx_main_listen_thread_func(void* data);
 
-extern void fx_main_message_func(GtkWidget* widget , gpointer data);
+extern void fx_main_message_func(GtkWidget *UNUSED(widget) , gpointer data);
 
 extern gboolean fx_main_register_func(User* user);
 
 extern gboolean fx_main_chat_keep_alive_func(TimeOutArgs* user);
 
-extern void fx_main_about_author_clicked(GtkWidget* widget , gpointer data);
+extern void fx_main_about_author_clicked(GtkWidget *UNUSED(widget) , gpointer UNUSED(data));
 
-extern void fx_main_about_fetion_clicked(GtkWidget* widget , gpointer data);
+extern void fx_main_about_fetion_clicked(GtkWidget *UNUSED(widget) , gpointer UNUSED(data));
 
 extern void fx_main_check_update_clicked(GtkWidget* widget , gpointer data);
 

@@ -73,9 +73,9 @@ am_openfetion_OBJECTS = openfetion-fetion_buddylist.$(OBJEXT) \
 	openfetion-fx_sysmsg.$(OBJEXT) openfetion-fx_util.$(OBJEXT) \
 	openfetion-fx_close.$(OBJEXT)
 openfetion_OBJECTS = $(am_openfetion_OBJECTS)
-openfetion_LDADD = $(LDADD)
-openfetion_LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(openfetion_LDFLAGS) \
-	$(LDFLAGS) -o $@
+am__DEPENDENCIES_1 =
+openfetion_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -118,6 +118,8 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LDFLAGS = @LDFLAGS@
+LIBNOTIFY_CFLAGS = @LIBNOTIFY_CFLAGS@
+LIBNOTIFY_LIBS = @LIBNOTIFY_LIBS@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LTLIBOBJS = @LTLIBOBJS@
@@ -181,15 +183,14 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-openfetion_CPPFLAGS = `xml2-config --cflags` `pkg-config --cflags gtk+-2.0 gthread-2.0` \
-					$(GSTREAMER_CFLAGS) -g\
+openfetion_CPPFLAGS = $(XML_CPPFLAGS) $(GTK_CFLAGS) \
+					$(GSTREAMER_CFLAGS) $(LIBNOTIFY_CFLAGS) -g -Wall\
 					-I../include -I../include/openfetion -I ../. \
-					-DSKIN_DIR=\"$(pkgdatadir)/skin/\" \
+					-DSKIN_DIR=\"../skin/\" \
 					-DRESOURCE_DIR=\"$(pkgdatadir)/resource/\"
 
-openfetion_LDFLAGS = `xml2-config --libs` \
-				   `pkg-config --libs gtk+-2.0 gthread-2.0` \
-				    $(GSTREAMER_LIBS) -lssl -lcrypto -lnotify
+openfetion_LDADD = $(XML_LIBS) $(GTK_LIBS) \
+				    $(GSTREAMER_LIBS) $(LIBNOTIFY_LIBS)
 
 openfetion_SOURCES = fetion_buddylist.c \
 					 fetion_config.c \
@@ -291,7 +292,7 @@ clean-binPROGRAMS:
 	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
 openfetion$(EXEEXT): $(openfetion_OBJECTS) $(openfetion_DEPENDENCIES) 
 	@rm -f openfetion$(EXEEXT)
-	$(openfetion_LINK) $(openfetion_OBJECTS) $(openfetion_LDADD) $(LIBS)
+	$(LINK) $(openfetion_OBJECTS) $(openfetion_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)

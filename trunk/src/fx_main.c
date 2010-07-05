@@ -19,6 +19,10 @@
  ***************************************************************************/
 
 #include "fx_include.h"
+#ifdef USE_GSTREAMER
+#include <gst/gst.h>
+#endif
+#include <sys/select.h>
 
 int window_pos_x;
 int window_pos_y;
@@ -37,6 +41,7 @@ FxMain* fx_main_new()
 	fxmain->shlist = fx_list_new(NULL);
 	return fxmain;
 }
+
 void fx_main_initialize(FxMain* fxmain)
 {
 	int window_width , window_height;
@@ -73,7 +78,7 @@ void fx_main_initialize(FxMain* fxmain)
 	gtk_window_set_icon(GTK_WINDOW(fxmain->window) , icon);
 	fxmain->trayIcon = gtk_status_icon_new_from_file(SKIN_DIR"user_offline.png");
 	gtk_status_icon_set_tooltip(fxmain->trayIcon , "OpenFetion");
-#ifdef HAVE_LIBNOTIFY
+#ifdef USE_LIBNOTIFY
 	fxmain->notify = notify_notification_new_with_status_icon("welcome"
 			, "" , NULL , fxmain->trayIcon);
 	notify_notification_set_timeout(fxmain->notify , 2500);
@@ -137,8 +142,10 @@ GtkWidget* fx_main_create_menu(const char* name
 							 , gpointer data
 							 )
 {
-	GtkWidget* item = gtk_image_menu_item_new_with_label(name);
-	GtkWidget* img = gtk_image_new_from_file(iconpath);
+	GtkWidget *item = gtk_image_menu_item_new_with_label(name);
+	GdkPixbuf *pb = gdk_pixbuf_new_from_file_at_size(iconpath , 16 , 16 , NULL);
+	GtkWidget *img = gtk_image_new_from_pixbuf(pb);
+	g_object_unref(pb);
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item) , img);
 	gtk_menu_shell_append(GTK_MENU_SHELL(parent) , item);
 	if(func != NULL)
@@ -202,7 +209,7 @@ void fx_main_process_presence(FxMain* fxmain , const char* xml)
 	char *name = NULL;
 	int oldstate , count;
 	Contact *contactlist = NULL;
-	Contact *contact , *contactToDelete;
+	Contact *contact;
 	User* user = fxmain->user;
 	Config *config = user->config;
 	GtkWidget* treeView = fxmain->mainPanel->treeView;
@@ -247,7 +254,7 @@ void fx_main_process_presence(FxMain* fxmain , const char* xml)
 			fx_tree_move_to_the_last(model , &iter);
 			fx_tree_move_to_the_first(model , &iter);
 
-#ifdef HAVE_LIBNOTIFY
+#ifdef USE_LIBNOTIFY
 			if(strcmp(crc , "unlogin")){
 				char notifySummary[256];
 				char notifyText[1024];
@@ -266,7 +273,7 @@ void fx_main_process_presence(FxMain* fxmain , const char* xml)
 						, contact->impression );
 				pb = gdk_pixbuf_new_from_file_at_size(iconPath , 48 , 48 , NULL);
 				if(pb == NULL){
-					pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.jpg" , 48 , 48 , NULL);
+					pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.png" , 48 , 48 , NULL);
 				}
 				notify_notification_update(fxmain->notify , notifySummary
 						, notifyText , NULL);
@@ -303,7 +310,8 @@ void fx_main_process_presence(FxMain* fxmain , const char* xml)
 	}
 }
 
-static void process_system_message(FxMain *fxmain , const char *sipmsg){
+static void process_system_message(const char *sipmsg)
+{
 	
 	int showonce , type;
 	char *msg , *url;
@@ -350,7 +358,7 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const char* sipms
 			{
 				free(sid);
 				sid = NULL;
-				process_system_message(fxmain , sipmsg);
+				process_system_message(sipmsg);
 				gdk_threads_leave();
 				return;
 			}
@@ -368,7 +376,7 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const char* sipms
 				mitem = fx_list_new(msg);
 				fx_list_append(fxmain->mlist , mitem );
 
-#ifdef HAVE_LIBNOTIFY
+#ifdef USE_LIBNOTIFY
 				char iconPath[256];
 				char notifySum[256];
 				char *senderSid;
@@ -638,8 +646,6 @@ void fx_main_process_incoming(FxMain* fxmain
 
 void fx_main_process_deregistration(FxMain* fxmain)
 {
-	GtkWidget *dialog;
-
 	DEBUG_FOOTPRINT();
 
 	gdk_threads_enter();
@@ -724,15 +730,16 @@ void fx_main_process_addbuddyapplication(FxMain* fxmain , const char* sipmsg)
 	strcpy(args->sipmsg , sipmsg);
 	g_thread_create(fx_main_process_addbuddyapplication_thread , args , FALSE , NULL);
 }
-void fx_main_destroy(GtkWidget* widget , gpointer data)
+void fx_main_destroy(GtkWidget* UNUSED(widget) , gpointer UNUSED(data))
 {
 	gtk_main_quit();
 }
-gboolean fx_main_delete(GtkWidget* widget , GdkEvent* event , gpointer data)
+gboolean fx_main_delete(GtkWidget *widget , GdkEvent *UNUSED(event) , gpointer data)
 {
 	FxMain *fxmain = (FxMain*)data;
 	FxClose *fxclose;
-	Config *config;
+	Config *config;;
+
 	int ret;
 
 	DEBUG_FOOTPRINT();
@@ -779,8 +786,10 @@ gboolean fx_main_delete(GtkWidget* widget , GdkEvent* event , gpointer data)
 			return FALSE;
 		}
 	}
+	return FALSE;
 }
-gboolean fx_main_window_state_func(GtkWidget* widget , GdkEventWindowState* event , gpointer data)
+gboolean fx_main_window_state_func(GtkWidget *widget
+		, GdkEventWindowState *event , gpointer UNUSED(data))
 {
 
 	DEBUG_FOOTPRINT();
@@ -792,19 +801,22 @@ gboolean fx_main_window_state_func(GtkWidget* widget , GdkEventWindowState* even
 	}
 	return FALSE;
 }
-void fx_main_tray_activate_func(GtkWidget* widget , gpointer data)
+void fx_main_tray_activate_func(GtkWidget *UNUSED(widget) , gpointer data)
 {
 	FxMain* fxmain = (FxMain*)data;
 
 	DEBUG_FOOTPRINT();
 
 	gtk_window_deiconify(GTK_WINDOW(fxmain->window));
-	gtk_window_move(GTK_WINDOW(fxmain->window) , window_pos_x , window_pos_y);
-	gtk_widget_show(fxmain->window);
+    if(GTK_WIDGET_VISIBLE(fxmain->window))
+        gtk_widget_hide(fxmain->window);
+    else    
+        gtk_widget_show(fxmain->window);
+//	gtk_window_move(GTK_WINDOW(fxmain->window) , window_pos_x , window_pos_y);
 
 }
 
-static void fx_main_mute_clicked(GtkWidget *widget , gpointer data)
+static void fx_main_mute_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 {
 	FxMain *fxmain = (FxMain*)data;
 	User *user = fxmain->user;
@@ -821,7 +833,7 @@ static void fx_main_mute_clicked(GtkWidget *widget , gpointer data)
 
 }
 
-static void fx_main_direct_sms_clicked(GtkWidget *widget , gpointer data)
+static void fx_main_direct_sms_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 {
 	FxMain *fxmain = (FxMain*)data;
 	FxDSMS *fxdsms = fx_dsms_new(fxmain);
@@ -835,7 +847,8 @@ static void fx_main_direct_sms_clicked(GtkWidget *widget , gpointer data)
 	fx_dsms_initialize(fxdsms);
 }
 
-void fx_main_tray_popmenu_func(GtkWidget* widget , guint button , guint activate_time , gpointer data)
+void fx_main_tray_popmenu_func(GtkWidget* UNUSED(widget)
+		, guint button , guint activate_time , gpointer data)
 {
 	FxMain* fxmain = (FxMain*)data;
 	Config *config = NULL;
@@ -937,7 +950,7 @@ int main(int argc , char* argv[])
 	gst_init(&argc , &argv);
 #endif
 
-#ifdef HAVE_LIBNOTIFY
+#ifdef USE_LIBNOTIFY
 	notify_init("Openfetion");
 #endif
 	gtk_init(&argc , &argv);
@@ -957,6 +970,8 @@ void* fx_main_listen_thread_func(void* data)
 	FetionSip* sip = args->sip;
 	int type;
 	SipMsg *msg , *pos;
+	fd_set fd_read;
+	int ret;
 
 	DEBUG_FOOTPRINT();
 
@@ -967,10 +982,20 @@ void* fx_main_listen_thread_func(void* data)
 		
 		if(fxmain == NULL)
 			g_thread_exit(0);
-		g_usleep(10);
-		gdk_threads_enter();
+		FD_ZERO(&fd_read);
+		FD_SET(sip->tcp->socketfd, &fd_read);
+		ret = select (sip->tcp->socketfd+1, &fd_read, NULL, NULL, NULL);
+		if (ret == -1 || ret == 0) {
+			debug_info ("Error.. to read socket");
+			g_thread_exit(0);
+		}
+
+		if (!FD_ISSET (sip->tcp->socketfd, &fd_read)) {
+			g_usleep (100);
+			continue;
+		}
+
 		msg = fetion_sip_listen(sip);
-		gdk_threads_leave();
 		pos = msg;
 		while(pos != NULL){
 			type = fetion_sip_get_type(pos->message);
@@ -999,7 +1024,7 @@ void* fx_main_listen_thread_func(void* data)
 	}
 	g_thread_exit(0);
 }
-void fx_main_message_func(GtkWidget* widget , gpointer data)
+void fx_main_message_func(GtkWidget *UNUSED(widget) , gpointer data)
 {
 	FxMain *fxmain = (FxMain*)data;
 	FxList *mlist = fxmain->mlist;
@@ -1007,11 +1032,10 @@ void fx_main_message_func(GtkWidget* widget , gpointer data)
 	FxList *tmp = NULL;
 	FxChat *fxchat = NULL;
 	Message *msg = NULL;
-	char *sid = NULL;
 
 	DEBUG_FOOTPRINT();
 
-#ifdef HAVE_LIBNOTIFY
+#ifdef USE_LIBNOTIFY
 	notify_notification_close(fxmain->notify , NULL);
 #endif
 
@@ -1055,7 +1079,7 @@ gboolean fx_main_register_func(User* user)
 	if(fetion_user_keep_alive(user) < 0){
 		debug_info("网络连接已断开,请重新登录");
 		gtk_main_quit();
-		return;
+		return FALSE;
 	}
 	return TRUE;
 }
@@ -1074,7 +1098,7 @@ gboolean fx_main_chat_keep_alive_func(TimeOutArgs* args)
 	}
 	return TRUE;
 }
-void fx_main_about_fetion_clicked(GtkWidget* widget , gpointer data)
+void fx_main_about_fetion_clicked(GtkWidget *UNUSED(widget) , gpointer UNUSED(data))
 {
 	GtkWidget *dialog = gtk_about_dialog_new();
 	GdkPixbuf *logo = NULL;
@@ -1096,38 +1120,40 @@ void fx_main_about_fetion_clicked(GtkWidget* widget , gpointer data)
 	gtk_widget_destroy(dialog);
 }
 
-void fx_main_check_update_clicked(GtkWidget* widget , gpointer data)
+void fx_main_check_update_clicked(GtkWidget* UNUSED(widget) , gpointer UNUSED(data))
 {
 	if(fork() == 0)
 	{
 		execlp("firefox" , "firefox" , "http://basiccoder.com/openfetion" , (char**)NULL);
+		return;
 	}
 }
 
-void fx_main_about_author_clicked(GtkWidget* widget , gpointer data)
+void fx_main_about_author_clicked(GtkWidget* UNUSED(widget) , gpointer UNUSED(data))
 {
 	if(fork() == 0)
 	{
 		execlp("firefox" , "firefox" , "http://www.basiccoder.com" , (char**)NULL);
+		return;
 	}
 }
 
-void fx_main_send_to_myself_clicked(GtkWidget* widget , gpointer data)
+void fx_main_send_to_myself_clicked(GtkWidget *widget , gpointer data)
 {
 	fx_bottom_on_sendtome_clicked(widget , data);
 }
 
-void fx_main_send_to_many_clicked(GtkWidget* widget , gpointer data)
+void fx_main_send_to_many_clicked(GtkWidget *widget , gpointer data)
 {
 	fx_bottom_on_sendtomany_clicked(widget , data);
 }
 
-void fx_main_personal_setting_clicked(GtkWidget* widget , gpointer data)
+void fx_main_personal_setting_clicked(GtkWidget *widget , gpointer data)
 {
 	fx_bottom_on_setting_clicked(widget , data);
 }
 
-void fx_main_system_setting_clicked(GtkWidget* widget , gpointer data)
+void fx_main_system_setting_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 {
 	FxMain *fxmain = (FxMain*)data;
 	FxSet *fxset = fx_set_new(fxmain);
@@ -1138,22 +1164,22 @@ void fx_main_system_setting_clicked(GtkWidget* widget , gpointer data)
 	gtk_widget_destroy(fxset->dialog);
 }
 
-void fx_main_set_state_clicked(GtkWidget* widget , gpointer data)
+void fx_main_set_state_clicked(GtkWidget *widget , gpointer data)
 {
 	fx_head_change_state_func(widget , data);
 }
 
-void fx_main_add_buddy_clicked(GtkWidget* widget , gpointer data)
+void fx_main_add_buddy_clicked(GtkWidget *widget , gpointer data)
 {
 	fx_bottom_on_addfriend_clicked(widget , data);
 }
 
-void fx_main_info_lookup_clicked(GtkWidget* widget , gpointer data)
+void fx_main_info_lookup_clicked(GtkWidget *widget , gpointer data)
 {
 	fx_bottom_on_lookup_clicked(widget , data);
 }
 
-FetionSip* fx_list_find_sip_by_sipuri(FxList* fxlist , const char* sipuri)
+FetionSip* fx_list_find_sip_by_sipuri(FxList *fxlist , const char *sipuri)
 {
 	FxList *cur;
 	FetionSip *sip;
@@ -1173,7 +1199,7 @@ FetionSip* fx_list_find_sip_by_sipuri(FxList* fxlist , const char* sipuri)
 	}
 	return NULL;
 }
-void fx_list_remove_sip_by_sipuri(FxList* fxlist , const char* sipuri)
+void fx_list_remove_sip_by_sipuri(FxList *fxlist , const char *sipuri)
 {
 	FxList *cur;
 	FetionSip *sip;
@@ -1200,7 +1226,7 @@ void fx_list_remove_sip_by_sipuri(FxList* fxlist , const char* sipuri)
 	}
 }
 
-FxChat* fx_list_find_chat_by_sipuri(FxList* fxlist , const char* sipuri)
+FxChat* fx_list_find_chat_by_sipuri(FxList *fxlist , const char *sipuri)
 {
 	FxChat *fxchat;
 	FxList *cur;

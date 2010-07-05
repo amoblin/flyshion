@@ -52,8 +52,6 @@ extern void fetion_contact_list_free(Contact* contactlist);
 
 extern int fetion_contact_subscribe_only(User* user);
 
-extern int fetion_contact_subscribe(User* user);
-
 extern Contact* fetion_contact_get_contact_info(User* user , const char* userid);
 
 extern Contact* fetion_contact_get_contact_info_by_no(User* user , const char* no , NumberType nt);
@@ -74,10 +72,6 @@ extern Contact* fetion_contact_add_buddy(User* user , const char* no
 extern Contact* fetion_contact_handle_contact_request(User* user, const char* sipuri
 									   , const char* userid , const char* localname
 									   , int buddylist , int result);
-
-extern int fetion_contact_save(User* user);
-
-extern void fetion_contact_load(User* user);
 
 /*private */
 

@@ -36,11 +36,11 @@ extern GtkTreeModel* fx_addbuddy_create_group_model(FxAddbuddy* fxaddnuddy);
 
 extern void fx_addbuddy_bind(FxAddbuddy* fxaddbuddy);
 
-extern void fx_addbuddy_on_ok_clicked(GtkWidget* widget , gpointer data);
+extern void fx_addbuddy_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data);
 
-extern void fx_addbuddy_on_cancel_clicked(GtkWidget* widget , gpointer data);
+extern void fx_addbuddy_on_cancel_clicked(GtkWidget *UNUSED(widget) , gpointer data);
 
-extern void fx_addbuddy_on_phrase_change(GtkWidget* widget , gpointer data);
+extern void fx_addbuddy_on_phrase_change(GtkWidget *widget , gpointer data);
 
-extern void fx_addbuddy_no_type_change(GtkWidget* widget , gpointer data);
+extern void fx_addbuddy_no_type_change(GtkWidget *UNUSED(widget) , gpointer data);
 #endif

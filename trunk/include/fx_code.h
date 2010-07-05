@@ -25,9 +25,9 @@ extern FxCode* fx_code_new(FxMain* fxmain , const char* reason , const char* tip
 
 extern void fx_code_initialize(FxCode* fxcode);
 
-extern void fx_code_code_event_func(GtkWidget* widget , GdkEventButton* event , gpointer data);
+extern void fx_code_code_event_func(GtkWidget* UNUSED(widget) , GdkEventButton* event , gpointer data);
 
-extern void fx_code_on_ok_clicked(GtkWidget* widget , gpointer data);
+extern void fx_code_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 
-extern void fx_code_on_cancel_clicked(GtkWidget* widget , gpointer data);
+extern void fx_code_on_cancel_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 #endif

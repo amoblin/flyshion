@@ -38,6 +38,8 @@ char* generate_response(const char* nouce , const char* userid
 
 	DEBUG_FOOTPRINT();
 
+	key = NULL;
+
 	bzero(modulus , sizeof(modulus));
 	bzero(exponent , sizeof(exponent));
 
@@ -270,12 +272,13 @@ void parse_ssi_auth_response(const char* ssi_response , User* user)
 	int n;
 
 	DEBUG_FOOTPRINT();
-
-	pos = strstr(ssi_response , "ssic=") + 5;
-	n = strlen(pos) - strlen(strstr(pos , ";"));
-	user->ssic = (char*)malloc(n + 1);
-	bzero(user->ssic , n + 1);
-	strncpy(user->ssic , pos , n);
+	if(strstr(ssi_response , "ssic=")){
+		pos = strstr(ssi_response , "ssic=") + 5;
+		n = strlen(pos) - strlen(strstr(pos , ";"));
+		user->ssic = (char*)malloc(n + 1);
+		bzero(user->ssic , n + 1);
+		strncpy(user->ssic , pos , n);
+	}
 
 	doc = xmlReadMemory(xml , strlen(xml) , NULL , "UTF-8" , XML_PARSE_RECOVER);
 	node = xmlDocGetRootElement(doc);
@@ -319,27 +322,28 @@ void parse_sipc_reg_response(const char* reg_response , char** nouce , char** ke
 	debug_info("Register to sip server success");
 	debug_info("nonce:%s" , *nouce);
 }
-static void parse_sms_frequency(xmlNodePtr node , User *user){
+static void parse_sms_frequency(xmlNodePtr node , User *user)
+{
 	xmlChar *res;
 
 	node = node->xmlChildrenNode;
-	if(xmlHasProp(node , "day-limit")){
-		res = xmlGetProp(node , "day-limit");
+	if(xmlHasProp(node , BAD_CAST "day-limit")){
+		res = xmlGetProp(node , BAD_CAST "day-limit");
 		user->smsDayLimit = atoi((char*)res);
 		xmlFree(res);
 	}
-	if(xmlHasProp(node , "day-count")){
-		res = xmlGetProp(node , "day-count");
+	if(xmlHasProp(node , BAD_CAST "day-count")){
+		res = xmlGetProp(node , BAD_CAST "day-count");
 		user->smsDayCount = atoi((char*)res);
 		xmlFree(res);
 	}
-	if(xmlHasProp(node , "month-limit")){
-		res = xmlGetProp(node , "month-limit");
+	if(xmlHasProp(node , BAD_CAST "month-limit")){
+		res = xmlGetProp(node , BAD_CAST "month-limit");
 		user->smsMonthLimit = atoi((char*)res);
 		xmlFree(res);
 	}
-	if(xmlHasProp(node , "month-count")){
-		res = xmlGetProp(node , "month-count");
+	if(xmlHasProp(node , BAD_CAST "month-count")){
+		res = xmlGetProp(node , BAD_CAST "month-count");
 		user->smsMonthCount = atoi((char*)res);
 		xmlFree(res);
 	}
@@ -417,7 +421,6 @@ char* generate_auth_body(User* user)
 {
 	char basexml[] = "<args></args>";
 	char state[5];
-	char *res , *pos;
 	xmlChar* buf = NULL;
 	xmlDocPtr doc = NULL;
 	xmlNodePtr rootnode = NULL;
@@ -630,7 +633,6 @@ void parse_stranger_list(xmlNodePtr node , User* user)
 void parse_ssi_auth_success(xmlNodePtr node , User* user)
 {
 	char* pos;
-	xmlNodePtr node1 = node;
 	pos = (char*)xmlGetProp(node , BAD_CAST "uri");
 	strcpy(user->sipuri , pos);
 	free(pos);
@@ -773,7 +775,7 @@ char* generate_cnouce()
 
 unsigned char* decode_base64(const char* in , int* len)
 {
- 	int n , t = 0 , c = 0;
+ 	unsigned int n , t = 0 , c = 0;
 	unsigned char* res;
 	unsigned char out[3];
 	unsigned char inp[4];

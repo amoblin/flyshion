@@ -3,6 +3,7 @@ pixmap_path "/usr/include/X11R6/pixmaps:/home/imain/pixmaps:/opt/openfetion/shar
 
 style "window"
 {
+	fg[NORMAL] = "#000000"
 	bg_pixmap[NORMAL] = "flow.jpg"
 }
 

@@ -175,16 +175,7 @@ void fx_addbuddy_bind(FxAddbuddy* fxaddbuddy)
 
 	gtk_entry_set_text(GTK_ENTRY(fxaddbuddy->myname_entry) , user->nickname);
 }
-void* fx_addbuddy_save_contact_thread(void* data)
-{
-	FxAddbuddy* fxadd = (FxAddbuddy*)data;
-	User* user = fxadd->fxmain->user;
-
-	DEBUG_FOOTPRINT();
-
-	fetion_contact_save(user);
-}
-void fx_addbuddy_on_ok_clicked(GtkWidget* widget , gpointer data)
+void fx_addbuddy_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 {
 	FxAddbuddy* fxadd = (FxAddbuddy*)data;
 	const char *no = NULL;
@@ -198,7 +189,6 @@ void fx_addbuddy_on_ok_clicked(GtkWidget* widget , gpointer data)
 	Config* config = NULL;
 	GdkPixbuf *pb = NULL;
 	FxCode* fxcode = NULL;
-	GtkWidget *dialog = NULL;
 	int ret = 0;
 	char code[24];
 	User* user = fxadd->fxmain->user;
@@ -255,7 +245,6 @@ addbuddy:
 	}
 	if(contact != NULL)
 	{
-		g_thread_create(fx_addbuddy_save_contact_thread , fxadd , FALSE , NULL);
 		mainModel = gtk_tree_view_get_model(GTK_TREE_VIEW(fxadd->fxmain->mainPanel->treeView));
 		gtk_tree_model_get_iter_root(mainModel , &iter);
 		do
@@ -311,7 +300,7 @@ addbuddy:
 	gtk_dialog_response(GTK_DIALOG(fxadd->dialog) , GTK_RESPONSE_OK);
 }
 
-void fx_addbuddy_on_cancel_clicked(GtkWidget* widget , gpointer data)
+void fx_addbuddy_on_cancel_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 {
 	DEBUG_FOOTPRINT();
 
@@ -338,7 +327,7 @@ void fx_addbuddy_on_phrase_change(GtkWidget* widget , gpointer data)
 		}
 	}
 }
-void fx_addbuddy_no_type_change(GtkWidget* widget , gpointer data)
+void fx_addbuddy_no_type_change(GtkWidget *UNUSED(widget) , gpointer data)
 {
 	FxAddbuddy* fxaddbuddy = (FxAddbuddy*)data;
 

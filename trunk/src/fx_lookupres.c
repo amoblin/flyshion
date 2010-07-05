@@ -124,7 +124,7 @@ void fx_lookupres_initialize(FxLookupres* fxlookupres)
 
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxlookupres->dialog)->vbox) , box);
 
-	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.jpg" , 90 , 90 , NULL);
+	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.png" , 90 , 90 , NULL);
 
 	fxlookupres->image = gtk_image_new_from_pixbuf(pb);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxlookupres->image , 0 , 1 , 0 , 4);
@@ -221,7 +221,7 @@ void fx_lookupres_initialize(FxLookupres* fxlookupres)
 	gtk_widget_show_all(fxlookupres->dialog);
 	gtk_widget_hide(fxlookupres->dialog);
 }
-void fx_lookupres_on_ok_clicked(GtkWidget* widget , gpointer data)
+void fx_lookupres_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	DEBUG_FOOTPRINT();
 

@@ -37,7 +37,7 @@ void fx_login_free(FxLogin* fxlogin)
 //	free(fxlogin);
 }
 
-gboolean fx_login_proxy_button_func(GtkWidget *widget , GdkEventButton *event , gpointer data)
+gboolean fx_login_proxy_button_func(GtkWidget *UNUSED(widget) , GdkEventButton *event , gpointer data)
 {
 	FxLogin *fxlogin = (FxLogin*)data;
 	Proxy *proxy = fxlogin->proxy;
@@ -65,6 +65,8 @@ gboolean fx_login_proxy_button_func(GtkWidget *widget , GdkEventButton *event , 
 			fx_proxy_initialize(fxproxy);
 			gtk_dialog_run(GTK_DIALOG(fxproxy->dialog));
 			gtk_widget_destroy(fxproxy->dialog);
+			break;
+		default:
 			break;
 	}
 	return TRUE;
@@ -116,7 +118,7 @@ void fx_login_initialize(FxMain* fxmain)
 
 	fxlogin->loginbutton = gtk_button_new_with_label("登录");
 
-	img = gtk_image_new_from_file(SKIN_DIR"move.gif");
+	img = gtk_image_new_from_file(SKIN_DIR"login.png");
 	gtk_button_set_image(GTK_BUTTON(fxlogin->loginbutton) , img);
 
 	fxlogin->loginFuncId = g_signal_connect(G_OBJECT(fxlogin->loginbutton)
@@ -266,10 +268,6 @@ void* fx_login_thread_func(void* data)
 
 	DEBUG_FOOTPRINT();
 
-	gdk_threads_enter();
-	gtk_widget_set_sensitive(fxlogin->loginbutton , FALSE);
-	gdk_threads_leave();
-
 	fx_login_show_msg(fxlogin , "正在准备登录");	
 
 	no = gtk_combo_box_get_active_text(GTK_COMBO_BOX(fxlogin->username));
@@ -363,7 +361,6 @@ login:
 
 	/* download xml configuration file from the server */
 	fx_login_show_msg(fxlogin , "正在下载配置文件");
-	fetion_user_load(user);
 	fetion_config_download_configuration(user);
 	if(fetion_config_load_xml(user) < 0){
 		fx_login_show_msg(fxlogin , "登录失败");
@@ -394,7 +391,7 @@ login:
 	if(pos == NULL)
 	{
 		fx_login_show_msg(fxlogin , "登录失败");
-		return;
+		return NULL;
 	}
 	parse_sipc_reg_response(pos , &nonce , &key);
 	free(pos);
@@ -411,7 +408,7 @@ auth:
 	pos = sipc_aut_action(user , response);
 	if(pos == NULL){
 		fx_login_show_msg(fxlogin , "登录失败");
-		return;
+		return NULL;
 	}
 	if(parse_sipc_auth_response(pos , user) < 0){
 		debug_info("Password error , login failed!!!");
@@ -453,7 +450,7 @@ auth:
 	
 	fx_login_show_msg(fxlogin , "登录成功");
 	gdk_threads_enter();
-#ifdef HAVE_LIBNOTIFY
+#ifdef USE_LIBNOTIFY
 	char notifyText[1024];
 	char iconPath[256];
 	GdkPixbuf *pb;
@@ -469,7 +466,7 @@ auth:
 		fetion_user_download_portrait(user , user->sipuri);
 		pb = gdk_pixbuf_new_from_file_at_size(iconPath , 48 , 48 , NULL);
 		if(pb == NULL){
-			pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.jpg" , 48 , 48 , NULL);
+			pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.png" , 48 , 48 , NULL);
 		}
 	}
 	notify_notification_update(fxmain->notify , "登录成功"// notifySummary
@@ -536,7 +533,7 @@ auth:
 	g_thread_exit(0);
 	return NULL;
 }
-void fx_login_action_func(GtkWidget* widget , gpointer data)
+void fx_login_action_func(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	FxMain* fxmain = (FxMain*)data;
 	fxmain->loginPanel->loginThread = g_thread_create(fx_login_thread_func , fxmain , FALSE , NULL);

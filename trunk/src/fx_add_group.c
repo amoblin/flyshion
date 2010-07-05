@@ -20,6 +20,41 @@
 
 #include "fx_include.h"
 
+static void fx_add_group_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data)
+{
+	FxAddGroup* fxaddgroup = (FxAddGroup*)data;
+	User* user = fxaddgroup->fxmain->user;
+	const char* text = gtk_entry_get_text(GTK_ENTRY(fxaddgroup->add_entry));
+	GtkTreeView* tree = GTK_TREE_VIEW(fxaddgroup->fxmain->mainPanel->treeView);
+	GtkTreeModel* model = gtk_tree_view_get_model(tree);
+	GtkTreeIter iter;
+	int groupid;
+	
+	DEBUG_FOOTPRINT();
+
+	groupid = fetion_buddylist_create(user , text);
+	if(groupid > 0 )
+	{
+		gtk_tree_store_append(GTK_TREE_STORE(model) , &iter , NULL);
+		gtk_tree_store_set(GTK_TREE_STORE(model) , &iter
+						 , G_NAME_COL , text 
+						 , G_ID_COL , groupid
+						 , G_ALL_COUNT_COL , 0
+						 , G_ONLINE_COUNT_COL , 0
+						 , -1);
+		gtk_tree_view_set_model(tree , model);
+		fetion_buddylist_save(user);
+	}
+	gtk_dialog_response(GTK_DIALOG(fxaddgroup->dialog) , GTK_RESPONSE_CANCEL);
+}
+
+static void fx_add_group_on_cancel_clicked(GtkWidget* UNUSED(widget) , gpointer data)
+{
+	DEBUG_FOOTPRINT();
+
+	gtk_dialog_response(GTK_DIALOG(data) , GTK_RESPONSE_CANCEL);
+}
+
 FxAddGroup* fx_add_group_new(FxMain* fxmain)
 {
 	FxAddGroup* fxaddgroup = (FxAddGroup*)malloc(sizeof(FxAddGroup));
@@ -69,38 +104,4 @@ void fx_add_group_free(FxAddGroup* fxaddgroup)
 	DEBUG_FOOTPRINT();
 
 	free(fxaddgroup);
-}
-void fx_add_group_on_ok_clicked(GtkWidget* widget , gpointer data)
-{
-	FxAddGroup* fxaddgroup = (FxAddGroup*)data;
-	User* user = fxaddgroup->fxmain->user;
-	const char* text = gtk_entry_get_text(GTK_ENTRY(fxaddgroup->add_entry));
-	GtkTreeView* tree = GTK_TREE_VIEW(fxaddgroup->fxmain->mainPanel->treeView);
-	GtkTreeModel* model = gtk_tree_view_get_model(tree);
-	GtkTreeIter iter;
-	int groupid;
-	
-	DEBUG_FOOTPRINT();
-
-	groupid = fetion_buddylist_create(user , text);
-	if(groupid > 0 )
-	{
-		gtk_tree_store_append(GTK_TREE_STORE(model) , &iter , NULL);
-		gtk_tree_store_set(GTK_TREE_STORE(model) , &iter
-						 , G_NAME_COL , text 
-						 , G_ID_COL , groupid
-						 , G_ALL_COUNT_COL , 0
-						 , G_ONLINE_COUNT_COL , 0
-						 , -1);
-		gtk_tree_view_set_model(tree , model);
-		fetion_buddylist_save(user);
-	}
-	gtk_dialog_response(GTK_DIALOG(fxaddgroup->dialog) , GTK_RESPONSE_CANCEL);
-}
-
-void fx_add_group_on_cancel_clicked(GtkWidget* widget , gpointer data)
-{
-	DEBUG_FOOTPRINT();
-
-	gtk_dialog_response(GTK_DIALOG(data) , GTK_RESPONSE_CANCEL);
 }

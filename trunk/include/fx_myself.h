@@ -31,8 +31,8 @@ extern void fx_myself_initialize(FxMyself* fxmyself);
 
 extern gboolean fx_myself_on_enter_pressed(GtkWidget* widget , GdkEventKey* event , gpointer data);
 
-extern void fx_myself_on_close_clicked(GtkWidget* widget , gpointer data);
+extern void fx_myself_on_close_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 
-extern void fx_myself_on_send_clicked(GtkWidget* widget , gpointer data);
+extern void fx_myself_on_send_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 
 #endif

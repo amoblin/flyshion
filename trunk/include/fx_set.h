@@ -75,9 +75,4 @@ extern void fx_set_initialize_system(FxSet* fxset);
 
 extern GtkTreeModel* fx_set_create_gender_model();
 
-extern void fx_set_on_ok_clicked(GtkWidget* widget , gpointer data);
-
-extern void fx_set_on_cancel_clicked(GtkWidget* widget , gpointer data);
-
-extern void fx_set_on_autoreply_toggled(GtkWidget* widget , gpointer data);
 #endif

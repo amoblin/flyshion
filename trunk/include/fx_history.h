@@ -29,8 +29,8 @@ extern void fx_history_bind(FxHistory* fxhistory , int count);
 
 extern GtkTreeModel* fx_history_create_count_model();
 
-extern void fx_history_on_close_clicked(GtkWidget* widget , gpointer data);
+extern void fx_history_on_close_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 
-extern void fx_history_on_refresh_clicked(GtkWidget* widget , gpointer data);
+extern void fx_history_on_refresh_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 
 #endif

@@ -20,6 +20,131 @@
 
 #include "fx_include.h"
 
+static void fx_set_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
+{
+	FxSet *fxset = (FxSet*)data;
+	User *user = fxset->fxmain->user;
+	Config *config = user->config;
+	/**
+	 * system setting varibles
+	 */
+	GtkTextView *textview = GTK_TEXT_VIEW(fxset->apEty);
+	GtkTextBuffer *buffer = gtk_text_view_get_buffer(textview);
+	GtkTextIter startIter , endIter;
+	const char *autoReplyMsg = NULL;
+	/**
+	 * personal setting varibles
+	 */
+	const char *nickname = NULL;
+	const char *impression = NULL;
+	char nickname_text[1024];
+	int gender;
+	GtkTreeModel *genderModel = NULL;
+	GtkTreeIter genderIter;
+
+	DEBUG_FOOTPRINT();
+
+	if(gtk_notebook_get_current_page(GTK_NOTEBOOK(fxset->notebook)) == PAGE_SYSTEM)
+	{
+		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxset->etBtn)))
+			config->sendMode = SEND_MODE_ENTER;
+		else
+			config->sendMode = SEND_MODE_CTRL_ENTER;
+
+		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxset->ppCb)))
+			config->autoPopup = AUTO_POPUP_ENABLE;
+		else
+			config->autoPopup = AUTO_POPUP_DISABLE;
+
+		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxset->smallBtn)))
+			config->closeMode = CLOSE_ICON_MODE;
+		else
+			config->closeMode = CLOSE_DESTROY_MODE;
+
+		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxset->muteBtn)))
+			config->isMute = MUTE_ENABLE;
+		else
+			config->isMute = MUTE_DISABLE;
+
+		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxset->alertBtn)))
+			config->msgAlert = MSG_ALERT_DISABLE;
+		else
+			config->msgAlert = MSG_ALERT_ENABLE;
+
+		gtk_text_buffer_get_start_iter(buffer , &startIter);
+		gtk_text_buffer_get_end_iter(buffer , &endIter);
+		autoReplyMsg = gtk_text_buffer_get_text(buffer , &startIter , &endIter , TRUE);
+
+		bzero(config->autoReplyMessage , sizeof(config->autoReplyMessage));
+
+		if(autoReplyMsg != NULL)
+			strcpy(config->autoReplyMessage , autoReplyMsg);
+		fetion_config_save(user);
+	}
+	else
+	{
+		nickname = gtk_entry_get_text(GTK_ENTRY(fxset->nick_entry));
+		if(strlen(nickname) == 0)
+		{
+			fx_util_popup_warning(fxset->fxmain , "昵称不能为空!");
+			return;
+		}
+		impression = gtk_entry_get_text(GTK_ENTRY(fxset->impre_entry));
+		bzero(user->nickname , sizeof(user->nickname));
+		strcpy(user->nickname , nickname);
+		bzero(user->impression , sizeof(user->impression));
+		strcpy(user->impression , impression);
+
+		genderModel = gtk_combo_box_get_model(GTK_COMBO_BOX(fxset->gender_combo));
+		gtk_combo_box_get_active_iter(GTK_COMBO_BOX(fxset->gender_combo) , &genderIter);
+
+		gtk_tree_model_get(genderModel , &genderIter , COMBO_ID_COL , &gender , -1);
+		user->gender = gender;
+		if(fetion_user_update_info(user) > 0)
+		{
+			
+			bzero(nickname_text , sizeof(nickname_text));
+
+			sprintf(nickname_text , "<b>%s</b>"
+					, user->nickname == NULL ? user->sId : user->nickname );
+
+			gtk_label_set_markup(GTK_LABEL(fxset->fxmain->headPanel->name_label) , nickname_text );
+
+			gtk_label_set_text(GTK_LABEL(fxset->fxmain->headPanel->impre_label)
+					, strlen(user->impression) == 0 ? "点此输入心情短语" : user->impression);
+
+			bzero(fxset->fxmain->headPanel->oldimpression , sizeof(fxset->fxmain->headPanel->oldimpression));
+			strcpy(fxset->fxmain->headPanel->oldimpression
+				, (strlen(user->impression) == 0 || user->impression == NULL)
+				? "点此输入心情短语" : user->impression);
+				}
+	}
+	gtk_dialog_response(GTK_DIALOG(fxset->dialog) , GTK_RESPONSE_CANCEL);
+}
+
+static void fx_set_on_cancel_clicked(GtkWidget *UNUSED(widget) , gpointer data)
+{
+	DEBUG_FOOTPRINT();
+
+	gtk_dialog_response(GTK_DIALOG(data) , GTK_RESPONSE_CANCEL);
+}
+
+static void fx_set_on_autoreply_toggled(GtkWidget *widget , gpointer data)
+{
+	FxSet *fxset = (FxSet*)data;
+
+	DEBUG_FOOTPRINT();
+
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)))
+	{
+		gtk_widget_set_sensitive(fxset->apEty , TRUE);
+	}
+	else
+	{
+		gtk_widget_set_sensitive(fxset->apEty , FALSE);
+	}
+}
+
 FxSet* fx_set_new(FxMain* fxmain)
 {
 	FxSet *fxset = (FxSet*)malloc(sizeof(FxSet));
@@ -405,127 +530,3 @@ GtkTreeModel* fx_set_create_gender_model()
 	return GTK_TREE_MODEL(model);
 }
 
-void fx_set_on_ok_clicked(GtkWidget* widget , gpointer data)
-{
-	FxSet *fxset = (FxSet*)data;
-	User *user = fxset->fxmain->user;
-	Config *config = user->config;
-	/**
-	 * system setting varibles
-	 */
-	GtkTextView *textview = GTK_TEXT_VIEW(fxset->apEty);
-	GtkTextBuffer *buffer = gtk_text_view_get_buffer(textview);
-	GtkTextIter startIter , endIter;
-	const char *autoReplyMsg = NULL;
-	/**
-	 * personal setting varibles
-	 */
-	const char *nickname = NULL;
-	const char *impression = NULL;
-	char nickname_text[1024];
-	int gender;
-	GtkTreeModel *genderModel = NULL;
-	GtkTreeIter genderIter;
-
-	DEBUG_FOOTPRINT();
-
-	if(gtk_notebook_get_current_page(GTK_NOTEBOOK(fxset->notebook)) == PAGE_SYSTEM)
-	{
-		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxset->etBtn)))
-			config->sendMode = SEND_MODE_ENTER;
-		else
-			config->sendMode = SEND_MODE_CTRL_ENTER;
-
-		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxset->ppCb)))
-			config->autoPopup = AUTO_POPUP_ENABLE;
-		else
-			config->autoPopup = AUTO_POPUP_DISABLE;
-
-		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxset->smallBtn)))
-			config->closeMode = CLOSE_ICON_MODE;
-		else
-			config->closeMode = CLOSE_DESTROY_MODE;
-
-		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxset->muteBtn)))
-			config->isMute = MUTE_ENABLE;
-		else
-			config->isMute = MUTE_DISABLE;
-
-		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxset->alertBtn)))
-			config->msgAlert = MSG_ALERT_DISABLE;
-		else
-			config->msgAlert = MSG_ALERT_ENABLE;
-
-		gtk_text_buffer_get_start_iter(buffer , &startIter);
-		gtk_text_buffer_get_end_iter(buffer , &endIter);
-		autoReplyMsg = gtk_text_buffer_get_text(buffer , &startIter , &endIter , TRUE);
-
-		bzero(config->autoReplyMessage , sizeof(config->autoReplyMessage));
-
-		if(autoReplyMsg != NULL)
-			strcpy(config->autoReplyMessage , autoReplyMsg);
-		fetion_config_save(user);
-	}
-	else
-	{
-		nickname = gtk_entry_get_text(GTK_ENTRY(fxset->nick_entry));
-		if(strlen(nickname) == 0)
-		{
-			fx_util_popup_warning(fxset->fxmain , "昵称不能为空!");
-			return;
-		}
-		impression = gtk_entry_get_text(GTK_ENTRY(fxset->impre_entry));
-		bzero(user->nickname , sizeof(user->nickname));
-		strcpy(user->nickname , nickname);
-		bzero(user->impression , sizeof(user->impression));
-		strcpy(user->impression , impression);
-
-		genderModel = gtk_combo_box_get_model(GTK_COMBO_BOX(fxset->gender_combo));
-		gtk_combo_box_get_active_iter(GTK_COMBO_BOX(fxset->gender_combo) , &genderIter);
-
-		gtk_tree_model_get(genderModel , &genderIter , COMBO_ID_COL , &gender , -1);
-		user->gender = gender;
-		if(fetion_user_update_info(user) > 0)
-		{
-			
-			bzero(nickname_text , sizeof(nickname_text));
-
-			sprintf(nickname_text , "<b>%s</b>"
-					, user->nickname == NULL ? user->sId : user->nickname );
-
-			gtk_label_set_markup(GTK_LABEL(fxset->fxmain->headPanel->name_label) , nickname_text );
-
-			gtk_label_set_text(GTK_LABEL(fxset->fxmain->headPanel->impre_label)
-					, strlen(user->impression) == 0 ? "点此输入心情短语" : user->impression);
-
-			bzero(fxset->fxmain->headPanel->oldimpression , sizeof(fxset->fxmain->headPanel->oldimpression));
-			strcpy(fxset->fxmain->headPanel->oldimpression
-				, (strlen(user->impression) == 0 || user->impression == NULL)
-				? "点此输入心情短语" : user->impression);
-				}
-	}
-	gtk_dialog_response(GTK_DIALOG(fxset->dialog) , GTK_RESPONSE_CANCEL);
-}
-
-void fx_set_on_cancel_clicked(GtkWidget* widget , gpointer data)
-{
-	DEBUG_FOOTPRINT();
-
-	gtk_dialog_response(GTK_DIALOG(data) , GTK_RESPONSE_CANCEL);
-}
-
-void fx_set_on_autoreply_toggled(GtkWidget* widget , gpointer data)
-{
-	FxSet *fxset = (FxSet*)data;
-
-	DEBUG_FOOTPRINT();
-
-	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)))
-	{
-		gtk_widget_set_sensitive(fxset->apEty , TRUE);
-	}
-	else
-	{
-		gtk_widget_set_sensitive(fxset->apEty , FALSE);
-	}
-}

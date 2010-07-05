@@ -32,7 +32,7 @@ FxConfirm* fx_confirm_new(FxMain *fxmain)
 }
 
 static void
-fx_confirm_on_ok_clicked(GtkWidget *widget , gpointer data)
+fx_confirm_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 {
 	FxConfirm *fxconfirm = (FxConfirm*)data;
 	gtk_dialog_response(GTK_DIALOG(fxconfirm->dialog)
@@ -40,7 +40,7 @@ fx_confirm_on_ok_clicked(GtkWidget *widget , gpointer data)
 }
 
 static void
-fx_confirm_on_cancel_clicked(GtkWidget *widget , gpointer data)
+fx_confirm_on_cancel_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 {
 	FxConfirm *fxconfirm = (FxConfirm*)data;
 	gtk_dialog_response(GTK_DIALOG(fxconfirm->dialog)
@@ -127,14 +127,14 @@ add_contact(gpointer data)
 }
 
 static gboolean
-fx_dsms_number_clicked(GtkWidget *widget , gpointer data)
+fx_dsms_number_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 {
 	add_contact(data);
 	return TRUE;
 }
 
-static void fx_dsms_add_contact(GtkWidget* widget
-		, GdkEventButton* event , gpointer data){
+static void fx_dsms_add_contact(GtkWidget *UNUSED(widget)
+		, GdkEventButton *UNUSED(event) , gpointer data){
 	add_contact(data);
 }
 
@@ -165,7 +165,7 @@ static void create_column(GtkWidget* tree)
 
 }
 static void
-fx_dsms_on_delete_clicked(GtkWidget *widget , gpointer data)
+fx_dsms_on_delete_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 {
 	struct deleteargs *args = (struct deleteargs*)data;
 	FxDSMS *fxdsms = args->fxdsms;
@@ -180,14 +180,13 @@ fx_dsms_on_delete_clicked(GtkWidget *widget , gpointer data)
 	}
 }
 static gboolean 
-fx_dsms_on_rightbutton_click(GtkWidget* tree
-		, GdkEventButton* event , gpointer data)
+fx_dsms_on_rightbutton_click(GtkWidget *UNUSED(tree)
+		, GdkEventButton *event , gpointer data)
 {
 	FxDSMS *fxdsms = (FxDSMS*)data;
 	GtkTreeIter iter;
 	GtkTreePath* path = NULL;
 	GtkTreeModel* model = NULL;
-	int depth;
 	GtkWidget *menu , *item , *img;
 	struct deleteargs *args;
 
@@ -280,7 +279,7 @@ fx_dsms_add_information(FxDSMS* fxdsms , const char* msg)
 }
 
 static void
-fx_dsms_sig_checked(GtkWidget *widget , gpointer data)
+fx_dsms_sig_checked(GtkWidget *UNUSED(widget) , gpointer data)
 {
 	FxDSMS *fxdsms = (FxDSMS*)data;
 	GtkTextBuffer *buffer;	
@@ -358,8 +357,7 @@ picreload:
 			ret = gtk_dialog_run(GTK_DIALOG(fxcode->dialog));
 			if(ret == GTK_RESPONSE_CANCEL){
 				bzero(text , sizeof(text));
-				sprintf(text , "消息发送失败"
-						, to , user->verification->text);
+				strcpy(text , "消息发送失败");
 				fx_dsms_add_information(fxdsms , text);
 				gtk_widget_destroy(fxcode->dialog);
 				gdk_threads_leave();
@@ -383,8 +381,7 @@ picreload:
 					ret2 = gtk_dialog_run(GTK_DIALOG(fxconfirm->dialog));
 					if(ret2 == GTK_RESPONSE_CANCEL){
 						bzero(text , sizeof(text));
-						sprintf(text , "消息发送失败"
-								, to , user->verification->text);
+						strcpy(text , "消息发送失败");
 						fx_dsms_add_information(fxdsms , text);
 						gtk_widget_destroy(fxconfirm->dialog);
 						gdk_threads_leave();
@@ -412,6 +409,8 @@ picreload:
 		fx_dsms_add_information(fxdsms , text);
 		free(to);
 	}while(gtk_tree_model_iter_next(model , &iter));
+
+	return NULL;
 }
 
 static void
@@ -426,14 +425,10 @@ fx_dsms_send_message(FxDSMS *fxdsms)
 	FxMain* fxmain = fxdsms->fxmain;
 	User* user = fxmain->user;
 	char text[200] = { 0 };
-	char color[10] = { 0 };
 	char time[30] = { 0 };
 	const char *message;
-	char *to , msg[1024];
+	char msg[1024];
 	struct tm *datetime;
-
-	GtkWidget *pb = NULL;
-	char path[1024];
 
 	DEBUG_FOOTPRINT();
 
@@ -481,7 +476,7 @@ fx_dsms_send_message(FxDSMS *fxdsms)
 }
 
 static gboolean
-fx_dsms_on_key_pressed(GtkWidget *widget , GdkEventKey *event , gpointer data)
+fx_dsms_on_key_pressed(GtkWidget *UNUSED(widget) , GdkEventKey *event , gpointer data)
 {
 	FxDSMS *fxdsms = NULL;
 	Config *config = NULL;
@@ -515,14 +510,14 @@ fx_dsms_on_key_pressed(GtkWidget *widget , GdkEventKey *event , gpointer data)
 }
 
 static void
-fx_dsms_on_close_clicked(GtkWidget *widget , gpointer data)
+fx_dsms_on_close_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 {
 	GtkWidget *dialog = GTK_WIDGET(data);
 	gtk_widget_destroy(dialog);
 }
 
 static void
-fx_dsms_on_send_clicked(GtkWidget *widget , gpointer data)
+fx_dsms_on_send_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 {
 	fx_dsms_send_message((FxDSMS*)data);
 }
@@ -541,7 +536,7 @@ void fx_dsms_initialize(FxDSMS *fxdsms)
 	GtkTextIter recvIter ;
 	GdkPixbuf *pb;
 	GtkWidget *portrait , *portraitFrame;
-	GtkWidget *addImage , *sigLabel , *addEventBox;
+	GtkWidget *addImage , *addEventBox;
 	GtkBox *abox;
 
 	fxdsms->dialog = gtk_dialog_new();

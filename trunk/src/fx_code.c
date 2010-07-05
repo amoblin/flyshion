@@ -110,10 +110,9 @@ void fx_code_initialize(FxCode *fxcode)
 	gtk_widget_show_all(fxcode->dialog);
 	gtk_widget_hide(fxcode->dialog);
 }
-void fx_code_code_event_func(GtkWidget* widget , GdkEventButton* event , gpointer data)
+void fx_code_code_event_func(GtkWidget* UNUSED(widget) , GdkEventButton* event , gpointer data)
 {
 	FxCode *fxcode = (FxCode*)data;
-	GtkWidget* dialog = fxcode->dialog;
 	User *user = fxcode->fxmain->user;
 	GdkCursor*  cursor;
 	char codePath[256];
@@ -142,14 +141,14 @@ void fx_code_code_event_func(GtkWidget* widget , GdkEventButton* event , gpointe
 			break;
 	};
 }
-void fx_code_on_ok_clicked(GtkWidget* widget , gpointer data)
+void fx_code_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	DEBUG_FOOTPRINT();
 
 	gtk_dialog_response(GTK_DIALOG(data) , GTK_RESPONSE_OK);
 }
 
-void fx_code_on_cancel_clicked(GtkWidget* widget , gpointer data)
+void fx_code_on_cancel_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	DEBUG_FOOTPRINT();
 

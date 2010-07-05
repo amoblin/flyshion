@@ -40,11 +40,4 @@ extern FxMany* fx_many_new(FxMain* fxmain);
 
 extern void fx_many_initialize(FxMany* fxmany);
 
-extern void fx_many_add_information(FxMany* fxmany , const char* text);
-
-extern void fx_many_on_close_clicked(GtkWidget* widget , gpointer data);
-
-extern void fx_many_on_send_clicked(GtkWidget* widget , gpointer data);
-
-extern void* fx_many_sms_send_func(void* data);
 #endif

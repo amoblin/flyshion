@@ -24,7 +24,7 @@ Config* fetion_config_new()
 {
 	char* homepath = NULL;
 	Config* config = NULL;
-	int n , e;
+	int e;
 	DIR *dir = NULL;
 
 	homepath = getenv("HOME");
@@ -368,7 +368,6 @@ int fetion_config_save(User* user)
 char* generate_configuration_body(User* user)
 {
 	xmlChar* buf;
-	char *res , *pos;
 	xmlDocPtr doc;
 	xmlNodePtr node , cnode;
 	char body[] = "<config></config>";

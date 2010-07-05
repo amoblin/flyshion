@@ -28,7 +28,7 @@ FxSysmsg *fx_sysmsg_new()
 	return sysmsg;
 }
 
-static void fx_on_more_clicked(GtkWidget *widget , gpointer data)
+static void fx_on_more_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 {
 	char *url = (char*)data;
 	if(fork() == 0)
@@ -39,7 +39,7 @@ static void fx_on_more_clicked(GtkWidget *widget , gpointer data)
 	}
 }
 
-static void fx_on_close_clicked(GtkWidget *widget , gpointer data)
+static void fx_on_close_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 {
 	GtkWidget *dialog = (GtkWidget*)data;
 

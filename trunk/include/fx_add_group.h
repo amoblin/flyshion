@@ -27,10 +27,4 @@ extern void fx_add_group_initialize(FxAddGroup* fxaddgroup);
 
 extern void fx_add_group_free(FxAddGroup* fxaddgroup);
 
-/*signal function*/
-
-extern void fx_add_group_on_ok_clicked(GtkWidget* widget , gpointer data);
-
-extern void fx_add_group_on_cancel_clicked(GtkWidget* widget , gpointer data);
-
 #endif
