@@ -2,17 +2,21 @@ bin_PROGRAMS = openfetion
 
 openfetion_CPPFLAGS= \
 		     @LIBXML_CFLAGS@ \
+		     @GLIB2_CFLAGS@ \
+		     @GOBJECT2_CFLAGS@ \
 		     @GTK_CFLAGS@ \
 		     @GSTREAMER_CFLAGS@ \
 		     @LIBNOTIFY_CFLAGS@ \
 		     @SSL_CFLAGS@ \
-		     -g -Wall\
+		     -g -Wall -O2\
 		     -I../include -I../include/openfetion -I ../. \
 		     -DSKIN_DIR=\"$(pkgdatadir)/skin/\" \
 		     -DRESOURCE_DIR=\"$(pkgdatadir)/resource/\"
 
 openfetion_LDADD= \
 		  @LIBXML_LIBS@ \
+		  @GLIB2_LIBS@ \
+		  @GOBJECT2_LIBS@ \
 		  @GTK_LIBS@ \
 		  @GSTREAMER_LIBS@ \
 		  @LIBNOTIFY_LIBS@ \
