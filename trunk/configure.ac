@@ -49,8 +49,16 @@ PKG_CHECK_MODULES(SSL, [
         openssl
 ])
 
+PKG_CHECK_MODULES(GLIB2, [
+        glib-2.0 >= 2.14
+])
+
+PKG_CHECK_MODULES(GOBJECT2, [
+        gobject-2.0 >= 2.14
+])
+
 PKG_CHECK_MODULES(GTK, [
-        gtk+-2.0
+        gtk+-2.0 >= 2.12
 ])
 
 PKG_CHECK_MODULES(LIBXML, [
@@ -58,7 +66,7 @@ PKG_CHECK_MODULES(LIBXML, [
 ])
 
 PKG_CHECK_MODULES(GTHREAD, [
-        gthread-2.0
+        gthread-2.0 >= 2.12
 ])
 
 AC_ARG_ENABLE(debug,
