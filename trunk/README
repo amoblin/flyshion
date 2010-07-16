@@ -31,9 +31,10 @@ INSTALLATION
 	
 	Then you can start installing openfetion like this:
 
-	./configure
+        autoreconf -fiv
+	./configure --prefix=/usr
 	or your can enable debug mode to trace the runing information with --enable-debug
 
 	make
 
-	make install
+	sudo make install
