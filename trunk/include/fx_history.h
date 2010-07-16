@@ -25,12 +25,10 @@ extern FxHistory* fx_history_new(FxMain* fxmain , const char* userid , const cha
 
 extern void fx_history_initialize(FxHistory* fxhistory);
 
-extern void fx_history_bind(FxHistory* fxhistory , int count);
+extern int fx_history_bind(FxHistory* fxhistory , int start, int count);
 
 extern GtkTreeModel* fx_history_create_count_model();
 
 extern void fx_history_on_close_clicked(GtkWidget* UNUSED(widget) , gpointer data);
-
-extern void fx_history_on_refresh_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 
 #endif

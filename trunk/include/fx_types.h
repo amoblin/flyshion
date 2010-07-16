@@ -285,6 +285,10 @@ typedef struct
 	GtkWidget* textview;
 	GtkWidget* daycombo;
 	GtkWidget* closebtn;
+        GtkWidget* poslabel;
+        GtkWidget* nextbtn;
+        GtkWidget* privbtn;
+        int current_pos;
 } FxHistory;
 
 typedef struct

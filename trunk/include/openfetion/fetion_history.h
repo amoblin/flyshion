@@ -21,6 +21,7 @@
 #ifndef FETION_HISTORY_H
 #define FETION_HISTORY_H
 
+#include <glib.h>
 
 extern History* fetion_history_message_new(const char* name , const char* userid , struct tm time , const char* msg , const int issend);
 
@@ -32,7 +33,7 @@ extern void fetion_history_free(FetionHistory* fhistory);
 
 extern void fetion_history_add(FetionHistory* fhistory , History* history);
 
-extern FxList* fetion_history_get_list(Config* config , const char* sid , int count);
+extern GList* fetion_history_get_list(Config* config , const char* sid);
 
 
 #endif
