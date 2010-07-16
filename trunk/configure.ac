@@ -15,24 +15,21 @@ AM_PROG_CC_C_O
 
 AC_PROG_INSTALL
 
-# Checks for libraries.
-# FIXME: Replace `main' with a function in `-lcrypto':
-AC_CHECK_LIB([crypto], [main])
+AX_LIB_CRYPTO
 # FIXME: Replace `main' with a function in `-lnotify':
 AC_CHECK_LIB([notify], [main])
-# FIXME: Replace `main' with a function in `-lpthread':
-AC_CHECK_LIB([pthread], [main])
-# FIXME: Replace `main' with a function in `-lssl':
-AC_CHECK_LIB([ssl], [main])
+AX_PTHREAD
+AX_CHECK_OPENSSL
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h netinet/in.h stdint.h stdlib.h string.h sys/ioctl.h sys/socket.h unistd.h])
 
-# checks for gtk+2.0
-AM_PATH_GTK_2_0(,,AC_MSG_ERROR(OpenFetion 1.6.1 needs GTK+ 2.0))
+# Checks for typedefs, structures, and compiler characteristics.
 
-# checks for libxml2
-AM_PATH_XML2(,,AC_MSG_ERROR(OpenFetion 1.6.1 needs LIBXML2))
+# Checks for library functions.
+AC_FUNC_FORK
+AC_FUNC_MALLOC
+AC_CHECK_FUNCS([bzero gethostbyname memset mkdir select socket strstr strtol])
 
 # checks for gstreamer-0.10
 PKG_CHECK_MODULES(GSTREAMER, [gstreamer-0.10], [
@@ -48,16 +45,25 @@ PKG_CHECK_MODULES(LIBNOTIFY, [libnotify], [
 			AC_SUBST(LIBNOTIFY_LIBS)
 		] , [enable_libnotify="no"])
 
+PKG_CHECK_MODULES(SSL, [
+        openssl
+])
+
+PKG_CHECK_MODULES(GTK, [
+        gtk+-2.0
+])
+
+PKG_CHECK_MODULES(LIBXML, [
+        libxml-2.0
+])
+
+PKG_CHECK_MODULES(GTHREAD, [
+        gthread-2.0
+])
+
 AC_ARG_ENABLE(debug,
         [ --enable-debug turn on debug],
         CPPFLAGS+="-DFETION_DEBUG_TRACE")
-
-# Checks for typedefs, structures, and compiler characteristics.
-
-# Checks for library functions.
-AC_FUNC_FORK
-AC_FUNC_MALLOC
-AC_CHECK_FUNCS([bzero gethostbyname memset mkdir select socket strstr strtol])
 
 AC_CONFIG_FILES(
 				Makefile
