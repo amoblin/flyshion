@@ -2,58 +2,58 @@
 
 struct emotion emotions[] = {
 
-	{ "微笑" , ":)", 1 } ,
-	{ "大笑" , ":-d", 2 } ,
-	{ "眨眼" , ";)", 3 } ,
-	{ "惊讶" , ":-o", 4 } ,
-	{ "吐舌笑脸" , ":-p", 5 } ,
-	{ "热烈的笑脸" , "(h)", 6 } ,
-	{ "生气" , ":-@", 7 } ,
-	{ "悲伤" , ":(", 8 } ,
-	{ "哭泣" , ":'(", 9 } ,
-	{ "尴尬" , ":\">", 10 } ,
-	{ "讽刺" , "^o)", 11 } ,
-	{ "生病" , ":&", 12 } ,
-	{ "咬牙切齿" , "8o|", 13 } ,
-	{ "困" , "|-)", 14 } ,
-	{ "保密" , ":-#", 15 } ,
-	{ "转动的眼睛" , "8-)", 16 } ,
-	{ "沉睡的月亮" , "(s)", 17 } ,
-	{ "下雨" , "(st)", 18 } ,
-	{ "时钟" , "(o)", 19 } ,
-	{ "红心" , "(l)", 20 } ,
-	{ "破碎的心" , "(u)", 21 } ,
-	{ "猫脸" , "(@)", 22 } ,
-	{ "狗脸" , "(&)", 23 } ,
-	{ "蜗牛" , "(sn)", 24 } ,
-	{ "星星" , "(*)", 25 } ,
-	{ "太阳" , "(#)", 26 } ,
-	{ "彩虹" , "(r)", 27 } ,
-	{ "左侧拥抱" , "(})", 29 } ,
-	{ "右侧拥抱" , "({)", 28 } ,
-	{ "红唇" , "(k)", 30 } ,
-	{ "红玫瑰" , "(f)", 31 } ,
-	{ "凋谢的玫瑰" , "(w)", 32 } ,
-	{ "礼品盒" , "(g)", 33 } ,
-	{ "生日蛋糕" , "(^)", 34 } ,
-	{ "音乐" , "(8)", 35 } ,
-	{ "灯泡" , "(i)", 36 } ,
-	{ "想法" , "*-:)", 37 } ,
-	{ "咖啡" , "(c)", 38 } ,
-	{ "雨伞" , "(um)", 39 } ,
-	{ "手机" , "(mp)", 40 } ,
-	{ "计算机" , "(co)", 41 } ,
-	{ "失望" , ":-|", 42 } ,
-	{ "困惑" , ":-/", 43 } ,
-	{ "担心" , ":s", 44 } ,
-	{ "饮料" , ")-|", 45 } ,
-	{ "高脚杯" , "(d)", 46 } ,
-	{ "天使" , "O:)", 47 } ,
-	{ "深思" , ":-?", 48 } ,
-	{ "太棒了" , "(y)", 49 } ,
-	{ "淘气" , "&gt;:)", 50 } ,
-	{ "笨蛋，呆子" , ":-b", 51 } ,
-	{ "戴着太阳镜" , "b)", 52 } ,
+	{ N_("Smile") , ":)", 1 } ,
+	{ N_("Laugh") , ":-d", 2 } ,
+	{ N_("Wink") , ";)", 3 } ,
+	{ N_("Surprised") , ":-o", 4 } ,
+	{ N_("Tongue smile") , ":-p", 5 } ,
+	{ N_("Warm smile") , "(h)", 6 } ,
+	{ N_("Angry") , ":-@", 7 } ,
+	{ N_("Sad") , ":(", 8 } ,
+	{ N_("Cry") , ":'(", 9 } ,
+	{ N_("Awkward") , ":\">", 10 } ,
+	{ N_("Irony") , "^o)", 11 } ,
+	{ N_("Illed") , ":&", 12 } ,
+	{ N_("Gritting my teeth") , "8o|", 13 } ,
+	{ N_("Tired") , "|-)", 14 } ,
+	{ N_("Secrecy") , ":-#", 15 } ,
+	{ N_("Googly eyes") , "8-)", 16 } ,
+	{ N_("Sleeping Moon") , "(s)", 17 } ,
+	{ N_("Rain") , "(st)", 18 } ,
+	{ N_("Clock") , "(o)", 19 } ,
+	{ N_("Red heart") , "(l)", 20 } ,
+	{ N_("Break heart") , "(u)", 21 } ,
+	{ N_("Face of cat") , "(@)", 22 } ,
+	{ N_("Face of dog") , "(&)", 23 } ,
+	{ N_("Snail") , "(sn)", 24 } ,
+	{ N_("Star") , "(*)", 25 } ,
+	{ N_("Sun") , "(#)", 26 } ,
+	{ N_("Rainbow") , "(r)", 27 } ,
+	{ N_("Hug left") , "(})", 29 } ,
+	{ N_("Hug right") , "({)", 28 } ,
+	{ N_("Red lips") , "(k)", 30 } ,
+	{ N_("Red rose") , "(f)", 31 } ,
+	{ N_("Withered rose") , "(w)", 32 } ,
+	{ N_("Gift Box") , "(g)", 33 } ,
+	{ N_("Birthday cake") , "(^)", 34 } ,
+	{ N_("Music") , "(8)", 35 } ,
+	{ N_("Bulb") , "(i)", 36 } ,
+	{ N_("Idea") , "*-:)", 37 } ,
+	{ N_("Coffee") , "(c)", 38 } ,
+	{ N_("Umbrella") , "(um)", 39 } ,
+	{ N_("Mobile Phone") , "(mp)", 40 } ,
+	{ N_("Computer") , "(co)", 41 } ,
+	{ N_("Disappointed") , ":-|", 42 } ,
+	{ N_("Confused") , ":-/", 43 } ,
+	{ N_("Worried") , ":s", 44 } ,
+	{ N_("Drinks") , ")-|", 45 } ,
+	{ N_("Goblet") , "(d)", 46 } ,
+	{ N_("Angel") , "O:)", 47 } ,
+	{ N_("Thinking") , ":-?", 48 } ,
+	{ N_("Great") , "(y)", 49 } ,
+	{ N_("Naughty") , "&gt;:)", 50 } ,
+	{ N_("Idiot") , ":-b", 51 } ,
+	{ N_("Sunglasses") , "b)", 52 } ,
 	{ "" , "" , 0}
 
 };
@@ -109,7 +109,6 @@ void fx_emotion_initialize(FxEmotion *fxemotion , int x , int y)
 	GtkWidget *table;
 	GtkWidget *frame , *subframe;
 	GtkWidget *img , *eventbox;
-	GdkPixbuf *pb;
 	int i = 0 , j = 0 , k = 0;
 	char path[1024];
 	struct args{
@@ -122,9 +121,6 @@ void fx_emotion_initialize(FxEmotion *fxemotion , int x , int y)
 	fxemotion->dialog = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_decorated(GTK_WINDOW(fxemotion->dialog) , FALSE);
 	gtk_window_set_type_hint(GTK_WINDOW(fxemotion->dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
-	gtk_window_set_title(GTK_WINDOW(fxemotion->dialog) , "表情盒子");
-	pb = gdk_pixbuf_new_from_file(SKIN_DIR"face_images/3.gif" , NULL);
-	gtk_window_set_icon(GTK_WINDOW(fxemotion->dialog) , pb);
 	gtk_widget_set_name(fxemotion->dialog , "mainwindow");
 	gtk_window_set_default_size(GTK_WINDOW(fxemotion->dialog) , 300 , 180);
         gtk_window_set_skip_taskbar_hint (GTK_WINDOW(fxemotion->dialog), TRUE);
@@ -146,7 +142,7 @@ void fx_emotion_initialize(FxEmotion *fxemotion , int x , int y)
 			if( k < 52 ){
 				sprintf(path , SKIN_DIR"face_images/%d.gif" , (k++) + 1);
 				eventbox = gtk_event_box_new();
-				gtk_widget_set_tooltip_markup(eventbox , emotions[k - 1].name);
+				gtk_widget_set_tooltip_markup(eventbox , _(emotions[k - 1].name));
 				img = gtk_image_new_from_file(path);
 				gtk_container_add(GTK_CONTAINER(eventbox) , img);
 				emotionArgs = (struct args *)malloc(sizeof(struct args));

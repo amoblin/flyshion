@@ -54,7 +54,7 @@ void fx_close_initialize(FxClose *fxclose)
 	GtkFixed *fixed;
 	
 	fxclose->dialog = gtk_dialog_new();
-	gtk_window_set_title(GTK_WINDOW(fxclose->dialog) , "提示信息");
+	gtk_window_set_title(GTK_WINDOW(fxclose->dialog) , _("Notification"));
 	pb = gdk_pixbuf_new_from_file(SKIN_DIR"user_online.png" , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxclose->dialog) , pb);
 	gtk_widget_set_usize(fxclose->dialog , 280 , 180);
@@ -65,21 +65,21 @@ void fx_close_initialize(FxClose *fxclose)
 	fixed = GTK_FIXED(gtk_fixed_new());
 	gtk_box_pack_start_defaults(vbox , GTK_WIDGET(fixed));
 
-	label = gtk_label_new("确定要退出OpenFetion吗？");
+	label = gtk_label_new(_("Are you sure to exit OpenFetion ?"));
 	gtk_fixed_put(fixed , label , 20 , 20);
 
-	fxclose->closeBtn = gtk_radio_button_new_with_label(NULL , "退出Openfetion");
+	fxclose->closeBtn = gtk_radio_button_new_with_label(NULL , _("Exit Openfetion"));
 	group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(fxclose->closeBtn));
-	fxclose->iconBtn = gtk_radio_button_new_with_label(group , "最小化到托盘");
-	fxclose->notalert = gtk_check_button_new_with_label("不再提示");
+	fxclose->iconBtn = gtk_radio_button_new_with_label(group , _("Minimize to tray"));
+	fxclose->notalert = gtk_check_button_new_with_label(_("Don't notify again"));
 	gtk_fixed_put(fixed , fxclose->closeBtn , 40 , 50);
 	gtk_fixed_put(fixed , fxclose->iconBtn , 40 , 70);
 	gtk_fixed_put(fixed , fxclose->notalert , 40 , 100);
 
 
-	okBtn = gtk_button_new_with_label("确定");
+	okBtn = gtk_button_new_with_label(_("OK"));
 	g_signal_connect(okBtn , "clicked" , G_CALLBACK(fx_close_on_ok_clicked) , fxclose->dialog);
-	cancelBtn = gtk_button_new_with_label("取消");
+	cancelBtn = gtk_button_new_with_label(_("Cancel"));
 	g_signal_connect(cancelBtn , "clicked" , G_CALLBACK(fx_close_on_cancel_clicked) , fxclose->dialog);
 	gtk_box_pack_start_defaults(action_area , okBtn);
 	gtk_box_pack_start_defaults(action_area , cancelBtn);

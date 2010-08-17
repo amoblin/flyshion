@@ -58,27 +58,26 @@ void fx_confirm_initialize(FxConfirm *fxconfirm)
 	gtk_window_set_resizable(GTK_WINDOW(fxconfirm->dialog) , FALSE);
 	pb = gdk_pixbuf_new_from_file(SKIN_DIR"user_online.png" , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxconfirm->dialog) , pb);
-	gtk_window_set_title(GTK_WINDOW(fxconfirm->dialog) , "直接短信");
+	gtk_window_set_title(GTK_WINDOW(fxconfirm->dialog) , ("SMS directly"));
 
 	fixed = gtk_fixed_new();
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxconfirm->dialog)->vbox)
 			, fixed);
-	infoLabel = gtk_label_new("飞信已经将短信验证码发送到"
-			"您好的手机，请输入短信验证码");
-	codeLabel = gtk_label_new("短信验证码：");
+	infoLabel = gtk_label_new(_("Fetion has send verification code as SMS to your cell phone. Please input it."));
+	codeLabel = gtk_label_new(_("Verification code"));
 	fxconfirm->codeEntry = gtk_entry_new();
 	gtk_widget_set_usize(fxconfirm->codeEntry , 240 , 25);
 	noteLabel = gtk_label_new(NULL);
 	gtk_label_set_markup(GTK_LABEL(noteLabel)
-			, "<span color='#808080'>注意：短信可能由于网络等原因有一些延迟"
-			 "，请稍候......</span>");
+			, _("<span color='#808080'>NOTE：A little timelag because of network reason"
+			 "，Please Wait......</span>"));
 	gtk_fixed_put(GTK_FIXED(fixed) , infoLabel , 40 , 40);
 	gtk_fixed_put(GTK_FIXED(fixed) , codeLabel , 40 , 74);
 	gtk_fixed_put(GTK_FIXED(fixed) , fxconfirm->codeEntry , 120 , 70);
 	gtk_fixed_put(GTK_FIXED(fixed) , noteLabel , 20 , 120);
 
-	okBtn = gtk_button_new_with_label("确定");
-	cancelBtn = gtk_button_new_with_label("取消");
+	okBtn = gtk_button_new_with_label(_("OK"));
+	cancelBtn = gtk_button_new_with_label(_("Cancel"));
 
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxconfirm->dialog)->action_area)
 			, okBtn);
@@ -203,7 +202,7 @@ fx_dsms_on_rightbutton_click(GtkWidget *UNUSED(tree)
 
 		gtk_tree_path_free(path);
 		
-		item = gtk_image_menu_item_new_with_label("删除这个联系人");
+		item = gtk_image_menu_item_new_with_label(_("Delete this contact"));
 		img = gtk_image_new_from_file(SKIN_DIR"delete.png");
 
 		gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item) , img);
@@ -243,7 +242,7 @@ fx_dsms_on_text_buffer_changed(GtkTextBuffer *buffer , gpointer data)
 	if(count <= 180)
 	{
 		bzero(text , sizeof(text));
-		sprintf(text , "%d/180，分为%d条短信" , count
+		sprintf(text , _("%d/180, will split to %d") , count
 				, (count % 60) ? (count / 60 + 1) : (count / 60 ));
 		gtk_label_set_markup(GTK_LABEL(fxdsms->countLabel) , text);
 	}
@@ -337,13 +336,13 @@ fx_dsms_send_thread(void *data)
 		ret = fetion_directsms_send_sms(user , to , msg);
 		if(ret == SEND_SMS_SUCCESS){
 			bzero(text , sizeof(text));
-			sprintf(text , "消息成功发送至:%s" , to);
+			sprintf(text , _("Mesage has been send to %s successfully.") , to);
 			gdk_threads_enter();
 			fx_dsms_add_information(fxdsms , text);
 			gdk_threads_leave();
 		}else if(ret == SEND_SMS_OTHER_ERROR){
 			bzero(text , sizeof(text));
-			sprintf(text , "消息未发送至:%s，请确认联系人手机号是否正确" , to);
+			sprintf(text , _("Mesage didn't send to %s. Please check the phone number of the contact.") , to);
 			gdk_threads_enter();
 			fx_dsms_add_information(fxdsms , text);
 			gdk_threads_leave();
@@ -357,7 +356,7 @@ picreload:
 			ret = gtk_dialog_run(GTK_DIALOG(fxcode->dialog));
 			if(ret == GTK_RESPONSE_CANCEL){
 				bzero(text , sizeof(text));
-				strcpy(text , "消息发送失败");
+				strcpy(text , _("Send message failed"));
 				fx_dsms_add_information(fxdsms , text);
 				gtk_widget_destroy(fxcode->dialog);
 				gdk_threads_leave();
@@ -381,7 +380,7 @@ picreload:
 					ret2 = gtk_dialog_run(GTK_DIALOG(fxconfirm->dialog));
 					if(ret2 == GTK_RESPONSE_CANCEL){
 						bzero(text , sizeof(text));
-						strcpy(text , "消息发送失败");
+						strcpy(text , _("Mesage send failed"));
 						fx_dsms_add_information(fxdsms , text);
 						gtk_widget_destroy(fxconfirm->dialog);
 						gdk_threads_leave();
@@ -436,7 +435,7 @@ fx_dsms_send_message(FxDSMS *fxdsms)
 	model = gtk_tree_view_get_model(treeView);
 	if(! gtk_tree_model_get_iter_first(model , &posIter))
 	{
-		fx_util_popup_warning(fxmain , "请输入联系人");
+		fx_util_popup_warning(fxmain , _("Please input a contact"));
 		return;
 	}
 
@@ -459,7 +458,7 @@ fx_dsms_send_message(FxDSMS *fxdsms)
 	}
 	strftime(time , sizeof(time) , "%H:%M:%S" , datetime);
 
-	sprintf(text , "%s 说 (%s):\n" , user->nickname , time);
+	sprintf(text , _("%s said (%s):\n") , user->nickname , time);
 	gtk_text_buffer_get_end_iter(buffer , &iter );
 	gtk_text_buffer_insert_with_tags_by_name(buffer
 					, &iter , text , -1 , "blue" , NULL);
@@ -544,12 +543,11 @@ void fx_dsms_initialize(FxDSMS *fxdsms)
 	gtk_window_set_resizable(GTK_WINDOW(fxdsms->dialog) , FALSE);
 	pb = gdk_pixbuf_new_from_file(SKIN_DIR"directsms.png" , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxdsms->dialog) , pb);
-	gtk_window_set_title(GTK_WINDOW(fxdsms->dialog) , "直接短信");
+	gtk_window_set_title(GTK_WINDOW(fxdsms->dialog) , _("SMS directly"));
 
 	infoLabel = gtk_label_new(NULL);
 	gtk_label_set_markup(GTK_LABEL(infoLabel)
-			, "  您将发送直接短信直接联系人，"
-			"资费<span color='red'>0.1元每/条。</span>");
+			, _(" You will send SMS to contact directly, cost <span color='red'>0.1 RMB/SMS.</span>"));
 	gtk_misc_set_alignment(GTK_MISC(infoLabel) , 0 , 0);
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(fxdsms->dialog)->vbox) , infoLabel , FALSE , TRUE , 10);
 
@@ -637,9 +635,9 @@ void fx_dsms_initialize(FxDSMS *fxdsms)
 				   , fxdsms);
 	
 	fxdsms->msgLabel = gtk_label_new(NULL);
-	gtk_label_set_markup(GTK_LABEL(fxdsms->msgLabel) , "<b>暂无联系人</b>\n\n"
-			"<span color='#808080'>请在上方输入框中输入收信\n人手机号\n\n"
-			"最多一次添加3个收信人</span>");
+	gtk_label_set_markup(GTK_LABEL(fxdsms->msgLabel) , _("<b>No Contact</b>\n\n"
+	"<span color='#808080'>Please input Phone Number\nin the input box above\n"
+	"3 contacts allowed at most</span>"));
 	gtk_box_pack_start(GTK_BOX(rvbox) , fxdsms->msgLabel , TRUE , FALSE , 0);
 
 	portraitFrame = gtk_frame_new(NULL);
@@ -654,11 +652,11 @@ void fx_dsms_initialize(FxDSMS *fxdsms)
 	/* bottom box */
 	abox = GTK_BOX(gtk_hbox_new(FALSE , 2));
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxdsms->dialog)->action_area) , GTK_WIDGET(abox));
-	fxdsms->countLabel = gtk_label_new("0/180,分为0条短信");
+	fxdsms->countLabel = gtk_label_new(_("0/180, will split to 0"));
 
 	gtk_misc_set_alignment(GTK_MISC(fxdsms->countLabel) , 0 , 0.5);
 	gtk_box_pack_start(abox , fxdsms->countLabel , TRUE , FALSE , 0);
-	fxdsms->checkBtn = gtk_check_button_new_with_label("签名");
+	fxdsms->checkBtn = gtk_check_button_new_with_label(_("Sign"));
 	g_signal_connect(fxdsms->checkBtn , "toggled"
 			, G_CALLBACK(fx_dsms_sig_checked) , fxdsms);
 	gtk_box_pack_start(abox , fxdsms->checkBtn , FALSE , FALSE , 0);
@@ -668,11 +666,11 @@ void fx_dsms_initialize(FxDSMS *fxdsms)
 	gtk_widget_set_usize(fxdsms->sigEntry , 100 , 0);
 	gtk_box_pack_start(abox , fxdsms->sigEntry , FALSE , FALSE , 0);
 
-	okBtn = gtk_button_new_with_label("发送");
+	okBtn = gtk_button_new_with_label(_("Send"));
 	gtk_widget_set_usize(okBtn , 100 , 0);
 	g_signal_connect(okBtn , "clicked"
 			, G_CALLBACK(fx_dsms_on_send_clicked) , fxdsms);
-	cancelBtn = gtk_button_new_with_label("关闭");
+	cancelBtn = gtk_button_new_with_label(_("Close"));
 	g_signal_connect(cancelBtn , "clicked"
 			, G_CALLBACK(fx_dsms_on_close_clicked) , fxdsms->dialog);
 	gtk_widget_set_usize(cancelBtn , 100 , 0);

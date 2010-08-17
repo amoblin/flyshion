@@ -40,9 +40,10 @@
 #endif
 
 #define FETION_NAME "OpenFetion"
-#define FETION_VERSION "1.6"
+#define FETION_VERSION "1.8"
 #define PROTO_VERSION "4.0.2510"
 #define NAVIGATION_URI "nav.fetion.com.cn"
+#define PGGROUP_SPACE_URI "http://group.feixin.10086.cn/space/Index/"
 #define LOGIN_TYPE_FETIONNO    			1
 #define LOGIN_TYPE_MOBILENO    			0
 #define BOUND_MOBILE_ENABLE    			1
@@ -63,7 +64,8 @@
 typedef enum
 {
 	BUDDY_LIST_NOT_GROUPED = 0 ,
-	BUDDY_LIST_STRANGER =   -1
+	BUDDY_LIST_STRANGER =   -1 ,
+	BUDDY_LIST_PGGROUP =      -2
 } BuddyListType;
 
 /**
@@ -148,6 +150,7 @@ typedef struct
 {
 	int type;							/* sip message type						  */
 	char from[20];						/* sender`s fetion no ,in sip it`s "F: "  */
+	int callid;
 	int sequence;						/* sequence number , in sip it`s "Q: "    */
 	int threadCount;					/* listening threads count using this sip */
 	char sipuri[48];					/* outer sipuri used when listening       */
@@ -163,17 +166,6 @@ typedef struct sipmsg
 	char* message;
 	struct sipmsg* next;
 } SipMsg;
-
-/**
- * Buddy lists information (Two-way linked list)
- */
-typedef struct group
-{
-	char groupname[32];					/* current buddy list name  */
-	int groupid;						/* current buddy list Id	*/
-	struct group *next;
-	struct group *pre;
-} Group;
 
 /**
  * Contact lists information (Two-way linked list) 
@@ -206,6 +198,58 @@ typedef struct contact
 	struct contact* next;
 	struct contact* pre;
 } Contact;
+
+/**
+ * Buddy lists information (Two-way linked list)
+ */
+typedef struct group
+{
+	char groupname[32];					/* current buddy list name  */
+	int groupid;						/* current buddy list Id	*/
+	struct group *next;
+	struct group *pre;
+} Group;
+
+typedef struct pggroupmember{
+	char sipuri[64];
+	char nickname[256];
+	char clientType[64];
+	char userId[16];
+	int state;
+	int identity;
+	int getContactInfoCallId;
+	Contact *contact;
+	struct pggroupmember *next;
+	struct pggroupmember *pre;
+} PGGroupMember;
+
+typedef struct pggroup{
+	char pguri[64];
+	char name[256];
+	int statusCode;
+	int category;
+	int currentMemberCount;
+	int limitMemberCount;
+	int groupRank;
+	int maxRank;
+	int identity;
+
+	int hasAcked;
+	int hasDetails;
+	int hasImage;
+	int inviteCallId;
+	int getMembersCallId;
+
+	char createTime[48];
+	char bulletin[1024];
+	char summary[1024];
+	char getProtraitUri[1024];
+	PGGroupMember *member;
+	struct pggroup *next;
+	struct pggroup *pre;
+} PGGroup;
+
+
 
 /**
  * Verification information used for picture code confirm
@@ -261,7 +305,7 @@ typedef struct
 	char globalPath[256];				/* global path,default $(HOME)/.openfetion                */
 	char userPath[256];					/* user path , directory name by user`s sid in globalPath */
 	char iconPath[256];					/* path stores user`s friend portraits in user`s path     */	
-	char sipcProxyIP[17];				/* sipc proxy server`s ip ,read from configuration.xml    */
+	char sipcProxyIP[20];				/* sipc proxy server`s ip ,read from configuration.xml    */
 	int sipcProxyPort;					/* sipc proxy server`s port , read from configuration.xml */
 	char portraitServerName[48];		/* portrait server`s hostname ,read from configuration.xml*/
 	char portraitServerPath[32];		/* portrait server`s path , such as /HD_POOL8             */
@@ -276,6 +320,7 @@ typedef struct
 	int closeMode;						/* close button clicked to close window or iconize it	  */
 	struct userlist* ul;				/* user list stored in local data file					  */
 	Proxy *proxy;						/* structure stores the global proxy information 		  */
+	int canIconify;
 } Config;
 
 /**
@@ -312,6 +357,9 @@ typedef struct
 	int smsMonthLimit;
 	int smsMonthCount;
 
+	int pgGroupCallId;					/* callid for get group list request */
+	int groupInfoCallId;					/* callid for get group info request */
+
 	int state;							/* presence state											*/
 	int loginType;   					/* using sid or mobileno									*/
 	int loginStatus; 					/* login status code 										*/
@@ -323,6 +371,7 @@ typedef struct
 	Verification* verification;			/* a struct used to generate picture code					*/	 
 	Contact* contactList;				/* friend list of current user								*/
 	Group* groupList;					/* buddylist list of current user							*/
+	PGGroup* pggroup;					/* group list */
 	Config* config;						/* config information										*/
 	FetionSip* sip;						/* sip object used to handle sip event						*/
 } User;
@@ -345,6 +394,7 @@ typedef struct
 {
 	char* message;						 /* message content  		*/
 	char* sipuri;						 /* sender`s sip uri 		*/
+	char* pguri;
 	struct tm sendtime;					 /* message sent time 		*/
 } Message;
 

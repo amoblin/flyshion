@@ -71,6 +71,11 @@ static void fx_set_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 		else
 			config->msgAlert = MSG_ALERT_ENABLE;
 
+		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxset->iconBtn)))
+			config->canIconify = ICON_CANNOT;
+		else
+			config->canIconify = ICON_CAN;
+
 		gtk_text_buffer_get_start_iter(buffer , &startIter);
 		gtk_text_buffer_get_end_iter(buffer , &endIter);
 		autoReplyMsg = gtk_text_buffer_get_text(buffer , &startIter , &endIter , TRUE);
@@ -86,7 +91,7 @@ static void fx_set_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 		nickname = gtk_entry_get_text(GTK_ENTRY(fxset->nick_entry));
 		if(strlen(nickname) == 0)
 		{
-			fx_util_popup_warning(fxset->fxmain , "昵称不能为空!");
+			fx_util_popup_warning(fxset->fxmain , _("Nick can not be empty!"));
 			return;
 		}
 		impression = gtk_entry_get_text(GTK_ENTRY(fxset->impre_entry));
@@ -111,12 +116,12 @@ static void fx_set_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 			gtk_label_set_markup(GTK_LABEL(fxset->fxmain->headPanel->name_label) , nickname_text );
 
 			gtk_label_set_text(GTK_LABEL(fxset->fxmain->headPanel->impre_label)
-					, strlen(user->impression) == 0 ? "点此输入心情短语" : user->impression);
+					, strlen(user->impression) == 0 ? _("Click here to input signature") : user->impression);
 
 			bzero(fxset->fxmain->headPanel->oldimpression , sizeof(fxset->fxmain->headPanel->oldimpression));
 			strcpy(fxset->fxmain->headPanel->oldimpression
 				, (strlen(user->impression) == 0 || user->impression == NULL)
-				? "点此输入心情短语" : user->impression);
+				? _("Click here to input signature") : user->impression);
 				}
 	}
 	gtk_dialog_response(GTK_DIALOG(fxset->dialog) , GTK_RESPONSE_CANCEL);
@@ -173,7 +178,7 @@ void fx_set_initialize(FxSet* fxset)
 	gtk_dialog_set_has_separator(GTK_DIALOG(fxset->dialog)
 							   , FALSE);
 	gtk_widget_set_usize(fxset->dialog , 500 , 360);
-	gtk_window_set_title(GTK_WINDOW(fxset->dialog) , "个人设置");
+	gtk_window_set_title(GTK_WINDOW(fxset->dialog) , _("Personal setting"));
 
 	fxset->notebook = gtk_notebook_new();
 	gtk_widget_set_usize(fxset->notebook , 490 , 320);
@@ -183,23 +188,23 @@ void fx_set_initialize(FxSet* fxset)
 					 , fxset->notebook , FALSE , FALSE , 0);
 
 	fxset->psetting = gtk_vbox_new(FALSE , FALSE);
-	psetting_label = gtk_label_new("个人设置");
+	psetting_label = gtk_label_new(_("Personal setting"));
 	gtk_notebook_append_page(GTK_NOTEBOOK(fxset->notebook)
 						   , fxset->psetting
 						   , psetting_label);
 
 	fxset->ssetting = gtk_vbox_new(FALSE , FALSE);
-	ssetting_label = gtk_label_new("系统设置");
+	ssetting_label = gtk_label_new(_("System setting"));
 	gtk_notebook_append_page(GTK_NOTEBOOK(fxset->notebook)
 						   , fxset->ssetting
 						   , ssetting_label);
 
 
-	ok_button = gtk_button_new_with_label("确定");
+	ok_button = gtk_button_new_with_label(_("OK"));
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxset->dialog)->action_area) , ok_button);
 	g_signal_connect(ok_button , "clicked" , G_CALLBACK(fx_set_on_ok_clicked) , fxset);
 
-	cancel_button = gtk_button_new_with_label("取消");
+	cancel_button = gtk_button_new_with_label(_("Cancel"));
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxset->dialog)->action_area) , cancel_button);
 	g_signal_connect(cancel_button , "clicked" , G_CALLBACK(fx_set_on_cancel_clicked) , fxset->dialog);
 
@@ -221,46 +226,35 @@ void fx_set_bind_system(FxSet* fxset)
 	DEBUG_FOOTPRINT();
 
 	if(config->sendMode == SEND_MODE_ENTER)
-	{
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->etBtn) , TRUE);	
-	}
 	else
-	{
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->ctBtn) , TRUE);	
-	}
 
 	if(config->autoPopup == AUTO_POPUP_ENABLE)
-	{
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->ppCb) , TRUE);
-	}
 	else
-	{
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->ppCb) , FALSE);
-	}
+
 	if(config->closeMode == CLOSE_ICON_MODE)
-	{
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->smallBtn) , TRUE);
-	}
 	else
-	{
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->smallBtn) , FALSE);
-	}
+
 	if(config->isMute == MUTE_ENABLE)
-	{
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->muteBtn) , TRUE);
-	}
 	else
-	{
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->muteBtn) , FALSE);
-	}
+
 	if(config->msgAlert == MSG_ALERT_ENABLE)
-	{
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->alertBtn) , FALSE);
-	}
 	else
-	{
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->alertBtn) , TRUE);
-	}
+
+	if(config->canIconify == ICON_CAN)
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->iconBtn) , FALSE);
+	else
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->iconBtn) , TRUE);
+
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(fxset->apEty));
 	gtk_text_buffer_get_start_iter(buffer , &startIter);
 	gtk_text_buffer_get_end_iter(buffer , &endIter);
@@ -268,7 +262,7 @@ void fx_set_bind_system(FxSet* fxset)
 
 	if(strlen(config->autoReplyMessage) == 0)
 	{
-		autoReplyMsg = "对不起，我现在不在，稍后给您回复";
+		autoReplyMsg = _("Sorry, I am not in now, and will reply to you soon");
 		gtk_text_buffer_insert(buffer , &startIter , autoReplyMsg , strlen(autoReplyMsg));
 	}
 	else
@@ -302,7 +296,7 @@ void fx_set_initialize_personal(FxSet* fxset)
 	fxset->image = gtk_image_new_from_pixbuf(pb);
 	gtk_fixed_put(GTK_FIXED(box) , fxset->image , 10 , 15 );
 
-	fxset->sid_label = gtk_label_new("飞信号:");
+	fxset->sid_label = gtk_label_new(_("Fetion number:"));
 	gtk_misc_set_alignment(GTK_MISC(fxset->sid_label) , 0 , 0);
 	gtk_fixed_put(GTK_FIXED(box) , fxset->sid_label , 120 , 10 );
 
@@ -310,7 +304,7 @@ void fx_set_initialize_personal(FxSet* fxset)
 	gtk_entry_set_editable(GTK_ENTRY(fxset->sid_entry) , FALSE);
 	gtk_fixed_put(GTK_FIXED(box) , fxset->sid_entry , 120 , 30 );
 
-	fxset->gender_label = gtk_label_new("性别:");
+	fxset->gender_label = gtk_label_new(_("Sex:"));
 	gtk_misc_set_alignment(GTK_MISC(fxset->gender_label) , 0 , 0);
 	gtk_fixed_put(GTK_FIXED(box) , fxset->gender_label , 310 , 10 );
 
@@ -322,7 +316,7 @@ void fx_set_initialize_personal(FxSet* fxset)
 	gtk_widget_set_usize(fxset->gender_combo , 150 , 25);
 	gtk_fixed_put(GTK_FIXED(box) , fxset->gender_combo , 310 , 30 );
 
-	fxset->mno_label = gtk_label_new("手机号:");
+	fxset->mno_label = gtk_label_new(_("Cell phone number:"));
 	gtk_misc_set_alignment(GTK_MISC(fxset->mno_label) , 0 , 0);
 	gtk_fixed_put(GTK_FIXED(box) , fxset->mno_label , 120 , 60 );
 
@@ -330,14 +324,14 @@ void fx_set_initialize_personal(FxSet* fxset)
 	gtk_entry_set_editable(GTK_ENTRY(fxset->mno_entry) , FALSE);
 	gtk_fixed_put(GTK_FIXED(box) , fxset->mno_entry , 120 , 80 );
 
-	fxset->nick_label = gtk_label_new("昵称:");
+	fxset->nick_label = gtk_label_new(_("Nickname:"));
 	gtk_misc_set_alignment(GTK_MISC(fxset->nick_label) , 0 , 0);
 	gtk_fixed_put(GTK_FIXED(box) , fxset->nick_label , 310 , 60 );
 
 	fxset->nick_entry = gtk_entry_new();
 	gtk_fixed_put(GTK_FIXED(box) , fxset->nick_entry , 310 , 80 );
 
-	fxset->impre_label = gtk_label_new("个性签名:");
+	fxset->impre_label = gtk_label_new(_("Personal signature:"));
 	gtk_misc_set_alignment(GTK_MISC(fxset->impre_label) , 0 , 0);
 	gtk_fixed_put(GTK_FIXED(box) , fxset->impre_label , 10 , 115 );
 
@@ -345,7 +339,7 @@ void fx_set_initialize_personal(FxSet* fxset)
 	gtk_widget_set_usize(fxset->impre_entry , 460 , 25);
 	gtk_fixed_put(GTK_FIXED(box) , fxset->impre_entry , 10 , 135 );
 	
-	fxset->province_label = gtk_label_new("省份:");
+	fxset->province_label = gtk_label_new(_("Province:"));
 	gtk_misc_set_alignment(GTK_MISC(fxset->province_label) , 0 , 0 );
 	gtk_fixed_put(GTK_FIXED(box) , fxset->province_label , 10 , 165 );
 
@@ -354,7 +348,7 @@ void fx_set_initialize_personal(FxSet* fxset)
 	gtk_widget_set_usize(fxset->province_entry , 220 , 25);
 	gtk_fixed_put(GTK_FIXED(box) , fxset->province_entry , 10 , 185 );
 
-	fxset->city_label = gtk_label_new("城市:");
+	fxset->city_label = gtk_label_new(_("City:"));
 	gtk_misc_set_alignment(GTK_MISC(fxset->city_label) , 0 , 0 );
 	gtk_fixed_put(GTK_FIXED(box) , fxset->city_label , 250 , 165 );
 
@@ -363,7 +357,7 @@ void fx_set_initialize_personal(FxSet* fxset)
 	gtk_widget_set_usize(fxset->city_entry , 220 , 25);
 	gtk_fixed_put(GTK_FIXED(box) , fxset->city_entry , 250 , 185 );
 	
-	fxset->job_label = gtk_label_new("职业:");
+	fxset->job_label = gtk_label_new(_("Job occupation:"));
 	gtk_misc_set_alignment(GTK_MISC(fxset->job_label) , 0 , 0 );
 	gtk_fixed_put(GTK_FIXED(box) , fxset->job_label , 10 , 215 );
 
@@ -372,7 +366,7 @@ void fx_set_initialize_personal(FxSet* fxset)
 	gtk_widget_set_usize(fxset->job_entry , 220 , 25);
 	gtk_fixed_put(GTK_FIXED(box) , fxset->job_entry , 10 , 235 );
 
-	fxset->email_label = gtk_label_new("电子邮箱:");
+	fxset->email_label = gtk_label_new(_("Email:"));
 	gtk_misc_set_alignment(GTK_MISC(fxset->email_label) , 0 , 0 );
 	gtk_fixed_put(GTK_FIXED(box) , fxset->email_label , 250 , 215 );
 
@@ -402,8 +396,8 @@ void fx_set_initialize_personal(FxSet* fxset)
 		free(cityName);
 	}
 
-	gtk_entry_set_text(GTK_ENTRY(fxset->job_entry) , "保密");
-	gtk_entry_set_text(GTK_ENTRY(fxset->email_entry) , "保密");
+	gtk_entry_set_text(GTK_ENTRY(fxset->job_entry) , _("Secrecy"));
+	gtk_entry_set_text(GTK_ENTRY(fxset->email_entry) , _("Secrecy"));
 
 	gtk_tree_model_get_iter_root(gmodel , &iter);
 	do
@@ -440,15 +434,18 @@ void fx_set_initialize_system(FxSet* fxset)
 	fixed = gtk_fixed_new();
 
 	label1 = gtk_label_new("");
-	gtk_label_set_markup(GTK_LABEL(label1) , "<b>自动回复</b>");
+	gtk_label_set_markup(GTK_LABEL(label1) , _("<b>Auto reply</b>"));
 	gtk_fixed_put(GTK_FIXED(fixed) , label1 , 20 , 20);
 
-	fxset->apBtn = gtk_check_button_new_with_label("开启动自回复");
+	fxset->apBtn = gtk_check_button_new_with_label(_("Trun on auto reply"));
 	g_signal_connect(fxset->apBtn , "toggled" , G_CALLBACK(fx_set_on_autoreply_toggled) , fxset);
 	gtk_fixed_put(GTK_FIXED(fixed) , fxset->apBtn , 40 , 50);
 
-	fxset->muteBtn = gtk_check_button_new_with_label("静音");
+	fxset->muteBtn = gtk_check_button_new_with_label(_("mute"));
 	gtk_fixed_put(GTK_FIXED(fixed) , fxset->muteBtn , 240 , 50);
+
+	fxset->iconBtn = gtk_check_button_new_with_label(_("Not allow to minimize to tray"));
+	gtk_fixed_put(GTK_FIXED(fixed) , fxset->iconBtn , 320 , 50);
 
 	fxset->apEty = gtk_text_view_new();
 	gtk_widget_set_sensitive(fxset->apEty , FALSE);
@@ -463,34 +460,34 @@ void fx_set_initialize_system(FxSet* fxset)
 	gtk_fixed_put(GTK_FIXED(fixed) , apScr , 40 , 80);
 
 	label3 = gtk_label_new("");
-	gtk_label_set_markup(GTK_LABEL(label3) , "<b>自动弹出消息窗口</b>");
+	gtk_label_set_markup(GTK_LABEL(label3) , _("<b>Minimize when click Close button</b>"));
 	gtk_fixed_put(GTK_FIXED(fixed) , label3 , 20 , 150);
 	
-	fxset->ppCb = gtk_check_button_new_with_label("开启");
+	fxset->ppCb = gtk_check_button_new_with_label(_("On"));
 	gtk_fixed_put(GTK_FIXED(fixed) , fxset->ppCb , 40 , 180);
 
 	label5 = gtk_label_new("");
-	gtk_label_set_markup(GTK_LABEL(label5) , "<b>关闭按钮点击最小化</b>");
+	gtk_label_set_markup(GTK_LABEL(label5) , _("<b>Minimize when click Close button</b>"));
 	gtk_fixed_put(GTK_FIXED(fixed) , label5 , 200 , 150);
 
-	fxset->smallBtn = gtk_check_button_new_with_label("开启");
+	fxset->smallBtn = gtk_check_button_new_with_label(_("On"));
 	gtk_fixed_put(GTK_FIXED(fixed) , fxset->smallBtn , 220 , 180);
 
 	label6 = gtk_label_new("");
-	gtk_label_set_markup(GTK_LABEL(label6) , "<b>消息提示</b>");
+	gtk_label_set_markup(GTK_LABEL(label6) , _("<b>Message Notification</b>"));
 	gtk_fixed_put(GTK_FIXED(fixed) , label6 , 360 , 150);
 
-	fxset->alertBtn = gtk_check_button_new_with_label("关闭");
+	fxset->alertBtn = gtk_check_button_new_with_label(_("Close"));
 	gtk_fixed_put(GTK_FIXED(fixed) , fxset->alertBtn , 370 , 180);
 
 	label4 = gtk_label_new("");
-	gtk_label_set_markup(GTK_LABEL(label4) , "<b>消息发送方式</b>");
+	gtk_label_set_markup(GTK_LABEL(label4) , _("<b>How to send message?</b>"));
 	gtk_fixed_put(GTK_FIXED(fixed) , label4 , 20 , 210);
 
-	fxset->etBtn = gtk_radio_button_new_with_label(NULL , "ENTER 发送消息");
+	fxset->etBtn = gtk_radio_button_new_with_label(NULL , _("Press Enter to send"));
 	gtk_fixed_put(GTK_FIXED(fixed) , fxset->etBtn , 40 , 240);
 	gl = gtk_radio_button_get_group(GTK_RADIO_BUTTON(fxset->etBtn));
-	fxset->ctBtn = gtk_radio_button_new_with_label(gl , "CTRL+ENTER 发送消息");
+	fxset->ctBtn = gtk_radio_button_new_with_label(gl , _("Press CTRL + Enter to send"));
 	gtk_fixed_put(GTK_FIXED(fixed) , fxset->ctBtn , 40 , 260);
 
 	gtk_box_pack_start_defaults(GTK_BOX(fxset->ssetting) , fixed);
@@ -506,9 +503,9 @@ GtkTreeModel* fx_set_create_gender_model()
 		int id;
 	} genders[] = 
 	{
-		{ "男" , 1 } ,
-		{ "女" , 2 } ,
-		{ "保密" , 0} ,
+		{ N_("Male") , 1 } ,
+		{ N_("Female") , 2 } ,
+		{ N_("Secrecy") , 0} ,
 		{ NULL , 1}
 	};
 	GtkTreeStore* model = gtk_tree_store_new(COMBO_COLS_NUM
@@ -523,7 +520,7 @@ GtkTreeModel* fx_set_create_gender_model()
 	{
 		gtk_tree_store_append(model , &iter , NULL);
 		gtk_tree_store_set(model , &iter
-						 , COMBO_NAME_COL , genders[i].name
+						 , COMBO_NAME_COL , _(genders[i].name)
 						 , COMBO_ID_COL , genders[i].id
 						 , -1);
 	}

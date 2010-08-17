@@ -51,6 +51,8 @@ extern FxList* fetion_config_get_phrase(Config* config);
 
 extern void fetion_phrase_free(Phrase* phrase);
 
+extern void fetion_config_free(Config *config);
+
 /*user list*/
 #define foreach_userlist(head , ul) \
 	for(ul = head ; (ul = ul->next) != head;)
@@ -67,6 +69,8 @@ extern void fetion_user_list_set_lastuser_by_no(struct userlist *ul , const char
 extern struct userlist* fetion_user_list_find_by_no(struct userlist* list , const char* no);
 
 extern struct userlist* fetion_user_list_load(Config* config);
+
+extern void fetion_user_list_free(struct userlist *list);
 
 
 /*private*/

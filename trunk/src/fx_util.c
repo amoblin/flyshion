@@ -20,11 +20,6 @@
 
 #include "fx_include.h"
 
-gchar * _(const gchar *string)
-{
-	return(g_locale_to_utf8(string, -1, NULL, NULL, NULL));
-}
-
 char* fx_util_get_state_name(StateType type)
 {
 	char *name = (char*)malloc(48);
@@ -32,37 +27,37 @@ char* fx_util_get_state_name(StateType type)
 	switch(type)
 	{
 		case P_ONLINE:
-			strcpy(name , "[在线]");
+			strcpy(name , _("[Online]"));
 			break;
 		case P_BUSY:
-			strcpy(name , "[忙碌]");
+			strcpy(name , _("[Busy]"));
 			break;
 		case P_AWAY:
-			strcpy(name , "[离开]");
+			strcpy(name , _("[Leave]"));
 			break;
 		case P_HIDDEN:
-			strcpy(name , "[隐身]");
+			strcpy(name , _("[Hide]"));
 			break;
 		case P_OUTFORLUNCH:
-			strcpy(name , "[外出就餐]");
+			strcpy(name , _("[Eating out]"));
 			break;
 		case P_DONOTDISTURB:
-			strcpy(name , "[请勿打扰]");
+			strcpy(name , _("[Do Not Disturb]"));
 			break;
 		case P_RIGHTBACK:
-			strcpy(name , "[马上回来]");
+			strcpy(name , _("[Be Back Soon]"));
 			break;
 		case P_MEETING:
-			strcpy(name , "[会议中]");
+			strcpy(name , _("[Meeting]"));
 			break;
 		case P_ONTHEPHONE:
-			strcpy(name , "[电话中]");
+			strcpy(name , _("[Calling]"));
 			break;
 		default:
 			if(type > 400 && type < 500)
-				strcpy(name , "[在线]");
+				strcpy(name , _("[Online]"));
 			else
-				strcpy(name , "[未知状态]");
+				strcpy(name , _("[Unknown Statement]"));
 			break;
 	}
 	return name;
@@ -303,4 +298,82 @@ char *fx_util_replace_emotion(char *str)
         str = fx_util_str_replace(str, "b)", "#52#");
     }
 	return str;
+}
+
+static gchar getpychar(guchar uword0 , guchar uword1)
+{
+	gchar pychar;
+
+	int i1 = (short)(uword0 - '\0');
+	int i2 = (short)(uword1 - '\0');
+
+	int tmp = i1 * 256 + i2;
+
+	if(tmp >= 45217 && tmp <= 45252) pychar = 'A'; 
+	else if(tmp >= 45253 && tmp <= 45760) pychar = 'B'; 
+	else if(tmp >= 45761 && tmp <= 46317) pychar = 'C'; 
+	else if(tmp >= 46318 && tmp <= 46825) pychar = 'D'; 
+	else if(tmp >= 46826 && tmp <= 47009) pychar = 'E'; 
+	else if(tmp >= 47010 && tmp <= 47296) pychar = 'F'; 
+	else if(tmp >= 47297 && tmp <= 47613) pychar = 'G'; 
+	else if(tmp >= 47614 && tmp <= 48118) pychar = 'H'; 
+	else if(tmp >= 48119 && tmp <= 49061) pychar = 'J'; 
+	else if(tmp >= 49062 && tmp <= 49323) pychar = 'K'; 
+	else if(tmp >= 49324 && tmp <= 49895) pychar = 'L'; 
+	else if(tmp >= 49896 && tmp <= 50370) pychar = 'M'; 
+	else if(tmp >= 50371 && tmp <= 50613) pychar = 'N'; 
+	else if(tmp >= 50614 && tmp <= 50621) pychar = 'O'; 
+	else if(tmp >= 50622 && tmp <= 50905) pychar = 'P'; 
+	else if(tmp >= 50906 && tmp <= 51386) pychar = 'Q'; 
+	else if(tmp >= 51387 && tmp <= 51445) pychar = 'R'; 
+	else if(tmp >= 51446 && tmp <= 52217) pychar = 'S'; 
+	else if(tmp >= 52218 && tmp <= 52697) pychar = 'T'; 
+	else if(tmp >= 52698 && tmp <= 52979) pychar = 'W'; 
+	else if(tmp >= 52980 && tmp <= 53640) pychar = 'X'; 
+	else if(tmp >= 53689 && tmp <= 54480) pychar = 'Y'; 
+	else if(tmp >= 54481 && tmp <= 55289) pychar = 'Z'; 
+	else pychar = ' ';
+
+	return pychar;
+}
+
+gchar *get_pystring(const gchar *in)
+{
+	gsize inlen , olen , i , j = 0;
+	gchar *gword = g_convert(in , strlen(in)
+			, "gb2312" , "utf8" , &inlen , &olen , NULL);
+
+	guchar *uword = (guchar*)gword;
+	gchar *out = (gchar*)malloc(olen);
+	
+	memset(out , 0 , olen);
+
+	for(i = 0 ; i < olen ; i++){
+		if(uword[i] >= 0xa1){
+			if(uword[i] != 0xa3){
+				out[j++] = getpychar(uword[i] , uword[i + 1]);
+				i ++;
+			}
+		}else{
+			out[j++] = toupper((gchar)uword[i]);
+		}
+	}
+
+	return out;
+
+}
+
+gboolean has_gb(const gchar *in)
+{
+	gsize inlen , olen , i;
+	gchar *gword = g_convert(in , strlen(in)
+			, "gb2312" , "utf8" , &inlen , &olen , NULL);
+
+	guchar *uword = (guchar*)gword;
+
+	for(i = 0 ; i < olen ; i++)
+		if(uword[i] >= 0xa1)
+			return TRUE;
+
+	return FALSE;
 }

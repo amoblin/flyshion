@@ -1,21 +1,21 @@
 /***************************************************************************
- *   Copyright (C) 2010 by lwp                                             *
+ *   copyright (c) 2010 by lwp                                             *
  *   levin108@gmail.com                                                    *
  *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
+ *   this program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the gnu general public license as published by  *
+ *   the free software foundation; either version 2 of the license, or     *
  *   (at your option) any later version.                                   *
  *                                                                         *
- *   This program is distributed in the hope that it will be useful,       *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU General Public License for more details.                          *
+ *   this program is distributed in the hope that it will be useful,       *
+ *   but without any warranty; without even the implied warranty of        *
+ *   merchantability or fitness for a particular purpose.  see the         *
+ *   gnu general public license for more details.                          *
  *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
+ *   you should have received a copy of the gnu general public license     *
  *   along with this program; if not, write to the                         *
- *   Free Software Foundation, Inc.,                                       *
- *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ *   free software foundation, inc.,                                       *
+ *   59 temple place - suite 330, boston, ma  02111-1307, usa.             *
  ***************************************************************************/
 
 #include "fx_include.h"
@@ -24,7 +24,6 @@ FxProfile* fx_profile_new(FxMain* fxmain , const char* userid)
 {
 	FxProfile* fxprofile = (FxProfile*)malloc(sizeof(FxProfile));
 
-	DEBUG_FOOTPRINT();
 
 	memset(fxprofile , 0 , sizeof(FxProfile));
 	fxprofile->fxmain = fxmain;
@@ -41,9 +40,9 @@ void fx_profile_initialize(FxProfile* fxprofile)
 	
 	DEBUG_FOOTPRINT();
 
-	fxprofile->dialog = gtk_dialog_new_with_buttons ("查看好友信息"
+	fxprofile->dialog = gtk_dialog_new_with_buttons (_("view contact's information")
 									, GTK_WINDOW(fxmain->window)
-									, GTK_DIALOG_DESTROY_WITH_PARENT
+									,GTK_DIALOG_DESTROY_WITH_PARENT	
 									, NULL);
 
 	gtk_dialog_set_has_separator(GTK_DIALOG(fxprofile->dialog) , FALSE);
@@ -64,7 +63,7 @@ void fx_profile_initialize(FxProfile* fxprofile)
 	g_object_unref(pb);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxprofile->image , 0 , 1 , 0 , 4);
 
-	fxprofile->sid_label = gtk_label_new("飞信号:");
+	fxprofile->sid_label = gtk_label_new(_("Fetion number:"));
 	gtk_misc_set_alignment(GTK_MISC(fxprofile->sid_label) , 0 , 0);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxprofile->sid_label , 1 , 2 , 0 , 1);
 
@@ -72,7 +71,7 @@ void fx_profile_initialize(FxProfile* fxprofile)
 	gtk_entry_set_editable(GTK_ENTRY(fxprofile->sid_entry) , FALSE);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxprofile->sid_entry , 1 , 2 , 1 , 2);
 
-	fxprofile->gender_label = gtk_label_new("性别:");
+	fxprofile->gender_label = gtk_label_new(_("Sex:"));
 	gtk_misc_set_alignment(GTK_MISC(fxprofile->gender_label) , 0 , 0);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxprofile->gender_label , 2 , 3 , 0 , 1);
 
@@ -80,7 +79,7 @@ void fx_profile_initialize(FxProfile* fxprofile)
 	gtk_entry_set_editable(GTK_ENTRY(fxprofile->gender_entry) , FALSE);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxprofile->gender_entry , 2 , 3 , 1 , 2);
 
-	fxprofile->mno_label = gtk_label_new("手机号:");
+	fxprofile->mno_label = gtk_label_new(_("Cell phone number:"));
 	gtk_misc_set_alignment(GTK_MISC(fxprofile->mno_label) , 0 , 0);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxprofile->mno_label , 1 , 2 , 2 , 3);
 
@@ -89,7 +88,7 @@ void fx_profile_initialize(FxProfile* fxprofile)
 	gtk_entry_set_editable(GTK_ENTRY(fxprofile->mno_entry) , FALSE);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxprofile->mno_entry , 1 , 2 , 3 , 4);
 
-	fxprofile->nick_label = gtk_label_new("昵称:");
+	fxprofile->nick_label = gtk_label_new(_("Nickname:"));
 	gtk_misc_set_alignment(GTK_MISC(fxprofile->nick_label) , 0 , 0);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxprofile->nick_label , 2 , 3 , 2 , 3);
 
@@ -97,7 +96,7 @@ void fx_profile_initialize(FxProfile* fxprofile)
 	gtk_entry_set_editable(GTK_ENTRY(fxprofile->nick_entry) , FALSE);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxprofile->nick_entry , 2 , 3 , 3 , 4);
 
-	fxprofile->impre_label = gtk_label_new("心情:");
+	fxprofile->impre_label = gtk_label_new(_("Personal signature:"));
 	gtk_misc_set_alignment(GTK_MISC(fxprofile->impre_label) , 0 , 0);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxprofile->impre_label , 0 , 3 , 4, 5);
 
@@ -110,7 +109,7 @@ void fx_profile_initialize(FxProfile* fxprofile)
 	gtk_table_set_col_spacings(GTK_TABLE(inbox) , 2);
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxprofile->dialog)->vbox) , inbox);
 
-	fxprofile->local_label = gtk_label_new("备注名:");
+	fxprofile->local_label = gtk_label_new(_("Note name:"));
 	gtk_misc_set_alignment(GTK_MISC(fxprofile->local_label) , 0 , 0 );
 	gtk_table_attach_defaults(GTK_TABLE(inbox) , fxprofile->local_label , 0 , 1 , 0 , 1);
 
@@ -118,7 +117,7 @@ void fx_profile_initialize(FxProfile* fxprofile)
 	gtk_table_attach_defaults(GTK_TABLE(inbox) , fxprofile->local_entry , 0 , 1 , 1 , 2);
 	gtk_entry_set_editable(GTK_ENTRY(fxprofile->local_entry) , FALSE);
 
-	fxprofile->nation_label = gtk_label_new("国家:");
+	fxprofile->nation_label = gtk_label_new(_("Country:"));
 	gtk_misc_set_alignment(GTK_MISC(fxprofile->nation_label) , 0 , 0 );
 	gtk_table_attach_defaults(GTK_TABLE(inbox) , fxprofile->nation_label , 1 , 2 , 0 , 1);
 
@@ -126,7 +125,7 @@ void fx_profile_initialize(FxProfile* fxprofile)
 	gtk_entry_set_editable(GTK_ENTRY(fxprofile->nation_entry) , FALSE);
 	gtk_table_attach_defaults(GTK_TABLE(inbox) , fxprofile->nation_entry , 1 , 2 , 1 , 2);
 
-	fxprofile->province_label = gtk_label_new("省份:");
+	fxprofile->province_label = gtk_label_new(_("Province:"));
 	gtk_misc_set_alignment(GTK_MISC(fxprofile->province_label) , 0 , 0 );
 	gtk_table_attach_defaults(GTK_TABLE(inbox) , fxprofile->province_label , 0 , 1 , 2 , 3);
 
@@ -134,7 +133,7 @@ void fx_profile_initialize(FxProfile* fxprofile)
 	gtk_entry_set_editable(GTK_ENTRY(fxprofile->province_entry) , FALSE);
 	gtk_table_attach_defaults(GTK_TABLE(inbox) , fxprofile->province_entry , 0 , 1 , 3 , 4);
 
-	fxprofile->city_label = gtk_label_new("城市:");
+	fxprofile->city_label = gtk_label_new(_("City:"));
 	gtk_misc_set_alignment(GTK_MISC(fxprofile->city_label) , 0 , 0 );
 	gtk_table_attach_defaults(GTK_TABLE(inbox) , fxprofile->city_label , 1 , 2 , 2 , 3);
 
@@ -142,10 +141,10 @@ void fx_profile_initialize(FxProfile* fxprofile)
 	gtk_entry_set_editable(GTK_ENTRY(fxprofile->city_entry) , FALSE);
 	gtk_table_attach_defaults(GTK_TABLE(inbox) , fxprofile->city_entry , 1 , 2 , 3 , 4);
 	
-	fxprofile->ok_button = gtk_button_new_with_label("确定");
+	fxprofile->ok_button = gtk_button_new_with_label(_("OK"));
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxprofile->dialog)->action_area) , fxprofile->ok_button);
 
-	fxprofile->cancel_button = gtk_button_new_with_label("取消");
+	fxprofile->cancel_button = gtk_button_new_with_label(_("Cancel"));
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxprofile->dialog)->action_area) , fxprofile->cancel_button);
 
 	g_signal_connect(fxprofile->ok_button , "clicked" , G_CALLBACK(fx_profile_on_button_clicked) , fxprofile->dialog);
@@ -174,7 +173,7 @@ void fx_profile_bind(FxProfile* fxprofile)
 		gtk_entry_set_text(GTK_ENTRY(fxprofile->nick_entry) , contact->nickname);
 
 	gtk_entry_set_text(GTK_ENTRY(fxprofile->gender_entry) ,
-						contact->gender == 1 ? "男" : ( contact->gender == 2 ? "女" : "保密"));
+						contact->gender == 1 ? _("Male") : ( contact->gender == 2 ? _("Female") : _("Secrecy")));
 
 	if(contact->mobileno != NULL)
 		gtk_entry_set_text(GTK_ENTRY(fxprofile->mno_entry) , contact->mobileno);
@@ -186,19 +185,19 @@ void fx_profile_bind(FxProfile* fxprofile)
 
 	if(contact->country != NULL)
 		gtk_entry_set_text(GTK_ENTRY(fxprofile->nation_entry)
-					, strcmp(contact->country , "CN") == 0 ? "中国" : contact->country);
+					, strcmp(contact->country , "CN") == 0 ? _("China") : contact->country);
 
 	if(contact->province != NULL)
 	{
 		res = fetion_config_get_province_name(contact->province);
-		gtk_entry_set_text(GTK_ENTRY(fxprofile->province_entry) , res == NULL ? "未知" : res);
+		gtk_entry_set_text(GTK_ENTRY(fxprofile->province_entry) , res == NULL ? _("Unknown") : res);
 		free(res);
 	}
 
 	if(contact->city != NULL)
 	{
 		res = fetion_config_get_city_name(contact->province , contact->city);
-		gtk_entry_set_text(GTK_ENTRY(fxprofile->city_entry) , res == NULL ? "未知" : res);
+		gtk_entry_set_text(GTK_ENTRY(fxprofile->city_entry) , res == NULL ? _("Unknown") : res);
 		free(res);
 	}
 	char portrait[100];

@@ -166,7 +166,7 @@ void fx_head_bind(FxMain* fxmain)
 
 	strcpy(fxhead->oldimpression
 		, (strlen(user->impression) == 0 || user->impression == NULL)
-		? "点此输入心情短语" : user->impression);
+		? "Click here to input signature" : user->impression);
 	bzero(tooltip , sizeof(tooltip));
 	sprintf(tooltip , "<b>%s</b>" , user->impression);
 	gtk_widget_set_tooltip_markup(fxhead->impre_label
@@ -204,25 +204,25 @@ void fx_head_set_state_image(FxMain* fxmain , StateType type)
 			gtk_image_set_from_file(GTK_IMAGE(fxhead->state_img)
 								  , SKIN_DIR"user_online.png");
 			gtk_status_icon_set_from_file(fxmain->trayIcon
-										, SKIN_DIR"user_online.png");
+										, SKIN_DIR"online_big.png");
 			break;
 		case P_BUSY :
 			gtk_image_set_from_file(GTK_IMAGE(fxhead->state_img)
 					              , SKIN_DIR"user_busy.png");
 			gtk_status_icon_set_from_file(fxmain->trayIcon
-										, SKIN_DIR"user_busy.png");
+										, SKIN_DIR"busy_big.png");
 			break;
 		case P_HIDDEN :
 			gtk_image_set_from_file(GTK_IMAGE(fxhead->state_img)
 								  , SKIN_DIR"user_invisible.png");
 			gtk_status_icon_set_from_file(fxmain->trayIcon
-										, SKIN_DIR"user_invisible.png");
+										, SKIN_DIR"invisible_big.png");
 			break;
 		default :
 			gtk_image_set_from_file(GTK_IMAGE(fxhead->state_img)
 								  , SKIN_DIR"user_away.png");
 			gtk_status_icon_set_from_file(fxmain->trayIcon
-										, SKIN_DIR"user_away.png");
+										, SKIN_DIR"away_big.png");
 			break;
 	}
 	free(statename);
@@ -236,18 +236,18 @@ void fx_head_popup_statemenu_func(GtkWidget* UNUSED(widget)
 
 	DEBUG_FOOTPRINT();
 
-	fx_head_create_presence_item(P_ONLINE , "在线    " , presence_menu , fxmain);
-	fx_head_create_presence_item(P_AWAY   , "离开    " , presence_menu , fxmain);
-	fx_head_create_presence_item(P_BUSY   , "忙碌    " , presence_menu , fxmain);
-	fx_head_create_presence_item(P_HIDDEN , "隐身    " , presence_menu , fxmain);
+	fx_head_create_presence_item(P_ONLINE , _("Online") , presence_menu , fxmain);
+	fx_head_create_presence_item(P_AWAY   , _("Leave") , presence_menu , fxmain);
+	fx_head_create_presence_item(P_BUSY   , _("Busy") , presence_menu , fxmain);
+	fx_head_create_presence_item(P_HIDDEN , _("Hide") , presence_menu , fxmain);
 
 	separator = gtk_separator_menu_item_new();
 	gtk_menu_shell_append(GTK_MENU_SHELL(presence_menu) , separator);
 
-	fx_head_create_presence_item(P_OUTFORLUNCH  , "外出就餐" , presence_menu , fxmain);
-	fx_head_create_presence_item(P_DONOTDISTURB , "请勿打扰" , presence_menu , fxmain);
-	fx_head_create_presence_item(P_MEETING      , "会议中  " , presence_menu , fxmain);
-	fx_head_create_presence_item(P_ONTHEPHONE   , "电话中  " , presence_menu , fxmain);
+	fx_head_create_presence_item(P_OUTFORLUNCH  , _("Eating out") , presence_menu , fxmain);
+	fx_head_create_presence_item(P_DONOTDISTURB , _("Do Not Disturb") , presence_menu , fxmain);
+	fx_head_create_presence_item(P_MEETING      , _("Meeting") , presence_menu , fxmain);
+	fx_head_create_presence_item(P_ONTHEPHONE   , _("Calling") , presence_menu , fxmain);
 
 	gtk_widget_show_all(presence_menu);
 	
@@ -398,9 +398,9 @@ void fx_head_change_portrait_func(GtkWidget* widget , GdkEventButton* event , gp
 		return;
 	}
 
-	filechooser = gtk_file_chooser_dialog_new("请选择要上传的头像文件"
+	filechooser = gtk_file_chooser_dialog_new(_("Choose the avatar file to upload")
 							   , NULL , GTK_FILE_CHOOSER_ACTION_OPEN
-							   , "上传" , 1 , "取消" , 2 , NULL);
+							   , _("Upload") , 1 , _("Cancel") , 2 , NULL);
 	response = gtk_dialog_run(GTK_DIALOG(filechooser));
 
 	if(response == 1)
@@ -451,8 +451,8 @@ void* fx_head_change_portrait_thread(void* data)
 										GTK_DIALOG_DESTROY_WITH_PARENT,
 										GTK_MESSAGE_WARNING,
 										GTK_BUTTONS_OK,
-										"上传头像失败，友情提示：本程序暂不提供图片自动压缩功能,"
-										"上传头像尺寸请控制在150px × 150px以内");
+										_("Upload avatar failed. Note: This appliaction don't support autocompress "
+										"of image. Please be sure that the avater is in 150px × 150px."));
 		gtk_window_set_title(GTK_WINDOW(dialog), "Warning");
 		gtk_dialog_run(GTK_DIALOG(dialog));
 		gtk_widget_destroy(dialog);

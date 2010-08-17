@@ -1,0 +1,1392 @@
+# English translations for OpenFetion package.
+# Copyright (C) 2010 THE OpenFetion'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the OpenFetion package.
+# syq <wzssyqa@gmail.com>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenFetion 1.7\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-08-14 19:24+0800\n"
+"PO-Revision-Date: 2010-07-30 23:23+0800\n"
+"Last-Translator: syq <wzssyqa@gmail.com>\n"
+"Language-Team: Chinese <>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit;\n"
+
+#: ../src/fx_addbuddy.c:48 ../src/fx_bottom.c:100
+msgid "Add Buddy"
+msgstr "添加好友"
+
+#: ../src/fx_addbuddy.c:57 ../src/fx_lookupres.c:148 ../src/fx_profile.c:82
+#: ../src/fx_set.c:319
+msgid "Cell phone number:"
+msgstr "手机号:"
+
+#: ../src/fx_addbuddy.c:60 ../src/fx_lookupres.c:132 ../src/fx_profile.c:66
+#: ../src/fx_set.c:299
+msgid "Fetion number:"
+msgstr "飞信号:"
+
+#: ../src/fx_addbuddy.c:76
+msgid "Contact`s Information"
+msgstr "好友信息"
+
+#: ../src/fx_addbuddy.c:82
+msgid "Group: "
+msgstr "分组: "
+
+#: ../src/fx_addbuddy.c:85
+msgid "Name: "
+msgstr "名字: "
+
+#: ../src/fx_addbuddy.c:103
+msgid "Send Message:"
+msgstr "发送消息"
+
+#: ../src/fx_addbuddy.c:106
+msgid "Hello ,I am "
+msgstr "您好，我是"
+
+#: ../src/fx_addbuddy.c:117 ../src/fx_code.c:101 ../src/fx_lookupres.c:210
+#: ../src/fx_add_group.c:91 ../src/fx_dsms.c:79 ../src/fx_gedit.c:60
+#: ../src/fx_profile.c:144 ../src/fx_set.c:203 ../src/fx_app.c:120
+#: ../src/fx_close.c:80 ../src/fx_edit.c:59 ../src/fx_proxy.c:128
+msgid "OK"
+msgstr "确定"
+
+#: ../src/fx_addbuddy.c:121 ../src/fx_code.c:105 ../src/fx_lookupres.c:213
+#: ../src/fx_add_group.c:95 ../src/fx_dsms.c:80 ../src/fx_gedit.c:64
+#: ../src/fx_profile.c:147 ../src/fx_set.c:207 ../src/fx_app.c:123
+#: ../src/fx_close.c:82 ../src/fx_edit.c:63 ../src/fx_head.c:403
+#: ../src/fx_lookup.c:62 ../src/fx_proxy.c:131
+msgid "Cancel"
+msgstr "取消"
+
+#: ../src/fx_addbuddy.c:205 ../src/fx_addbuddy.c:215
+msgid "You can not add yourself as a friend"
+msgstr "您不能添加自己为好友"
+
+#: ../src/fx_addbuddy.c:232
+msgid ""
+"The contact you added has been in your contact list,please don`t add it "
+"repeatly!"
+msgstr "您添加的好友已经在您的好友列表中，请不要重复添加"
+
+#: ../src/fx_addbuddy.c:236
+msgid ""
+"You have reached the limit that allow to add buddy , please retry another"
+msgstr "您已经达到添加好友的上限，请改日再试"
+
+#: ../src/fx_addbuddy.c:240
+msgid "Add buddy failed.Unknown reason!"
+msgstr "添加好友失败，原因不详"
+
+#: ../src/fx_bottom.c:92 ../src/fx_main.c:1106 ../src/fx_set.c:181
+#: ../src/fx_set.c:191
+msgid "Personal setting"
+msgstr "个人设置"
+
+#: ../src/fx_bottom.c:108
+msgid "Send a message to myself"
+msgstr "给自己发短信"
+
+#: ../src/fx_bottom.c:115 ../src/fx_main.c:1100
+msgid "SMS to many"
+msgstr "短信群发"
+
+#: ../src/fx_bottom.c:122 ../src/fx_dsms.c:546 ../src/fx_main.c:1102
+msgid "SMS directly"
+msgstr "直接短信"
+
+#: ../src/fx_bottom.c:131
+msgid "Fetion Group"
+msgstr "飞信群"
+
+#: ../src/fx_bottom.c:136 ../src/fx_lookup.c:43
+msgid "View information of any user (attribution etc)"
+msgstr "查看任意用户信息（归属地等）"
+
+#: ../src/fx_bottom.c:143
+msgid "Get help or give advice at Open Fetion homepage"
+msgstr "到Open Fetion页面获取帮助或者反馈意见"
+
+#: ../src/fx_code.c:52
+msgid "Please entry your verification code"
+msgstr "请输入验证码"
+
+#: ../src/fx_code.c:77
+msgid "Click here getting new verification code"
+msgstr "点此重新获取验证码"
+
+#: ../src/fx_emotion.c:5
+msgid "Smile"
+msgstr "微笑"
+
+#: ../src/fx_emotion.c:6
+msgid "Laugh"
+msgstr "大笑"
+
+#: ../src/fx_emotion.c:7
+msgid "Wink"
+msgstr "眨眼"
+
+#: ../src/fx_emotion.c:8
+msgid "Surprised"
+msgstr "惊讶"
+
+#: ../src/fx_emotion.c:9
+msgid "Tongue smile"
+msgstr "吐舌笑脸"
+
+#: ../src/fx_emotion.c:10
+msgid "Warm smile"
+msgstr "热烈的笑脸"
+
+#: ../src/fx_emotion.c:11
+msgid "Angry"
+msgstr "生气"
+
+#: ../src/fx_emotion.c:12
+msgid "Sad"
+msgstr "悲伤"
+
+#: ../src/fx_emotion.c:13
+msgid "Cry"
+msgstr "哭泣"
+
+#: ../src/fx_emotion.c:14
+msgid "Awkward"
+msgstr "尴尬"
+
+#: ../src/fx_emotion.c:15
+msgid "Irony"
+msgstr "讽刺"
+
+#: ../src/fx_emotion.c:16
+msgid "Illed"
+msgstr "生病"
+
+#: ../src/fx_emotion.c:17
+msgid "Gritting my teeth"
+msgstr "咬牙切齿"
+
+#: ../src/fx_emotion.c:18
+msgid "Tired"
+msgstr "困"
+
+#: ../src/fx_emotion.c:19 ../src/fx_lookupres.c:52 ../src/fx_profile.c:176
+#: ../src/fx_set.c:399 ../src/fx_set.c:400 ../src/fx_set.c:508
+msgid "Secrecy"
+msgstr "保密"
+
+#: ../src/fx_emotion.c:20
+msgid "Googly eyes"
+msgstr "转动的眼睛"
+
+#: ../src/fx_emotion.c:21
+msgid "Sleeping Moon"
+msgstr "沉睡的月亮"
+
+#: ../src/fx_emotion.c:22
+msgid "Rain"
+msgstr "下雨"
+
+#: ../src/fx_emotion.c:23
+msgid "Clock"
+msgstr "时钟"
+
+#: ../src/fx_emotion.c:24
+msgid "Red heart"
+msgstr "红心"
+
+#: ../src/fx_emotion.c:25
+msgid "Break heart"
+msgstr "破碎的心"
+
+#: ../src/fx_emotion.c:26
+msgid "Face of cat"
+msgstr "猫脸"
+
+#: ../src/fx_emotion.c:27
+msgid "Face of dog"
+msgstr "狗脸"
+
+#: ../src/fx_emotion.c:28
+msgid "Snail"
+msgstr "蜗牛"
+
+#: ../src/fx_emotion.c:29
+msgid "Star"
+msgstr "星星"
+
+#: ../src/fx_emotion.c:30
+msgid "Sun"
+msgstr "太阳"
+
+#: ../src/fx_emotion.c:31
+msgid "Rainbow"
+msgstr "彩虹"
+
+#: ../src/fx_emotion.c:32
+msgid "Hug left"
+msgstr "左侧拥抱"
+
+#: ../src/fx_emotion.c:33
+msgid "Hug right"
+msgstr "右侧拥抱"
+
+#: ../src/fx_emotion.c:34
+msgid "Red lips"
+msgstr "红唇"
+
+#: ../src/fx_emotion.c:35
+msgid "Red rose"
+msgstr "红玫瑰"
+
+#: ../src/fx_emotion.c:36
+msgid "Withered rose"
+msgstr "凋谢的玫瑰"
+
+#: ../src/fx_emotion.c:37
+msgid "Gift Box"
+msgstr "礼品盒"
+
+#: ../src/fx_emotion.c:38
+msgid "Birthday cake"
+msgstr "生日蛋糕"
+
+#: ../src/fx_emotion.c:39
+msgid "Music"
+msgstr "音乐"
+
+#: ../src/fx_emotion.c:40
+msgid "Bulb"
+msgstr "灯泡"
+
+#: ../src/fx_emotion.c:41
+msgid "Idea"
+msgstr "想法"
+
+#: ../src/fx_emotion.c:42
+msgid "Coffee"
+msgstr "咖啡"
+
+#: ../src/fx_emotion.c:43
+msgid "Umbrella"
+msgstr "雨伞"
+
+#: ../src/fx_emotion.c:44
+msgid "Mobile Phone"
+msgstr "手机"
+
+#: ../src/fx_emotion.c:45
+msgid "Computer"
+msgstr "计算机"
+
+#: ../src/fx_emotion.c:46
+msgid "Disappointed"
+msgstr "失望"
+
+#: ../src/fx_emotion.c:47
+msgid "Confused"
+msgstr "困惑"
+
+#: ../src/fx_emotion.c:48
+msgid "Worried"
+msgstr "担心"
+
+#: ../src/fx_emotion.c:49
+msgid "Drinks"
+msgstr "饮料"
+
+#: ../src/fx_emotion.c:50
+msgid "Goblet"
+msgstr "高脚杯"
+
+#: ../src/fx_emotion.c:51
+msgid "Angel"
+msgstr "天使"
+
+#: ../src/fx_emotion.c:52
+msgid "Thinking"
+msgstr "深思"
+
+#: ../src/fx_emotion.c:53
+msgid "Great"
+msgstr "太棒了"
+
+#: ../src/fx_emotion.c:54
+msgid "Naughty"
+msgstr "淘气"
+
+#: ../src/fx_emotion.c:55
+msgid "Idiot"
+msgstr "笨蛋，呆子"
+
+#: ../src/fx_emotion.c:56
+msgid "Sunglasses"
+msgstr "戴着太阳镜"
+
+#: ../src/fx_history.c:49
+#, c-format
+msgid "View logs with [%s]"
+msgstr "查看与[%s]的聊天记录"
+
+#: ../src/fx_history.c:60
+msgid "Show the most recent"
+msgstr "显示最新的"
+
+#: ../src/fx_history.c:67
+msgid "mesage"
+msgstr "条聊天记录"
+
+#: ../src/fx_history.c:73
+msgid "Refresh"
+msgstr "刷新"
+
+#: ../src/fx_history.c:80
+msgid "Today"
+msgstr "今天"
+
+#: ../src/fx_history.c:88
+msgid "Yestorday"
+msgstr "昨天"
+
+#: ../src/fx_history.c:95
+msgid "This Month"
+msgstr "本月"
+
+#: ../src/fx_history.c:102
+msgid "All"
+msgstr "全部"
+
+#: ../src/fx_history.c:110
+msgid "Export"
+msgstr "导出"
+
+#: ../src/fx_history.c:130 ../src/fx_myself.c:184 ../src/fx_chat.c:472
+#: ../src/fx_dsms.c:673 ../src/fx_set.c:480 ../src/fx_sysmsg.c:79
+#: ../src/fx_many.c:497 ../src/fx_pggroup.c:201
+msgid "Close"
+msgstr "关闭"
+
+#: ../src/fx_history.c:156
+msgid "%m-%d %H:%M:%S"
+msgstr "%m月%d日 %H:%M:%S"
+
+#: ../src/fx_history.c:244
+msgid "Export File"
+msgstr "导出文件"
+
+#: ../src/fx_history.c:253
+#, c-format
+msgid "logs with %s.txt"
+msgstr "与%s的聊天记录.txt"
+
+#: ../src/fx_lookupres.c:52 ../src/fx_profile.c:176 ../src/fx_set.c:506
+msgid "Male"
+msgstr "男"
+
+#: ../src/fx_lookupres.c:52 ../src/fx_profile.c:176 ../src/fx_set.c:507
+msgid "Female"
+msgstr "女"
+
+#: ../src/fx_lookupres.c:64 ../src/fx_profile.c:188
+msgid "China"
+msgstr "中国"
+
+#: ../src/fx_lookupres.c:69 ../src/fx_lookupres.c:76 ../src/fx_profile.c:193
+#: ../src/fx_profile.c:200
+msgid "Unknown"
+msgstr "未知"
+
+#: ../src/fx_lookupres.c:140 ../src/fx_profile.c:74 ../src/fx_set.c:307
+msgid "Sex:"
+msgstr "性别:"
+
+#: ../src/fx_lookupres.c:157 ../src/fx_profile.c:91 ../src/fx_set.c:327
+msgid "Nickname:"
+msgstr "昵称:"
+
+#: ../src/fx_lookupres.c:165 ../src/fx_lookupres.c:178 ../src/fx_profile.c:99
+#: ../src/fx_set.c:334
+msgid "Personal signature:"
+msgstr "个性签名:"
+
+#: ../src/fx_lookupres.c:186 ../src/fx_profile.c:120
+msgid "Country:"
+msgstr "国家:"
+
+#: ../src/fx_lookupres.c:194 ../src/fx_profile.c:128 ../src/fx_set.c:342
+msgid "Province:"
+msgstr "省份:"
+
+#: ../src/fx_lookupres.c:202 ../src/fx_profile.c:136 ../src/fx_set.c:351
+msgid "City:"
+msgstr "城市:"
+
+#: ../src/fx_myself.c:55
+msgid "Sending sms to myself"
+msgstr "正在给自己发短信"
+
+#: ../src/fx_myself.c:189 ../src/fx_chat.c:477 ../src/fx_dsms.c:669
+#: ../src/fx_many.c:502 ../src/fx_pggroup.c:206
+msgid "Send"
+msgstr "发送"
+
+#: ../src/fx_search.c:60
+msgid "You can not send a message,because he(she) is not in your contact list"
+msgstr "由于对方未成为您的飞信好友,所以您不能给对方发送消息"
+
+#: ../src/fx_search.c:68
+msgid "User has shut his fetion service,so you can not send a message to him"
+msgstr "该用户已关闭飞信服务,不能给他发消息"
+
+#: ../src/fx_util.c:30 ../src/fx_util.c:58
+msgid "[Online]"
+msgstr "[在线]"
+
+#: ../src/fx_util.c:33
+msgid "[Busy]"
+msgstr "[忙碌]"
+
+#: ../src/fx_util.c:36
+msgid "[Leave]"
+msgstr "[离开]"
+
+#: ../src/fx_util.c:39
+msgid "[Hide]"
+msgstr "[隐身]"
+
+#: ../src/fx_util.c:42
+msgid "[Eating out]"
+msgstr "[外出就餐]"
+
+#: ../src/fx_util.c:45
+msgid "[Do Not Disturb]"
+msgstr "[请勿打扰]"
+
+#: ../src/fx_util.c:48
+msgid "[Be Back Soon]"
+msgstr "[马上回来]"
+
+#: ../src/fx_util.c:51
+msgid "[Meeting]"
+msgstr "[会议中]"
+
+#: ../src/fx_util.c:54
+msgid "[Calling]"
+msgstr "[电话中]"
+
+#: ../src/fx_util.c:60
+msgid "[Unknown Statement]"
+msgstr "[未知状态]"
+
+#: ../src/fx_add_group.c:81
+msgid "Add a buddy group"
+msgstr "添加一个好友分组"
+
+#: ../src/fx_add_group.c:84
+msgid "Input name of the new group:"
+msgstr "请输入新建分组名称:"
+
+#: ../src/fx_chat.c:66 ../src/fx_chat.c:70 ../src/fx_pggroup.c:444
+#: ../src/fx_pggroup.c:446
+#, c-format
+msgid "%s said: (%s):\n"
+msgstr "%s 说: (%s):\n"
+
+#: ../src/fx_chat.c:220
+#, c-format
+msgid "Chatting with[%s]"
+msgstr "和[%s]聊天中"
+
+#: ../src/fx_chat.c:324
+#, c-format
+msgid "Chatting with [%s]"
+msgstr "和[%s]聊天中"
+
+#: ../src/fx_chat.c:414
+msgid "Emotion"
+msgstr "表情"
+
+#: ../src/fx_chat.c:423
+msgid "Contact`s cell phone"
+msgstr "对方手机"
+
+#: ../src/fx_chat.c:424
+msgid "Mesage will be send to Contact's cell phone in long SMS format"
+msgstr "消息将以长短信的方式发送到对方手机"
+
+#: ../src/fx_chat.c:433
+msgid "Chat logs"
+msgstr " 聊天记录"
+
+#: ../src/fx_chat.c:433 ../src/fx_tree.c:600
+msgid "View chat logs"
+msgstr "查看聊天记录"
+
+#: ../src/fx_chat.c:439
+msgid "Screen jitter"
+msgstr " 屏幕抖动"
+
+#: ../src/fx_chat.c:439
+msgid "Send a screen jitter"
+msgstr "发送一个屏幕抖动"
+
+#: ../src/fx_chat.c:446
+msgid "totle 180 character,left:"
+msgstr "共可输入180个字 , 还可输入"
+
+#: ../src/fx_chat.c:448
+msgid "[<span color='#0099ff'>180</span>] characters"
+msgstr "[<span color='#0099ff'>180</span>]个字"
+
+#: ../src/fx_chat.c:577 ../src/fx_chat.c:647
+msgid "Empty mesage is not allowed."
+msgstr "不允许发送空信息"
+
+#: ../src/fx_chat.c:657
+msgid "Sorry, you reached quota of free SMS,can't send SMS,today"
+msgstr "对不起，你今天的免费短信限额已经用完,不能再发送短信"
+
+#: ../src/fx_chat.c:660
+#, c-format
+msgid "You have %d free SMS can send (include this one).Free SMS: %d per month"
+msgstr "您还可以发送%d条免费短信（含本条），免费短信限额：每月%d条"
+
+#: ../src/fx_chat.c:694
+#, c-format
+msgid "Send sucessfully. You have send %d SMS, %d left."
+msgstr "发送成功，今天已发送%d条短信息，还可以发送%d条。"
+
+#: ../src/fx_chat.c:775
+msgid "Contact is not online.Cannot send screen jitter"
+msgstr "对方不在线，不能发送窗口抖动"
+
+#: ../src/fx_chat.c:852
+msgid ""
+"Run out of your quota, you can still send IM mesages. If want to send more "
+"free SMS, bind you cell phone number."
+msgstr ""
+"您的短信限额已用完，你可以给对方发送消息。如果您想发送更多免费短信，请绑定手"
+"机号，成为飞信移动用户"
+
+#: ../src/fx_chat.c:856
+#, c-format
+msgid ""
+"Mesage will be send toMesage will be send to contact's cell phone. You have %"
+"d free SMS left. If want to send more free SMS, bind your cell phone,please."
+msgstr ""
+"消息将直接发送到对方手机。您还可以发送%d条免费短信。如果您还想发送更多免费短"
+"信，请绑定手机号，成为飞信移动用户。"
+
+#: ../src/fx_chat.c:862
+#, c-format
+msgid ""
+"Mesage will be seed to you phone as long SMS. You have seed %d, and %d left."
+msgstr ""
+"信息将以长短信的方式发送到对方的手机上,您今天发送了%d条，还可以发送%d条"
+
+#: ../src/fx_chat.c:872
+msgid "Mesage will be send to contact's fetion"
+msgstr "消息将直接发送到对方飞信"
+
+#: ../src/fx_chat.c:954
+#, c-format
+msgid "[<span color='#0099ff'>%d</span>] character"
+msgstr "[<span color='#0099ff'>%d</span>]个字"
+
+#: ../src/fx_dsms.c:66
+msgid ""
+"Fetion has send verification code as SMS to your cell phone. Please input it."
+msgstr "飞信已经将短信验证码发送到您好的手机，请输入短信验证码"
+
+#: ../src/fx_dsms.c:67
+msgid "Verification code"
+msgstr "短信验证码："
+
+#: ../src/fx_dsms.c:72
+msgid ""
+"<span color='#808080'>NOTE：A little timelag because of network reason，"
+"Please Wait......</span>"
+msgstr ""
+"<span color='#808080'>注意：短信可能由于网络等原因有一些延迟，请稍候......</"
+"span>"
+
+#: ../src/fx_dsms.c:205
+msgid "Delete this contact"
+msgstr "删除这个联系人"
+
+#: ../src/fx_dsms.c:245
+#, c-format
+msgid "%d/180, will split to %d"
+msgstr "%d/180，分为%d条短信"
+
+#: ../src/fx_dsms.c:339
+#, c-format
+msgid "Mesage has been send to %s successfully."
+msgstr "消息成功发送至:%s"
+
+#: ../src/fx_dsms.c:345
+#, c-format
+msgid "Mesage didn't send to %s. Please check the phone number of the contact."
+msgstr "消息未发送至:%s，请确认联系人手机号是否正确"
+
+#: ../src/fx_dsms.c:359
+msgid "Send message failed"
+msgstr "消息发送失败"
+
+#: ../src/fx_dsms.c:383
+msgid "Mesage send failed"
+msgstr "消息发送失败"
+
+#: ../src/fx_dsms.c:438
+msgid "Please input a contact"
+msgstr "请输入联系人"
+
+#: ../src/fx_dsms.c:461
+#, c-format
+msgid "%s said (%s):\n"
+msgstr "%s 说: (%s):\n"
+
+#: ../src/fx_dsms.c:550
+msgid ""
+" You will send SMS to contact directly, cost <span color='red'>0.1 RMB/SMS.</"
+"span>"
+msgstr " 您将发送直接短信直接联系人，资费<span color='red'>0.1元每/条。</span>"
+
+#: ../src/fx_dsms.c:638
+msgid ""
+"<b>No Contact</b>\n"
+"\n"
+"<span color='#808080'>Please input Phone Number\n"
+"in the input box above\n"
+"3 contacts allowed at most</span>"
+msgstr ""
+"<b>暂无联系人</b>\n"
+"\n"
+"<span color='#808080'>请在上方输入框中输入收信\n"
+"人手机号\n"
+"\n"
+"最多一次添加3个收信人</span>"
+
+#: ../src/fx_dsms.c:655
+msgid "0/180, will split to 0"
+msgstr "0/180,分为0条短信"
+
+#: ../src/fx_dsms.c:659
+msgid "Sign"
+msgstr "签名"
+
+#: ../src/fx_gedit.c:45 ../src/fx_tree.c:668
+msgid "Edit name of a group"
+msgstr "修改分组名称"
+
+#: ../src/fx_gedit.c:53
+msgid "Please entry new name of the group:"
+msgstr "请输入新的分组名称:"
+
+#: ../src/fx_login.c:54
+#, c-format
+msgid "<span color='#7ce1a9'><small> Proxy[%s]</small></span>"
+msgstr "<span color='#7ce1a9'><small> 网络代理[%s]</small></span>"
+
+#: ../src/fx_login.c:55 ../src/fx_login.c:60 ../src/fx_login.c:153
+msgid "Off"
+msgstr "关闭"
+
+#: ../src/fx_login.c:55 ../src/fx_login.c:60 ../src/fx_login.c:153
+#: ../src/fx_set.c:466 ../src/fx_set.c:473
+msgid "On"
+msgstr "开启"
+
+#: ../src/fx_login.c:59 ../src/fx_login.c:152
+#, c-format
+msgid "<span color='#0099ff'><small> Proxy[%s]</small></span>"
+msgstr "<span color='#0099ff'><small> 网络代理[%s]</small></span>"
+
+#: ../src/fx_login.c:105
+msgid "Cell number or fetion number:"
+msgstr "请输入手机号或飞信号:"
+
+#: ../src/fx_login.c:112
+msgid "Please input password:"
+msgstr "请输入密码:"
+
+#: ../src/fx_login.c:119
+msgid "Login"
+msgstr "登录"
+
+#: ../src/fx_login.c:145
+msgid "Remember password"
+msgstr "记住密码"
+
+#: ../src/fx_login.c:214 ../src/fx_main.c:1050 ../src/fx_head.c:239
+msgid "Online"
+msgstr "上线"
+
+#: ../src/fx_login.c:215 ../src/fx_main.c:1051 ../src/fx_head.c:240
+msgid "Leave"
+msgstr "离开"
+
+#: ../src/fx_login.c:216 ../src/fx_main.c:1052 ../src/fx_head.c:241
+msgid "Busy"
+msgstr "忙碌"
+
+#: ../src/fx_login.c:217 ../src/fx_main.c:1053 ../src/fx_head.c:242
+msgid "Hide"
+msgstr "隐身"
+
+#: ../src/fx_login.c:218 ../src/fx_main.c:1054 ../src/fx_head.c:247
+msgid "Eating out"
+msgstr "外出就餐"
+
+#: ../src/fx_login.c:219 ../src/fx_main.c:1055 ../src/fx_head.c:248
+msgid "Do Not Disturb"
+msgstr "请勿打扰"
+
+#: ../src/fx_login.c:220 ../src/fx_main.c:1056
+msgid "Back Soon"
+msgstr "马上回来"
+
+#: ../src/fx_login.c:221 ../src/fx_main.c:1057 ../src/fx_head.c:249
+msgid "Meeting"
+msgstr "会议中"
+
+#: ../src/fx_login.c:222 ../src/fx_main.c:1058 ../src/fx_head.c:250
+msgid "Calling"
+msgstr "电话中"
+
+#: ../src/fx_login.c:276
+msgid "Preparing for login"
+msgstr "正在准备登录"
+
+#: ../src/fx_login.c:285 ../src/fx_login.c:297 ../src/fx_login.c:371
+#: ../src/fx_login.c:398 ../src/fx_login.c:415
+msgid "Login failed"
+msgstr "登录失败"
+
+#: ../src/fx_login.c:333
+msgid "Login failed. Incorrect cell phone number or password"
+msgstr "登录失败，手机号或密码错误"
+
+#: ../src/fx_login.c:337
+msgid "Loading local user information"
+msgstr "正在加载本地用户信息"
+
+#. download xml configuration file from the server
+#: ../src/fx_login.c:368
+msgid "Downloading configuration files"
+msgstr "正在下载配置文件"
+
+#: ../src/fx_login.c:382
+msgid "Connecting to proxy server"
+msgstr "正在连接到代理服务器"
+
+#: ../src/fx_login.c:387
+msgid "Connecting to registration server"
+msgstr "正在连接到注册服务器"
+
+#: ../src/fx_login.c:394
+msgid "Registering to SIPC Server"
+msgstr "正在注册到SIPC服务器"
+
+#. start sipc authentication using the response created just now
+#: ../src/fx_login.c:411
+msgid "SIPC Indentify"
+msgstr "正在进行SIPC身份验证"
+
+#: ../src/fx_login.c:420 ../src/fx_login.c:427
+msgid "Authenticate failed."
+msgstr "身份验证失败，手机号或密码错误"
+
+#: ../src/fx_login.c:456
+msgid "Login sucessful"
+msgstr "登录成功"
+
+#: ../src/fx_login.c:469
+#, c-format
+msgid ""
+"Public IP: %s\n"
+"IP of last login: %s\n"
+"Time of last login: %s\n"
+msgstr ""
+"公网IP地址：%s\n"
+"上次登录IP地址：%s\n"
+"上次登录时间%s\n"
+
+#: ../src/fx_login.c:481
+msgid "Login successful"
+msgstr "登录成功"
+
+#: ../src/fx_login.c:497
+msgid "Ungrouped"
+msgstr "未分组"
+
+#: ../src/fx_login.c:504
+msgid "Strangers"
+msgstr "陌生人"
+
+#: ../src/fx_main.c:308
+#, c-format
+msgid "%s , now ONLINE"
+msgstr "%s , 上线啦"
+
+#: ../src/fx_main.c:310
+#, c-format
+msgid ""
+"Phone Number: %s\n"
+"Fetion Number: %s\n"
+"Signature: %s"
+msgstr ""
+"手机号 : %s \n"
+"飞信号 : %s\n"
+"个性签名：%s"
+
+#: ../src/fx_main.c:506
+#, c-format
+msgid "%s(%s) said:"
+msgstr "%s(%s) 说:"
+
+#: ../src/fx_main.c:706
+msgid "Receive a window jitter"
+msgstr "收到一个窗口抖动"
+
+#: ../src/fx_main.c:801
+msgid "Your fetion login elsewhere. You are forced quit."
+msgstr "您的飞信已经别处登录，您被强制退出"
+
+#: ../src/fx_main.c:1065
+msgid "About OpenFetion"
+msgstr "关于OpenFetion"
+
+#: ../src/fx_main.c:1067
+msgid "About Authors"
+msgstr "关于作者"
+
+#: ../src/fx_main.c:1069
+msgid "Look for new version"
+msgstr "查找更新"
+
+#: ../src/fx_main.c:1074
+msgid "Close sound"
+msgstr "关闭声音"
+
+#: ../src/fx_main.c:1081
+msgid "Information query"
+msgstr "信息查询"
+
+#: ../src/fx_main.c:1084
+msgid "SMS myself"
+msgstr "短信自己"
+
+#: ../src/fx_main.c:1087
+msgid "Edit statement"
+msgstr "修改状态"
+
+#: ../src/fx_main.c:1104
+msgid "Add contact"
+msgstr "添加好友"
+
+#: ../src/fx_main.c:1108 ../src/fx_set.c:197
+msgid "System setting"
+msgstr "系统设置"
+
+#: ../src/fx_main.c:1111
+msgid "Exit Openfetion "
+msgstr "退出Openfetion "
+
+#: ../src/fx_main.c:1302
+msgid ""
+"OpenFetion is a non-profit software, to make linux user convenient to use "
+"fetion."
+msgstr "OpenFetion 属于非盈利性软件,旨在方便Linux用户使用飞信."
+
+#: ../src/fx_profile.c:43 ../src/fx_tree.c:594
+msgid "view contact's information"
+msgstr "查看好友信息"
+
+#: ../src/fx_profile.c:112 ../src/fx_app.c:90
+msgid "Note name:"
+msgstr "备注名:"
+
+#: ../src/fx_set.c:94
+msgid "Nick can not be empty!"
+msgstr "昵称不能为空!"
+
+#: ../src/fx_set.c:119 ../src/fx_set.c:124
+msgid "Click here to input signature"
+msgstr "点此输入心情短语"
+
+#: ../src/fx_set.c:265
+msgid "Sorry, I am not in now, and will reply to you soon"
+msgstr "对不起，我现在不在，稍后给您回复"
+
+#: ../src/fx_set.c:360
+msgid "Job occupation:"
+msgstr "职业:"
+
+#: ../src/fx_set.c:369
+msgid "Email:"
+msgstr "电子邮箱:"
+
+#: ../src/fx_set.c:437
+msgid "<b>Auto reply</b>"
+msgstr "<b>自动回复</b>"
+
+#: ../src/fx_set.c:440
+msgid "Trun on auto reply"
+msgstr "开启动自回复"
+
+#: ../src/fx_set.c:444
+msgid "mute"
+msgstr "静音"
+
+#: ../src/fx_set.c:447
+msgid "Not allow to minimize to tray"
+msgstr "禁止最小化到托盘"
+
+#: ../src/fx_set.c:463 ../src/fx_set.c:470
+msgid "<b>Minimize when click Close button</b>"
+msgstr "<b>关闭按钮点击最小化</b>"
+
+#: ../src/fx_set.c:477
+msgid "<b>Message Notification</b>"
+msgstr "<b>消息提示</b>"
+
+#: ../src/fx_set.c:484
+msgid "<b>How to send message?</b>"
+msgstr "<b>消息发送方式</b>"
+
+#: ../src/fx_set.c:487
+msgid "Press Enter to send"
+msgstr "Enter 发送消息"
+
+#: ../src/fx_set.c:490
+msgid "Press CTRL + Enter to send"
+msgstr "CTRL + Enter 发送消息"
+
+#: ../src/fx_sysmsg.c:66
+msgid "System mesage"
+msgstr "系统消息"
+
+#: ../src/fx_sysmsg.c:77 ../src/fx_app.c:99
+msgid "View details"
+msgstr "查看详情"
+
+#: ../src/fx_app.c:61
+msgid "Receive an Add Buddy request"
+msgstr "收到一个添加好友请求"
+
+#: ../src/fx_app.c:77
+#, c-format
+msgid "Hello ,I am %s , %s"
+msgstr "您好，我是%s，%s"
+
+#: ../src/fx_app.c:86
+msgid "Accept and add him(her) to your contact list"
+msgstr "同意并添加对方为好友"
+
+#: ../src/fx_app.c:104
+msgid "Add to group:"
+msgstr "添加到组:"
+
+#: ../src/fx_app.c:115
+msgid "Decline his(her) add buddy request"
+msgstr "拒绝对方的添加好友请求"
+
+#: ../src/fx_app.c:306
+msgid "Lookup failed,Unknown identity,Unknown reason"
+msgstr "查询失败，对方身份不明，原因未知"
+
+#: ../src/fx_close.c:57
+msgid "Notification"
+msgstr "提示信息"
+
+#: ../src/fx_close.c:68
+msgid "Are you sure to exit OpenFetion ?"
+msgstr "确定要退出OpenFetion吗？"
+
+#: ../src/fx_close.c:71
+msgid "Exit Openfetion"
+msgstr "退出Openfetion"
+
+#: ../src/fx_close.c:73
+msgid "Minimize to tray"
+msgstr "最小化到托盘"
+
+#: ../src/fx_close.c:74
+msgid "Don't notify again"
+msgstr "不再提示"
+
+#: ../src/fx_edit.c:44 ../src/fx_tree.c:606
+msgid "Edit note name"
+msgstr "修改备注名称"
+
+#: ../src/fx_edit.c:52
+msgid "Please input note name:"
+msgstr "请输入备注名称:"
+
+#: ../src/fx_head.c:401
+msgid "Choose the avatar file to upload"
+msgstr "请选择要上传的头像文件"
+
+#: ../src/fx_head.c:403
+msgid "Upload"
+msgstr "上传"
+
+#: ../src/fx_head.c:454
+msgid ""
+"Upload avatar failed. Note: This appliaction don't support autocompress of "
+"image. Please be sure that the avater is in 150px × 150px."
+msgstr ""
+"上传头像失败，友情提示：本程序暂不提供图片自动压缩功能,上传头像尺寸请控制在"
+"150px × 150px以内"
+
+#: ../src/fx_lookup.c:51
+msgid "Please input users phone number or fetion number:"
+msgstr "请输入用户的手机号或飞信号:"
+
+#: ../src/fx_lookup.c:58
+msgid "Find"
+msgstr "查询"
+
+#: ../src/fx_lookup.c:93
+msgid "Query failed, please input vaild phone number of China Mobile"
+msgstr "查询失败，请输入正确的移动手机号码"
+
+#: ../src/fx_many.c:401
+msgid "SMS To Many"
+msgstr "短信群发"
+
+#. left top area
+#: ../src/fx_many.c:413
+msgid "Choose Contacts"
+msgstr "请选择好友"
+
+#: ../src/fx_many.c:449
+msgid "Contacts Selected"
+msgstr "已选择的好友"
+
+#: ../src/fx_many.c:527
+msgid "You have not selected contacts"
+msgstr "您还没有选择好友"
+
+#: ../src/fx_many.c:554
+msgid "Please input the contents of message"
+msgstr "请输入消息内容"
+
+#: ../src/fx_many.c:571
+#, c-format
+msgid ""
+"Mesage \"%s\" has been sent to \"%s\". Today you have sent %d and this month "
+"%d\n"
+msgstr "消息“%s”成功发送至“%s”, 今天已发送短信息%d条，本月已发送%d条\n"
+
+#: ../src/fx_many.c:574
+#, c-format
+msgid "Mesage \"%s\" did not send to \"%s\"\n"
+msgstr "消息“%s”未发送至“%s”\n"
+
+#: ../src/fx_proxy.c:78
+msgid "Set HTTP Proxy"
+msgstr "设置HTTP代理"
+
+#: ../src/fx_proxy.c:87
+msgid "Trun on HTTP proxy"
+msgstr "开启HTTP代理"
+
+#: ../src/fx_proxy.c:96
+msgid "<b>Proxy host</b>"
+msgstr "<b>代理主机</b>"
+
+#: ../src/fx_proxy.c:100
+msgid "<b>Port</b>"
+msgstr "<b>端口</b>"
+
+#: ../src/fx_proxy.c:112
+msgid "<b>Uesrname</b>"
+msgstr "<b>用户名</b>"
+
+#: ../src/fx_proxy.c:116
+msgid "<b>Password</b>"
+msgstr "<b>密码</b>"
+
+#: ../src/fx_proxy.c:183
+msgid "<span color='red'>Please input hostname</span>"
+msgstr "<span color='red'>请输入主机名</span>"
+
+#: ../src/fx_proxy.c:192
+msgid "<span color='red'>Please input port number</span>"
+msgstr "<span color='red'>请输入端口号</span>"
+
+#: ../src/fx_proxy.c:203
+msgid "<span color='#0099ff'><small> Proxy [on]</small></span>"
+msgstr "<span color='#0099ff'><small> 网络代理[开启]</small></span>"
+
+#: ../src/fx_proxy.c:214
+msgid "<span color='#0099ff'><small> Proxy [off]</small></span>"
+msgstr "<span color='#0099ff'><small> 网络代理[关闭]</small></span>"
+
+#: ../src/fx_tree.c:114
+msgid "Only allow English word here!"
+msgstr "此处只能输入英文，搜索中文请输入汉字首字符组合"
+
+#: ../src/fx_tree.c:218 ../src/fx_tree.c:897 ../src/fx_pgprofile.c:187
+msgid "%Y-%m-%d"
+msgstr "%Y年%m月%d日"
+
+#: ../src/fx_tree.c:221
+#, c-format
+msgid ""
+"\n"
+"<span color='#808080'>Group Name：</span><b>%s</b>\t\n"
+"<span color='#808080'>Current Member Count:</span> %d\t\n"
+"<span color='#808080'>Limit Member Count:</span> %d\t\n"
+"<span color='#808080'>Group Rank:</span> %d/%d\t\n"
+"<span color='#808080'>Create Time:</span> %s\t\n"
+msgstr ""
+"\n"
+"<span color='#808080'>群名称：</span><b>%s</b>\t\n"
+"<span color='#808080'>当前群内人数:</span> %d人\t\n"
+"<span color='#808080'>允许人数上限:</span> %d人\t\n"
+"<span color='#808080'>群热度:</span> %d/%d\t\n"
+"<span color='#808080'>创建时间:</span> %s\t\n"
+
+#: ../src/fx_tree.c:382
+msgid "<b>No Group!</b>"
+msgstr "<b>您没有加入任何群</b>"
+
+#: ../src/fx_tree.c:587
+msgid "Send IM mesages"
+msgstr "发送即时消息"
+
+#: ../src/fx_tree.c:603
+msgid "Refresh information"
+msgstr "刷新好友信息"
+
+#: ../src/fx_tree.c:609
+msgid "Hightlight all contacts"
+msgstr "所有好友高亮"
+
+#: ../src/fx_tree.c:609
+msgid "Hightlight online contacts"
+msgstr "在线友好高亮"
+
+#: ../src/fx_tree.c:612
+msgid "Use little icon"
+msgstr "使用小图标"
+
+#: ../src/fx_tree.c:612
+msgid "Use big icon"
+msgstr "使用大图标"
+
+#: ../src/fx_tree.c:615
+msgid "Remove this contact"
+msgstr "删除该好友"
+
+#: ../src/fx_tree.c:624
+msgid "Move this contact to"
+msgstr "将好友移动到"
+
+#: ../src/fx_tree.c:666
+msgid "Add a new group"
+msgstr "添加新分组"
+
+#: ../src/fx_tree.c:671
+msgid "Remove this group"
+msgstr "删除该分组"
+
+#: ../src/fx_tree.c:803
+#, c-format
+msgid "<span color='#d4b4b4'>[Unverified]</span>"
+msgstr "<span color='#d4b4b4'>[等待验证]</span>"
+
+#: ../src/fx_tree.c:806 ../src/fx_tree.c:811 ../src/fx_tree.c:814
+#, c-format
+msgid "<span color='#d4b4b4'>[Has shut fetion service]</span>"
+msgstr "<span color='#d4b4b4'>[已关闭飞信服务]</span>"
+
+#: ../src/fx_tree.c:809
+#, c-format
+msgid "<span color='#d4b4b4'>[Online with SMS]</span>"
+msgstr "<span color='#d4b4b4'>[短信在线]</span>"
+
+#: ../src/fx_tree.c:819
+#, c-format
+msgid "<span color='#d4b4b4'>[Out of service]</span>"
+msgstr "<span color='#d4b4b4'>[停机]</span>"
+
+#: ../src/fx_tree.c:835 ../src/fx_tree.c:844
+msgid "[Login with cell phone]"
+msgstr "[手机登录]"
+
+#: ../src/fx_tree.c:898
+#, c-format
+msgid ""
+"%s\n"
+"<span color='#808080'>Create Time: %s</span>"
+msgstr ""
+"%s\n"
+"<span color='#808080'>创建时间: %s</span>"
+
+#: ../src/fx_tree.c:1059
+msgid "People not in your contact list ,to whom you can not send a message"
+msgstr "由于对方尚未成为你的飞信好友,所以您不能给对方发送消息"
+
+#: ../src/fx_tree.c:1066
+msgid "This user have shut fetion service,so you cannot send mesage to him/her"
+msgstr "该用户已关闭飞信服务，不能给他发消息"
+
+#: ../src/fx_tree.c:1201
+msgid "Remove this contact?"
+msgstr "确定要删除这个好友吗?"
+
+#: ../src/fx_tree.c:1202
+msgid "Remove contact"
+msgstr "删除好友"
+
+#: ../src/fx_tree.c:1372
+msgid "Remove this group?"
+msgstr "确定要删除这个分组吗?"
+
+#: ../src/fx_tree.c:1373
+msgid "Remove group"
+msgstr "删除分组"
+
+#: ../src/fx_tree.c:1563
+#, c-format
+msgid "<span color='#0088bf'>Not bind to a phone number.</span>"
+msgstr "<span color='#0088bf'>未绑定手机号</span>"
+
+#: ../src/fx_tree.c:1565
+#, c-format
+msgid "<span color='#0088bf'>%s</span>(<b>Out of service</b>)"
+msgstr "<span color='#0088bf'>%s</span>(<b>停机</b>)"
+
+#: ../src/fx_tree.c:1566 ../src/fx_tree.c:1571
+msgid "Phone number not be published."
+msgstr "未公开手机号"
+
+#: ../src/fx_tree.c:1570
+msgid "Not bind to a phone number."
+msgstr "未绑定手机号"
+
+#: ../src/fx_tree.c:1574
+#, c-format
+msgid ""
+" <span color='#808080'>Nickname:</span>  <b>%s</b>\n"
+" <span color='#808080'>Phone Number:</span>  %s\n"
+" <span color='#808080'>Fetion Number:</span>  %s\n"
+" <span color='#808080'>Signature:</span>  %s"
+msgstr ""
+" <span color='#808080'>昵称:</span>  <b>%s</b>\n"
+" <span color='#808080'>手机:</span>  %s\n"
+" <span color='#808080'>飞信:</span>  %s\n"
+" <span color='#808080'>心情:</span>  %s"
+
+#: ../src/fx_tree.c:1666 ../src/fx_pggroup.c:166
+msgid "Send group message"
+msgstr "发送群消息"
+
+#: ../src/fx_tree.c:1668
+msgid "Send group sms"
+msgstr "发送群短信"
+
+#: ../src/fx_tree.c:1674
+msgid "View group details"
+msgstr "查看群资料"
+
+#: ../src/fx_pggroup.c:87
+msgid "no notice!"
+msgstr "暂无群公告!"
+
+#: ../src/fx_pggroup.c:94
+#, c-format
+msgid "Fetion Group [%s]"
+msgstr "飞信群 [%s]"
+
+#: ../src/fx_pggroup.c:176
+msgid "Access group space"
+msgstr "访问群空间"
+
+#. notice
+#: ../src/fx_pggroup.c:218
+msgid "Group Notice"
+msgstr "群公告"
+
+#. contact list
+#: ../src/fx_pggroup.c:245
+msgid "Group Members"
+msgstr "群成员"
+
+#: ../src/fx_pggroup.c:394
+msgid "<span color='#0099ff'>[Administrator]</span>"
+msgstr "<span color='#0099ff'>[管理员]</span>"
+
+#: ../src/fx_pggroup.c:395
+msgid "<span color='#0099ff'>[Super Administrator]</span>"
+msgstr "<span color='#0099ff'>[超级管理员]</span>"
+
+#: ../src/fx_pggroup.c:541
+msgid ""
+"Group member who didn`t bind fetion number to mobile number can`t receive "
+"the group sms you send"
+msgstr "未绑定手机号的群成员将无法接收到您发送的群短信"
+
+#: ../src/fx_pggroup.c:634
+#, c-format
+msgid ""
+"<span color='#808080'>NickName :</span> <b>%s</b>\t\n"
+"<span color='#808080'>FetionNumber :</span> %s\t\n"
+msgstr ""
+"<span color='#808080'> 昵称 :</span> <b>%s</b>\t\n"
+"<span color='#808080'> 飞信号 :</span> %s\t\n"
+
+#: ../src/fx_pgprofile.c:54
+msgid "Group Details"
+msgstr "群资料"
+
+#: ../src/fx_pgprofile.c:64
+msgid "Basic Information"
+msgstr "基本资料"
+
+#: ../src/fx_pgprofile.c:68
+msgid "Group Number:"
+msgstr "群号码:"
+
+#: ../src/fx_pgprofile.c:71
+msgid "Group Name:"
+msgstr "群名称："
+
+#: ../src/fx_pgprofile.c:74
+msgid "Administrator:"
+msgstr "超级管理员:"
+
+#: ../src/fx_pgprofile.c:77
+msgid "Create Time:"
+msgstr "创建时间："
+
+#: ../src/fx_pgprofile.c:108
+msgid "Group Bulletin:"
+msgstr "群公告："
+
+#: ../src/fx_pgprofile.c:113
+msgid ""
+"<span color='#808080'>Only visible to group members,less than 256 "
+"charactors</span>"
+msgstr "<span color='#808080'>仅群成员可见，不超过256个字符</span>"
+
+#: ../src/fx_pgprofile.c:130
+msgid "Group Summary:"
+msgstr "群简介："
+
+#: ../src/fx_pgprofile.c:135
+msgid "<span color='#808080'>Visible to anyone,less than 256 charactors</span>"
+msgstr "<span color='#808080'>所有人可见，不超过256个字符</span>"
+
+#~ msgid "Exit group"
+#~ msgstr "退出群"

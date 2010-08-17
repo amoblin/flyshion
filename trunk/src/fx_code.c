@@ -49,7 +49,7 @@ void fx_code_initialize(FxCode *fxcode)
 	DEBUG_FOOTPRINT();
 
 	fxcode->dialog = gtk_dialog_new();
-	gtk_window_set_title(GTK_WINDOW(fxcode->dialog) , "请输入验证码");
+	gtk_window_set_title(GTK_WINDOW(fxcode->dialog) , _("Please entry your verification code"));
 	icon = gdk_pixbuf_new_from_file(SKIN_DIR"warning.png" , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxcode->dialog) , icon);
 	vbox = GTK_DIALOG(fxcode->dialog)->vbox;
@@ -74,7 +74,7 @@ void fx_code_initialize(FxCode *fxcode)
 	sprintf(codePath , "%s/code.gif" , fxcode->fxmain->user->config->globalPath);
 	pb = gdk_pixbuf_new_from_file_at_size(codePath , 130 , 36 , NULL);
 	fxcode->codepic = gtk_image_new_from_pixbuf(pb);
-	gtk_widget_set_tooltip_markup(fxcode->codepic , "点此重新获取验证码");
+	gtk_widget_set_tooltip_markup(fxcode->codepic , _("Click here getting new verification code"));
 	fxcode->codebox = gtk_event_box_new();
 	g_signal_connect(G_OBJECT(fxcode->codebox)
 					, "button_press_event"
@@ -98,11 +98,11 @@ void fx_code_initialize(FxCode *fxcode)
 	gtk_label_set_justify(GTK_LABEL(fxcode->tiplabel), GTK_JUSTIFY_FILL);
 	gtk_fixed_put(GTK_FIXED(fixed) , fxcode->tiplabel , 20 , 160);
 
-	ok_button = gtk_button_new_with_label("确定");
+	ok_button = gtk_button_new_with_label(_("OK"));
 	g_signal_connect(ok_button , "clicked" , G_CALLBACK(fx_code_on_ok_clicked) , fxcode->dialog);
 	gtk_box_pack_start_defaults(GTK_BOX(action_area) , ok_button);
 
-	cancel_button = gtk_button_new_with_label("取消");
+	cancel_button = gtk_button_new_with_label(_("Cancel"));
 	g_signal_connect(cancel_button , "clicked" , G_CALLBACK(fx_code_on_cancel_clicked) , fxcode->dialog);
 	gtk_box_pack_start_defaults(GTK_BOX(action_area) , cancel_button);
 

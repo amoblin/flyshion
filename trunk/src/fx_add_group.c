@@ -78,21 +78,21 @@ void fx_add_group_initialize(FxAddGroup* fxaddgroup)
 	gtk_window_set_resizable(GTK_WINDOW(fxaddgroup->dialog) , FALSE);
 	gtk_widget_set_usize(fxaddgroup->dialog , 300 , 150);
 	gtk_window_set_icon(GTK_WINDOW(fxaddgroup->dialog) , pb);
-	gtk_window_set_title(GTK_WINDOW(fxaddgroup->dialog) , "添加一个好友分组");
+	gtk_window_set_title(GTK_WINDOW(fxaddgroup->dialog) , _("Add a buddy group"));
 	gtk_container_set_border_width(GTK_CONTAINER(fxaddgroup->dialog) , 20);
 
-	fxaddgroup->add_label = gtk_label_new("请输入新建分组名称:");
+	fxaddgroup->add_label = gtk_label_new(_("Input name of the new group:"));
 	gtk_misc_set_alignment(GTK_MISC(fxaddgroup->add_label) , 0 , 0 );
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxaddgroup->dialog)->vbox) , fxaddgroup->add_label);
 
 	fxaddgroup->add_entry = gtk_entry_new();
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxaddgroup->dialog)->vbox) , fxaddgroup->add_entry);
 	
-	fxaddgroup->ok_button = gtk_button_new_with_label("确定");
+	fxaddgroup->ok_button = gtk_button_new_with_label(_("OK"));
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxaddgroup->dialog)->action_area) , fxaddgroup->ok_button);
 	g_signal_connect(fxaddgroup->ok_button , "clicked" , G_CALLBACK(fx_add_group_on_ok_clicked) , fxaddgroup);
 
-	fxaddgroup->cancel_button = gtk_button_new_with_label("取消");
+	fxaddgroup->cancel_button = gtk_button_new_with_label(_("Cancel"));
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxaddgroup->dialog)->action_area) , fxaddgroup->cancel_button);
 	g_signal_connect(fxaddgroup->cancel_button , "clicked" , G_CALLBACK(fx_add_group_on_cancel_clicked) , fxaddgroup->dialog);
 	gtk_widget_show_all(fxaddgroup->dialog);

@@ -1,47 +1,41 @@
 SUBDIRS=face_images
 skindir = $(pkgdatadir)/skin
 skin_DATA = about.png \
+	    bg.jpg \
 			addbuddy.png \
-			add.png \
 			bigimage.png \
-			computer.png \
 			delete.png \
 			directsms.png \
-			edit.gif \
-			emotions.png \
-			exit.png \
-			fetion.jpg \
+			edit.png \
 			fetion.png \
 			find.png \
-			flow.jpg \
-			group.png \
-			groupsend.png \
-			hilight.png \
+			pggroup.png \
 			history.png \
+			hilight.png \
 			home.png \
-			im.gif \
+			move.png \
 			LoadingImage.gif \
 			login.png \
-			move.gif \
 			myselfsms.png \
 			nudge.png \
+			add.png \
 			options.png \
-			personal.png \
 			phone.png \
-			profile.gif \
-			proxy.png \
-			refresh.gif \
+			profile.png \
 			refresh.png \
-			rename.gif \
-			sendfile.png \
-			skin.gif \
-			tux.png \
+			groupsend.png \
 			user_away.png \
 			user_busy.png \
 			user_invisible.png \
 			user_offline.png \
 			user_online.png \
 			warning.png \
-			warning_icon.png 
-
+			warning_icon.png \
+			emotion.png \
+			online_big.png \
+			busy_big.png \
+			offline_big.png \
+			away_big.png \
+			invisible_big.png \
+			proxy.png
 EXTRA_DIST = $(skin_DATA)

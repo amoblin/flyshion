@@ -21,9 +21,13 @@
 #ifndef FETION_HISTORY_H
 #define FETION_HISTORY_H
 
-#include <glib.h>
+#define HISTORY_TODAY 1
+#define HISTORY_YEST  2
+#define HISTORY_MONTH 3
+#define HISTORY_ALL   4
 
-extern History* fetion_history_message_new(const char* name , const char* userid , struct tm time , const char* msg , const int issend);
+extern History* fetion_history_message_new(const char* name
+		, const char* userid , struct tm time , const char* msg , const int issend);
 
 extern void fetion_history_message_free(History* history);
 
@@ -33,7 +37,11 @@ extern void fetion_history_free(FetionHistory* fhistory);
 
 extern void fetion_history_add(FetionHistory* fhistory , History* history);
 
-extern GList* fetion_history_get_list(Config* config , const char* sid);
+extern FxList* fetion_history_get_list(Config* config , const char* sid , int count);
 
+extern FxList* fetion_history_get_e_list(Config *config , const char *userid , int type);
+
+extern int fetion_history_export(Config *config , const char *myid
+		, const char *userid , const char *filename);
 
 #endif
