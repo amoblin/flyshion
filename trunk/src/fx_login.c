@@ -51,13 +51,13 @@ gboolean fx_login_proxy_button_func(GtkWidget *UNUSED(widget) , GdkEventButton *
 	switch(event->type)
 	{
 		case GDK_ENTER_NOTIFY :
-			sprintf(text , "<span color='#7ce1a9'><small> 网络代理[%s]</small></span>"
-					, (proxy == NULL || !proxy->proxyEnabled) ? "关闭" : "开启");
+			sprintf(text , _("<span color='#7ce1a9'><small> Proxy[%s]</small></span>")
+					, (proxy == NULL || !proxy->proxyEnabled) ? _("Off") : _("On"));
 			gtk_label_set_markup(GTK_LABEL(fxlogin->proxyLabel) , text);
 			break;
 		case GDK_LEAVE_NOTIFY :
-			sprintf(text , "<span color='#0099ff'><small> 网络代理[%s]</small></span>"
-					, (proxy == NULL || !proxy->proxyEnabled) ? "关闭" : "开启");
+			sprintf(text , _("<span color='#0099ff'><small> Proxy[%s]</small></span>")
+					, (proxy == NULL || !proxy->proxyEnabled) ? _("Off") : _("On"));
 			gtk_label_set_markup(GTK_LABEL(fxlogin->proxyLabel) , text);
 			break;
 		case GDK_BUTTON_PRESS :
@@ -102,29 +102,29 @@ void fx_login_initialize(FxMain* fxmain)
 
 	g_signal_connect(fxlogin->username , "changed" , G_CALLBACK(fx_login_user_change_func) , fxlogin);
 
-	fxlogin->userlabel = gtk_label_new("请输入手机号或飞信号:");
+	fxlogin->userlabel = gtk_label_new(gettext("Cell number or fetion number:"));
 	gtk_label_set_justify(GTK_LABEL(fxlogin->userlabel) , GTK_JUSTIFY_CENTER);
 
 	fxlogin->password = gtk_entry_new();
 	gtk_widget_set_size_request(GTK_WIDGET(fxlogin->password) , 200 , 25);
 	gtk_entry_set_visibility(GTK_ENTRY(fxlogin->password) , FALSE);
 
-	fxlogin->passlabel = gtk_label_new("请输入密码:");
+	fxlogin->passlabel = gtk_label_new(_("Please input password:"));
 	gtk_label_set_justify(GTK_LABEL(fxlogin->passlabel) , GTK_JUSTIFY_CENTER);
 
-	fxlogin->label = gtk_label_new("");
+	fxlogin->label = gtk_label_new(NULL);
 	gtk_widget_set_size_request(GTK_WIDGET(fxlogin->label) , WINDOW_WIDTH - 10 , 25);
 	gtk_label_set_justify(GTK_LABEL(fxlogin->label) , GTK_JUSTIFY_CENTER);
 
-	fxlogin->loginbutton = gtk_button_new_with_label("登录");
+	fxlogin->loginbutton = gtk_button_new_with_label(_("Login"));
 
 	img = gtk_image_new_from_file(SKIN_DIR"login.png");
 	gtk_button_set_image(GTK_BUTTON(fxlogin->loginbutton) , img);
 
 	fxlogin->loginFuncId = g_signal_connect(G_OBJECT(fxlogin->loginbutton)
-								   , "clicked"
-								   , G_CALLBACK(fx_login_action_func)
-								   , fxmain);
+						   , "clicked"
+						   , G_CALLBACK(fx_login_action_func)
+						   , fxmain);
 	gtk_widget_set_size_request(GTK_WIDGET(fxlogin->loginbutton) , 80 , 30);
 
 	stateModel = fx_login_create_state_model();	
@@ -142,15 +142,15 @@ void fx_login_initialize(FxMain* fxmain)
 
 	gtk_widget_set_usize(GTK_WIDGET(fxlogin->statecombo) , 120 , 32);
 
-	fxlogin->remember = gtk_check_button_new_with_label("记住密码");
+	fxlogin->remember = gtk_check_button_new_with_label(_("Remember password"));
 	fxlogin->proxyBtn = gtk_event_box_new();
 
 	fxlogin->proxyLabel = gtk_label_new(NULL);
 	proxyHbox = gtk_hbox_new(FALSE , FALSE);
 	img = gtk_image_new_from_file(SKIN_DIR"proxy.png");
 	bzero(text , sizeof(text));
-	sprintf(text , "<span color='#0099ff'><small> 网络代理[%s]</small></span>"
-			, (fxlogin->proxy == NULL || ! fxlogin->proxy->proxyEnabled) ? "关闭"  : "开启");
+	sprintf(text , _("<span color='#0099ff'><small> Proxy[%s]</small></span>")
+			, (fxlogin->proxy == NULL || ! fxlogin->proxy->proxyEnabled) ? _("Off")  : _("On"));
 
 	gtk_label_set_markup(GTK_LABEL(fxlogin->proxyLabel) , text);
 	gtk_container_add(GTK_CONTAINER(fxlogin->proxyBtn) , proxyHbox);
@@ -189,7 +189,12 @@ void fx_login_initialize(FxMain* fxmain)
 	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->loginbutton , (WINDOW_WIDTH - 80)/2 , 270);
 	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->proxyBtn , (WINDOW_WIDTH - 100) / 2 , 320);
 	gtk_box_pack_start(GTK_BOX(fxmain->mainbox) , fxlogin->fixed , TRUE , TRUE , 0);
+
+	GTK_WIDGET_SET_FLAGS(fxlogin->loginbutton, GTK_CAN_DEFAULT);
+	gtk_widget_grab_default(fxlogin->loginbutton);
+
 	gtk_widget_show_all(fxmain->mainbox);
+
 }
 GtkTreeModel* fx_login_create_state_model()
 {
@@ -206,15 +211,15 @@ GtkTreeModel* fx_login_create_state_model()
 		const gchar* icon;
 		int type;
 	} presence[] = {
-		{ "上线"	 , SKIN_DIR"user_online.png" , P_ONLINE } , 
-		{ "离开"	 , SKIN_DIR"user_away.png" , P_AWAY } , 
-		{ "忙碌"	 , SKIN_DIR"user_busy.png" , P_BUSY } ,
-		{ "隐身"	 , SKIN_DIR"user_invisible.png" , P_HIDDEN } , 
-		{ "外出就餐" , SKIN_DIR"user_away.png" , P_OUTFORLUNCH } ,
-		{ "请勿打扰" , SKIN_DIR"user_away.png" , P_DONOTDISTURB } , 
-		{ "马上回来" , SKIN_DIR"user_away.png" , P_RIGHTBACK } , 
-		{ "会议中"	 , SKIN_DIR"user_away.png" , P_MEETING } , 
-		{ "电话中"	 , SKIN_DIR"user_away.png" , P_ONTHEPHONE} ,
+		{ N_("Online")	 , SKIN_DIR"user_online.png" , P_ONLINE } , 
+		{ N_("Leave")	 , SKIN_DIR"user_away.png" , P_AWAY } , 
+		{ N_("Busy")	 , SKIN_DIR"user_busy.png" , P_BUSY } ,
+		{ N_("Hide")	 , SKIN_DIR"user_invisible.png" , P_HIDDEN } , 
+		{ N_("Eating out") , SKIN_DIR"user_away.png" , P_OUTFORLUNCH } ,
+		{ N_("Do Not Disturb") , SKIN_DIR"user_away.png" , P_DONOTDISTURB } , 
+		{ N_("Back Soon") , SKIN_DIR"user_away.png" , P_RIGHTBACK } , 
+		{ N_("Meeting")	 , SKIN_DIR"user_away.png" , P_MEETING } , 
+		{ N_("Calling")	 , SKIN_DIR"user_away.png" , P_ONTHEPHONE} ,
 		{ NULL		 , NULL 			   , -1}
 	};
 	enum
@@ -231,7 +236,7 @@ GtkTreeModel* fx_login_create_state_model()
 		pb = gdk_pixbuf_new_from_file(presence[i].icon , NULL);
 		gtk_list_store_set(store , &iter
 				, PIXBUF_COL , pb 
-				, TEXT_COL , presence[i].name
+				, TEXT_COL , _(presence[i].name)
 				, INT_COL , presence[i].type , -1);
 		g_object_unref(pb);
 	}
@@ -268,7 +273,7 @@ void* fx_login_thread_func(void* data)
 
 	DEBUG_FOOTPRINT();
 
-	fx_login_show_msg(fxlogin , "正在准备登录");	
+	fx_login_show_msg(fxlogin , _("Preparing for login"));	
 
 	no = gtk_combo_box_get_active_text(GTK_COMBO_BOX(fxlogin->username));
 	password = gtk_entry_get_text(GTK_ENTRY(fxlogin->password));
@@ -277,7 +282,7 @@ void* fx_login_thread_func(void* data)
 
 	config = fetion_config_new();
 	if(user == NULL){
-		fx_login_show_msg(fxlogin , "登录失败");
+		fx_login_show_msg(fxlogin , _("Login failed"));
 		return NULL;
 	}
 
@@ -289,7 +294,7 @@ void* fx_login_thread_func(void* data)
 login:
 	pos = ssi_auth_action(user);
 	if(pos == NULL){
-		fx_login_show_msg(fxlogin , "登录失败");
+		fx_login_show_msg(fxlogin , _("Login failed"));
 		return NULL;
 	}
 	parse_ssi_auth_response(pos , user);
@@ -325,11 +330,11 @@ login:
 	if(user->loginStatus == 401 || user->loginStatus == 400)
 	{
 		debug_info("Password error!!!");
-		fx_login_show_msg(fxlogin , "登录失败，手机号或密码错误");
+		fx_login_show_msg(fxlogin , _("Login failed. Incorrect cell phone number or password"));
 		g_thread_exit(0);
 	}
 	
-	fx_login_show_msg(fxlogin , "正在加载本地用户信息");
+	fx_login_show_msg(fxlogin , _("Loading local user information"));
 
 	fetion_config_initialize(config , user->userId);
 
@@ -358,12 +363,13 @@ login:
 		newul->islastuser = 1;
 	}
 	fetion_user_list_save(config , ul);
+	fetion_user_list_free(ul);
 
 	/* download xml configuration file from the server */
-	fx_login_show_msg(fxlogin , "正在下载配置文件");
+	fx_login_show_msg(fxlogin , _("Downloading configuration files"));
 	fetion_config_download_configuration(user);
 	if(fetion_config_load_xml(user) < 0){
-		fx_login_show_msg(fxlogin , "登录失败");
+		fx_login_show_msg(fxlogin , _("Login failed"));
 		return NULL;
 	}
 	fetion_config_load_data(user);
@@ -372,27 +378,25 @@ login:
 
 	/* start a new tcp connection for registering to sipc server */
 	conn = tcp_connection_new();
-	if(config->proxy != NULL && config->proxy->proxyEnabled)
-	{
-		fx_login_show_msg(fxlogin , "正在连接到代理服务器");
+	if(config->proxy != NULL && config->proxy->proxyEnabled){
+		fx_login_show_msg(fxlogin , _("Connecting to proxy server"));
 		tcp_connection_connect_with_proxy(conn , config->sipcProxyIP , config->sipcProxyPort , config->proxy);
-	}
-	else
-	{
-		fx_login_show_msg(fxlogin , "正在连接到注册服务器");
+	}else{
+		fx_login_show_msg(fxlogin , _("Connecting to registration server"));
 		tcp_connection_connect(conn , config->sipcProxyIP , config->sipcProxyPort);
 	}
 
 	FetionSip* sip = fetion_sip_new(conn , user->sId);
 	fetion_user_set_sip(user , sip);
 
-	fx_login_show_msg(fxlogin , "正在注册到SIPC服务器");
+	fx_login_show_msg(fxlogin , _("Registering to SIPC Server"));
 	pos = sipc_reg_action(user);
-	if(pos == NULL)
-	{
-		fx_login_show_msg(fxlogin , "登录失败");
+
+	if(pos == NULL){
+		fx_login_show_msg(fxlogin , _("Login failed"));
 		return NULL;
 	}
+
 	parse_sipc_reg_response(pos , &nonce , &key);
 	free(pos);
 
@@ -403,27 +407,28 @@ login:
 	free(aeskey);
 
 	/* start sipc authentication using the response created just now */
-	fx_login_show_msg(fxlogin , "正在进行SIPC身份验证");
+	fx_login_show_msg(fxlogin , _("SIPC Indentify"));
 auth:
 	pos = sipc_aut_action(user , response);
 	if(pos == NULL){
-		fx_login_show_msg(fxlogin , "登录失败");
+		fx_login_show_msg(fxlogin , _("Login failed"));
 		return NULL;
 	}
+
 	if(parse_sipc_auth_response(pos , user) < 0){
 		debug_info("Password error , login failed!!!");
-		fx_login_show_msg(fxlogin , "身份验证失败，手机号或密码错误");
+		fx_login_show_msg(fxlogin , _("Authenticate failed."));
 		return NULL;
 	}
 	free(pos); pos = NULL;
-	if(user->loginStatus == 401 || user->loginStatus == 400)
-	{
+
+	if(user->loginStatus == 401 || user->loginStatus == 400){
 		debug_info("Password error , login failed!!!");
-		fx_login_show_msg(fxlogin , "身份验证失败，手机号或密码错误");
+		fx_login_show_msg(fxlogin , _("Authenticate failed."));
 		return NULL;
 	}
-	if(user->loginStatus == 421 || user->loginStatus == 420)
-	{
+
+	if(user->loginStatus == 421 || user->loginStatus == 420){
 		debug_info(user->verification->text);
 		debug_info(user->verification->tips);
 		generate_pic_code(user);
@@ -431,24 +436,28 @@ auth:
 		fxcode = fx_code_new(fxmain , user->verification->text , user->verification->tips , CODE_NOT_ERROR);
 		fx_code_initialize(fxcode);
 		ret = gtk_dialog_run(GTK_DIALOG(fxcode->dialog));
-		if(ret == GTK_RESPONSE_OK)
-		{
+		if(ret == GTK_RESPONSE_OK){
+
 			strcpy(code , gtk_entry_get_text(GTK_ENTRY(fxcode->codeentry)));
 			fetion_user_set_verification_code(user , code);
 			gtk_widget_destroy(fxcode->dialog);
 			gdk_threads_leave();
 			goto auth;
-		}
-		else
-		{
+
+		}else{
+
 			gtk_widget_destroy(fxcode->dialog);
 			gdk_threads_leave();
 			return NULL;
+
 		}
 		debug_info("Input verfication code:%s" , code);
 	}
 	
-	fx_login_show_msg(fxlogin , "登录成功");
+	fx_login_show_msg(fxlogin , _("Login sucessful"));
+
+	pg_group_get_list(user);
+
 	gdk_threads_enter();
 #ifdef USE_LIBNOTIFY
 	char notifyText[1024];
@@ -457,10 +466,11 @@ auth:
 	bzero(iconPath , sizeof(iconPath));
 	sprintf(iconPath , "%s/%s.jpg" , config->iconPath , user->sId);
 	bzero(notifyText , sizeof(notifyText));
-	sprintf(notifyText , "公网IP地址：%s\n"
-						 "上次登录IP地址：%s\n"
-						 "上次登录时间%s\n"
-				, user->publicIp , user->lastLoginIp , user->lastLoginTime);
+	sprintf(notifyText ,
+			_("Public IP: %s\n"
+			"IP of last login: %s\n"
+			"Time of last login: %s\n")
+			, user->publicIp , user->lastLoginIp , user->lastLoginTime);
 	pb = gdk_pixbuf_new_from_file_at_size(iconPath , 48 , 48 , NULL);
 	if(pb == NULL){
 		fetion_user_download_portrait(user , user->sipuri);
@@ -469,7 +479,7 @@ auth:
 			pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.png" , 48 , 48 , NULL);
 		}
 	}
-	notify_notification_update(fxmain->notify , "登录成功"// notifySummary
+	notify_notification_update(fxmain->notify , _("Login successful")// notifySummary
 			, notifyText , NULL);
 	notify_notification_set_icon_from_pixbuf(fxmain->notify , pb);
 	notify_notification_show(fxmain->notify , NULL);
@@ -479,20 +489,20 @@ auth:
 	gdk_threads_leave();
 
 	/**
-	 *  if there is not a buddylist name "未分组" or "陌生人", create one
+	 *  if there is not a buddylist name "Ungrouped" or "Strangers", create one
 	 */
-	if(fetion_group_list_find_by_id(user->groupList , BUDDY_LIST_NOT_GROUPED) == NULL)
-	{
+	if(fetion_group_list_find_by_id(user->groupList , BUDDY_LIST_NOT_GROUPED) == NULL
+		&& fetion_contact_has_ungrouped(user->contactList)){
 		group = fetion_group_new();
 		group->groupid = BUDDY_LIST_NOT_GROUPED;
-		strcpy(group->groupname , "未分组");
+		strcpy(group->groupname , N_("Ungrouped"));
 		fetion_group_list_append(user->groupList , group);
 	}
-	if(fetion_group_list_find_by_id(user->groupList , BUDDY_LIST_STRANGER) == NULL)
-	{
+	if(fetion_group_list_find_by_id(user->groupList , BUDDY_LIST_STRANGER) == NULL
+		&& fetion_contact_has_strangers(user->contactList)){
 		group = fetion_group_new();
 		group->groupid = BUDDY_LIST_STRANGER;
-		strcpy(group->groupname , "陌生人");
+		strcpy(group->groupname , N_("Strangers"));
 		fetion_group_list_prepend(user->groupList , group);
 	}
 
@@ -530,7 +540,6 @@ auth:
 
 	/*====================================*/
 
-	g_thread_exit(0);
 	return NULL;
 }
 void fx_login_action_func(GtkWidget* UNUSED(widget) , gpointer data)

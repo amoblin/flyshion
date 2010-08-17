@@ -39,7 +39,8 @@ void fx_lookup_initialize(FxLookup* fxlookup)
 	DEBUG_FOOTPRINT();
 
 	gtk_window_set_icon(GTK_WINDOW(fxlookup->dialog) , pb);
-	gtk_window_set_title(GTK_WINDOW(fxlookup->dialog) , "查看任意用户信息（归属地等）");
+	gtk_window_set_title(GTK_WINDOW(fxlookup->dialog)
+			, _("View information of any user (attribution etc)"));
 	gtk_window_set_modal(GTK_WINDOW(fxlookup->dialog) , TRUE);
 
 	gtk_dialog_set_has_separator(GTK_DIALOG(fxlookup->dialog) , FALSE);
@@ -47,18 +48,18 @@ void fx_lookup_initialize(FxLookup* fxlookup)
 	gtk_widget_set_usize(fxlookup->dialog , 300 , 150);
 	gtk_container_set_border_width(GTK_CONTAINER(fxlookup->dialog) , 20);
 
-	fxlookup->remark_label = gtk_label_new("请输入用户的手机号或飞信号:");
+	fxlookup->remark_label = gtk_label_new(_("Please input users phone number or fetion number:"));
 	gtk_misc_set_alignment(GTK_MISC(fxlookup->remark_label) , 0 , 0 );
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxlookup->dialog)->vbox) , fxlookup->remark_label);
 
 	fxlookup->remark_entry = gtk_entry_new();
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxlookup->dialog)->vbox) , fxlookup->remark_entry);
 
-	fxlookup->ok_button = gtk_button_new_with_label("查询");
+	fxlookup->ok_button = gtk_button_new_with_label(_("Find"));
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxlookup->dialog)->action_area) , fxlookup->ok_button);
 	g_signal_connect(fxlookup->ok_button , "clicked" , G_CALLBACK(fx_lookup_on_ok_clicked) , fxlookup);
 
-	fxlookup->cancel_button = gtk_button_new_with_label("取消");
+	fxlookup->cancel_button = gtk_button_new_with_label(_("Cancel"));
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxlookup->dialog)->action_area) , fxlookup->cancel_button);
 	g_signal_connect(fxlookup->cancel_button , "clicked" , G_CALLBACK(fx_lookup_on_cancel_clicked) , fxlookup->dialog);
 	gtk_widget_show_all(fxlookup->dialog);
@@ -89,7 +90,7 @@ void* fx_lookup_ok_thread(void* data)
 										GTK_DIALOG_DESTROY_WITH_PARENT,
 										GTK_MESSAGE_WARNING,
 										GTK_BUTTONS_OK,
-										"查询失败，请输入正确的移动手机号码");
+										_("Query failed, please input vaild phone number of China Mobile"));
 		gtk_window_set_title(GTK_WINDOW(dialog), "Warning");
 		gtk_dialog_run(GTK_DIALOG(dialog));
 		gtk_widget_destroy(dialog);

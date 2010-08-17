@@ -21,27 +21,62 @@
 #ifndef FETION_CONVERSION_H
 #define FETION_CONVERSION_h
 
-
+/**
+ * construct a conversation object
+ * @uesr Global User object
+ * @sipuri To specify the user in the conversation
+ */
 extern Conversation* fetion_conversation_new(User* user , const char* sipuri , FetionSip* sip);
 
-extern void fetion_conversation_send_sms(Conversation* user , const char* msg);
+/**
+ * send a message to the user in this conversation
+ * @note before you send a message to an online buddy , in other word ,
+ * the buddy`s state is larger than 0 , then you need to send an invitation 
+ * to the buddy first using function "fetion_conversation_invite_friend()"
+ * or else the message will fail to send
+ * @param conv To specify the conversation to send a sms to 
+ * @param msg the message to be sent
+ */
+extern void fetion_conversation_send_sms(Conversation* conv , const char* msg);
 
+/**
+ *  send a sms to yourself
+ */
 extern void fetion_conversation_send_sms_to_myself(Conversation* conversation , const char* message);
 
+/**
+ * send a message directly to the user`s phone in the specified conversation
+ * @param conversation To specify the user to whom the message will be sent
+ * @param message The message body
+ * @return 1 if success , or else -1
+ */
 extern int fetion_conversation_send_sms_to_phone(Conversation* conversation , const char* message);
 
-extern int fetion_conversation_send_sms_to_phone_with_reply(Conversation* conversation , const char* message , int* daycount , int* monthcount);
+/**
+ * send a message directly to the user`s phone in the specified conversation
+ * and parse the response message.
+ * @param conversation To specify the buddy to whom the message will be sent
+ * @param message The message body
+ * @param daycount Will be filled with the count of messages you send in the current day
+ * @param mountcount Will be filled with the count of messages you send in the current month
+ * @return 1 if success , or else -1
+ */
+extern int fetion_conversation_send_sms_to_phone_with_reply(Conversation* conversation
+       	, const char* message , int* daycount , int* monthcount);
 
+/**
+ * invite an online buddy to a conversation
+ * @param conversation To specify the buddy to whom the message will be sent
+ * @return 1 if success , or else -1
+ */
 extern int fetion_conversation_invite_friend(Conversation* conversation);
 
+/**
+ * send a window nudge to a buddy
+ * @param conversation To specify the buddy to whom the nudge will be sent
+ * @return 1 if success , or else -1
+ */
 extern int fetion_conversation_send_nudge(Conversation* conversation);
 
-/*private*/
-
-extern char* generate_invite_friend_body(const char* sipuri);
-
-extern char* generate_send_nudge_body();
-
-extern void fetion_conversation_parse_send_sms(const char* xml , int* daycount , int* mountcount);
 
 #endif

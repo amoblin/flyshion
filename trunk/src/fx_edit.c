@@ -41,7 +41,7 @@ void fx_edit_initialize(FxEdit* fxedit)
 	DEBUG_FOOTPRINT();
 
 	gtk_window_set_icon(GTK_WINDOW(fxedit->dialog) , pb);
-	gtk_window_set_title(GTK_WINDOW(fxedit->dialog) , "修改备注名称");
+	gtk_window_set_title(GTK_WINDOW(fxedit->dialog) , _("Edit note name"));
 	gtk_window_set_modal(GTK_WINDOW(fxedit->dialog) , TRUE);
 
 	gtk_dialog_set_has_separator(GTK_DIALOG(fxedit->dialog) , FALSE);
@@ -49,18 +49,18 @@ void fx_edit_initialize(FxEdit* fxedit)
 	gtk_widget_set_usize(fxedit->dialog , 300 , 150);
 	gtk_container_set_border_width(GTK_CONTAINER(fxedit->dialog) , 20);
 
-	fxedit->remark_label = gtk_label_new("请输入备注名称:");
+	fxedit->remark_label = gtk_label_new(_("Please input note name:"));
 	gtk_misc_set_alignment(GTK_MISC(fxedit->remark_label) , 0 , 0 );
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxedit->dialog)->vbox) , fxedit->remark_label);
 
 	fxedit->remark_entry = gtk_entry_new();
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxedit->dialog)->vbox) , fxedit->remark_entry);
 	
-	fxedit->ok_button = gtk_button_new_with_label("确定");
+	fxedit->ok_button = gtk_button_new_with_label(_("OK"));
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxedit->dialog)->action_area) , fxedit->ok_button);
 	g_signal_connect(fxedit->ok_button , "clicked" , G_CALLBACK(fx_edit_on_ok_clicked) , fxedit);
 
-	fxedit->cancel_button = gtk_button_new_with_label("取消");
+	fxedit->cancel_button = gtk_button_new_with_label(_("Cancel"));
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxedit->dialog)->action_area) , fxedit->cancel_button);
 	g_signal_connect(fxedit->cancel_button , "clicked" , G_CALLBACK(fx_edit_on_cancel_clicked) , fxedit->dialog);
 	gtk_widget_show_all(fxedit->dialog);

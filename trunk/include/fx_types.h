@@ -77,9 +77,14 @@ typedef struct
 
 typedef struct
 {
-	GtkWidget* treeView;
-	GtkTreeStore* treeModel;
-	GtkWidget* scrollWindow;
+	GtkWidget *treeView;
+	GtkWidget *noPgLabel;
+	GtkWidget *pgTreeView;
+	GtkWidget *searchbox;
+	GtkTreeStore *treeModel;
+	GtkWidget *scrollWindow;
+	GtkWidget *pgScrollWindow;
+	GtkWidget *noLabelScrollWindow;
 } FxTree;
 
 typedef struct
@@ -89,6 +94,7 @@ typedef struct
 	FxList* slist;				 /*  sip list wicth is now listening			 */
 	FxList* tlist;				 /*  time out args list							 */
 	FxList* shlist;				 /*	 share content window list		   			 */
+	FxList* pglist;
 #ifdef HAVE_LIBNOTIFY
 	NotifyNotification *notify;
 #endif
@@ -285,10 +291,6 @@ typedef struct
 	GtkWidget* textview;
 	GtkWidget* daycombo;
 	GtkWidget* closebtn;
-        GtkWidget* poslabel;
-        GtkWidget* nextbtn;
-        GtkWidget* privbtn;
-        int current_pos;
 } FxHistory;
 
 typedef struct
@@ -389,6 +391,7 @@ typedef struct
 	GtkWidget *ctBtn;
 	GtkWidget *etBtn;
 	GtkWidget *alertBtn;
+	GtkWidget *iconBtn;
 	/* personal setting */
 	GtkWidget* image ;
 	GtkWidget* sid_label ;
@@ -470,4 +473,45 @@ typedef struct
 	GtkWidget *iconBtn;
 	GtkWidget *notalert;
 } FxClose;
+
+typedef struct
+{
+	FxMain *fxmain;
+
+	GtkWidget *window;
+	GtkWidget *view;
+}FxSearch;
+
+typedef struct
+{
+	FxMain *fxmain;
+
+	int hasFocus;
+	PGGroup *pggroup;
+	GtkWidget *window;
+	GtkWidget *image;
+	GtkWidget *nameLabel;
+	GtkWidget *otherLabel;
+	GtkWidget *phoneButton;
+	GtkWidget *sendView;
+	GtkWidget *recvView;
+	GtkWidget *toolbar;
+	GtkWidget *noticeView;
+	GtkWidget *treeView;
+} FxPGGroup;
+
+typedef struct
+{
+	FxMain *fxmain;
+	PGGroup *pggroup;
+	GtkWidget *window;
+	GtkWidget *image;
+	GtkWidget *sidEntry;
+	GtkWidget *nameEntry;
+	GtkWidget *leaderEntry;
+	GtkWidget *timeEntry;
+	GtkWidget *introView;
+	GtkWidget *bulletinView;
+} FxPGProfile;
+
 #endif

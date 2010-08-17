@@ -58,7 +58,7 @@ void fx_app_initialize(FxApp* fxapp)
 	DEBUG_FOOTPRINT();
 
 	fxapp->dialog = gtk_dialog_new();
-	gtk_window_set_title(GTK_WINDOW(fxapp->dialog) , "收到一个添加好友请求");
+	gtk_window_set_title(GTK_WINDOW(fxapp->dialog) , _("Receive an Add Buddy request"));
 	pb = gdk_pixbuf_new_from_file(SKIN_DIR"user_online.png" , NULL);
 	gtk_window_set_modal(GTK_WINDOW(fxapp->dialog) , FALSE);
 	gtk_window_set_transient_for(GTK_WINDOW(fxapp->dialog) , GTK_WINDOW(fxmain->window));
@@ -74,7 +74,7 @@ void fx_app_initialize(FxApp* fxapp)
 		phrase = (Phrase*)pl_cur->data;
 		if(fxapp->phraseid == phrase->phraseid){
 			bzero(text , sizeof(text));
-			sprintf(text , "您好，我是%s，%s" , fxapp->desc , phrase->content);
+			sprintf(text , _("Hello ,I am %s , %s") , fxapp->desc , phrase->content);
 		}
 		fetion_phrase_free(phrase);
 	}
@@ -83,11 +83,11 @@ void fx_app_initialize(FxApp* fxapp)
 	gtk_widget_set_usize(fxapp->msgLabel , 400 , 30);
 	gtk_fixed_put(GTK_FIXED(fixed) , fxapp->msgLabel , 20 , 20);
 
-	fxapp->aptButton = gtk_radio_button_new_with_label(NULL , "同意并添加对方为好友");
+	fxapp->aptButton = gtk_radio_button_new_with_label(NULL , _("Accept and add him(her) to your contact list"));
 	fxapp->rdoList = gtk_radio_button_get_group(GTK_RADIO_BUTTON(fxapp->aptButton));
 	gtk_fixed_put(GTK_FIXED(fixed) , fxapp->aptButton , 20 , 50);
 
-	lnLabel = gtk_label_new("备注名称:");
+	lnLabel = gtk_label_new(_("Note name:"));
 	gtk_fixed_put(GTK_FIXED(fixed) , lnLabel , 40 , 85);
 	
 	fxapp->lnEntry = gtk_entry_new();
@@ -96,12 +96,12 @@ void fx_app_initialize(FxApp* fxapp)
 	gtk_widget_set_usize(fxapp->lnEntry , 200 , 28);
 	gtk_fixed_put(GTK_FIXED(fixed) , fxapp->lnEntry , 120 , 80);
 
-	ifoButton = gtk_button_new_with_label("查看信息");
+	ifoButton = gtk_button_new_with_label(_("View details"));
 	g_signal_connect(ifoButton , "clicked" , G_CALLBACK(fx_app_on_check_clicked) , fxapp);
 	gtk_widget_set_usize(ifoButton , 80 , 65);
 	gtk_fixed_put(GTK_FIXED(fixed) , ifoButton , 340 , 80);
 
-	agLabel = gtk_label_new("添加到组:");
+	agLabel = gtk_label_new(_("Add to group:"));
 	gtk_fixed_put(GTK_FIXED(fixed) , agLabel , 40 , 120);
 
 	model = fx_app_create_group_model(fxmain);
@@ -112,15 +112,15 @@ void fx_app_initialize(FxApp* fxapp)
 	gtk_widget_set_usize(fxapp->agCombo , 200 , 30);
 	gtk_fixed_put(GTK_FIXED(fixed) , fxapp->agCombo , 120 , 115);
 
-	fxapp->rjtButton = gtk_radio_button_new_with_label(fxapp->rdoList , "拒绝对方的添加好友请求");
+	fxapp->rjtButton = gtk_radio_button_new_with_label(fxapp->rdoList , _("Decline his(her) add buddy request"));
 	gtk_fixed_put(GTK_FIXED(fixed) , fxapp->rjtButton , 20 , 150);
 
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxapp->dialog)->vbox) , fixed);
 
-	okButton = gtk_button_new_with_label("确定");
+	okButton = gtk_button_new_with_label(_("OK"));
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxapp->dialog)->action_area) , okButton);
 	g_signal_connect(okButton , "clicked" , G_CALLBACK(fx_app_on_ok_clicked) , fxapp);
-	cancelButton = gtk_button_new_with_label("取消");
+	cancelButton = gtk_button_new_with_label(_("Cancel"));
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxapp->dialog)->action_area) , cancelButton);
 	g_signal_connect(cancelButton , "clicked" , G_CALLBACK(fx_app_on_cancel_clicked) , fxapp);
 
@@ -303,7 +303,7 @@ void* fx_app_check_thread(void* data)
 	if(contact == NULL)
 	{
 		gdk_threads_enter();
-		fx_util_popup_warning(fxapp->fxmain , "查询失败，对方身份不明,原因未知...");
+		fx_util_popup_warning(fxapp->fxmain , _("Lookup failed,Unknown identity,Unknown reason"));
 		gdk_threads_leave();
 		return NULL;
 	}

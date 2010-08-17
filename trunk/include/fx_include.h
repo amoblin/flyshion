@@ -24,10 +24,12 @@
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <gdk/gdkkeysyms.h>
 #include <glib.h>
+#include <glib/gi18n.h>
 #ifdef USE_LIBNOTIFY
  #include <libnotify/notify.h>
 #endif
-#include "fetion_include.h"
+#include <openfetion.h>
+#include <config.h>
 #include "fx_types.h"
 #include "fx_util.h"
 #include "fx_sound.h"
@@ -53,7 +55,9 @@
 #include "fx_app.h"
 #include "fx_set.h"
 #include "fx_emotion.h"
-#include "fx_share.h"
 #include "fx_sysmsg.h"
 #include "fx_close.h"
+#include "fx_search.h"
+#include "fx_pggroup.h"
+#include "fx_pgprofile.h"
 #endif

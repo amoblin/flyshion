@@ -47,6 +47,26 @@ fx_bottom_on_directsms_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 }
 
 static void
+fx_bottom_on_pggroup_clicked(GtkWidget *widget , gpointer data)
+{
+	FxMain *fxmain = (FxMain*)data;
+	PGGroup *pg = fxmain->user->pggroup;
+	FxTree *fxtree = fxmain->mainPanel;
+
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget))){
+		if(pg)
+			gtk_widget_show(fxtree->pgScrollWindow);
+		else
+			gtk_widget_show(fxtree->noLabelScrollWindow);
+		gtk_widget_hide(fxtree->scrollWindow);
+	}else{
+		gtk_widget_hide(fxtree->pgScrollWindow);
+		gtk_widget_hide(fxtree->noLabelScrollWindow);
+		gtk_widget_show(fxtree->scrollWindow);
+	}
+}
+
+static void
 fx_bottom_on_help_clicked(GtkWidget* UNUSED(widget) , gpointer UNUSED(data))
 {
 	if(fork() == 0)
@@ -69,15 +89,15 @@ void fx_bottom_initialize(FxMain* fxmain)
 	gtk_box_pack_start(GTK_BOX(mainbox) , fxbottom->toolbar , FALSE , FALSE , 0);
 	icon = gtk_image_new_from_file(SKIN_DIR"options.png");
 	gtk_toolbar_append_item(GTK_TOOLBAR(fxbottom->toolbar)
-						  , NULL , "设置" , NULL , icon
+						  , NULL , _("Personal setting") , NULL , icon
 						  , G_CALLBACK(fx_bottom_on_setting_clicked)
 						  , fxmain );
 
 	gtk_toolbar_set_style(GTK_TOOLBAR(fxbottom->toolbar) , GTK_TOOLBAR_ICONS);
 
-	icon = gtk_image_new_from_file(SKIN_DIR"addbuddy.png");
+	icon = gtk_image_new_from_file(SKIN_DIR"add.png");
 	gtk_toolbar_append_item(GTK_TOOLBAR(fxbottom->toolbar)
-						  , "添加" , "添加好友" , NULL , icon
+						  , NULL , _("Add Buddy") , NULL , icon
 						  , G_CALLBACK(fx_bottom_on_addfriend_clicked)
 						  , fxmain);
 	if(user->boundToMobile == BOUND_MOBILE_ENABLE){
@@ -85,34 +105,42 @@ void fx_bottom_initialize(FxMain* fxmain)
 		icon = gtk_image_new_from_pixbuf(pb);
 		g_object_unref(pb);
 		gtk_toolbar_append_item(GTK_TOOLBAR(fxbottom->toolbar)
-							  , "自己" , "给自己发短信" , NULL , icon
+							  , NULL , _("Send a message to myself") , NULL , icon
 							  , G_CALLBACK(fx_bottom_on_sendtome_clicked)
 							  , fxmain);
 		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"groupsend.png" , 16 , 16 , NULL);
 		icon = gtk_image_new_from_pixbuf(pb);
 		g_object_unref(pb);
 		gtk_toolbar_append_item(GTK_TOOLBAR(fxbottom->toolbar)
-							  , "群发" , "群发短信" , NULL , icon
+							  , NULL , _("SMS to many") , NULL , icon
 							  , G_CALLBACK(fx_bottom_on_sendtomany_clicked)
 							  , fxmain);
 		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"directsms.png" , 16 , 16 , NULL);
 		icon = gtk_image_new_from_pixbuf(pb);
 		g_object_unref(pb);
 		gtk_toolbar_append_item(GTK_TOOLBAR(fxbottom->toolbar)
-							  , "短信" , "发送直接短信" , NULL , icon
+							  , NULL , _("SMS directly") , NULL , icon
 							  , G_CALLBACK(fx_bottom_on_directsms_clicked)
 							  , fxmain);
 	}
+
+	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"pggroup.png" , 16 , 16 , NULL);
+	icon = gtk_image_new_from_pixbuf(pb);
+	g_object_unref(pb);
+	gtk_toolbar_append_element(GTK_TOOLBAR(fxbottom->toolbar) , GTK_TOOLBAR_CHILD_TOGGLEBUTTON , NULL
+						  , NULL , _("Fetion Group")
+						  , NULL , icon , G_CALLBACK(fx_bottom_on_pggroup_clicked) , fxmain);
+
 	icon = gtk_image_new_from_file(SKIN_DIR"find.png");
 	gtk_toolbar_append_item(GTK_TOOLBAR(fxbottom->toolbar)
-						  , "查询" , "查询任意移动用户信息(归属地等)" , NULL , icon
+						  , NULL , _("View information of any user (attribution etc)") , NULL , icon
 						  , G_CALLBACK(fx_bottom_on_lookup_clicked)
 						  , fxmain);
 	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"home.png" , 16 , 16 , NULL);
 	icon = gtk_image_new_from_pixbuf(pb);
 	g_object_unref(pb);
 	gtk_toolbar_append_item(GTK_TOOLBAR(fxbottom->toolbar)
-						  , "帮助" , "到Openfetion页面获取帮助或外馈意见"
+						  , NULL , _("Get help or give advice at Open Fetion homepage")
 						  , NULL , icon , G_CALLBACK(fx_bottom_on_help_clicked) , NULL);
 	gtk_widget_show_all(fxbottom->toolbar);
 }

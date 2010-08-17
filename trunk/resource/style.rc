@@ -4,7 +4,7 @@ pixmap_path "/usr/include/X11R6/pixmaps:/home/imain/pixmaps:/opt/openfetion/shar
 style "window"
 {
 	fg[NORMAL] = "#000000"
-	bg_pixmap[NORMAL] = "flow.jpg"
+	bg_pixmap[NORMAL] = "bg.jpg"
 }
 
 style "scale"
@@ -35,11 +35,11 @@ style "entrys"
 style "checks"
 {
 	fg[NORMAL] = "#354188"
-	bg_pixmap[NORMAL] = "flow.jpg"
+	bg_pixmap[NORMAL] = "bg.jpg"
 	fg[PRELIGHT] = "#354188"
-	bg_pixmap[PRELIGHT] = "flow.jpg"
+	bg_pixmap[PRELIGHT] = "bg.jpg"
 	fg[ACTIVE] = "#354188"
-	bg_pixmap[ACTIVE] = "flow.jpg"
+	bg_pixmap[ACTIVE] = "bg.jpg"
 }
 style "texts"
 {
@@ -47,7 +47,7 @@ style "texts"
 }
 style "treeview"
 {
-	bg_pixmap[NORMAL] = "flow.jpg"
+	bg_pixmap[NORMAL] = "bg.jpg"
 	bg[NORMAL] = "#000000" 
 	fg[NORMAL] = "#266cbc"
 	text[NORMAL] = "#0099ff"
@@ -75,4 +75,5 @@ class "*GtkCheckButton" style "checks"
 class "*GtkRadioButton" style "checks"
 class "*GtkToggleButton" style "window"
 class "*GtkTreeView" style "window"
+class "*GtkScrolled*" style "window"
 widget "test" style "buttons"

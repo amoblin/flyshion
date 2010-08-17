@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.63])
-AC_INIT([OpenFetion], [1.6.1], [http://basiccoder.com/openfetion])
+AC_INIT([OpenFetion], [1.8], [http://basiccoder.com/openfetion])
 AC_CONFIG_SRCDIR([src/fx_main.c])
 AC_CONFIG_HEADERS([config.h])
 
@@ -10,26 +10,53 @@ AM_INIT_AUTOMAKE
 
 # Checks for programs.
 AC_PROG_CC
-
 AM_PROG_CC_C_O
-
 AC_PROG_INSTALL
 
-AX_LIB_CRYPTO
-# FIXME: Replace `main' with a function in `-lnotify':
-AC_CHECK_LIB([notify], [main])
-AX_PTHREAD
-AX_CHECK_OPENSSL
+# libtools
+AC_PROG_RANLIB
+AC_PROG_LIBTOOL
+
+#gettext
+IT_PROG_INTLTOOL([0.40.0])
+AC_SUBST([GETTEXT_PACKAGE], [openfetion])
+AM_GNU_GETTEXT_VERSION([0.17])
+AM_GLIB_GNU_GETTEXT
+AM_GNU_GETTEXT([external])
+AC_DEFINE([GETTEXT_PACKAGE], [PACKAGE_TARNAME], [Define to the gettext
+package name.])
+
+AC_CHECK_LIB([notify], [notify_init])
+
+AC_CHECK_LIB([ssl], [SSL_library_init])
+
+AC_CHECK_LIB([crypto], [RSA_new])
+
+AC_CHECK_LIB([pthread], [pthread_create])
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h netinet/in.h stdint.h stdlib.h string.h sys/ioctl.h sys/socket.h unistd.h])
 
-# Checks for typedefs, structures, and compiler characteristics.
+# checks for gtk+2.0
+PKG_CHECK_MODULES(GTK, [gtk+-2.0 >= 2.16], [
+			AC_DEFINE(USE_GTK, 1, [Use GTK])
+			AC_SUBST(GTK_CFLAGS)
+			AC_SUBST(GTK_LIBS)
+		] ,	
+			)
+# checks for gthread-2.0
+PKG_CHECK_MODULES(GTHREAD, [gthread-2.0], [
+			AC_DEFINE(USE_GTHREAD, 1, [Use LIBXML])
+			AC_SUBST(GTHREAD_CFLAGS)
+			AC_SUBST(GTHREAD_LIBS)
+		] , )
 
-# Checks for library functions.
-AC_FUNC_FORK
-AC_FUNC_MALLOC
-AC_CHECK_FUNCS([bzero gethostbyname memset mkdir select socket strstr strtol])
+# checks for libxml2
+PKG_CHECK_MODULES(LIBXML, [libxml-2.0], [
+			AC_DEFINE(USE_LIBXML, 1, [Use LIBXML])
+			AC_SUBST(LIBXML_CFLAGS)
+			AC_SUBST(LIBXML_LIBS)
+		] , )
 
 # checks for gstreamer-0.10
 PKG_CHECK_MODULES(GSTREAMER, [gstreamer-0.10], [
@@ -45,8 +72,8 @@ PKG_CHECK_MODULES(LIBNOTIFY, [libnotify], [
 			AC_SUBST(LIBNOTIFY_LIBS)
 		] , [enable_libnotify="no"])
 
-PKG_CHECK_MODULES(SSL, [
-        openssl
+PKG_CHECK_MODULES(LIBSSL, [
+		openssl
 ])
 
 PKG_CHECK_MODULES(GLIB2, [
@@ -57,24 +84,22 @@ PKG_CHECK_MODULES(GOBJECT2, [
         gobject-2.0 >= 2.14
 ])
 
-PKG_CHECK_MODULES(GTK, [
-        gtk+-2.0 >= 2.12
-])
-
-PKG_CHECK_MODULES(LIBXML, [
-        libxml-2.0
-])
-
-PKG_CHECK_MODULES(GTHREAD, [
-        gthread-2.0 >= 2.12
-])
-
 AC_ARG_ENABLE(debug,
         [ --enable-debug turn on debug],
         CPPFLAGS+="-DFETION_DEBUG_TRACE")
 
-AC_CONFIG_FILES(
+# Checks for typedefs, structures, and compiler characteristics.
+
+# Checks for library functions.
+AC_FUNC_FORK
+AC_FUNC_MALLOC
+AC_CHECK_FUNCS([bzero gethostbyname memset mkdir select socket strstr strtol])
+AC_CHECK_FUNCS([inet_ntoa])
+
+AC_CONFIG_FILES( po/Makefile.in
 				Makefile
+				lib/Makefile
+				lib/ofetion.pc
 				src/Makefile
 				skin/Makefile
 				skin/face_images/Makefile
@@ -87,7 +112,7 @@ AC_OUTPUT
 if test "x$enable_gst" == "xno"; then
 	echo "-----------------------------------------------------------"
 	echo "|                                                         |"
-	echo "|            Welcome To OpenFetion v1.6.1                 |"
+	echo "|            Welcome To OpenFetion v1.8                   |"
 	echo "|                                                         |"
 	echo "| You have not installed gstreamer-0.10 on your system    |"
 	echo "| for which you can not use the sound reminder function   |"

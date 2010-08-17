@@ -42,7 +42,7 @@ void fx_gedit_initialize(FxGEdit* fxgedit)
 	DEBUG_FOOTPRINT();
 
 	gtk_window_set_icon(GTK_WINDOW(fxgedit->dialog) , pb);
-	gtk_window_set_title(GTK_WINDOW(fxgedit->dialog) , "修改分组名称");
+	gtk_window_set_title(GTK_WINDOW(fxgedit->dialog) , _("Edit name of a group"));
 	gtk_window_set_modal(GTK_WINDOW(fxgedit->dialog) , TRUE);
 
 	gtk_dialog_set_has_separator(GTK_DIALOG(fxgedit->dialog) , FALSE);
@@ -50,18 +50,18 @@ void fx_gedit_initialize(FxGEdit* fxgedit)
 	gtk_widget_set_usize(fxgedit->dialog , 300 , 150);
 	gtk_container_set_border_width(GTK_CONTAINER(fxgedit->dialog) , 20);
 
-	fxgedit->remark_label = gtk_label_new("请输入新的分组名称:");
+	fxgedit->remark_label = gtk_label_new(_("Please entry new name of the group:"));
 	gtk_misc_set_alignment(GTK_MISC(fxgedit->remark_label) , 0 , 0 );
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxgedit->dialog)->vbox) , fxgedit->remark_label);
 
 	fxgedit->remark_entry = gtk_entry_new();
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxgedit->dialog)->vbox) , fxgedit->remark_entry);
 	
-	fxgedit->ok_button = gtk_button_new_with_label("确定");
+	fxgedit->ok_button = gtk_button_new_with_label(_("OK"));
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxgedit->dialog)->action_area) , fxgedit->ok_button);
 	g_signal_connect(fxgedit->ok_button , "clicked" , G_CALLBACK(fx_gedit_on_ok_clicked) , fxgedit);
 
-	fxgedit->cancel_button = gtk_button_new_with_label("取消");
+	fxgedit->cancel_button = gtk_button_new_with_label(_("Cancel"));
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxgedit->dialog)->action_area) , fxgedit->cancel_button);
 	g_signal_connect(fxgedit->cancel_button , "clicked" , G_CALLBACK(fx_gedit_on_cancel_clicked) , fxgedit->dialog);
 	gtk_widget_show_all(fxgedit->dialog);

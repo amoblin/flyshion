@@ -28,4 +28,7 @@ EXTRA_DIST = fx_add_group.h \
 			 fx_sound.h \
 			 fx_sysmsg.h \
 			 fx_util.h \
-			 fx_close.h 
+			 fx_search.h \
+			 fx_close.h \
+			 fx_pggroup.h \
+			 fx_pgprofile.h

@@ -1,42 +1,16 @@
 bin_PROGRAMS = openfetion
 
-openfetion_CPPFLAGS= \
-		     @LIBXML_CFLAGS@ \
-		     @GLIB2_CFLAGS@ \
-		     @GOBJECT2_CFLAGS@ \
-		     @GTK_CFLAGS@ \
-		     @GSTREAMER_CFLAGS@ \
-		     @LIBNOTIFY_CFLAGS@ \
-		     @SSL_CFLAGS@ \
-		     -g -Wall -O2\
-		     -I../include -I../include/openfetion -I ../. \
-		     -DSKIN_DIR=\"$(pkgdatadir)/skin/\" \
-		     -DRESOURCE_DIR=\"$(pkgdatadir)/resource/\"
+openfetion_CPPFLAGS=$(LIBXML_CFLAGS) $(GTK_CFLAGS) $(GTHREAD_CFLAGS) \
+					$(GSTREAMER_CFLAGS) $(LIBNOTIFY_CFLAGS) -g -Wall\
+					-I../include -I../include/openfetion -I ../. \
+					-DSKIN_DIR=\"$(pkgdatadir)/skin/\" \
+					-DRESOURCE_DIR=\"$(pkgdatadir)/resource/\"
 
-openfetion_LDADD= \
-		  @LIBXML_LIBS@ \
-		  @GLIB2_LIBS@ \
-		  @GOBJECT2_LIBS@ \
-		  @GTK_LIBS@ \
-		  @GSTREAMER_LIBS@ \
-		  @LIBNOTIFY_LIBS@ \
-		  @SSL_LIBS@
+openfetion_LDADD=   $(LIBXML_LIBS) $(GTK_LIBS) $(GTHREAD_LIBS) \
+				    $(GSTREAMER_LIBS) $(LIBNOTIFY_LIBS) \
+					../lib/libofetion.la
 
-openfetion_SOURCES = fetion_buddylist.c \
-					 fetion_config.c \
-					 fetion_connection.c \
-					 fetion_contact.c \
-					 fetion_conversation.c \
-					 fetion_debug.c \
-					 fetion_history.c \
-					 fetion_list.c \
-					 fetion_login.c \
-					 fetion_message.c \
-					 fetion_share.c \
-					 fetion_directsms.c \
-					 fetion_sip.c \
-					 fetion_user.c \
-					 fx_add_group.c \
+openfetion_SOURCES = fx_add_group.c \
 					 fx_addbuddy.c \
 					 fx_app.c \
 					 fx_bottom.c \
@@ -58,8 +32,10 @@ openfetion_SOURCES = fetion_buddylist.c \
 					 fx_set.c \
 					 fx_tree.c \
 					 fx_emotion.c \
-					 fx_share.c \
 					 fx_sound.c \
 					 fx_sysmsg.c \
 					 fx_util.c \
-					 fx_close.c 
+					 fx_search.c \
+					 fx_close.c \
+					 fx_pggroup.c \
+					 fx_pgprofile.c

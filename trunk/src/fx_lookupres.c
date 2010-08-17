@@ -49,7 +49,7 @@ void fx_lookupres_bind(FxLookupres* fxlookupres)
 		gtk_entry_set_text(GTK_ENTRY(fxlookupres->nick_entry) , contact->nickname);
 
 	gtk_entry_set_text(GTK_ENTRY(fxlookupres->gender_entry) ,
-						contact->gender == 1 ? "男" : ( contact->gender == 2 ? "女" : "保密"));
+						contact->gender == 1 ? _("Male") : ( contact->gender == 2 ? _("Female") : _("Secrecy")));
 
 	if(contact->mobileno != NULL)
 		gtk_entry_set_text(GTK_ENTRY(fxlookupres->mno_entry) , contact->mobileno);
@@ -61,19 +61,19 @@ void fx_lookupres_bind(FxLookupres* fxlookupres)
 
 	if(contact->country != NULL)
 		gtk_entry_set_text(GTK_ENTRY(fxlookupres->nation_entry)
-					, strcmp(contact->country , "CN") == 0 ? "中国" : contact->country);
+					, strcmp(contact->country , "CN") == 0 ? _("China") : contact->country);
 
 	if(contact->province != NULL)
 	{
 		res = fetion_config_get_province_name(contact->province);
-		gtk_entry_set_text(GTK_ENTRY(fxlookupres->province_entry) , res == NULL ? "未知" : res);
+		gtk_entry_set_text(GTK_ENTRY(fxlookupres->province_entry) , res == NULL ? _("Unknown") : res);
 		free(res);
 	}
 
 	if(contact->city != NULL)
 	{
 		res = fetion_config_get_city_name(contact->province , contact->city);
-		gtk_entry_set_text(GTK_ENTRY(fxlookupres->city_entry) , res == NULL ? "未知" : res);
+		gtk_entry_set_text(GTK_ENTRY(fxlookupres->city_entry) , res == NULL ? _("Unknown") : res);
 		free(res);
 	}
 
@@ -106,7 +106,7 @@ void fx_lookupres_initialize(FxLookupres* fxlookupres)
 
 	DEBUG_FOOTPRINT();
 
-	fxlookupres->dialog = gtk_dialog_new_with_buttons ("查看用户信息"
+	fxlookupres->dialog = gtk_dialog_new_with_buttons ("View information of user"
 									, GTK_WINDOW(fxmain->window)
 									, GTK_DIALOG_DESTROY_WITH_PARENT
 									, NULL);
@@ -129,7 +129,7 @@ void fx_lookupres_initialize(FxLookupres* fxlookupres)
 	fxlookupres->image = gtk_image_new_from_pixbuf(pb);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxlookupres->image , 0 , 1 , 0 , 4);
 
-	fxlookupres->sid_label = gtk_label_new("飞信号:");
+	fxlookupres->sid_label = gtk_label_new(_("Fetion number:"));
 	gtk_misc_set_alignment(GTK_MISC(fxlookupres->sid_label) , 0 , 0);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxlookupres->sid_label , 1 , 2 , 0 , 1);
 
@@ -137,7 +137,7 @@ void fx_lookupres_initialize(FxLookupres* fxlookupres)
 	gtk_entry_set_editable(GTK_ENTRY(fxlookupres->sid_entry) , FALSE);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxlookupres->sid_entry , 1 , 2 , 1 , 2);
 
-	fxlookupres->gender_label = gtk_label_new("性别:");
+	fxlookupres->gender_label = gtk_label_new(_("Sex:"));
 	gtk_misc_set_alignment(GTK_MISC(fxlookupres->gender_label) , 0 , 0);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxlookupres->gender_label , 2 , 3 , 0 , 1);
 
@@ -145,7 +145,7 @@ void fx_lookupres_initialize(FxLookupres* fxlookupres)
 	gtk_entry_set_editable(GTK_ENTRY(fxlookupres->gender_entry) , FALSE);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxlookupres->gender_entry , 2 , 3 , 1 , 2);
 
-	fxlookupres->mno_label = gtk_label_new("手机号:");
+	fxlookupres->mno_label = gtk_label_new(_("Cell phone number:"));
 	gtk_misc_set_alignment(GTK_MISC(fxlookupres->mno_label) , 0 , 0);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxlookupres->mno_label , 1 , 2 , 2 , 3);
 
@@ -154,7 +154,7 @@ void fx_lookupres_initialize(FxLookupres* fxlookupres)
 	gtk_entry_set_editable(GTK_ENTRY(fxlookupres->mno_entry) , FALSE);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxlookupres->mno_entry , 1 , 2 , 3 , 4);
 
-	fxlookupres->nick_label = gtk_label_new("昵称:");
+	fxlookupres->nick_label = gtk_label_new(_("Nickname:"));
 	gtk_misc_set_alignment(GTK_MISC(fxlookupres->nick_label) , 0 , 0);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxlookupres->nick_label , 2 , 3 , 2 , 3);
 
@@ -162,7 +162,7 @@ void fx_lookupres_initialize(FxLookupres* fxlookupres)
 	gtk_entry_set_editable(GTK_ENTRY(fxlookupres->nick_entry) , FALSE);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxlookupres->nick_entry , 2 , 3 , 3 , 4);
 
-	fxlookupres->impre_label = gtk_label_new("心情:");
+	fxlookupres->impre_label = gtk_label_new(_("Personal signature:"));
 	gtk_misc_set_alignment(GTK_MISC(fxlookupres->impre_label) , 0 , 0);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxlookupres->impre_label , 0 , 3 , 4, 5);
 
@@ -175,7 +175,7 @@ void fx_lookupres_initialize(FxLookupres* fxlookupres)
 	gtk_table_set_col_spacings(GTK_TABLE(inbox) , 2);
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxlookupres->dialog)->vbox) , inbox);
 
-	fxlookupres->birth_label = gtk_label_new("生日:");
+	fxlookupres->birth_label = gtk_label_new(_("Personal signature:"));
 	gtk_misc_set_alignment(GTK_MISC(fxlookupres->birth_label) , 0 , 0 );
 	gtk_table_attach_defaults(GTK_TABLE(inbox) , fxlookupres->birth_label , 0 , 1 , 0 , 1);
 
@@ -183,7 +183,7 @@ void fx_lookupres_initialize(FxLookupres* fxlookupres)
 	gtk_table_attach_defaults(GTK_TABLE(inbox) , fxlookupres->birth_entry , 0 , 1 , 1 , 2);
 	gtk_entry_set_editable(GTK_ENTRY(fxlookupres->birth_entry) , FALSE);
 
-	fxlookupres->nation_label = gtk_label_new("国家:");
+	fxlookupres->nation_label = gtk_label_new(_("Country:"));
 	gtk_misc_set_alignment(GTK_MISC(fxlookupres->nation_label) , 0 , 0 );
 	gtk_table_attach_defaults(GTK_TABLE(inbox) , fxlookupres->nation_label , 1 , 2 , 0 , 1);
 
@@ -191,7 +191,7 @@ void fx_lookupres_initialize(FxLookupres* fxlookupres)
 	gtk_entry_set_editable(GTK_ENTRY(fxlookupres->nation_entry) , FALSE);
 	gtk_table_attach_defaults(GTK_TABLE(inbox) , fxlookupres->nation_entry , 1 , 2 , 1 , 2);
 
-	fxlookupres->province_label = gtk_label_new("省份:");
+	fxlookupres->province_label = gtk_label_new(_("Province:"));
 	gtk_misc_set_alignment(GTK_MISC(fxlookupres->province_label) , 0 , 0 );
 	gtk_table_attach_defaults(GTK_TABLE(inbox) , fxlookupres->province_label , 0 , 1 , 2 , 3);
 
@@ -199,7 +199,7 @@ void fx_lookupres_initialize(FxLookupres* fxlookupres)
 	gtk_entry_set_editable(GTK_ENTRY(fxlookupres->province_entry) , FALSE);
 	gtk_table_attach_defaults(GTK_TABLE(inbox) , fxlookupres->province_entry , 0 , 1 , 3 , 4);
 
-	fxlookupres->city_label = gtk_label_new("城市:");
+	fxlookupres->city_label = gtk_label_new(_("City:"));
 	gtk_misc_set_alignment(GTK_MISC(fxlookupres->city_label) , 0 , 0 );
 	gtk_table_attach_defaults(GTK_TABLE(inbox) , fxlookupres->city_label , 1 , 2 , 2 , 3);
 
@@ -207,10 +207,10 @@ void fx_lookupres_initialize(FxLookupres* fxlookupres)
 	gtk_entry_set_editable(GTK_ENTRY(fxlookupres->city_entry) , FALSE);
 	gtk_table_attach_defaults(GTK_TABLE(inbox) , fxlookupres->city_entry , 1 , 2 , 3 , 4);
 	
-	fxlookupres->ok_button = gtk_button_new_with_label("确定");
+	fxlookupres->ok_button = gtk_button_new_with_label(_("OK"));
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxlookupres->dialog)->action_area) , fxlookupres->ok_button);
 
-	fxlookupres->cancel_button = gtk_button_new_with_label("取消");
+	fxlookupres->cancel_button = gtk_button_new_with_label(_("Cancel"));
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxlookupres->dialog)->action_area) , fxlookupres->cancel_button);
 
 	g_signal_connect(fxlookupres->ok_button , "clicked" , G_CALLBACK(fx_lookupres_on_ok_clicked) , fxlookupres->dialog);

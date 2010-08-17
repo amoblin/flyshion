@@ -52,7 +52,7 @@ void fx_myself_bind(FxMyself* fxmyself)
 		gtk_window_set_icon(GTK_WINDOW(fxmyself->dialog) , pb);
 	}
 	gtk_window_set_title(GTK_WINDOW(fxmyself->dialog) ,
-			"正在给自己发短信");
+			_("Sending sms to myself"));
 
 	bzero(name , sizeof(name)); sprintf(name , "%s(%s)" , user->nickname ,
 			user->sId);
@@ -181,12 +181,12 @@ void fx_myself_initialize(FxMyself* fxmyself)
  	fxmyself->send_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(fxmyself->send_text));
 	gtk_text_buffer_get_iter_at_offset(fxmyself->send_buffer , &(fxmyself->send_iter) , 0);
 
-	close_button = gtk_button_new_with_label("关闭");
+	close_button = gtk_button_new_with_label(_("Close"));
 	gtk_widget_set_usize(close_button , 100 , 30);
 	gtk_box_pack_start(GTK_BOX(action_area) , close_button , FALSE , TRUE , 2);
 	g_signal_connect(close_button , "clicked" , G_CALLBACK(fx_myself_on_close_clicked) , fxmyself);
 
-	send_button = gtk_button_new_with_label("发送");
+	send_button = gtk_button_new_with_label(_("Send"));
 	gtk_widget_set_usize(send_button , 100 , 30);
 	gtk_box_pack_start(GTK_BOX(action_area) , send_button , FALSE , TRUE , 2);
 	g_signal_connect(send_button , "clicked" , G_CALLBACK(fx_myself_on_send_clicked) , fxmyself);

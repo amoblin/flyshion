@@ -60,6 +60,8 @@ extern void fx_main_process_invitation(FxMain* fxmain , const char* sipmsg);
 
 extern void fx_main_process_incoming(FxMain* fxmain , FetionSip* sip , const char* sipmsg);
 
+extern void fx_main_process_sipc(FxMain* fxmain , const char* sipmsg);
+
 extern void	fx_main_process_deregistration(FxMain* fxmain);
 
 extern void fx_main_process_syncuserinfo(FxMain* fxmain , const char* xml);
@@ -76,7 +78,7 @@ extern void fx_main_destroy(GtkWidget* UNUSED(widget) , gpointer UNUSED(data));
 extern gboolean fx_main_delete(GtkWidget *widget , GdkEvent *UNUSED(event) , gpointer data);
 
 extern gboolean fx_main_window_state_func(GtkWidget *widget
-		, GdkEventWindowState *event , gpointer UNUSED(data));
+		, GdkEventWindowState *event , gpointer data);
 
 extern void fx_main_tray_activate_func(GtkWidget *UNUSED(widget) , gpointer data);
 
@@ -114,6 +116,8 @@ extern void fx_main_info_lookup_clicked(GtkWidget* widget , gpointer data);
 extern FetionSip* fx_list_find_sip_by_sipuri(FxList* fxlist , const char* sipuri);
 
 extern void fx_list_remove_sip_by_sipuri(FxList* fxlist , const char* sipuri);
+
+extern void fx_list_remove_pg_by_sipuri(FxList* fxlist , const char* sipuri);
 
 extern FxChat* fx_list_find_chat_by_sipuri(FxList* clist , const char* sipuri);
 

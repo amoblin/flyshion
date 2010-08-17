@@ -63,7 +63,7 @@ void fx_sysmsg_initialize(FxSysmsg *sysmsg)
 
 	pb = gdk_pixbuf_new_from_file(SKIN_DIR"user_online.png" , NULL);
 	gtk_window_set_icon(GTK_WINDOW(sysmsg->dialog) , pb);
-	gtk_window_set_title(GTK_WINDOW(sysmsg->dialog) , "系统消息");
+	gtk_window_set_title(GTK_WINDOW(sysmsg->dialog) , _("System mesage"));
 	gtk_widget_set_usize(GTK_WIDGET(sysmsg->dialog) , 400 , 250);
 	gtk_window_set_resizable(GTK_WINDOW(sysmsg->dialog) , FALSE);
 
@@ -74,9 +74,9 @@ void fx_sysmsg_initialize(FxSysmsg *sysmsg)
 
 	gtk_box_pack_start_defaults(vbox , sysmsg->textview);
 
-	sysmsg->moreBtn = gtk_button_new_with_label("查看详情");
+	sysmsg->moreBtn = gtk_button_new_with_label(_("View details"));
 	gtk_box_pack_start_defaults(action_area , sysmsg->moreBtn);
-	closeBtn = gtk_button_new_with_label("关闭");
+	closeBtn = gtk_button_new_with_label(_("Close"));
 	gtk_box_pack_start_defaults(action_area , closeBtn);
 	g_signal_connect(closeBtn , "clicked" , G_CALLBACK(fx_on_close_clicked) , sysmsg->dialog);
 

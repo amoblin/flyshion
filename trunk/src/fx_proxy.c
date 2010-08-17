@@ -75,7 +75,7 @@ void fx_proxy_initialize(FxProxy *fxproxy)
 
 	gtk_widget_set_usize(fxproxy->dialog , 350 , 220);
 	gtk_window_set_resizable(GTK_WINDOW(fxproxy->dialog) , FALSE);
-	gtk_window_set_title(GTK_WINDOW(fxproxy->dialog) , "设置HTTP代理");
+	gtk_window_set_title(GTK_WINDOW(fxproxy->dialog) , _("Set HTTP Proxy"));
 	pb = gdk_pixbuf_new_from_file(SKIN_DIR"proxy.png" , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxproxy->dialog) , pb);
 
@@ -84,7 +84,7 @@ void fx_proxy_initialize(FxProxy *fxproxy)
 
 	fixed = gtk_fixed_new();
 
-	fxproxy->enableBtn = gtk_check_button_new_with_label("开启HTTP代理");
+	fxproxy->enableBtn = gtk_check_button_new_with_label(_("Trun on HTTP proxy"));
 	g_signal_connect(fxproxy->enableBtn , "toggled"
 			, G_CALLBACK(fx_proxy_enable_toggled) , fxproxy);
 	gtk_fixed_put(GTK_FIXED(fixed) , fxproxy->enableBtn , 20 , 20);
@@ -93,11 +93,11 @@ void fx_proxy_initialize(FxProxy *fxproxy)
 	gtk_fixed_put(GTK_FIXED(fixed) , fxproxy->errorLabel , 180 , 22);
 	
 	hostLabel = gtk_label_new(NULL);
-	gtk_label_set_markup(GTK_LABEL(hostLabel) , "<b>代理主机</b>");
+	gtk_label_set_markup(GTK_LABEL(hostLabel) , _("<b>Proxy host</b>"));
 	gtk_fixed_put(GTK_FIXED(fixed) , hostLabel , 20 , 55);
 
 	portLabel = gtk_label_new(NULL);
-	gtk_label_set_markup(GTK_LABEL(portLabel) , "<b>端口</b>");
+	gtk_label_set_markup(GTK_LABEL(portLabel) , _("<b>Port</b>"));
 	gtk_fixed_put(GTK_FIXED(fixed) , portLabel , 190 , 55);
 	
 	fxproxy->hostEntry = gtk_entry_new();
@@ -109,11 +109,11 @@ void fx_proxy_initialize(FxProxy *fxproxy)
 	gtk_fixed_put(GTK_FIXED(fixed) , fxproxy->portEntry , 190 , 75);
 
 	userLabel = gtk_label_new(NULL);
-	gtk_label_set_markup(GTK_LABEL(userLabel) , "<b>用户名</b>");
+	gtk_label_set_markup(GTK_LABEL(userLabel) , _("<b>Uesrname</b>"));
 	gtk_fixed_put(GTK_FIXED(fixed) , userLabel , 20 , 110);
 
 	passLabel = gtk_label_new(NULL);
-	gtk_label_set_markup(GTK_LABEL(passLabel) , "<b>密码</b>");
+	gtk_label_set_markup(GTK_LABEL(passLabel) , _("<b>Password</b>"));
 	gtk_fixed_put(GTK_FIXED(fixed) , passLabel , 190 , 110);
 	
 	fxproxy->userEntry = gtk_entry_new();
@@ -125,10 +125,10 @@ void fx_proxy_initialize(FxProxy *fxproxy)
 	gtk_entry_set_visibility(GTK_ENTRY(fxproxy->passEntry) , FALSE);
 	gtk_fixed_put(GTK_FIXED(fixed) , fxproxy->passEntry , 190 , 130);
 
-	okBtn = gtk_button_new_with_label("确定");
+	okBtn = gtk_button_new_with_label(_("OK"));
 	g_signal_connect(okBtn , "clicked"
 			, G_CALLBACK(fx_proxy_on_ok_clicked) , fxproxy);
-	cancelBtn = gtk_button_new_with_label("取消");
+	cancelBtn = gtk_button_new_with_label(_("Cancel"));
 	g_signal_connect(cancelBtn , "clicked"
 			, G_CALLBACK(fx_proxy_on_cancel_clicked) , fxproxy);
 
@@ -180,7 +180,7 @@ void fx_proxy_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 		if(strlen(text) == 0)
 		{
 			gtk_label_set_markup(GTK_LABEL(fxproxy->errorLabel)
-					, "<span color='red'>请输入主机名</span>");
+					, _("<span color='red'>Please input hostname</span>"));
 			return;
 		}
 		strcpy(proxy->proxyHost , text);
@@ -189,7 +189,7 @@ void fx_proxy_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 		if(strlen(text) == 0)
 		{
 			gtk_label_set_markup(GTK_LABEL(fxproxy->errorLabel)
-					, "<span color='red'>请输入端口号</span>");
+					, _("<span color='red'>Please input port number</span>"));
 			return;
 		}
 		text = gtk_entry_get_text(GTK_ENTRY(fxproxy->userEntry));
@@ -200,7 +200,7 @@ void fx_proxy_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 		free(fxlogin->proxy);
 		fxlogin->proxy = proxy;
 		gtk_label_set_markup(GTK_LABEL(fxlogin->proxyLabel) ,
-				"<span color='#0099ff'><small> 网络代理[开启]</small></span>");
+				_("<span color='#0099ff'><small> Proxy [on]</small></span>"));
 	}
 	else
 	{
@@ -211,7 +211,7 @@ void fx_proxy_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 		}
 
 		gtk_label_set_markup(GTK_LABEL(fxlogin->proxyLabel) ,
-				"<span color='#0099ff'><small> 网络代理[关闭]</small></span>");
+				_("<span color='#0099ff'><small> Proxy [off]</small></span>"));
 	}
 
 	gtk_dialog_response(GTK_DIALOG(fxproxy->dialog) , GTK_RESPONSE_OK);

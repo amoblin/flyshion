@@ -33,7 +33,8 @@ FxChat* fx_chat_new(FxMain* fxmain , Conversation* conv)
 	fxchat->sendtophone = FALSE;
 	return fxchat;
 }
-void fx_chat_add_message(FxChat* fxchat , const char* msg , const struct tm* datetime , const int issendmsg)
+void fx_chat_add_message(FxChat* fxchat , const char* msg 
+	, const struct tm* datetime , const int issendmsg)
 {
 	GtkTextIter iter;
 	GtkTextBuffer* buffer;
@@ -42,7 +43,7 @@ void fx_chat_add_message(FxChat* fxchat , const char* msg , const struct tm* dat
 	History* history;
 	Contact* contact = fxchat->conv->currentContact;
 	char* usid;
-	char text[200] = { 0 };
+	char text[1024] = { 0 };
 	char color[10] = { 0 };
 	char time[30] = { 0 };
 
@@ -63,11 +64,11 @@ void fx_chat_add_message(FxChat* fxchat , const char* msg , const struct tm* dat
 
 	usid = fetion_sip_get_sid_by_sipuri(contact->sipuri);
 	if(issendmsg == 0){
-		sprintf(text , "%s 说 (%s):\n" , contact->nickname , time);
+		snprintf(text , 1023 , _("%s said: (%s):\n") , contact->nickname , time);
 		history = fetion_history_message_new(contact->nickname
 				, contact->userId , *datetime , msg , issendmsg);
 	}else{
-		sprintf(text , "%s 说 (%s):\n" , user->nickname , time);
+		snprintf(text , 1023 , _("%s said: (%s):\n") , user->nickname , time);
 		history = fetion_history_message_new(user->nickname
 				, contact->userId , *datetime , msg , issendmsg);
 	}
@@ -161,9 +162,9 @@ gboolean fx_chat_focus_in_func(GtkWidget *UNUSED(widget)
 		gtk_status_icon_set_blinking(GTK_STATUS_ICON(fxmain->trayIcon) , FALSE);
 		g_signal_handler_disconnect(fxmain->trayIcon , fxmain->iconConnectId);
 		fxmain->iconConnectId = g_signal_connect(G_OBJECT(fxmain->trayIcon) 
-												 , "activate"
-												 , GTK_SIGNAL_FUNC(fx_main_tray_activate_func)
-												 , fxmain);
+							 , "activate"
+							 , GTK_SIGNAL_FUNC(fx_main_tray_activate_func)
+							 , fxmain);
 	}
 	else
 	{
@@ -180,9 +181,9 @@ gboolean fx_chat_focus_in_func(GtkWidget *UNUSED(widget)
 		gtk_status_icon_set_from_pixbuf(GTK_STATUS_ICON(fxmain->trayIcon) , pb);
 		g_signal_handler_disconnect(fxmain->trayIcon , fxmain->iconConnectId);
 		fxmain->iconConnectId = g_signal_connect(G_OBJECT(fxmain->trayIcon) 
-												 , "activate"
-												 , GTK_SIGNAL_FUNC(fx_main_message_func)
-												 , fxmain);
+							 , "activate"
+							 , GTK_SIGNAL_FUNC(fx_main_message_func)
+							, fxmain);
 	}
 	fxchat->hasFocus = CHAT_DIALOG_FOCUSED;
 	return FALSE;
@@ -202,22 +203,21 @@ void fx_chat_bind(FxChat* fxchat)
 	
 	FxMain* fxmain = fxchat->fxmain;
 	Config* config = fxmain->user->config;
-	char text[100];
-	GdkPixbuf* pb;
+	char text[128];
+	GdkPixbuf* pixbuf;
 
 	DEBUG_FOOTPRINT();
 
-	bzero(text , sizeof(text));
 	sprintf(text , "%s/%s.jpg" , config->iconPath , fxchat->conv->currentContact->sId);
 
-	pb = gdk_pixbuf_new_from_file_at_size(text , 30 , 30 , NULL);
-	if(pb != NULL)
-	{
-		gtk_image_set_from_pixbuf(GTK_IMAGE(fxchat->headimage) , pb);
-		gtk_window_set_icon(GTK_WINDOW(fxchat->dialog) , pb);
+	pixbuf = gdk_pixbuf_new_from_file_at_size(text , 30 , 30 , NULL);
+
+	if(pixbuf != NULL){
+		gtk_image_set_from_pixbuf(GTK_IMAGE(fxchat->headimage) , pixbuf);
+		gtk_window_set_icon(GTK_WINDOW(fxchat->dialog) , pixbuf);
+		g_object_unref(pixbuf);
 	}
-	bzero(text , sizeof(text));
-	sprintf(text , "和[%s]聊天中" , fxchat->conv->currentContact->nickname);
+	sprintf(text , _("Chatting with[%s]") , fxchat->conv->currentContact->nickname);
 	gtk_window_set_title(GTK_WINDOW(fxchat->dialog) , text);
 
 
@@ -227,7 +227,9 @@ static void fx_chat_name_box_func(GtkWidget *UNUSED(widget)
 		, GdkEventButton *event , gpointer data)
 {
 	FxChat *fxchat = (FxChat*)data;
-	char *name = NULL , *sid = NULL , nametext[1024];
+	char *name = NULL;
+       	char *sid = NULL;
+        char nametext[1024];
 	Contact *contact = fxchat->conv->currentContact;
 	FxProfile* fxprofile = NULL;
 
@@ -236,17 +238,17 @@ static void fx_chat_name_box_func(GtkWidget *UNUSED(widget)
 	name = (contact->localname == NULL ||
 		strlen(contact->localname) == 0)
 		? contact->nickname : contact->localname;
+
 	sid = fetion_sip_get_sid_by_sipuri(contact->sipuri);
-	bzero(nametext , sizeof(nametext));
-	switch(event->type)
-	{
+	memset(nametext , 0 , sizeof(nametext));
+	switch(event->type){
 		case GDK_ENTER_NOTIFY :
-			sprintf(nametext , "<span underline='low'><b>%s(%s)</b></span>" , name , sid);
+			snprintf(nametext , 1023 , "<span underline='low'><b>%s(%s)</b></span>" , name , sid);
 			free(sid);
 			gtk_label_set_markup(GTK_LABEL(fxchat->name_label) , nametext);
 			break;
 		case GDK_LEAVE_NOTIFY :
-			sprintf(nametext , "<b>%s(%s)</b>" , name , sid);
+			snprintf(nametext , 1023 , "<b>%s(%s)</b>" , name , sid);
 			free(sid);
 			gtk_label_set_markup(GTK_LABEL(fxchat->name_label) , nametext);
 			break;
@@ -277,6 +279,25 @@ void fx_chat_on_emotion_clicked(GtkWidget *widget , gpointer data)
 	fxemotion = fx_emotion_new(fxchat);
 	fx_emotion_initialize(fxemotion , x , y);
 }
+
+static gboolean key_press_func(GtkWidget *UNUSED(widget) , GdkEventKey *event
+		, gpointer data)
+{
+	FxChat *fxchat;
+
+	if(event->keyval == GDK_w){
+		fxchat = (FxChat*)data;
+		if(event->state & GDK_CONTROL_MASK){
+			gtk_widget_destroy(fxchat->dialog);
+			return TRUE;
+		}else{
+			return FALSE;
+		}
+	}
+
+	return FALSE;
+}
+
 void fx_chat_initialize(FxChat* fxchat)
 {
 	GtkWidget *vbox , *halign , *halign1 , *tophone_icon;
@@ -300,8 +321,7 @@ void fx_chat_initialize(FxChat* fxchat)
 	gtk_window_set_default_size(GTK_WINDOW(fxchat->dialog) , 600 , 430);
 	gtk_widget_set_size_request(fxchat->dialog , 550 , 0);
 	name = (contact->localname == NULL || strlen(contact->localname) == 0) ? contact->nickname : contact->localname;
-	bzero(nametext , sizeof(nametext));
-	sprintf(nametext , "与[%s]聊天中" , name);
+	snprintf(nametext , 511 , _("Chatting with [%s]") , name);
 	gtk_window_set_title(GTK_WINDOW(fxchat->dialog) , nametext);
 	gtk_container_set_border_width(GTK_CONTAINER(fxchat->dialog) , 10);
 
@@ -387,43 +407,45 @@ void fx_chat_initialize(FxChat* fxchat)
 	gtk_toolbar_set_style(GTK_TOOLBAR(fxchat->toolbar) , GTK_TOOLBAR_ICONS);
 	gtk_box_pack_start(GTK_BOX(lvbox) , fxchat->toolbar , FALSE , FALSE , 0);
 
-	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"emotions.png" , 18 , 18 , NULL);
+	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"emotion.png" , 16 , 16 , NULL);
 	nouge_icon = gtk_image_new_from_pixbuf(pb);
 	g_object_unref(pb);
 	fxchat->nouge = gtk_toolbar_append_item(GTK_TOOLBAR(fxchat->toolbar)
-					 						   , "表情" , "" , NULL , nouge_icon
-					  						   , G_CALLBACK(fx_chat_on_emotion_clicked)
-											   , fxchat );									   
+					    , _("Emotion") , "" , NULL , nouge_icon
+					    , G_CALLBACK(fx_chat_on_emotion_clicked)
+					   , fxchat );									   
 	gtk_toolbar_append_space(GTK_TOOLBAR(fxchat->toolbar));
 	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"phone.png" , 16 , 16 , NULL);
 	tophone_icon = gtk_image_new_from_pixbuf(pb);
 	g_object_unref(pb);
 	fxchat->tophone = gtk_toolbar_append_element(GTK_TOOLBAR(fxchat->toolbar)
-					 						   , GTK_TOOLBAR_CHILD_TOGGLEBUTTON , NULL
-											   , "对方手机" , "消息将以长短信的方式发送到对方手机" , NULL , tophone_icon
-					  						   , G_CALLBACK(fx_chat_on_tophone_clicked)
-											   , fxchat );
+					 	, GTK_TOOLBAR_CHILD_TOGGLEBUTTON , NULL
+						, _("Contact`s cell phone")
+					       	, _("Mesage will be send to Contact's cell phone in long SMS format") 
+						, NULL , tophone_icon
+					     , G_CALLBACK(fx_chat_on_tophone_clicked)
+						   , fxchat );
 	gtk_toolbar_append_space(GTK_TOOLBAR(fxchat->toolbar));
-	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"history.png" , 18 , 18 , NULL);
+	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"history.png" , 16 , 16 , NULL);
 	history_icon = gtk_image_new_from_pixbuf(pb);
 	g_object_unref(pb);
 	fxchat->historybutton = gtk_toolbar_append_item(GTK_TOOLBAR(fxchat->toolbar)
-					 						   , " 聊天记录" , "查看聊天记录" , NULL , history_icon
-					  						   , G_CALLBACK(fx_chat_on_history_clicked)
-												,fxchat );
+					 	, _("Chat logs") , _("View chat logs") , NULL , history_icon
+					  	, G_CALLBACK(fx_chat_on_history_clicked)
+						,fxchat );
 	gtk_toolbar_append_space(GTK_TOOLBAR(fxchat->toolbar));
 	nouge_icon = gtk_image_new_from_file(SKIN_DIR"nudge.png");
 	fxchat->nouge = gtk_toolbar_append_item(GTK_TOOLBAR(fxchat->toolbar)
-					 						   , " 屏幕抖动" , "发送一个屏幕抖动" , NULL , nouge_icon
-					  						   , G_CALLBACK(fx_chat_on_nudge_clicked)
+					 	  , _("Screen jitter") , _("Send a screen jitter") , NULL , nouge_icon
+					  	  , G_CALLBACK(fx_chat_on_nudge_clicked)
 											   , fxchat );									   
 	gtk_toolbar_append_space(GTK_TOOLBAR(fxchat->toolbar));
 
 
 
-	label = gtk_label_new("共可输入180个字 , 还可输入");
+	label = gtk_label_new(_("totle 180 character,left:"));
 	fxchat->countLabel = gtk_label_new("");
-	gtk_label_set_markup(GTK_LABEL(fxchat->countLabel) , "[<span color='#0099ff'>180</span>]个字");
+	gtk_label_set_markup(GTK_LABEL(fxchat->countLabel) , _("[<span color='#0099ff'>180</span>] characters"));
 	gtk_container_add(GTK_CONTAINER(fxchat->toolbar) , label);
 	gtk_container_add(GTK_CONTAINER(fxchat->toolbar) , fxchat->countLabel);
 	/*toolbar end*/
@@ -447,12 +469,12 @@ void fx_chat_initialize(FxChat* fxchat)
 	gtk_container_add(GTK_CONTAINER(halign1) , action_area);
 	gtk_box_pack_start(GTK_BOX(vbox) , halign1 , FALSE , FALSE , 0);
 	
-	close_button = gtk_button_new_with_label("关闭");
+	close_button = gtk_button_new_with_label(_("Close"));
 	gtk_widget_set_usize(close_button , 100 , 30);
 	gtk_box_pack_start(GTK_BOX(action_area) , close_button , FALSE , TRUE , 2);
 	g_signal_connect(close_button , "clicked" , G_CALLBACK(fx_chat_on_close_clicked) , fxchat);
 
-	send_button = gtk_button_new_with_label("发送");
+	send_button = gtk_button_new_with_label(_("Send"));
 	gtk_widget_set_usize(send_button , 100 , 30);
 	gtk_box_pack_start(GTK_BOX(action_area) , send_button , FALSE , TRUE , 2);
 	g_signal_connect(send_button , "clicked" , G_CALLBACK(fx_chat_on_send_clicked) , fxchat);
@@ -470,6 +492,8 @@ void fx_chat_initialize(FxChat* fxchat)
 
 	g_signal_connect(fxchat->send_buffer , "changed"
 			, G_CALLBACK(fx_chat_on_text_buffer_changed) , fxchat);
+
+	g_signal_connect(fxchat->dialog , "key-press-event" , G_CALLBACK(key_press_func) , fxchat);
 	/*right box */
 
 	frame = gtk_frame_new(NULL);
@@ -479,7 +503,7 @@ void fx_chat_initialize(FxChat* fxchat)
 	sprintf(portraitPath , "%s/%s.jpg" , config->iconPath , contact->sId);
 	pb = gdk_pixbuf_new_from_file_at_size(portraitPath , 140 , 140 , NULL);
 	if(pb == NULL){
-		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.jpg" , 140 , 140 , NULL);
+		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.png" , 140 , 140 , NULL);
 	}
 	img = gtk_image_new_from_pixbuf(pb);
 	g_object_unref(pb);
@@ -496,7 +520,7 @@ void fx_chat_initialize(FxChat* fxchat)
 	sprintf(portraitPath , "%s/%s.jpg" , config->iconPath , user->sId);
 	pb = gdk_pixbuf_new_from_file_at_size(portraitPath , 140 , 140 , NULL);
 	if(pb == NULL){
-		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.jpg" , 140 , 140 , NULL);
+		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.png" , 140 , 140 , NULL);
 	}
 	img = gtk_image_new_from_pixbuf(pb);
 	g_object_unref(pb);
@@ -526,10 +550,8 @@ void fx_chat_destroy(GtkWidget* UNUSED(widget) , gpointer data)
 	DEBUG_FOOTPRINT();
 
 	fx_list_remove_chat_by_sipuri(fxchat->fxmain->clist
-								, fxchat->conv->currentContact->sipuri);
+				, fxchat->conv->currentContact->sipuri);
 	fx_chat_free(fxchat);
-
-	printf("destroy\n");
 
 }
 
@@ -552,7 +574,7 @@ void* fx_chat_send_message_thread(void* data)
 	text = gtk_text_buffer_get_text(fxchat->send_buffer , &begin , &end , TRUE);
 	if(strlen(text) == 0)
 	{
-		fx_chat_add_information(fxchat , "不允许发送空信息");
+		fx_chat_add_information(fxchat , _("Empty mesage is not allowed."));
 		return NULL;
 	}
 	now = get_currenttime();
@@ -622,7 +644,7 @@ void fx_chat_send_message(FxChat* fxchat)
 		 */
 		text = gtk_text_buffer_get_text(fxchat->send_buffer , &begin , &end , TRUE);
 		if(strlen(text) == 0){
-			fx_chat_add_information(fxchat , "不允许发送空信息");
+			fx_chat_add_information(fxchat , _("Empty mesage is not allowed."));
 			return;
 		}
 		if(user->boundToMobile == BOUND_MOBILE_DISABLE){
@@ -632,11 +654,11 @@ send:
 			generate_pic_code(user);
 			bzero(reason , sizeof(reason));
 			if(user->smsDayLimit == user->smsDayCount){
-				fx_chat_add_information(fxchat , "对不起，你今天的免费短信限额已经用完,不能再发送短信");
+				fx_chat_add_information(fxchat , _("Sorry, you reached quota of free SMS,can't send SMS,today"));
 				return;
 			}
-			sprintf(reason , "您还可以发送%d条免费短信（含本条），"
-					"免费短信限额：每月%d条" , user->smsDayLimit - user->smsMonthCount
+			sprintf(reason , _("You have %d free SMS can send (include this one).Free SMS: %d per month")
+					, user->smsDayLimit - user->smsMonthCount
 					, user->smsMonthLimit );
 			bzero(tips , sizeof(tips));
 			sprintf(tips , "温馨提示：发送更多免费短信，请立即绑定手机号，无需输入验证码");
@@ -669,7 +691,7 @@ send:
 		fx_chat_add_message(fxchat , text , now , 1);
 
 		bzero(tips , sizeof(tips));
-		sprintf(tips , "发送成功，今天已发送%d条短信息，还可以发送%d条。"
+		sprintf(tips , _("Send sucessfully. You have send %d SMS, %d left.")
 				, daycount , user->smsDayLimit - daycount);
 		fx_chat_add_information(fxchat , tips);
 		gtk_text_buffer_delete(fxchat->send_buffer , &begin , &end);
@@ -679,11 +701,11 @@ send:
 	 * if user`s online and has not started a thread for chating ,
 	 * just created a thread for listening ,and send message throuch the chat channel
 	 */
-	if(contact->state > 0 && conv->currentSip == NULL)
-	{
+	if(contact->state > 0 && conv->currentSip == NULL){
+
 		conv->currentSip = fx_list_find_sip_by_sipuri(fxchat->fxmain->slist , contact->sipuri);
-		if(conv->currentSip == NULL)
-		{
+
+		if(conv->currentSip == NULL){
 			debug_info("CREATE A NEW MESSAGE THREAD");
 			g_thread_create(fx_chat_send_message_thread , fxchat , FALSE , NULL);
 			return;
@@ -696,10 +718,8 @@ send:
 	 */
 	text = gtk_text_buffer_get_text(fxchat->send_buffer , &begin , &end , TRUE);
 	if(strlen(text) == 0)
-	{
-		//fx_chat_add_information(fxchat , "不允许发送空信息");
 		return;
-	}
+
 	now = get_currenttime();
 	fx_chat_add_message(fxchat , text , now , 1);
 
@@ -750,16 +770,16 @@ void fx_chat_on_nudge_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 
 	DEBUG_FOOTPRINT();
 
-	if(contact->state <= 0)
-	{
-		fx_chat_add_information(fxchat , "对方不在线，不能发送窗口抖动");
+	if(contact->state <= 0){
+		fx_chat_add_information(fxchat , _("Contact is not online.Cannot send screen jitter"));
 		return;
 	}
-	if(contact->state > 0 && conv->currentSip == NULL)
-	{
+
+	if(contact->state > 0 && conv->currentSip == NULL){
+
 		conv->currentSip = fx_list_find_sip_by_sipuri(fxchat->fxmain->slist , contact->sipuri);
-		if(conv->currentSip == NULL)
-		{
+
+		if(conv->currentSip == NULL){
 			debug_info("CREATE A NEW MESSAGE THREAD");
 			g_thread_create(fx_chat_send_nudge_thread , fxchat , FALSE , NULL);
 			fx_chat_nudge(fxchat);
@@ -778,8 +798,8 @@ void fx_chat_nudge(FxChat* fxchat)
 	DEBUG_FOOTPRINT();
 
 	gtk_window_get_position(GTK_WINDOW(fxchat->dialog) , &x , &y);
-	for(i = 0 ; i < 4 ; i++)
-	{
+
+	for(i = 0 ; i < 4 ; i++){
 		g_usleep(70000);
 		gtk_window_move(GTK_WINDOW(fxchat->dialog) , x + 7 , y + 7);
 		update();
@@ -798,8 +818,8 @@ void fx_chat_nudge_in_thread(FxChat* fxchat)
 	gdk_threads_enter();
 	gtk_window_get_position(GTK_WINDOW(fxchat->dialog) , &x , &y);
 	gdk_threads_leave();
-	for(i = 0 ; i < 4 ; i++)
-	{
+
+	for(i = 0 ; i < 4 ; i++){
 		g_usleep(100000);
 		gdk_threads_enter();
 		gtk_window_move(GTK_WINDOW(fxchat->dialog) , x + 7 , y + 7);
@@ -822,34 +842,33 @@ void fx_chat_on_tophone_clicked(GtkWidget* widget , gpointer data)
 
 	DEBUG_FOOTPRINT();
 
-	if(gtk_toggle_button_get_active(btn))
-	{
+	if(gtk_toggle_button_get_active(btn)){
+
 		fxchat->sendtophone = TRUE;
+
 		if(user->boundToMobile == BOUND_MOBILE_DISABLE){
 			bzero(text , sizeof(text));
 			if(user->smsDayLimit == user->smsDayCount 
 			|| user->smsMonthLimit == user->smsMonthCount){
-				sprintf(text , "您的短信限额已用完，你可以给对方发送消息。如果您想发送"
-						"更多免费短信，请绑定手机号，成为飞信移动用户");
+				strcpy(text , _("Run out of your quota, you can still send IM mesages. If want to send "
+ 						"more free SMS, bind you cell phone number."));
 				gtk_widget_set_sensitive(fxchat->send_text , FALSE);
 			}else{
-				sprintf(text , "消息将直接发送到对方手机。您还可以发送%d条免费短信。如果您还想"
-						"发送更多免费短信，请绑定手机号，成为飞信移动用户。"
+				sprintf(text , _("Mesage will be send toMesage will be send to contact's cell phone. You have %d free SMS left. "
+						"If want to send more free SMS, bind your cell phone,please.") 
 						, user->smsDayLimit - user->smsDayCount);
 			}
 			fx_chat_add_information(fxchat , text);
 		}else{
-			sprintf(text , "信息将以长短信的方式发送到对方的手机上,"
-					"您今天发送了%d条，还可以发送%d条"
+			sprintf(text , _("Mesage will be seed to you phone as long SMS."
+						" You have seed %d, and %d left.")
 					, user->smsDayCount , user->smsDayLimit - user->smsDayCount);
 			fx_chat_add_information(fxchat , text);
 		}
-	}
-	else
-	{
+	}else{
 		fxchat->sendtophone = FALSE;
 		gtk_widget_set_sensitive(fxchat->send_text , TRUE);
-		fx_chat_add_information(fxchat , "消息将直接发送到对方飞信");
+		fx_chat_add_information(fxchat , _("Mesage will be send to contact's fetion"));
 	}
 }
 void fx_chat_on_close_clicked(GtkWidget* UNUSED(widget) , gpointer data)
@@ -892,21 +911,17 @@ gboolean fx_chat_on_key_pressed(GtkWidget* UNUSED(widget)
 
 	DEBUG_FOOTPRINT();
 
-	if(event->keyval == GDK_Return)
-	{
+	if(event->keyval == GDK_Return){
 		fxchat = (FxChat*)data;
 		config = fxchat->fxmain->user->config;
-		if(config->sendMode == SEND_MODE_ENTER)
-		{
+		if(config->sendMode == SEND_MODE_ENTER){
 			if(event->state & GDK_CONTROL_MASK){
 				return FALSE;
 			}else{
 				fx_chat_send_message(fxchat);
 				return TRUE;
 			}
-		}
-		else
-		{
+		}else{
 			if(event->state & GDK_CONTROL_MASK)	{
 				fx_chat_send_message(fxchat);
 				return TRUE;
@@ -931,7 +946,7 @@ gboolean fx_chat_on_text_buffer_changed(GtkTextBuffer* buffer , gpointer data)
 	if(count <= 180)
 	{
 		bzero(text , sizeof(text));
-		sprintf(text , "[<span color='#0099ff'>%d</span>]个字" , 180 - count);
+		sprintf(text , _("[<span color='#0099ff'>%d</span>] character") , 180 - count);
 		gtk_label_set_markup(GTK_LABEL(fxchat->countLabel) , text);
 	}
 	else

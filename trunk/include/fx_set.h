@@ -63,6 +63,12 @@ typedef enum
 	PAGE_SYSTEM
 } NotebookPageType;
 
+typedef enum
+{
+	ICON_CAN ,
+	ICON_CANNOT 
+} IconType;
+
 extern FxSet* fx_set_new(FxMain* fxmain);
 
 extern void fx_set_initialize(FxSet* fxset);

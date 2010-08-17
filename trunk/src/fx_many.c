@@ -65,7 +65,7 @@ static GtkTreeModel* fx_many_create_all_model(FxMany* fxmany)
 						 , -1);
 		gtk_tree_store_append(store , &inIter , NULL);
 		gtk_tree_store_set(store , &inIter
-						 , S_CHECK_COL, TRUE
+						 , S_CHECK_COL, FALSE
 						 , S_NAME_COL , name
 						 , -1);
 		free(name);
@@ -119,65 +119,124 @@ static void fx_many_item_toggled(GtkCellRendererToggle *UNUSED(cell)
 	GtkTreeModel* cmodel = gtk_tree_view_get_model(ctree);
 	GtkTreePath* path = gtk_tree_path_new_from_string(path_str);
 	GtkTreeIter iter;
-	gboolean checked;
+	gboolean checked , checked1;
 	char* name;
 	char* sipuri;
 	char* uri;
 	char labeltext[128];
 	GdkPixbuf* pb;
 
-	GtkWidget *dialog;
 	GtkTreeIter cIter;
+	GtkTreeIter childiter;
 
 	DEBUG_FOOTPRINT();
 
 	gtk_tree_model_get_iter(model , &iter , path);
 	gtk_tree_model_get(model , &iter
-					 , S_CHECK_COL  , &checked
-					 , S_NAME_COL   , &name
 					 , S_SIPURI_COL , &sipuri
-					 , S_PIXBUF_COL , &pb
+					 , S_CHECK_COL  , &checked
 					 , -1);
 	checked ^= 1;
+
 	if(checked)
 	{
-		if(fxmany->chooseCount == 10000)
-		{
-			dialog = gtk_message_dialog_new(GTK_WINDOW(fxmany->dialog),
-											GTK_DIALOG_DESTROY_WITH_PARENT,
-											GTK_MESSAGE_WARNING,
-											GTK_BUTTONS_OK,
-											"最多选择10000个好友！");
-			gtk_window_set_title(GTK_WINDOW(dialog), "Warning");
-			gtk_dialog_run(GTK_DIALOG(dialog));
-			gtk_widget_destroy(dialog);
-			return;
+		if(gtk_tree_path_get_depth(path) > 1){
+			gtk_tree_model_get(model , &iter
+							 , S_NAME_COL   , &name
+							 , S_PIXBUF_COL , &pb
+							 , -1);
+			gtk_tree_store_append(GTK_TREE_STORE(cmodel) , &cIter , NULL);
+			gtk_tree_store_set(GTK_TREE_STORE(cmodel) , &cIter 
+							 , C_PIXBUF_COL           , pb
+							 , C_NAME_COL             , name
+							 , C_SIPURI_COL           , sipuri
+							 , -1);
+			fxmany->chooseCount ++;
+
+			free(name);
+			free(sipuri);
+			g_object_unref(pb);
+		}else{
+			if(gtk_tree_model_iter_children(model , &childiter , &iter)){
+				do{
+					gtk_tree_model_get(model , &childiter
+									 , S_CHECK_COL  , &checked1
+									 , S_NAME_COL   , &name
+									 , S_SIPURI_COL , &sipuri
+									 , S_PIXBUF_COL , &pb
+									 , -1);
+					if(!checked1){
+						gtk_tree_store_append(GTK_TREE_STORE(cmodel) , &cIter , NULL);
+						gtk_tree_store_set(GTK_TREE_STORE(cmodel) , &cIter 
+										 , C_PIXBUF_COL           , pb
+										 , C_NAME_COL             , name
+										 , C_SIPURI_COL           , sipuri
+										 , -1);
+						fxmany->chooseCount ++;
+						gtk_tree_store_set(GTK_TREE_STORE(model) , &childiter
+								, S_CHECK_COL , TRUE , -1);
+					}
+					free(name);
+					free(sipuri);
+					g_object_unref(pb);
+				}while(gtk_tree_model_iter_next(model , &childiter));
+			}
 		}
-		gtk_tree_store_append(GTK_TREE_STORE(cmodel) , &cIter , NULL);
-		gtk_tree_store_set(GTK_TREE_STORE(cmodel) , &cIter 
-						 , C_PIXBUF_COL           , pb
-						 , C_NAME_COL             , name
-						 , C_SIPURI_COL           , sipuri
-						 , -1);
-		fxmany->chooseCount ++;
 	}
 	else
 	{
-		gtk_tree_model_get_iter_root(cmodel , &cIter);
-		do
-		{
-			gtk_tree_model_get(cmodel       , &cIter 
-							 , C_SIPURI_COL , &uri
-							 , -1);
-			if(strcmp(sipuri , uri) == 0)
+		if(gtk_tree_path_get_depth(path) > 1){
+			gtk_tree_model_get_iter_root(cmodel , &cIter);
+			do
 			{
-				free(uri);
-				break;
+				gtk_tree_model_get(cmodel       , &cIter 
+								 , C_SIPURI_COL , &uri
+								 , -1);
+				if(strcmp(sipuri , uri) == 0)
+				{
+					free(uri);
+					break;
+				}
+			}
+			while(gtk_tree_model_iter_next(cmodel , &cIter));
+			gtk_tree_store_remove(GTK_TREE_STORE(cmodel) , &cIter);
+			fxmany->chooseCount --;
+		}else{
+			if(gtk_tree_model_iter_children(model , &childiter , &iter)){
+				do{
+					gtk_tree_model_get(model , &childiter 
+							, S_CHECK_COL , &checked1
+							, S_SIPURI_COL , &sipuri , -1);
+
+					if(!checked1)
+						continue;
+
+					gtk_tree_model_get_iter_root(cmodel , &cIter);
+
+					do
+					{
+						gtk_tree_model_get(cmodel       , &cIter 
+										 , C_SIPURI_COL , &uri
+										 , -1);
+						if(strcmp(sipuri , uri) == 0)
+						{
+							free(uri);
+							break;
+						}
+					}
+					while(gtk_tree_model_iter_next(cmodel , &cIter));
+
+					gtk_tree_store_remove(GTK_TREE_STORE(cmodel) , &cIter);
+					fxmany->chooseCount --;
+					gtk_tree_store_set(GTK_TREE_STORE(model) , &childiter
+							, S_CHECK_COL , FALSE , -1);
+
+					free(sipuri);
+
+				}while(gtk_tree_model_iter_next(model , &childiter));
+
 			}
 		}
-		while(gtk_tree_model_iter_next(cmodel , &cIter));
-		gtk_tree_store_remove(GTK_TREE_STORE(cmodel) , &cIter);
-		fxmany->chooseCount --;
 	}
 	gtk_tree_store_set(GTK_TREE_STORE(model) , &iter
 					 , S_CHECK_COL , checked 
@@ -190,8 +249,6 @@ static void fx_many_item_toggled(GtkCellRendererToggle *UNUSED(cell)
 					  , fxmany->chooseCount , 10000 - fxmany->chooseCount);
 	gtk_label_set_markup(GTK_LABEL(fxmany->label) , labeltext);
 
-	free(name);
-	free(sipuri);
 }
 
 static void fx_many_text_cell_data_func(GtkTreeViewColumn *UNUSED(col)
@@ -250,11 +307,11 @@ static void fx_many_create_all_column(FxMany* fxmany)
 	renderer = gtk_cell_renderer_toggle_new();
 	g_signal_connect(renderer , "toggled" , G_CALLBACK(fx_many_item_toggled) , fxmany);
 	col = gtk_tree_view_column_new();
-	gtk_tree_view_column_pack_start(col , renderer , FALSE);
+	gtk_tree_view_column_pack_start(col , renderer , TRUE);
 	gtk_tree_view_column_add_attribute(col, renderer, "active", S_CHECK_COL);
 	gtk_tree_view_column_set_sizing (GTK_TREE_VIEW_COLUMN (col)
 								   , GTK_TREE_VIEW_COLUMN_FIXED);
-	gtk_tree_view_column_set_fixed_width (GTK_TREE_VIEW_COLUMN (col), 20);
+	gtk_tree_view_column_set_fixed_width (GTK_TREE_VIEW_COLUMN (col), 40);
 	gtk_tree_view_column_set_clickable (GTK_TREE_VIEW_COLUMN (col), TRUE);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(tree) , col);
 
@@ -341,8 +398,8 @@ void fx_many_initialize(FxMany* fxmany)
 	fxmany->dialog = gtk_dialog_new();
 	pb = gdk_pixbuf_new_from_file(SKIN_DIR"groupsend.png" , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxmany->dialog) , pb);
-	gtk_window_set_title(GTK_WINDOW(fxmany->dialog) , "短信群发");
-	gtk_widget_set_usize(fxmany->dialog , 560 , 520);
+	gtk_window_set_title(GTK_WINDOW(fxmany->dialog) , _("SMS To Many"));
+	gtk_widget_set_usize(fxmany->dialog , 660 , 520);
 	gtk_container_set_border_width(GTK_CONTAINER(fxmany->dialog) , 5);
 
 	fxmany->hbox = gtk_hbox_new(FALSE , 0);
@@ -353,8 +410,8 @@ void fx_many_initialize(FxMany* fxmany)
 	gtk_box_pack_start(GTK_BOX(fxmany->hbox) , lbox , FALSE , FALSE , 5);
 	action_area = GTK_DIALOG(fxmany->dialog)->action_area;
 	/*left top area*/
-	lt_frame = gtk_frame_new("请选择好友");
-	gtk_widget_set_usize(lt_frame , 160 , 0);
+	lt_frame = gtk_frame_new(_("Choose Contacts"));
+	gtk_widget_set_usize(lt_frame , 180 , 0);
 	model = fx_many_create_all_model(fxmany);
 	fxmany->tree = gtk_tree_view_new_with_model(model);
 	scrollwindow = gtk_scrolled_window_new(NULL , NULL);
@@ -364,8 +421,8 @@ void fx_many_initialize(FxMany* fxmany)
 								 , GTK_POLICY_AUTOMATIC);
 
 	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(fxmany->tree) , FALSE);
-   	gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (fxmany->tree), TRUE);
-	gtk_tree_view_set_level_indentation(GTK_TREE_VIEW(fxmany->tree) , -30);
+   	//gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (fxmany->tree), TRUE);
+	gtk_tree_view_set_level_indentation(GTK_TREE_VIEW(fxmany->tree) , -35);
 	gtk_tree_view_set_hover_selection(GTK_TREE_VIEW(fxmany->tree) , TRUE);
 	gtk_tree_view_columns_autosize(GTK_TREE_VIEW(fxmany->tree));
 
@@ -384,12 +441,12 @@ void fx_many_initialize(FxMany* fxmany)
 
 	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(fxmany->selected) , FALSE);
    	gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (fxmany->selected), TRUE);
-	gtk_tree_view_set_level_indentation(GTK_TREE_VIEW(fxmany->selected) , -30);
+	gtk_tree_view_set_level_indentation(GTK_TREE_VIEW(fxmany->selected) , 0);
 	gtk_tree_view_set_hover_selection(GTK_TREE_VIEW(fxmany->selected) , TRUE);
 	gtk_tree_view_columns_autosize(GTK_TREE_VIEW(fxmany->selected));
 	
 	fx_many_create_selected_column(fxmany);
-	lb_frame = gtk_frame_new("已选择的好友");
+	lb_frame = gtk_frame_new(_("Contacts Selected"));
 	gtk_widget_set_usize(lb_frame , 0 , 160);
 	gtk_box_pack_start(GTK_BOX(lbox) , lb_frame , FALSE , FALSE , 5);
 	gtk_container_add(GTK_CONTAINER(lb_frame) , scrollwindow1);
@@ -421,7 +478,8 @@ void fx_many_initialize(FxMany* fxmany)
 	gtk_text_buffer_create_mark(fxmany->recv_buffer , "scroll" , &fxmany->recv_iter , FALSE);
 	
 	fxmany->send_scroll = gtk_scrolled_window_new(NULL , NULL);
-	gtk_box_pack_start(GTK_BOX(rbox) , fxmany->send_scroll , TRUE , TRUE , 5);
+	gtk_box_pack_start(GTK_BOX(rbox) , fxmany->send_scroll , FALSE , FALSE , 5);
+	gtk_widget_set_usize(fxmany->send_scroll , 0 , 120);
 
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(fxmany->send_scroll)
 								 , GTK_POLICY_NEVER
@@ -436,18 +494,17 @@ void fx_many_initialize(FxMany* fxmany)
  	fxmany->send_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(fxmany->send_text));
 	gtk_text_buffer_get_iter_at_offset(fxmany->send_buffer , &fxmany->send_iter , 0);
 
-	close_button = gtk_button_new_with_label("关闭");
+	close_button = gtk_button_new_with_label(_("Close"));
 	gtk_widget_set_usize(close_button , 100 , 30);
 	gtk_box_pack_start(GTK_BOX(action_area) , close_button , FALSE , TRUE , 2);
 	g_signal_connect(close_button , "clicked" , G_CALLBACK(fx_many_on_close_clicked) , fxmany->dialog);
 
-	send_button = gtk_button_new_with_label("发送");
+	send_button = gtk_button_new_with_label(_("Send"));
 	gtk_widget_set_usize(send_button , 100 , 30);
 	gtk_box_pack_start(GTK_BOX(action_area) , send_button , FALSE , TRUE , 2);
 	g_signal_connect(send_button , "clicked" , G_CALLBACK(fx_many_on_send_clicked) , fxmany);
 
 	gtk_window_set_position(GTK_WINDOW(fxmany->dialog) , GTK_WIN_POS_CENTER);
-	gtk_window_set_opacity(GTK_WINDOW(fxmany->dialog) , 0.9);
 
 	gtk_widget_show_all(fxmany->dialog);
 	gtk_widget_hide(fxmany->dialog);
@@ -467,7 +524,7 @@ static void fx_many_on_send_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 
 	if(fxmany->chooseCount == 0)
 	{
-		fx_many_add_information(fxmany , "您还没有选择好友");
+		fx_many_add_information(fxmany , _("You have not selected contacts"));
 		return;
 	}	
 	
@@ -494,7 +551,7 @@ static void* fx_many_sms_send_func(void* data)
 	text = gtk_text_buffer_get_text(fxmany->send_buffer , &begin , &end , TRUE);
 	if(strlen(text) == 0)
 	{
-		fx_many_add_information(fxmany , "请输入消息内容");
+		fx_many_add_information(fxmany , _("Please input the contents of message"));
 		return NULL;
 	}
 	gtk_text_buffer_delete(fxmany->send_buffer , &begin , &end);
@@ -503,16 +560,18 @@ static void* fx_many_sms_send_func(void* data)
 	{
 		do
 		{
-			gtk_tree_model_get(model , &iter , C_NAME_COL , &name , C_SIPURI_COL , &sipuri , -1);
+			gtk_tree_model_get(model , &iter , C_NAME_COL
+					, &name , C_SIPURI_COL , &sipuri , -1);
+
 			conv = fetion_conversation_new(fxmany->fxmain->user , sipuri , NULL);
-			if(fetion_conversation_send_sms_to_phone_with_reply(conv , text , &daycount , &monthcount) > 0)
-			{
+
+			if(fetion_conversation_send_sms_to_phone_with_reply(conv
+						, text , &daycount , &monthcount) > 0){
 				bzero(alertmsg , sizeof(alertmsg));
-				sprintf(alertmsg , "消息“%s”成功发送至“%s”, 今天已发送短信息%d条，本月已发送%d条\n" , text , name , daycount , monthcount);
-			}
-			else
-			{
-				sprintf(alertmsg , "消息“%s”未发送至“%s”\n" , text , name);
+				sprintf(alertmsg , _("Mesage \"%s\" has been sent to \"%s\". Today you have sent %d and this "
+						 "month %d\n") , text , name , daycount , monthcount);
+			}else{
+				sprintf(alertmsg , _("Mesage \"%s\" did not send to \"%s\"\n") , text , name);
 			}
 			fx_many_add_information(fxmany , alertmsg);
 			free(conv);

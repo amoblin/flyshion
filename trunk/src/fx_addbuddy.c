@@ -45,7 +45,7 @@ void fx_addbuddy_initialize(FxAddbuddy* fxaddbuddy)
 	fxaddbuddy->dialog = gtk_dialog_new();
 	icon = gdk_pixbuf_new_from_file(SKIN_DIR"addbuddy.png" , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxaddbuddy->dialog) , icon);
-	gtk_window_set_title(GTK_WINDOW(fxaddbuddy->dialog) , "添加好友");
+	gtk_window_set_title(GTK_WINDOW(fxaddbuddy->dialog) , _("Add Buddy"));
 	gtk_dialog_set_has_separator(GTK_DIALOG(fxaddbuddy->dialog) , FALSE);
 	gtk_window_set_resizable(GTK_WINDOW(fxaddbuddy->dialog) , FALSE);
 	gtk_window_set_modal(GTK_WINDOW(fxaddbuddy->dialog) , TRUE);
@@ -54,10 +54,10 @@ void fx_addbuddy_initialize(FxAddbuddy* fxaddbuddy)
 
 	fxaddbuddy->tablebox = gtk_table_new(2 , 2 , FALSE);
 
-	fxaddbuddy->mobile_button = gtk_radio_button_new_with_label(NULL , "手机号:");
+	fxaddbuddy->mobile_button = gtk_radio_button_new_with_label(NULL , _("Cell phone number:"));
 	fxaddbuddy->group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(fxaddbuddy->mobile_button));
 
-	fxaddbuddy->fetion_button = gtk_radio_button_new_with_label(fxaddbuddy->group , "飞信号:");
+	fxaddbuddy->fetion_button = gtk_radio_button_new_with_label(fxaddbuddy->group , _("Fetion number:"));
 	g_signal_connect(fxaddbuddy->fetion_button , "toggled" , G_CALLBACK(fx_addbuddy_no_type_change) , fxaddbuddy);
 	gtk_table_attach_defaults(GTK_TABLE(fxaddbuddy->tablebox) , fxaddbuddy->fetion_button , 0 , 1 , 1 , 2);
 
@@ -73,16 +73,16 @@ void fx_addbuddy_initialize(FxAddbuddy* fxaddbuddy)
 
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxaddbuddy->dialog)->vbox) , fxaddbuddy->tablebox);
 
-	info_frame = gtk_frame_new("好友信息");
+	info_frame = gtk_frame_new(_("Contact`s Information"));
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxaddbuddy->dialog)->vbox) , info_frame);
 	
 	info_box = gtk_table_new(2 , 3 , FALSE);
 	gtk_container_add(GTK_CONTAINER(info_frame) , info_box);
 
-	group_text = gtk_label_new("分组: ");
+	group_text = gtk_label_new(_("Group: "));
 	gtk_table_attach_defaults(GTK_TABLE(info_box) , group_text , 0 , 1 , 0 , 1);
 
-	name_text = gtk_label_new("名字: ");
+	name_text = gtk_label_new(_("Name: "));
 	gtk_table_attach_defaults(GTK_TABLE(info_box) , name_text , 0 , 1 , 1 , 2 );
 
 	model = fx_addbuddy_create_group_model(fxaddbuddy);
@@ -100,10 +100,10 @@ void fx_addbuddy_initialize(FxAddbuddy* fxaddbuddy)
 	gtk_widget_set_usize(fxaddbuddy->name_entry , 130 , 25);
 	gtk_table_attach_defaults(GTK_TABLE(info_box) , fxaddbuddy->name_entry , 1 , 2 , 1 , 2);
 
-	msg_frame = gtk_frame_new("发送消息");
+	msg_frame = gtk_frame_new(_("Send Message:"));
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxaddbuddy->dialog)->vbox) , msg_frame);
 	fxaddbuddy->msgbox = gtk_vbox_new(FALSE , 3);
-	msglabel = gtk_label_new("您好，我是");
+	msglabel = gtk_label_new(_("Hello ,I am "));
 	fxaddbuddy->myname_entry = gtk_entry_new();
 	gtk_widget_set_usize(fxaddbuddy->myname_entry , 70 , 30);
 	name_hbox = gtk_hbox_new(FALSE , 3);
@@ -114,11 +114,11 @@ void fx_addbuddy_initialize(FxAddbuddy* fxaddbuddy)
 	gtk_box_pack_start_defaults(GTK_BOX(fxaddbuddy->msgbox) , name_alignment);
 	gtk_container_add(GTK_CONTAINER(msg_frame) , fxaddbuddy->msgbox);
 	
-	ok_button = gtk_button_new_with_label("确定");
+	ok_button = gtk_button_new_with_label(_("OK"));
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxaddbuddy->dialog)->action_area) , ok_button);
 	g_signal_connect(G_OBJECT(ok_button) , "clicked" , G_CALLBACK(fx_addbuddy_on_ok_clicked) , fxaddbuddy);
 
-	cancel_button = gtk_button_new_with_label("取消");
+	cancel_button = gtk_button_new_with_label(_("Cancel"));
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxaddbuddy->dialog)->action_area) , cancel_button);
 	g_signal_connect(G_OBJECT(cancel_button) , "clicked" , G_CALLBACK(fx_addbuddy_on_cancel_clicked) , fxaddbuddy->dialog);
 
@@ -202,7 +202,7 @@ void fx_addbuddy_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 		no = gtk_entry_get_text(GTK_ENTRY(fxadd->fetion_entry));
 		if(strcmp(no , user->sId) == 0)
 		{
-			fx_util_popup_warning(fxadd->fxmain , "您不能添加自己为好友");
+			fx_util_popup_warning(fxadd->fxmain , _("You can not add yourself as a friend"));
 			gtk_dialog_response(GTK_DIALOG(fxadd->dialog) , GTK_RESPONSE_OK);
 			return;
 		}
@@ -212,7 +212,7 @@ void fx_addbuddy_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 		no = gtk_entry_get_text(GTK_ENTRY(fxadd->mobile_entry));
 		if(strcmp(no , user->mobileno) == 0)
 		{
-			fx_util_popup_warning(fxadd->fxmain , "您不能添加自己为好友");
+			fx_util_popup_warning(fxadd->fxmain , _("You can not add yourself as a friend"));
 			gtk_dialog_response(GTK_DIALOG(fxadd->dialog) , GTK_RESPONSE_OK);
 			return;
 		}
@@ -229,15 +229,15 @@ addbuddy:
 	switch(ret)
 	{
 		case BUDDY_USER_EXIST :
-			fx_util_popup_warning(fxadd->fxmain , "您添加的好友已经在您的好友列表中，请不要重复添加");
+			fx_util_popup_warning(fxadd->fxmain , _("The contact you added has been in your contact list,please don`t add it repeatly!"));
 			gtk_dialog_response(GTK_DIALOG(fxadd->dialog) , GTK_RESPONSE_OK);
 			return;
 		case BUDDY_SAME_USER_DAILY_LIMIT :
-			fx_util_popup_warning(fxadd->fxmain , "您已经达到添加该好友的次数上限，请改日再试");
+			fx_util_popup_warning(fxadd->fxmain , _("You have reached the limit that allow to add buddy , please retry another"));
 			gtk_dialog_response(GTK_DIALOG(fxadd->dialog) , GTK_RESPONSE_OK);
 			return;
 		case BUDDY_BAD_REQUEST :
-			fx_util_popup_warning(fxadd->fxmain , "添加好友失败，原因不详");
+			fx_util_popup_warning(fxadd->fxmain , _("Add buddy failed.Unknown reason!"));
 			gtk_dialog_response(GTK_DIALOG(fxadd->dialog) , GTK_RESPONSE_OK);
 			return;
 		default:
