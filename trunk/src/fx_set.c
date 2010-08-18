@@ -460,7 +460,7 @@ void fx_set_initialize_system(FxSet* fxset)
 	gtk_fixed_put(GTK_FIXED(fixed) , apScr , 40 , 80);
 
 	label3 = gtk_label_new("");
-	gtk_label_set_markup(GTK_LABEL(label3) , _("<b>Minimize when click Close button</b>"));
+	gtk_label_set_markup(GTK_LABEL(label3) , _("<b>Auto popup message</b>"));
 	gtk_fixed_put(GTK_FIXED(fixed) , label3 , 20 , 150);
 	
 	fxset->ppCb = gtk_check_button_new_with_label(_("On"));

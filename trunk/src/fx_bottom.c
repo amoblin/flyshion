@@ -69,8 +69,7 @@ fx_bottom_on_pggroup_clicked(GtkWidget *widget , gpointer data)
 static void
 fx_bottom_on_help_clicked(GtkWidget* UNUSED(widget) , gpointer UNUSED(data))
 {
-	if(fork() == 0)
-	{
+	if(fork() == 0){
 		execlp("firefox" , "firefox" , "http://basiccoder.com/openfetion" , (char**)NULL);
 	}
 }

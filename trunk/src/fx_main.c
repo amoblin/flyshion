@@ -25,7 +25,6 @@
 #include <glib/gi18n.h>
 #include <sys/select.h>
 #include <locale.h>
-#define LOCALEDIR "/usr/local/share/locale"
 int window_pos_x;
 int window_pos_y;
 int window_pos_x_old = 0;
@@ -49,12 +48,13 @@ FxMain* fx_main_new()
 	fxmain->pglist = fx_list_new(NULL);
 	return fxmain;
 }
-
+#if 0
 static void fx_main_position_func(GtkWidget *UNUSED(widget) , GdkEventConfigure *event ,
                                     gpointer UNUSED(user_data)){
 	window_pos_x = event->x;
 	window_pos_y = event->y;
 }
+#endif
 
 void fx_main_initialize(FxMain* fxmain)
 {
@@ -87,10 +87,12 @@ void fx_main_initialize(FxMain* fxmain)
 				  , "window-state-event"
 				  , G_CALLBACK(fx_main_window_state_func)
 				  , fxmain);
+#if 0
 	g_signal_connect(G_OBJECT(fxmain->window)
 				  , "configure-event"
 				  , G_CALLBACK(fx_main_position_func) 
 				  , NULL);
+#endif
 
 	gtk_window_set_default_size(GTK_WINDOW(fxmain->window) , WINDOW_WIDTH , WINDOW_HEIGHT);
 	GdkPixbuf* icon = gdk_pixbuf_new_from_file(SKIN_DIR"user_online.png" , NULL);
@@ -1123,7 +1125,8 @@ int main(int argc , char* argv[])
 
 	setlocale(LC_ALL, "");
 	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
-	bindtextdomain(GETTEXT_PACKAGE , LOCALEDIR);
+	printf("%s\n" , LOCALE_DIR);
+	bindtextdomain(GETTEXT_PACKAGE , LOCALE_DIR);
 	textdomain(GETTEXT_PACKAGE);
 
 	if(!g_thread_supported())

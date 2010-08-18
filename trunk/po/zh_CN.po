@@ -1388,5 +1388,8 @@ msgstr "群简介："
 msgid "<span color='#808080'>Visible to anyone,less than 256 charactors</span>"
 msgstr "<span color='#808080'>所有人可见，不超过256个字符</span>"
 
+msgid "<b>Auto popup message</b>"
+msgstr "<b>自动弹出消息窗口</b>"
+
 #~ msgid "Exit group"
 #~ msgstr "退出群"
