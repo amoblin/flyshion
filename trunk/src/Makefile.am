@@ -4,7 +4,8 @@ openfetion_CPPFLAGS=$(LIBXML_CFLAGS) $(GTK_CFLAGS) $(GTHREAD_CFLAGS) \
 					$(GSTREAMER_CFLAGS) $(LIBNOTIFY_CFLAGS) -g -Wall\
 					-I../include -I../include/openfetion -I ../. \
 					-DSKIN_DIR=\"$(pkgdatadir)/skin/\" \
-					-DRESOURCE_DIR=\"$(pkgdatadir)/resource/\"
+					-DRESOURCE_DIR=\"$(pkgdatadir)/resource/\" \
+					-DLOCALE_DIR=\"$(datadir)/locale/\"
 
 openfetion_LDADD=   $(LIBXML_LIBS) $(GTK_LIBS) $(GTHREAD_LIBS) \
 				    $(GSTREAMER_LIBS) $(LIBNOTIFY_LIBS) \

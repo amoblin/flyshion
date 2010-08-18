@@ -8,7 +8,6 @@ install: install-recursive
 		cd ~/.openfetion; \
 		find . -name "config.dat" -exec rm {} \;;\
 	fi
-	@ldconfig
 	@echo "----------------------------------------------------------";
 	@echo "|                                                        |";
 	@echo "|       OpenFetion 1.8 by lwp(levin108@gmail.com)        |";
