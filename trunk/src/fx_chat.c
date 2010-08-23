@@ -443,7 +443,7 @@ void fx_chat_initialize(FxChat* fxchat)
 
 
 
-	label = gtk_label_new(_("totle 180 character,left:"));
+	label = gtk_label_new(_("total 180 character,left:"));
 	fxchat->countLabel = gtk_label_new("");
 	gtk_label_set_markup(GTK_LABEL(fxchat->countLabel) , _("[<span color='#0099ff'>180</span>] characters"));
 	gtk_container_add(GTK_CONTAINER(fxchat->toolbar) , label);

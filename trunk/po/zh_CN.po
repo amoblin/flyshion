@@ -2,18 +2,20 @@
 # Copyright (C) 2010 THE OpenFetion'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the OpenFetion package.
 # syq <wzssyqa@gmail.com>, 2010.
+# Xhacker Liu <liu.dongyuan@gmail.com>, 2010.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenFetion 1.7\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-08-14 19:24+0800\n"
-"PO-Revision-Date: 2010-07-30 23:23+0800\n"
-"Last-Translator: syq <wzssyqa@gmail.com>\n"
-"Language-Team: Chinese <>\n"
+"PO-Revision-Date: 2010-08-23 09:11+0800\n"
+"Last-Translator: Xhacker Liu <liu.dongyuan@gmail.com>\n"
+"Language-Team: Chinese (China) <i18n-zh@googlegroup.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit;\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ../src/fx_addbuddy.c:48 ../src/fx_bottom.c:100
 msgid "Add Buddy"
@@ -22,12 +24,12 @@ msgstr "添加好友"
 #: ../src/fx_addbuddy.c:57 ../src/fx_lookupres.c:148 ../src/fx_profile.c:82
 #: ../src/fx_set.c:319
 msgid "Cell phone number:"
-msgstr "手机号:"
+msgstr "手机号："
 
 #: ../src/fx_addbuddy.c:60 ../src/fx_lookupres.c:132 ../src/fx_profile.c:66
 #: ../src/fx_set.c:299
 msgid "Fetion number:"
-msgstr "飞信号:"
+msgstr "飞信号："
 
 #: ../src/fx_addbuddy.c:76
 msgid "Contact`s Information"
@@ -35,11 +37,11 @@ msgstr "好友信息"
 
 #: ../src/fx_addbuddy.c:82
 msgid "Group: "
-msgstr "分组: "
+msgstr "分组："
 
 #: ../src/fx_addbuddy.c:85
 msgid "Name: "
-msgstr "名字: "
+msgstr "名字："
 
 #: ../src/fx_addbuddy.c:103
 msgid "Send Message:"
@@ -110,7 +112,7 @@ msgstr "查看任意用户信息（归属地等）"
 
 #: ../src/fx_bottom.c:143
 msgid "Get help or give advice at Open Fetion homepage"
-msgstr "到Open Fetion页面获取帮助或者反馈意见"
+msgstr "到 Open Fetion 页面获取帮助或者反馈意见"
 
 #: ../src/fx_code.c:52
 msgid "Please entry your verification code"
@@ -383,7 +385,7 @@ msgstr "导出文件"
 #: ../src/fx_history.c:253
 #, c-format
 msgid "logs with %s.txt"
-msgstr "与%s的聊天记录.txt"
+msgstr "与 %s 的聊天记录.txt"
 
 #: ../src/fx_lookupres.c:52 ../src/fx_profile.c:176 ../src/fx_set.c:506
 msgid "Male"
@@ -404,28 +406,28 @@ msgstr "未知"
 
 #: ../src/fx_lookupres.c:140 ../src/fx_profile.c:74 ../src/fx_set.c:307
 msgid "Sex:"
-msgstr "性别:"
+msgstr "性别："
 
 #: ../src/fx_lookupres.c:157 ../src/fx_profile.c:91 ../src/fx_set.c:327
 msgid "Nickname:"
-msgstr "昵称:"
+msgstr "昵称："
 
 #: ../src/fx_lookupres.c:165 ../src/fx_lookupres.c:178 ../src/fx_profile.c:99
 #: ../src/fx_set.c:334
 msgid "Personal signature:"
-msgstr "个性签名:"
+msgstr "个性签名："
 
 #: ../src/fx_lookupres.c:186 ../src/fx_profile.c:120
 msgid "Country:"
-msgstr "国家:"
+msgstr "国家："
 
 #: ../src/fx_lookupres.c:194 ../src/fx_profile.c:128 ../src/fx_set.c:342
 msgid "Province:"
-msgstr "省份:"
+msgstr "省份："
 
 #: ../src/fx_lookupres.c:202 ../src/fx_profile.c:136 ../src/fx_set.c:351
 msgid "City:"
-msgstr "城市:"
+msgstr "城市："
 
 #: ../src/fx_myself.c:55
 msgid "Sending sms to myself"
@@ -438,11 +440,11 @@ msgstr "发送"
 
 #: ../src/fx_search.c:60
 msgid "You can not send a message,because he(she) is not in your contact list"
-msgstr "由于对方未成为您的飞信好友,所以您不能给对方发送消息"
+msgstr "由于对方未成为您的飞信好友，您不能给对方发送消息"
 
 #: ../src/fx_search.c:68
 msgid "User has shut his fetion service,so you can not send a message to him"
-msgstr "该用户已关闭飞信服务,不能给他发消息"
+msgstr "该用户已关闭飞信服务，不能给他发消息"
 
 #: ../src/fx_util.c:30 ../src/fx_util.c:58
 msgid "[Online]"
@@ -538,7 +540,7 @@ msgstr "发送一个屏幕抖动"
 
 #: ../src/fx_chat.c:446
 msgid "totle 180 character,left:"
-msgstr "共可输入180个字 , 还可输入"
+msgstr "共可输入180个字，还可输入"
 
 #: ../src/fx_chat.c:448
 msgid "[<span color='#0099ff'>180</span>] characters"
@@ -550,7 +552,7 @@ msgstr "不允许发送空信息"
 
 #: ../src/fx_chat.c:657
 msgid "Sorry, you reached quota of free SMS,can't send SMS,today"
-msgstr "对不起，你今天的免费短信限额已经用完,不能再发送短信"
+msgstr "对不起，你今天的免费短信限额已经用完，不能再发送短信"
 
 #: ../src/fx_chat.c:660
 #, c-format
@@ -577,8 +579,8 @@ msgstr ""
 #: ../src/fx_chat.c:856
 #, c-format
 msgid ""
-"Mesage will be send toMesage will be send to contact's cell phone. You have %"
-"d free SMS left. If want to send more free SMS, bind your cell phone,please."
+"Mesage will be send toMesage will be send to contact's cell phone. You have "
+"%d free SMS left. If want to send more free SMS, bind your cell phone,please."
 msgstr ""
 "消息将直接发送到对方手机。您还可以发送%d条免费短信。如果您还想发送更多免费短"
 "信，请绑定手机号，成为飞信移动用户。"
@@ -588,7 +590,7 @@ msgstr ""
 msgid ""
 "Mesage will be seed to you phone as long SMS. You have seed %d, and %d left."
 msgstr ""
-"信息将以长短信的方式发送到对方的手机上,您今天发送了%d条，还可以发送%d条"
+"信息将以长短信的方式发送到对方的手机上，您今天发送了%d条，还可以发送%d条"
 
 #: ../src/fx_chat.c:872
 msgid "Mesage will be send to contact's fetion"
@@ -613,7 +615,7 @@ msgid ""
 "<span color='#808080'>NOTE：A little timelag because of network reason，"
 "Please Wait......</span>"
 msgstr ""
-"<span color='#808080'>注意：短信可能由于网络等原因有一些延迟，请稍候......</"
+"<span color='#808080'>注意：短信可能由于网络等原因有一些延迟，请稍候...</"
 "span>"
 
 #: ../src/fx_dsms.c:205
@@ -628,12 +630,12 @@ msgstr "%d/180，分为%d条短信"
 #: ../src/fx_dsms.c:339
 #, c-format
 msgid "Mesage has been send to %s successfully."
-msgstr "消息成功发送至:%s"
+msgstr "消息已成功发送至 %s。"
 
 #: ../src/fx_dsms.c:345
 #, c-format
 msgid "Mesage didn't send to %s. Please check the phone number of the contact."
-msgstr "消息未发送至:%s，请确认联系人手机号是否正确"
+msgstr "消息未发送至 %s，请确认联系人手机号是否正确。"
 
 #: ../src/fx_dsms.c:359
 msgid "Send message failed"
@@ -675,7 +677,7 @@ msgstr ""
 
 #: ../src/fx_dsms.c:655
 msgid "0/180, will split to 0"
-msgstr "0/180,分为0条短信"
+msgstr "0/180，分为0条短信"
 
 #: ../src/fx_dsms.c:659
 msgid "Sign"
@@ -687,7 +689,7 @@ msgstr "修改分组名称"
 
 #: ../src/fx_gedit.c:53
 msgid "Please entry new name of the group:"
-msgstr "请输入新的分组名称:"
+msgstr "请输入新的分组名称："
 
 #: ../src/fx_login.c:54
 #, c-format
@@ -710,11 +712,11 @@ msgstr "<span color='#0099ff'><small> 网络代理[%s]</small></span>"
 
 #: ../src/fx_login.c:105
 msgid "Cell number or fetion number:"
-msgstr "请输入手机号或飞信号:"
+msgstr "请输入手机号或飞信号："
 
 #: ../src/fx_login.c:112
 msgid "Please input password:"
-msgstr "请输入密码:"
+msgstr "请输入密码："
 
 #: ../src/fx_login.c:119
 msgid "Login"
@@ -792,12 +794,12 @@ msgstr "正在连接到注册服务器"
 
 #: ../src/fx_login.c:394
 msgid "Registering to SIPC Server"
-msgstr "正在注册到SIPC服务器"
+msgstr "正在注册到 SIPC 服务器"
 
 #. start sipc authentication using the response created just now
 #: ../src/fx_login.c:411
 msgid "SIPC Indentify"
-msgstr "正在进行SIPC身份验证"
+msgstr "正在进行 SIPC 身份验证"
 
 #: ../src/fx_login.c:420 ../src/fx_login.c:427
 msgid "Authenticate failed."
@@ -849,7 +851,7 @@ msgstr ""
 #: ../src/fx_main.c:506
 #, c-format
 msgid "%s(%s) said:"
-msgstr "%s(%s) 说:"
+msgstr "%s(%s) 说："
 
 #: ../src/fx_main.c:706
 msgid "Receive a window jitter"
@@ -857,11 +859,11 @@ msgstr "收到一个窗口抖动"
 
 #: ../src/fx_main.c:801
 msgid "Your fetion login elsewhere. You are forced quit."
-msgstr "您的飞信已经别处登录，您被强制退出"
+msgstr "您的飞信已经在别处登录，您被强制退出"
 
 #: ../src/fx_main.c:1065
 msgid "About OpenFetion"
-msgstr "关于OpenFetion"
+msgstr "关于 OpenFetion"
 
 #: ../src/fx_main.c:1067
 msgid "About Authors"
@@ -897,13 +899,13 @@ msgstr "系统设置"
 
 #: ../src/fx_main.c:1111
 msgid "Exit Openfetion "
-msgstr "退出Openfetion "
+msgstr "退出 Openfetion "
 
 #: ../src/fx_main.c:1302
 msgid ""
 "OpenFetion is a non-profit software, to make linux user convenient to use "
 "fetion."
-msgstr "OpenFetion 属于非盈利性软件,旨在方便Linux用户使用飞信."
+msgstr "OpenFetion 属于非盈利性软件，旨在方便 Linux 用户使用飞信。"
 
 #: ../src/fx_profile.c:43 ../src/fx_tree.c:594
 msgid "view contact's information"
@@ -911,11 +913,11 @@ msgstr "查看好友信息"
 
 #: ../src/fx_profile.c:112 ../src/fx_app.c:90
 msgid "Note name:"
-msgstr "备注名:"
+msgstr "备注名："
 
 #: ../src/fx_set.c:94
 msgid "Nick can not be empty!"
-msgstr "昵称不能为空!"
+msgstr "昵称不能为空！"
 
 #: ../src/fx_set.c:119 ../src/fx_set.c:124
 msgid "Click here to input signature"
@@ -927,11 +929,11 @@ msgstr "对不起，我现在不在，稍后给您回复"
 
 #: ../src/fx_set.c:360
 msgid "Job occupation:"
-msgstr "职业:"
+msgstr "职业："
 
 #: ../src/fx_set.c:369
 msgid "Email:"
-msgstr "电子邮箱:"
+msgstr "电子邮箱："
 
 #: ../src/fx_set.c:437
 msgid "<b>Auto reply</b>"
@@ -939,7 +941,7 @@ msgstr "<b>自动回复</b>"
 
 #: ../src/fx_set.c:440
 msgid "Trun on auto reply"
-msgstr "开启动自回复"
+msgstr "开启自动回复"
 
 #: ../src/fx_set.c:444
 msgid "mute"
@@ -992,7 +994,7 @@ msgstr "同意并添加对方为好友"
 
 #: ../src/fx_app.c:104
 msgid "Add to group:"
-msgstr "添加到组:"
+msgstr "添加到组："
 
 #: ../src/fx_app.c:115
 msgid "Decline his(her) add buddy request"
@@ -1008,11 +1010,11 @@ msgstr "提示信息"
 
 #: ../src/fx_close.c:68
 msgid "Are you sure to exit OpenFetion ?"
-msgstr "确定要退出OpenFetion吗？"
+msgstr "确定要退出 OpenFetion 吗？"
 
 #: ../src/fx_close.c:71
 msgid "Exit Openfetion"
-msgstr "退出Openfetion"
+msgstr "退出 Openfetion"
 
 #: ../src/fx_close.c:73
 msgid "Minimize to tray"
@@ -1043,8 +1045,8 @@ msgid ""
 "Upload avatar failed. Note: This appliaction don't support autocompress of "
 "image. Please be sure that the avater is in 150px × 150px."
 msgstr ""
-"上传头像失败，友情提示：本程序暂不提供图片自动压缩功能,上传头像尺寸请控制在"
-"150px × 150px以内"
+"上传头像失败，友情提示：本程序暂不提供图片自动压缩功能,上传头像尺寸请控制在 "
+"150px × 150px 以内"
 
 #: ../src/fx_lookup.c:51
 msgid "Please input users phone number or fetion number:"
@@ -1084,7 +1086,7 @@ msgstr "请输入消息内容"
 msgid ""
 "Mesage \"%s\" has been sent to \"%s\". Today you have sent %d and this month "
 "%d\n"
-msgstr "消息“%s”成功发送至“%s”, 今天已发送短信息%d条，本月已发送%d条\n"
+msgstr "消息“%s”成功发送至“%s”，今天已发送短信息%d条，本月已发送%d条\n"
 
 #: ../src/fx_many.c:574
 #, c-format
@@ -1093,11 +1095,11 @@ msgstr "消息“%s”未发送至“%s”\n"
 
 #: ../src/fx_proxy.c:78
 msgid "Set HTTP Proxy"
-msgstr "设置HTTP代理"
+msgstr "设置 HTTP 代理"
 
 #: ../src/fx_proxy.c:87
 msgid "Trun on HTTP proxy"
-msgstr "开启HTTP代理"
+msgstr "开启 HTTP 代理"
 
 #: ../src/fx_proxy.c:96
 msgid "<b>Proxy host</b>"
@@ -1151,10 +1153,10 @@ msgid ""
 msgstr ""
 "\n"
 "<span color='#808080'>群名称：</span><b>%s</b>\t\n"
-"<span color='#808080'>当前群内人数:</span> %d人\t\n"
-"<span color='#808080'>允许人数上限:</span> %d人\t\n"
-"<span color='#808080'>群热度:</span> %d/%d\t\n"
-"<span color='#808080'>创建时间:</span> %s\t\n"
+"<span color='#808080'>当前群内人数：</span>%d人\t\n"
+"<span color='#808080'>允许人数上限：</span>%d人\t\n"
+"<span color='#808080'>群热度：</span>%d/%d\t\n"
+"<span color='#808080'>创建时间：</span>%s\t\n"
 
 #: ../src/fx_tree.c:382
 msgid "<b>No Group!</b>"
@@ -1231,11 +1233,11 @@ msgid ""
 "<span color='#808080'>Create Time: %s</span>"
 msgstr ""
 "%s\n"
-"<span color='#808080'>创建时间: %s</span>"
+"<span color='#808080'>创建时间：%s</span>"
 
 #: ../src/fx_tree.c:1059
 msgid "People not in your contact list ,to whom you can not send a message"
-msgstr "由于对方尚未成为你的飞信好友,所以您不能给对方发送消息"
+msgstr "由于对方尚未成为你的飞信好友，您不能给对方发送消息"
 
 #: ../src/fx_tree.c:1066
 msgid "This user have shut fetion service,so you cannot send mesage to him/her"
@@ -1283,10 +1285,10 @@ msgid ""
 " <span color='#808080'>Fetion Number:</span>  %s\n"
 " <span color='#808080'>Signature:</span>  %s"
 msgstr ""
-" <span color='#808080'>昵称:</span>  <b>%s</b>\n"
-" <span color='#808080'>手机:</span>  %s\n"
-" <span color='#808080'>飞信:</span>  %s\n"
-" <span color='#808080'>心情:</span>  %s"
+" <span color='#808080'>昵称：</span> <b>%s</b>\n"
+" <span color='#808080'>手机：</span> %s\n"
+" <span color='#808080'>飞信：</span> %s\n"
+" <span color='#808080'>心情：</span> %s"
 
 #: ../src/fx_tree.c:1666 ../src/fx_pggroup.c:166
 msgid "Send group message"
@@ -1343,8 +1345,8 @@ msgid ""
 "<span color='#808080'>NickName :</span> <b>%s</b>\t\n"
 "<span color='#808080'>FetionNumber :</span> %s\t\n"
 msgstr ""
-"<span color='#808080'> 昵称 :</span> <b>%s</b>\t\n"
-"<span color='#808080'> 飞信号 :</span> %s\t\n"
+"<span color='#808080'> 昵称：</span> <b>%s</b>\t\n"
+"<span color='#808080'> 飞信号：</span> %s\t\n"
 
 #: ../src/fx_pgprofile.c:54
 msgid "Group Details"
