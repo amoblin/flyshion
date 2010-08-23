@@ -227,12 +227,37 @@ void fx_myself_on_send_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 }
 gboolean fx_myself_on_enter_pressed(GtkWidget* widget , GdkEventKey* event , gpointer data)
 {
+	FxMyself* fxmyself = NULL;
+	Config *config = NULL;
+	
 	DEBUG_FOOTPRINT();
 
-	if(event->keyval == GDK_Return)
+	if(event->keyval == GDK_Return || event->keyval == GDK_ISO_Enter || event->keyval == GDK_KP_Enter)
 	{
-		fx_myself_on_send_clicked(widget , data);
-		return TRUE;
+		fxmyself = (FxMyself*)data;
+		config = fxmyself->fxmain->user->config;
+		if(config->sendMode == SEND_MODE_ENTER)
+		{
+			if(event->state & GDK_CONTROL_MASK){
+				return FALSE;
+			}else{
+ 				if (gtk_im_context_filter_keypress (GTK_TEXT_VIEW(fxmyself->send_text)->im_context, event)) {
+ 					GTK_TEXT_VIEW (fxmyself->send_text)->need_im_reset = TRUE;
+ 					return TRUE;
+ 				}
+				fx_myself_on_send_clicked(widget, data);
+				return TRUE;
+			}
+		}
+		else
+		{
+			if(event->state & GDK_CONTROL_MASK)	{
+				fx_myself_on_send_clicked(widget, data);
+				return TRUE;
+			}else{
+				return FALSE;
+			}
+		}		
 	}
 	return FALSE;
 }

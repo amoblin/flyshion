@@ -482,7 +482,7 @@ fx_dsms_on_key_pressed(GtkWidget *UNUSED(widget) , GdkEventKey *event , gpointer
 
 	DEBUG_FOOTPRINT();
 
-	if(event->keyval == GDK_Return)
+	if(event->keyval == GDK_Return || event->keyval == GDK_ISO_Enter || event->keyval == GDK_KP_Enter)
 	{
 		fxdsms = (FxDSMS*)data;
 		config = fxdsms->fxmain->user->config;
@@ -491,6 +491,10 @@ fx_dsms_on_key_pressed(GtkWidget *UNUSED(widget) , GdkEventKey *event , gpointer
 			if(event->state & GDK_CONTROL_MASK){
 				return FALSE;
 			}else{
+ 				if (gtk_im_context_filter_keypress (GTK_TEXT_VIEW(fxdsms->sendText)->im_context, event)) {
+					GTK_TEXT_VIEW (fxdsms->sendText)->need_im_reset = TRUE;
+ 					return TRUE;
+ 				}
 				fx_dsms_send_message(fxdsms);
 				return TRUE;
 			}

@@ -478,12 +478,12 @@ static gboolean pggroup_on_key_pressed(GtkWidget* UNUSED(widget)
 		, GdkEventKey* event , gpointer data)
 {
 
-    	FxPGGroup *fxpg;
+    FxPGGroup *fxpg;
 	Config *config = NULL;
 
 	DEBUG_FOOTPRINT();
 
-	if(event->keyval == GDK_Return)
+	if(event->keyval == GDK_Return || event->keyval == GDK_ISO_Enter || event->keyval == GDK_KP_Enter)
 	{
 		fxpg = (FxPGGroup*)data;
 		config = fxpg->fxmain->user->config;
@@ -492,6 +492,10 @@ static gboolean pggroup_on_key_pressed(GtkWidget* UNUSED(widget)
 			if(event->state & GDK_CONTROL_MASK){
 				return FALSE;
 			}else{
+ 				if (gtk_im_context_filter_keypress (GTK_TEXT_VIEW(fxpg->sendView)->im_context, event)) {
+					GTK_TEXT_VIEW (fxpg->sendView)->need_im_reset = TRUE;
+ 					return TRUE;
+ 				}
 				pggroup_send_message(fxpg);
 				return TRUE;
 			}
