@@ -437,7 +437,7 @@ void fx_set_initialize_system(FxSet* fxset)
 	gtk_label_set_markup(GTK_LABEL(label1) , _("<b>Auto reply</b>"));
 	gtk_fixed_put(GTK_FIXED(fixed) , label1 , 20 , 20);
 
-	fxset->apBtn = gtk_check_button_new_with_label(_("Trun on auto reply"));
+	fxset->apBtn = gtk_check_button_new_with_label(_("Turn on auto reply"));
 	g_signal_connect(fxset->apBtn , "toggled" , G_CALLBACK(fx_set_on_autoreply_toggled) , fxset);
 	gtk_fixed_put(GTK_FIXED(fixed) , fxset->apBtn , 40 , 50);
 
