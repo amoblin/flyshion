@@ -119,7 +119,7 @@ if test "x$enable_gst" == "xno"; then
 	echo "| if you want to use this function,just install gstreamer |"
 	echo "| and recompile openfetion                                |"
 	echo "| NOTE:this message does not mean that you have failed    |"
-	echo "|     just type \"make and\" \"make install\" to install  |"
+	echo "|     just type \"make and\" \"make install\" to install      |"
 	echo "|     openfetion without sound reminder                   |"
 	echo "-----------------------------------------------------------"
 fi

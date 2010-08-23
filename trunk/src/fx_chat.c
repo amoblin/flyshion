@@ -914,7 +914,7 @@ gboolean fx_chat_on_key_pressed(GtkWidget* UNUSED(widget)
 		fxchat = (FxChat*)data;
 		config = fxchat->fxmain->user->config;
 		if(config->sendMode == SEND_MODE_ENTER){
-			if(event->state & GDK_CONTROL_MASK){
+			if(event->state & GDK_CONTROL_MASK || event->state & GDK_SHIFT_MASK){
 				return FALSE;
 			}else{
  				if (gtk_im_context_filter_keypress (GTK_TEXT_VIEW(fxchat->send_text)->im_context, event)) {
