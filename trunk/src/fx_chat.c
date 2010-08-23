@@ -905,19 +905,22 @@ void fx_chat_on_history_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 gboolean fx_chat_on_key_pressed(GtkWidget* UNUSED(widget)
 		, GdkEventKey* event , gpointer data)
 {
-
 	FxChat *fxchat = NULL;
 	Config *config = NULL;
 
 	DEBUG_FOOTPRINT();
 
-	if(event->keyval == GDK_Return){
+	if(event->keyval == GDK_Return || event->keyval == GDK_ISO_Enter || event->keyval == GDK_KP_Enter){
 		fxchat = (FxChat*)data;
 		config = fxchat->fxmain->user->config;
 		if(config->sendMode == SEND_MODE_ENTER){
 			if(event->state & GDK_CONTROL_MASK){
 				return FALSE;
 			}else{
+ 				if (gtk_im_context_filter_keypress (GTK_TEXT_VIEW(fxchat->send_text)->im_context, event)) {
+					GTK_TEXT_VIEW (fxchat->send_text)->need_im_reset = TRUE;
+ 					return TRUE;
+ 				}
 				fx_chat_send_message(fxchat);
 				return TRUE;
 			}
