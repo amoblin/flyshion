@@ -374,8 +374,6 @@ int parse_sipc_auth_response(const char* auth_response , User* user)
 
 	DEBUG_FOOTPRINT();
 
-	printf("%s\n" , auth_response);
-
 	code = fetion_sip_get_code(auth_response);
 	user->loginStatus = code;
 	if(code == 200)
@@ -621,6 +619,9 @@ static void parse_contact_list(xmlNodePtr node , User* user)
 		if(xmlHasProp(node1 , BAD_CAST "l")){
 			buf = xmlGetProp(node1 , BAD_CAST "l");
 			contact->groupid = atoi((char*)buf);
+			if(xmlStrstr(buf , BAD_CAST ";") != NULL
+					|| contact->groupid < 0)
+					contact->groupid = 0;
 			xmlFree(buf);
 		}
 		if(xmlHasProp(node1 , BAD_CAST "p")){

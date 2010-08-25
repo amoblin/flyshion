@@ -266,7 +266,8 @@ void fx_main_process_presence(FxMain* fxmain , const char* xml)
 	contact = contactlist;
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeView));
 	foreach_contactlist(contactlist , contact){
-		fx_tree_get_buddy_iter_by_userid(model , contact->userId , &iter);
+		if(fx_tree_get_buddy_iter_by_userid(model , contact->userId , &iter) == -1)
+				continue;
 		gtk_tree_model_get(model , &iter
 						 , B_CRC_COL    , &crc
 						 , B_STATE_COL  , &oldstate
