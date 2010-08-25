@@ -1015,9 +1015,11 @@ static void* fx_tree_update_portrait_thread_func(void* data)
 				pb = gdk_pixbuf_new_from_file_at_size(portraitPath
 				       	, PG_PORTRAIT_SIZE , PG_PORTRAIT_SIZE , NULL);
 				if(pb != NULL){
+					gdk_threads_enter();
 					gtk_tree_store_set(GTK_TREE_STORE(model) , &iter
 						, PG_PIXBUF_COL , pb , -1);
 					g_object_unref(pb);
+					gdk_threads_leave();
 				}
 			}else{
 				g_object_unref(pb);

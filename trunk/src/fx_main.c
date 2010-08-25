@@ -760,7 +760,9 @@ void fx_main_process_sipc(FxMain* fxmain , const char* sipmsg)
 
 	/* get group info response */
 	if(callid == user->pgGroupCallId){
+		gdk_threads_enter();
 		fx_main_process_group(fxmain , xml);
+		gdk_threads_leave();
 		return;
 	}
 
@@ -828,10 +830,12 @@ void fx_main_process_syncuserinfo(FxMain* fxmain , const char* xml)
 				if(strcmp(userid , contact->userId) == 0)
 				{
 
+					gdk_threads_enter();
 					gtk_tree_store_set(GTK_TREE_STORE(model) , &cIter
 									 , B_SIPURI_COL			 , contact->sipuri
 									 , B_RELATIONSTATUS_COL	 , contact->relationStatus
 									 , -1);
+					gdk_threads_leave();
 					free(userid);
 					goto end;
 				}
@@ -1162,13 +1166,15 @@ void* fx_main_listen_thread_func(void* data)
 
 	DEBUG_FOOTPRINT();
 
+	gdk_threads_enter();
 	debug_info("A new thread entered");
+	gdk_threads_leave();
 
 	sip = (sip == NULL ? fxmain->user->sip : sip);
 	for(;;){
 		
 		if(fxmain == NULL)
-			g_thread_exit(0);
+				return NULL;
 		FD_ZERO(&fd_read);
 		FD_SET(sip->tcp->socketfd, &fd_read);
 		ret = select (sip->tcp->socketfd+1, &fd_read, NULL, NULL, NULL);
@@ -1211,7 +1217,8 @@ void* fx_main_listen_thread_func(void* data)
 		if(msg != NULL)
 			fetion_sip_message_free(msg);
 	}
-	g_thread_exit(0);
+
+	return NULL;
 }
 void fx_main_message_func(GtkWidget *UNUSED(widget) , gpointer data)
 {
@@ -1542,7 +1549,9 @@ static void fx_main_process_pggetgroupinfo(FxMain *fxmain , const char *sipmsg)
 {
 	PGGroup *pggroup = fxmain->user->pggroup;
 	pg_group_parse_info(pggroup , sipmsg);
+	gdk_threads_enter();
 	fx_tree_bind_pg_data(fxmain);
+	gdk_threads_leave();
 
 }
 static void fx_main_process_pgpresencechanged(FxMain *fxmain , const char *sipmsg)
