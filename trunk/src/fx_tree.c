@@ -460,7 +460,7 @@ static GtkTreeModel* create_model(User* user)
 		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.png"
 				, config->iconSize , config->iconSize , NULL);
 		if(fx_tree_get_group_iter_by_id(GTK_TREE_MODEL(store) , contact->groupid , &iter ) < 0){
-			debug_info("Error when a group iter not found , groupId :%s\n" , contact->groupid);
+			//debug_info("Error when a group iter not found , groupId :%d\n" , contact->groupid);
 			continue;
 		}
 		if(contact->state > 0)
