@@ -374,6 +374,8 @@ int parse_sipc_auth_response(const char* auth_response , User* user)
 
 	DEBUG_FOOTPRINT();
 
+	printf("%s\n" , auth_response);
+
 	code = fetion_sip_get_code(auth_response);
 	user->loginStatus = code;
 	if(code == 200)
@@ -567,15 +569,15 @@ static void parse_contact_list(xmlNodePtr node , User* user)
 
 	DEBUG_FOOTPRINT();
 
-	buf = xmlGetProp(node , BAD_CAST "version");
+//	buf = xmlGetProp(node , BAD_CAST "version");
 	debug_info("Start reading contact list ");
-	if(strcmp(user->contactVersion , (char*) buf) == 0){
-		debug_info("Contact list is the same as that stored in the local disk!");
-		return ;
-	}
-	strcpy(user->contactVersion , (char*)buf);
-	xmlFree(buf);
-	node1 = node->xmlChildrenNode;
+//	if(strcmp(user->contactVersion , (char*) buf) == 0){
+//		debug_info("Contact list is the same as that stored in the local disk!");
+//		return ;
+//	}
+//	strcpy(user->contactVersion , (char*)buf);
+//	xmlFree(buf);
+	node1 = xml_goto_node(node , "buddy-lists");
 	node2 = node1->xmlChildrenNode;
 	while(node2 != NULL){
 		buf = xmlGetProp(node2 , BAD_CAST "id");
@@ -592,11 +594,17 @@ static void parse_contact_list(xmlNodePtr node , User* user)
 		
 		if(hasGroup == 0){
 			fetion_group_list_append(user->groupList , group);
+			hasGroup = 1;
 		}
 		node2 = node2->next;
 	}
-	node1 = node1->next->xmlChildrenNode;
+	node1 = xml_goto_node(node , "buddies");
+	node1 = node1->xmlChildrenNode;
 	while(node1 != NULL){
+		if(! xmlHasProp(node1 , BAD_CAST "i")){
+			node1 = node1->next;
+			continue;
+		}
 		buf = xmlGetProp(node1 , BAD_CAST "i");
 		contact = fetion_contact_list_find_by_userid(user->contactList , (char*)buf);
 		if(contact == NULL){
@@ -605,31 +613,43 @@ static void parse_contact_list(xmlNodePtr node , User* user)
 		}
 		strcpy(contact->userId , (char*)buf);
 		xmlFree(buf);
-		buf = xmlGetProp(node1 , BAD_CAST "n");
-		strcpy(contact->localname , (char*)buf);
-		xmlFree(buf);
-		buf = xmlGetProp(node1 , BAD_CAST "l");
-		contact->groupid = atoi((char*)buf);
-		xmlFree(buf);
-		buf = xmlGetProp(node1 , BAD_CAST "p");
-		if(strstr((char*)buf , "identity=1") != NULL)
-			contact->identity = 1;
-		else
-			contact->identity = 0;
-		buf = xmlGetProp(node1 , BAD_CAST "r");
-		contact->relationStatus = atoi((char*)buf);
-		xmlFree(buf);
+		if(xmlHasProp(node1 , BAD_CAST "n")){
+			buf = xmlGetProp(node1 , BAD_CAST "n");
+			strcpy(contact->localname , (char*)buf);
+			xmlFree(buf);
+		}
+		if(xmlHasProp(node1 , BAD_CAST "l")){
+			buf = xmlGetProp(node1 , BAD_CAST "l");
+			contact->groupid = atoi((char*)buf);
+			xmlFree(buf);
+		}
+		if(xmlHasProp(node1 , BAD_CAST "p")){
+			buf = xmlGetProp(node1 , BAD_CAST "p");
+			if(strstr((char*)buf , "identity=1") != NULL)
+				contact->identity = 1;
+			else
+				contact->identity = 0;
+			xmlFree(buf);
+		}
+		if(xmlHasProp(node1 , BAD_CAST "r")){
+			buf = xmlGetProp(node1 , BAD_CAST "r");
+			contact->relationStatus = atoi((char*)buf);
+			xmlFree(buf);
+		}
 
-		buf = xmlGetProp(node1 , BAD_CAST "u");
-		strcpy(contact->sipuri , (char*)buf);
-		//if(strstr((char*)buf , "tel") != NULL)
-		//	contact->serviceStatus = STATUS_SMS_ONLINE;
-		xmlFree(buf);
+		if(xmlHasProp(node1 , BAD_CAST "u")){
+			buf = xmlGetProp(node1 , BAD_CAST "u");
+			strcpy(contact->sipuri , (char*)buf);
+			//if(strstr((char*)buf , "tel") != NULL)
+			//	contact->serviceStatus = STATUS_SMS_ONLINE;
+			xmlFree(buf);
+		}
 
 		strcpy(contact->portraitCrc , "unlogin");
 
 		if(hasBuddy == 0){
 			fetion_contact_list_append(user->contactList , contact);
+			hasBuddy = 1;
 		}
 		node1 = node1->next;
 	}
