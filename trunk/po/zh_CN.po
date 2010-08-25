@@ -539,7 +539,7 @@ msgid "Send a screen jitter"
 msgstr "发送一个屏幕抖动"
 
 #: ../src/fx_chat.c:446
-msgid "totle 180 character,left:"
+msgid "total 180 character,left"
 msgstr "共可输入180个字，还可输入"
 
 #: ../src/fx_chat.c:448
