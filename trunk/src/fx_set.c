@@ -292,7 +292,7 @@ void fx_set_initialize_personal(FxSet* fxset)
 	box = gtk_fixed_new();
 	gtk_box_pack_start_defaults(GTK_BOX(fxset->psetting) , box);
 
-	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.jpg" , 90 , 90 , NULL);
+	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.png" , 90 , 90 , NULL);
 	fxset->image = gtk_image_new_from_pixbuf(pb);
 	gtk_fixed_put(GTK_FIXED(box) , fxset->image , 10 , 15 );
 

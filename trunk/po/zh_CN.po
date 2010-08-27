@@ -6,10 +6,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: OpenFetion 1.7\n"
+"Project-Id-Version: OpenFetion 1.8\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-08-14 19:24+0800\n"
-"PO-Revision-Date: 2010-08-23 09:11+0800\n"
+"PO-Revision-Date: 2010-08-27 09:50+0800\n"
 "Last-Translator: Xhacker Liu <liu.dongyuan@gmail.com>\n"
 "Language-Team: Chinese (China) <i18n-zh@googlegroup.com>\n"
 "MIME-Version: 1.0\n"
@@ -898,8 +898,8 @@ msgid "System setting"
 msgstr "系统设置"
 
 #: ../src/fx_main.c:1111
-msgid "Exit Openfetion "
-msgstr "退出 Openfetion "
+msgid "Exit OpenFetion "
+msgstr "退出 OpenFetion "
 
 #: ../src/fx_main.c:1302
 msgid ""
@@ -940,7 +940,7 @@ msgid "<b>Auto reply</b>"
 msgstr "<b>自动回复</b>"
 
 #: ../src/fx_set.c:440
-msgid "Trun on auto reply"
+msgid "Turn on auto reply"
 msgstr "开启自动回复"
 
 #: ../src/fx_set.c:444
@@ -1013,8 +1013,8 @@ msgid "Are you sure to exit OpenFetion ?"
 msgstr "确定要退出 OpenFetion 吗？"
 
 #: ../src/fx_close.c:71
-msgid "Exit Openfetion"
-msgstr "退出 Openfetion"
+msgid "Exit OpenFetion"
+msgstr "退出 OpenFetion"
 
 #: ../src/fx_close.c:73
 msgid "Minimize to tray"
