@@ -68,7 +68,7 @@ void fx_close_initialize(FxClose *fxclose)
 	label = gtk_label_new(_("Are you sure to exit OpenFetion ?"));
 	gtk_fixed_put(fixed , label , 20 , 20);
 
-	fxclose->closeBtn = gtk_radio_button_new_with_label(NULL , _("Exit Openfetion"));
+	fxclose->closeBtn = gtk_radio_button_new_with_label(NULL , _("Exit OpenFetion"));
 	group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(fxclose->closeBtn));
 	fxclose->iconBtn = gtk_radio_button_new_with_label(group , _("Minimize to tray"));
 	fxclose->notalert = gtk_check_button_new_with_label(_("Don't notify again"));

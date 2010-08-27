@@ -131,12 +131,12 @@ void fx_login_initialize(FxMain* fxmain)
 	fxlogin->statecombo = gtk_combo_box_new_with_model(stateModel);
 	g_object_unref(stateModel);
 	renderer = gtk_cell_renderer_pixbuf_new ();
-    gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (fxlogin->statecombo), renderer, FALSE);
-    gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (fxlogin->statecombo), renderer,
+	gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (fxlogin->statecombo), renderer, FALSE);
+	gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (fxlogin->statecombo), renderer,
 				    "pixbuf", 0, NULL);
 	renderer = gtk_cell_renderer_text_new();
 	gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (fxlogin->statecombo), renderer, FALSE);
-    gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (fxlogin->statecombo), renderer,
+	gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (fxlogin->statecombo), renderer,
 				    "text", 1, NULL);
 	gtk_combo_box_set_active (GTK_COMBO_BOX (fxlogin->statecombo), 3);
 
@@ -175,19 +175,21 @@ void fx_login_initialize(FxMain* fxmain)
 	fx_login_set_last_login_user(fxlogin);
 
 	label = gtk_label_new(NULL);
-	gtk_label_set_markup(GTK_LABEL(label) , "<small>welcome to openfetion</small>");
+	gtk_label_set_markup(GTK_LABEL(label) , "Welcome to OpenFetion!");
+	img = gtk_image_new_from_file(SKIN_DIR"fetion.png");
 
 	fxlogin->fixed = gtk_fixed_new();
-	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , label , 50 , 20);
-	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->userlabel , 20 ,80);
-	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->username , (WINDOW_WIDTH - 200)/2 , 100 );
-	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->passlabel , 20 , 130);
-	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->password , (WINDOW_WIDTH - 200)/2 , 150);
-	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->statecombo , (WINDOW_WIDTH - 120)/2 , 180);
-	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->remember , (WINDOW_WIDTH - 80)/2 , 220);
-	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->label , 5 , 240);
-	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->loginbutton , (WINDOW_WIDTH - 80)/2 , 270);
-	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->proxyBtn , (WINDOW_WIDTH - 100) / 2 , 320);
+	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , label , 54, 20);
+	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , img , 70, 45);
+	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->userlabel , 20 ,185);
+	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->username , (WINDOW_WIDTH - 200)/2 , 205);
+	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->passlabel , 20 , 235);
+	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->password , (WINDOW_WIDTH - 200)/2 , 255);
+	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->statecombo , (WINDOW_WIDTH - 120)/2 , 285);
+	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->remember , (WINDOW_WIDTH - 80)/2 , 325);
+	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->label , 5 , 345);
+	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->loginbutton , (WINDOW_WIDTH - 80)/2 , 375);
+	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->proxyBtn , (WINDOW_WIDTH - 100) / 2 , 425);
 	gtk_box_pack_start(GTK_BOX(fxmain->mainbox) , fxlogin->fixed , TRUE , TRUE , 0);
 
 	GTK_WIDGET_SET_FLAGS(fxlogin->loginbutton, GTK_CAN_DEFAULT);

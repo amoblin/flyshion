@@ -95,7 +95,7 @@ void fx_main_initialize(FxMain* fxmain)
 #endif
 
 	gtk_window_set_default_size(GTK_WINDOW(fxmain->window) , WINDOW_WIDTH , WINDOW_HEIGHT);
-	GdkPixbuf* icon = gdk_pixbuf_new_from_file(SKIN_DIR"user_online.png" , NULL);
+	GdkPixbuf* icon = gdk_pixbuf_new_from_file(SKIN_DIR"fetion.png" , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxmain->window) , icon);
 	fxmain->trayIcon = gtk_status_icon_new_from_file(SKIN_DIR"invisible_big.png");
 	gtk_status_icon_set_tooltip(fxmain->trayIcon , "OpenFetion");
@@ -1117,7 +1117,7 @@ void fx_main_tray_popmenu_func(GtkWidget* UNUSED(widget)
 						 , menu , fx_main_system_setting_clicked , fxmain);
 	}
 
-	fx_main_create_menu1(_("Exit Openfetion ") , GTK_STOCK_QUIT
+	fx_main_create_menu1(_("Exit OpenFetion ") , GTK_STOCK_QUIT
 					 , menu , fx_main_destroy , fxmain);
 	gtk_widget_show_all(menu);
 	gtk_menu_popup(GTK_MENU(menu) , NULL , NULL , NULL , NULL 
