@@ -142,7 +142,7 @@ void fx_myself_initialize(FxMyself* fxmyself)
 	GtkWidget* halign = gtk_alignment_new( 0 , 0 , 0 , 0);
 	gtk_container_add(GTK_CONTAINER(halign) , fxmyself->headbox);
 
-	gtk_box_pack_start(GTK_BOX(vbox) , halign , FALSE , TRUE , 0);
+	gtk_box_pack_start(GTK_BOX(vbox) , halign , FALSE , FALSE , 0);
 
 	fxmyself->recv_scroll = gtk_scrolled_window_new(NULL , NULL);
 	gtk_box_pack_start(GTK_BOX(vbox) , fxmyself->recv_scroll , TRUE , TRUE , 10);
@@ -165,7 +165,8 @@ void fx_myself_initialize(FxMyself* fxmyself)
 	gtk_text_buffer_create_mark(fxmyself->recv_buffer , "scroll" , &(fxmyself->recv_iter) , FALSE);
 	
 	fxmyself->send_scroll = gtk_scrolled_window_new(NULL , NULL);
-	gtk_box_pack_start(GTK_BOX(vbox) , fxmyself->send_scroll , TRUE , TRUE , 10);
+	gtk_widget_set_usize(fxmyself->send_scroll , 0 , 100);
+	gtk_box_pack_start(GTK_BOX(vbox) , fxmyself->send_scroll , FALSE , FALSE , 10);
 
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(fxmyself->send_scroll)
 								 , GTK_POLICY_NEVER

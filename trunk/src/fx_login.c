@@ -192,8 +192,8 @@ void fx_login_initialize(FxMain* fxmain)
 	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->proxyBtn , (WINDOW_WIDTH - 100) / 2 , 425);
 	gtk_box_pack_start(GTK_BOX(fxmain->mainbox) , fxlogin->fixed , TRUE , TRUE , 0);
 
-	GTK_WIDGET_SET_FLAGS(fxlogin->loginbutton, GTK_CAN_DEFAULT);
-	gtk_widget_grab_default(fxlogin->loginbutton);
+	GTK_WIDGET_SET_FLAGS(fxlogin->loginbutton, GTK_CAN_FOCUS);
+	gtk_widget_grab_focus(fxlogin->loginbutton);
 
 	gtk_widget_show_all(fxmain->mainbox);
 
