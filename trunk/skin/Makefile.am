@@ -1,8 +1,6 @@
 SUBDIRS=face_images
 skindir = $(pkgdatadir)/skin
-skin_DATA = about.png \
-	    bg.jpg \
-			addbuddy.png \
+skin_DATA = bg.jpg \
 			bigimage.png \
 			delete.png \
 			directsms.png \

@@ -99,6 +99,8 @@ void fx_code_initialize(FxCode *fxcode)
 	gtk_fixed_put(GTK_FIXED(fixed) , fxcode->tiplabel , 20 , 160);
 
 	ok_button = gtk_button_new_with_label(_("OK"));
+	GTK_WIDGET_SET_FLAGS(ok_button , GTK_CAN_FOCUS);
+	gtk_widget_grab_focus(ok_button);
 	g_signal_connect(ok_button , "clicked" , G_CALLBACK(fx_code_on_ok_clicked) , fxcode->dialog);
 	gtk_box_pack_start_defaults(GTK_BOX(action_area) , ok_button);
 
