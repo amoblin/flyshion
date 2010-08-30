@@ -302,22 +302,22 @@ static GtkTreeModel *create_model(PGGroup *pggroup)
 	foreach_pg_member(member , mcur){
 		if(mcur->state <= 0){
 		    gtk_tree_store_append(store , &iter , NULL);
-		    pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"invisible_big.png"
+		    pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"invisible.svg"
 			    , MEMBER_PROTRAIT_SIZED , MEMBER_PROTRAIT_SIZED , NULL);
 		}
 		else{
 		    gtk_tree_store_prepend(store , &iter , NULL);
 		    switch(mcur->state){
 			case P_ONLINE :
-				pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"online_big.png"
+				pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"online.svg"
 				       	, MEMBER_PROTRAIT_SIZED , MEMBER_PROTRAIT_SIZED , NULL);
 				break;
 			case P_BUSY :
-				pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"busy_big.png"
+				pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"busy.svg"
 				       	, MEMBER_PROTRAIT_SIZED , MEMBER_PROTRAIT_SIZED , NULL);
 				break;
 			default:
-				pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"away_big.png"
+				pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"away.svg"
 				       	, MEMBER_PROTRAIT_SIZED , MEMBER_PROTRAIT_SIZED , NULL);
 				break;
 		    }
@@ -642,7 +642,7 @@ static gboolean on_show_tooltip(GtkWidget* widget
 	sprintf(iconpath , "%s/%s.jpg" , config->iconPath , sid);
 	pixbuf = gdk_pixbuf_new_from_file_at_size(iconpath , 80 , 80 , NULL);
 	if(pixbuf == NULL)
-	    pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"online_big.png" , 80 , 80 , NULL);
+	    pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"online.svg" , 80 , 80 , NULL);
 	gtk_tooltip_set_icon(tip , pixbuf);	
 	g_object_unref(pixbuf);
 	gtk_tree_view_set_tooltip_row(tree , tip , path);

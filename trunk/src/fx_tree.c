@@ -200,7 +200,7 @@ static gboolean pg_on_show_tooltip(GtkWidget* widget
 		return FALSE;
 	}
 
-	pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"online_big.png" , 90 , 90 , NULL);
+	pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"online.svg" , 90 , 90 , NULL);
 	gtk_tooltip_set_icon(tip , pixbuf);
 	g_object_unref(pixbuf);	
 
@@ -271,10 +271,10 @@ void fx_tree_bind_pg_data(FxMain *fxmain)
 			pixbuf = gdk_pixbuf_new_from_file_at_size(portraitPath , PG_PORTRAIT_SIZE , PG_PORTRAIT_SIZE , NULL);
 			if(pixbuf == NULL){
 			    if(pgcur->identity == 1)
-				pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"online_big.png"
+				pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"online.svg"
 				       	, PG_PORTRAIT_SIZE , PG_PORTRAIT_SIZE , NULL);
 			    else
-				pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"invisible_big.png"
+				pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"invisible.svg"
 				       	, PG_PORTRAIT_SIZE , PG_PORTRAIT_SIZE , NULL);
 			}
 			gtk_tree_store_set(store , &iter
@@ -457,7 +457,7 @@ static GtkTreeModel* create_model(User* user)
 						 , G_ONLINE_COUNT_COL , 0 , -1);
 	}
 	foreach_contactlist(user->contactList , contact){
-		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.png"
+		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg"
 				, config->iconSize , config->iconSize , NULL);
 		if(fx_tree_get_group_iter_by_id(GTK_TREE_MODEL(store) , contact->groupid , &iter ) < 0){
 			//debug_info("Error when a group iter not found , groupId :%d\n" , contact->groupid);
@@ -721,7 +721,7 @@ static void fx_tree_add_new_buddy(FxMain* fxmain , Contact* contact)
 						 , -1);
 		if(groupid == contact->groupid)
 		{
-			pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.png" , config->iconSize , config->iconSize , NULL);
+			pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" , config->iconSize , config->iconSize , NULL);
 			gtk_tree_store_append(GTK_TREE_STORE(model) , &nIter , &oIter);
 			gtk_tree_store_set(GTK_TREE_STORE(model), &nIter
 							, B_PIXBUF_COL		, pb
@@ -1249,7 +1249,7 @@ static void* fx_tree_reload_thread(void* data)
 	snprintf(portraitPath , 1023 , "%s/%s.jpg" , config->iconPath , sid);
 	pb = gdk_pixbuf_new_from_file_at_size(portraitPath , 25 , 25 , NULL);
 	if(pb == NULL)
-		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.png" , 25 , 25 , NULL);
+		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" , 25 , 25 , NULL);
 
 	name = (contact->nickname == NULL || strlen(contact->localname) == 0)
 			? contact->nickname : contact->localname;
@@ -1328,7 +1328,7 @@ static void fx_tree_on_iconchange_clicked(GtkWidget* UNUSED(widget) , gpointer d
 					free(sid);
 					pb = gdk_pixbuf_new_from_file(path , NULL);
 					if(pb == NULL)
-						pb = gdk_pixbuf_new_from_file(SKIN_DIR"fetion.png" , NULL);
+						pb = gdk_pixbuf_new_from_file(SKIN_DIR"fetion.svg" , NULL);
 				}
 				pb = gdk_pixbuf_scale_simple(pb , config->iconSize , config->iconSize , GDK_INTERP_NEAREST);
 				gtk_tree_store_set(GTK_TREE_STORE(model) , &pointer
@@ -1590,7 +1590,7 @@ static gboolean fx_tree_on_show_tooltip(GtkWidget* widget
 	free(sid);
 	pb = gdk_pixbuf_new_from_file_at_size(iconpath , 80 , 80 , NULL);
 	if(pb == NULL)
-		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.png" , 80 , 80 , NULL);
+		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" , 80 , 80 , NULL);
 	gtk_tooltip_set_markup(tip , text);
 	gtk_tooltip_set_icon(tip , pb);	
 	g_object_unref(pb);

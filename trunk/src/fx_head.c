@@ -51,7 +51,7 @@ void fx_head_initialize(FxMain* fxmain)
 	
 	DEBUG_FOOTPRINT();
 
-	pb = gdk_pixbuf_new_from_file_at_scale(SKIN_DIR"fetion.png" , 50 , 50 , TRUE , NULL);
+	pb = gdk_pixbuf_new_from_file_at_scale(SKIN_DIR"fetion.svg" , 50 , 50 , TRUE , NULL);
 	fxhead->portrait = gtk_image_new_from_pixbuf(pb);
 	fxhead->portraitbox = gtk_event_box_new();
 	gtk_container_add(GTK_CONTAINER(fxhead->portraitbox) , fxhead->portrait);
@@ -204,25 +204,25 @@ void fx_head_set_state_image(FxMain* fxmain , StateType type)
 			gtk_image_set_from_file(GTK_IMAGE(fxhead->state_img)
 								  , SKIN_DIR"user_online.png");
 			gtk_status_icon_set_from_file(fxmain->trayIcon
-										, SKIN_DIR"online_big.png");
+										, SKIN_DIR"online.svg");
 			break;
 		case P_BUSY :
 			gtk_image_set_from_file(GTK_IMAGE(fxhead->state_img)
 					              , SKIN_DIR"user_busy.png");
 			gtk_status_icon_set_from_file(fxmain->trayIcon
-										, SKIN_DIR"busy_big.png");
+										, SKIN_DIR"busy.svg");
 			break;
 		case P_HIDDEN :
 			gtk_image_set_from_file(GTK_IMAGE(fxhead->state_img)
 								  , SKIN_DIR"user_invisible.png");
 			gtk_status_icon_set_from_file(fxmain->trayIcon
-										, SKIN_DIR"invisible_big.png");
+										, SKIN_DIR"invisible.svg");
 			break;
 		default :
 			gtk_image_set_from_file(GTK_IMAGE(fxhead->state_img)
 								  , SKIN_DIR"user_away.png");
 			gtk_status_icon_set_from_file(fxmain->trayIcon
-										, SKIN_DIR"away_big.png");
+										, SKIN_DIR"away.svg");
 			break;
 	}
 	free(statename);

@@ -51,12 +51,12 @@ gboolean fx_login_proxy_button_func(GtkWidget *UNUSED(widget) , GdkEventButton *
 	switch(event->type)
 	{
 		case GDK_ENTER_NOTIFY :
-			sprintf(text , _("<span color='#7ce1a9'><small> Proxy[%s]</small></span>")
+			sprintf(text , _("<span color='#3465a4'><small> Proxy[%s]</small></span>")
 					, (proxy == NULL || !proxy->proxyEnabled) ? _("Off") : _("On"));
 			gtk_label_set_markup(GTK_LABEL(fxlogin->proxyLabel) , text);
 			break;
 		case GDK_LEAVE_NOTIFY :
-			sprintf(text , _("<span color='#0099ff'><small> Proxy[%s]</small></span>")
+			sprintf(text , _("<span color='#204a87'><small> Proxy[%s]</small></span>")
 					, (proxy == NULL || !proxy->proxyEnabled) ? _("Off") : _("On"));
 			gtk_label_set_markup(GTK_LABEL(fxlogin->proxyLabel) , text);
 			break;
@@ -82,7 +82,6 @@ void fx_login_initialize(FxMain* fxmain)
 	Config* config = NULL;
 	GtkTreeModel* model = NULL;
 	GtkWidget *proxyHbox = NULL;
-	GtkWidget *label = NULL;
 	Proxy *proxy = NULL;
 	char text[1024];
 
@@ -149,7 +148,7 @@ void fx_login_initialize(FxMain* fxmain)
 	proxyHbox = gtk_hbox_new(FALSE , FALSE);
 	img = gtk_image_new_from_file(SKIN_DIR"proxy.png");
 	bzero(text , sizeof(text));
-	sprintf(text , _("<span color='#0099ff'><small> Proxy[%s]</small></span>")
+	sprintf(text , _("<span color='#204a87'><small> Proxy[%s]</small></span>")
 			, (fxlogin->proxy == NULL || ! fxlogin->proxy->proxyEnabled) ? _("Off")  : _("On"));
 
 	gtk_label_set_markup(GTK_LABEL(fxlogin->proxyLabel) , text);
@@ -174,22 +173,19 @@ void fx_login_initialize(FxMain* fxmain)
 
 	fx_login_set_last_login_user(fxlogin);
 
-	label = gtk_label_new(NULL);
-	gtk_label_set_markup(GTK_LABEL(label) , "Welcome to OpenFetion!");
-	img = gtk_image_new_from_file(SKIN_DIR"fetion.png");
+	img = gtk_image_new_from_pixbuf(gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" , 128 , 128 , NULL));
 
 	fxlogin->fixed = gtk_fixed_new();
-	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , label , 54, 20);
-	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , img , 70, 45);
-	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->userlabel , 20 ,185);
-	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->username , (WINDOW_WIDTH - 200)/2 , 205);
-	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->passlabel , 20 , 235);
-	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->password , (WINDOW_WIDTH - 200)/2 , 255);
-	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->statecombo , (WINDOW_WIDTH - 120)/2 , 285);
-	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->remember , (WINDOW_WIDTH - 80)/2 , 325);
-	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->label , 5 , 345);
-	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->loginbutton , (WINDOW_WIDTH - 80)/2 , 375);
-	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->proxyBtn , (WINDOW_WIDTH - 100) / 2 , 425);
+	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , img , 70, 25);
+	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->userlabel , 20 ,165);
+	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->username , (WINDOW_WIDTH - 200)/2 , 185);
+	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->passlabel , 20 , 215);
+	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->password , (WINDOW_WIDTH - 200)/2 , 235);
+	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->statecombo , (WINDOW_WIDTH - 120)/2 , 265);
+	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->remember , (WINDOW_WIDTH - 80)/2 , 305);
+	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->label , 5 , 325);
+	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->loginbutton , (WINDOW_WIDTH - 80)/2 , 355);
+	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->proxyBtn , (WINDOW_WIDTH - 100) / 2 , 405);
 	gtk_box_pack_start(GTK_BOX(fxmain->mainbox) , fxlogin->fixed , TRUE , TRUE , 0);
 
 	GTK_WIDGET_SET_FLAGS(fxlogin->loginbutton, GTK_CAN_FOCUS);
@@ -478,7 +474,7 @@ auth:
 		fetion_user_download_portrait(user , user->sipuri);
 		pb = gdk_pixbuf_new_from_file_at_size(iconPath , 48 , 48 , NULL);
 		if(pb == NULL){
-			pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.png" , 48 , 48 , NULL);
+			pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" , 48 , 48 , NULL);
 		}
 	}
 	notify_notification_update(fxmain->notify , _("Login successful")// notifySummary
