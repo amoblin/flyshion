@@ -50,13 +50,13 @@ void fx_code_initialize(FxCode *fxcode)
 
 	fxcode->dialog = gtk_dialog_new();
 	gtk_window_set_title(GTK_WINDOW(fxcode->dialog) , _("Please entry your verification code"));
-	icon = gdk_pixbuf_new_from_file(SKIN_DIR"warning.png" , NULL);
+	icon = gdk_pixbuf_new_from_file(SKIN_DIR"warning.svg" , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxcode->dialog) , icon);
 	vbox = GTK_DIALOG(fxcode->dialog)->vbox;
 	action_area = GTK_DIALOG(fxcode->dialog)->action_area;
 	fixed = gtk_fixed_new();
 	gtk_widget_set_usize(fxcode->dialog , 460 , 250);
-	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"warning_icon.png" , 96 , 96 , NULL);
+	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"warning.svg" , 96 , 96 , NULL);
 	warningpic = gtk_image_new_from_pixbuf(pb);
 	gtk_fixed_put(GTK_FIXED(fixed) , warningpic , 20 , 20 );
 	
