@@ -307,8 +307,7 @@ skin_DATA = bg.jpg \
 			user_invisible.png \
 			user_offline.png \
 			user_online.png \
-			warning.png \
-			warning_icon.png \
+			warning.svg \
 			emotion.png \
 			online.svg \
 			busy.svg \
