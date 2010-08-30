@@ -334,7 +334,7 @@ void fx_chat_initialize(FxChat* fxchat)
 
 	fxchat->headbox = gtk_table_new(2 , 10 , FALSE );
 
-	fxchat->headpix = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.png" , 40 , 40 , NULL);
+	fxchat->headpix = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" , 40 , 40 , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxchat->dialog) , fxchat->headpix);
 	fxchat->headimage = gtk_image_new_from_pixbuf(fxchat->headpix);
 	gtk_table_attach(GTK_TABLE(fxchat->headbox) , fxchat->headimage
@@ -503,7 +503,7 @@ void fx_chat_initialize(FxChat* fxchat)
 	sprintf(portraitPath , "%s/%s.jpg" , config->iconPath , contact->sId);
 	pb = gdk_pixbuf_new_from_file_at_size(portraitPath , 140 , 140 , NULL);
 	if(pb == NULL){
-		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.png" , 140 , 140 , NULL);
+		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" , 140 , 140 , NULL);
 	}
 	img = gtk_image_new_from_pixbuf(pb);
 	g_object_unref(pb);
@@ -520,7 +520,7 @@ void fx_chat_initialize(FxChat* fxchat)
 	sprintf(portraitPath , "%s/%s.jpg" , config->iconPath , user->sId);
 	pb = gdk_pixbuf_new_from_file_at_size(portraitPath , 140 , 140 , NULL);
 	if(pb == NULL){
-		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.png" , 140 , 140 , NULL);
+		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" , 140 , 140 , NULL);
 	}
 	img = gtk_image_new_from_pixbuf(pb);
 	g_object_unref(pb);

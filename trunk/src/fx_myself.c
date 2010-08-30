@@ -118,7 +118,7 @@ void fx_myself_initialize(FxMyself* fxmyself)
 
 	fxmyself->headbox = gtk_table_new(2 , 10 , FALSE );
 
-	fxmyself->headpix = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.png" ,
+	fxmyself->headpix = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" ,
 			40 , 40 , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxmyself->dialog) , fxmyself->headpix);
 	fxmyself->headimage = gtk_image_new_from_pixbuf(fxmyself->headpix);

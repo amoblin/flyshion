@@ -97,7 +97,7 @@ void fx_pgprofile_initialize(FxPGProfile *fxpg)
 	gtk_entry_set_editable(GTK_ENTRY(fxpg->timeEntry) , FALSE);
 	gtk_fixed_put(GTK_FIXED(fixed) , fxpg->timeEntry , 150 , 165);
 
-	pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.png" , 120 , 120 , NULL);
+	pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" , 120 , 120 , NULL);
 	fxpg->image = gtk_image_new_from_pixbuf(pixbuf);
 	g_object_unref(pixbuf);
 

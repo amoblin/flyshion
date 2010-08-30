@@ -95,9 +95,9 @@ void fx_main_initialize(FxMain* fxmain)
 #endif
 
 	gtk_window_set_default_size(GTK_WINDOW(fxmain->window) , WINDOW_WIDTH , WINDOW_HEIGHT);
-	GdkPixbuf* icon = gdk_pixbuf_new_from_file(SKIN_DIR"fetion.png" , NULL);
+	GdkPixbuf* icon = gdk_pixbuf_new_from_file(SKIN_DIR"fetion.svg" , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxmain->window) , icon);
-	fxmain->trayIcon = gtk_status_icon_new_from_file(SKIN_DIR"invisible_big.png");
+	fxmain->trayIcon = gtk_status_icon_new_from_file(SKIN_DIR"offline.svg");
 	gtk_status_icon_set_tooltip(fxmain->trayIcon , "OpenFetion");
 #ifdef USE_LIBNOTIFY
 	fxmain->notify = notify_notification_new_with_status_icon("welcome"
@@ -319,7 +319,7 @@ void fx_main_process_presence(FxMain* fxmain , const char* xml)
 						, contact->impression );
 				pb = gdk_pixbuf_new_from_file_at_size(iconPath , 48 , 48 , NULL);
 				if(pb == NULL){
-					pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.png" , 48 , 48 , NULL);
+					pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" , 48 , 48 , NULL);
 				}
 				notify_notification_update(fxmain->notify , notifySummary
 						, notifyText , NULL);
@@ -426,7 +426,7 @@ static void process_group_message(FxMain *fxmain , Message *message)
 		free(sid);
 		pixbuf = gdk_pixbuf_new_from_file(path , NULL);
 		if(pixbuf == NULL)
-			pixbuf = gdk_pixbuf_new_from_file(SKIN_DIR"online_big.png" , NULL);
+			pixbuf = gdk_pixbuf_new_from_file(SKIN_DIR"online.svg" , NULL);
 		gtk_status_icon_set_from_pixbuf(GTK_STATUS_ICON(fxmain->trayIcon) , pixbuf);
 		g_object_unref(pixbuf);
 		gtk_status_icon_set_blinking(GTK_STATUS_ICON(fxmain->trayIcon) , TRUE);
@@ -531,7 +531,7 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const char* sipms
 		sid = NULL;
 		pb = gdk_pixbuf_new_from_file(path , NULL);
 		if(pb == NULL)
-			pb = gdk_pixbuf_new_from_file(SKIN_DIR"online_big.png" , NULL);
+			pb = gdk_pixbuf_new_from_file(SKIN_DIR"online.svg" , NULL);
 		gtk_status_icon_set_from_pixbuf(GTK_STATUS_ICON(fxmain->trayIcon) , pb);
 		g_object_unref(pb);
 		gtk_status_icon_set_blinking(GTK_STATUS_ICON(fxmain->trayIcon) , TRUE);

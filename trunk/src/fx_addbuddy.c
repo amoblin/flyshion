@@ -252,7 +252,7 @@ addbuddy:
 			gtk_tree_model_get(mainModel , &iter , G_ID_COL , &buddylist , -1);		
 			if(buddylist == contact->groupid)
 			{
-				pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.png" , 25 , 25 , NULL);
+				pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" , 25 , 25 , NULL);
 				gtk_tree_store_append(GTK_TREE_STORE(mainModel) , &newIter , &iter);
 				gtk_tree_store_set(GTK_TREE_STORE(mainModel) , &newIter
 								 , B_PIXBUF_COL 	, pb
