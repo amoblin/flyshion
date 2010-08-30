@@ -72,9 +72,9 @@ static void fx_set_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 			config->msgAlert = MSG_ALERT_ENABLE;
 
 		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxset->iconBtn)))
-			config->canIconify = ICON_CANNOT;
-		else
 			config->canIconify = ICON_CAN;
+		else
+			config->canIconify = ICON_CANNOT;
 
 		gtk_text_buffer_get_start_iter(buffer , &startIter);
 		gtk_text_buffer_get_end_iter(buffer , &endIter);
@@ -178,7 +178,7 @@ void fx_set_initialize(FxSet* fxset)
 	gtk_dialog_set_has_separator(GTK_DIALOG(fxset->dialog)
 							   , FALSE);
 	gtk_widget_set_usize(fxset->dialog , 500 , 360);
-	gtk_window_set_title(GTK_WINDOW(fxset->dialog) , _("Personal setting"));
+	gtk_window_set_title(GTK_WINDOW(fxset->dialog) , _("OpenFetion Preference"));
 
 	fxset->notebook = gtk_notebook_new();
 	gtk_widget_set_usize(fxset->notebook , 490 , 320);
@@ -251,9 +251,9 @@ void fx_set_bind_system(FxSet* fxset)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->alertBtn) , TRUE);
 
 	if(config->canIconify == ICON_CAN)
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->iconBtn) , FALSE);
-	else
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->iconBtn) , TRUE);
+	else
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->iconBtn) , FALSE);
 
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(fxset->apEty));
 	gtk_text_buffer_get_start_iter(buffer , &startIter);
@@ -422,11 +422,9 @@ void fx_set_initialize_system(FxSet* fxset)
 	
 	GtkWidget *fixed = NULL;
 	GtkWidget *label1 = NULL;
-	GtkWidget *apScr = NULL;
+	GtkWidget *label2 = NULL;
 	GtkWidget *label3 = NULL;
-	GtkWidget *label4 = NULL;
-	GtkWidget *label5 = NULL;
-	GtkWidget *label6 = NULL;
+	GtkWidget *apScr = NULL;
 	GSList	  *gl = NULL;
 	
 	DEBUG_FOOTPRINT();
@@ -434,18 +432,31 @@ void fx_set_initialize_system(FxSet* fxset)
 	fixed = gtk_fixed_new();
 
 	label1 = gtk_label_new("");
-	gtk_label_set_markup(GTK_LABEL(label1) , _("<b>Auto reply</b>"));
+	gtk_label_set_markup(GTK_LABEL(label1) , _("<b>Appearance</b>"));
 	gtk_fixed_put(GTK_FIXED(fixed) , label1 , 20 , 20);
+	
+	fxset->iconBtn = gtk_check_button_new_with_label(_("Minimize to Tray"));
+	gtk_fixed_put(GTK_FIXED(fixed) , fxset->iconBtn , 40 , 42);
 
-	fxset->apBtn = gtk_check_button_new_with_label(_("Turn on auto reply"));
+	fxset->smallBtn = gtk_check_button_new_with_label(_("Close to Tray"));
+	gtk_fixed_put(GTK_FIXED(fixed) , fxset->smallBtn , 230 , 42);
+	
+	fxset->ppCb = gtk_check_button_new_with_label(_("Auto popup message"));
+	gtk_fixed_put(GTK_FIXED(fixed) , fxset->ppCb , 40 , 67);
+
+	fxset->alertBtn = gtk_check_button_new_with_label(_("Enable Message Notification"));
+	gtk_fixed_put(GTK_FIXED(fixed) , fxset->alertBtn , 230 , 67);
+
+	fxset->muteBtn = gtk_check_button_new_with_label(_("Mute"));
+	gtk_fixed_put(GTK_FIXED(fixed) , fxset->muteBtn , 40 , 92);
+
+	label2 = gtk_label_new("");
+	gtk_label_set_markup(GTK_LABEL(label2) , _("<b>Auto Reply</b>"));
+	gtk_fixed_put(GTK_FIXED(fixed) , label2 , 20 , 127);
+
+	fxset->apBtn = gtk_check_button_new_with_label(_("Enable"));
 	g_signal_connect(fxset->apBtn , "toggled" , G_CALLBACK(fx_set_on_autoreply_toggled) , fxset);
-	gtk_fixed_put(GTK_FIXED(fixed) , fxset->apBtn , 40 , 50);
-
-	fxset->muteBtn = gtk_check_button_new_with_label(_("mute"));
-	gtk_fixed_put(GTK_FIXED(fixed) , fxset->muteBtn , 240 , 50);
-
-	fxset->iconBtn = gtk_check_button_new_with_label(_("Not allow to minimize to tray"));
-	gtk_fixed_put(GTK_FIXED(fixed) , fxset->iconBtn , 320 , 50);
+	gtk_fixed_put(GTK_FIXED(fixed) , fxset->apBtn , 140 , 124);
 
 	fxset->apEty = gtk_text_view_new();
 	gtk_widget_set_sensitive(fxset->apEty , FALSE);
@@ -457,38 +468,17 @@ void fx_set_initialize_system(FxSet* fxset)
 								 , GTK_POLICY_NEVER);
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(apScr)
 									  , GTK_SHADOW_ETCHED_IN);
-	gtk_fixed_put(GTK_FIXED(fixed) , apScr , 40 , 80);
+	gtk_fixed_put(GTK_FIXED(fixed) , apScr , 40 , 150);
 
 	label3 = gtk_label_new("");
-	gtk_label_set_markup(GTK_LABEL(label3) , _("<b>Auto popup message</b>"));
-	gtk_fixed_put(GTK_FIXED(fixed) , label3 , 20 , 150);
-	
-	fxset->ppCb = gtk_check_button_new_with_label(_("On"));
-	gtk_fixed_put(GTK_FIXED(fixed) , fxset->ppCb , 40 , 180);
+	gtk_label_set_markup(GTK_LABEL(label3) , _("<b>Send Message</b>"));
+	gtk_fixed_put(GTK_FIXED(fixed) , label3 , 20 , 212);
 
-	label5 = gtk_label_new("");
-	gtk_label_set_markup(GTK_LABEL(label5) , _("<b>Minimize when click Close button</b>"));
-	gtk_fixed_put(GTK_FIXED(fixed) , label5 , 200 , 150);
-
-	fxset->smallBtn = gtk_check_button_new_with_label(_("On"));
-	gtk_fixed_put(GTK_FIXED(fixed) , fxset->smallBtn , 220 , 180);
-
-	label6 = gtk_label_new("");
-	gtk_label_set_markup(GTK_LABEL(label6) , _("<b>Message Notification</b>"));
-	gtk_fixed_put(GTK_FIXED(fixed) , label6 , 360 , 150);
-
-	fxset->alertBtn = gtk_check_button_new_with_label(_("Close"));
-	gtk_fixed_put(GTK_FIXED(fixed) , fxset->alertBtn , 370 , 180);
-
-	label4 = gtk_label_new("");
-	gtk_label_set_markup(GTK_LABEL(label4) , _("<b>How to send message?</b>"));
-	gtk_fixed_put(GTK_FIXED(fixed) , label4 , 20 , 210);
-
-	fxset->etBtn = gtk_radio_button_new_with_label(NULL , _("Press Enter to send"));
-	gtk_fixed_put(GTK_FIXED(fixed) , fxset->etBtn , 40 , 240);
+	fxset->etBtn = gtk_radio_button_new_with_label(NULL , _("Press Enter to Send"));
+	gtk_fixed_put(GTK_FIXED(fixed) , fxset->etBtn , 40 , 230);
 	gl = gtk_radio_button_get_group(GTK_RADIO_BUTTON(fxset->etBtn));
-	fxset->ctBtn = gtk_radio_button_new_with_label(gl , _("Press CTRL + Enter to send"));
-	gtk_fixed_put(GTK_FIXED(fixed) , fxset->ctBtn , 40 , 260);
+	fxset->ctBtn = gtk_radio_button_new_with_label(gl , _("Press CTRL + Enter to Send"));
+	gtk_fixed_put(GTK_FIXED(fixed) , fxset->ctBtn , 40 , 250);
 
 	gtk_box_pack_start_defaults(GTK_BOX(fxset->ssetting) , fixed);
 
