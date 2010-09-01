@@ -65,7 +65,7 @@
 #       compiler:		$LTCC
 #       compiler flags:		$LTCFLAGS
 #       linker:		$LD (gnu? $with_gnu_ld)
-#       $progname:		(GNU libtool) 2.2.6b
+#       $progname:		(GNU libtool) 2.2.6b Debian-2.2.6b-2ubuntu1
 #       automake:		$automake_version
 #       autoconf:		$autoconf_version
 #
@@ -73,7 +73,7 @@
 
 PROGRAM=ltmain.sh
 PACKAGE=libtool
-VERSION=2.2.6b
+VERSION="2.2.6b Debian-2.2.6b-2ubuntu1"
 TIMESTAMP=""
 package_revision=1.3017
 
@@ -5033,7 +5033,10 @@ func_mode_link ()
 	case $pass in
 	dlopen) libs="$dlfiles" ;;
 	dlpreopen) libs="$dlprefiles" ;;
-	link) libs="$deplibs %DEPLIBS% $dependency_libs" ;;
+	link)
+	  libs="$deplibs %DEPLIBS%"
+	  test "X$link_all_deplibs" != Xno && libs="$libs $dependency_libs"
+	  ;;
 	esac
       fi
       if test "$linkmode,$pass" = "lib,dlpreopen"; then
@@ -5344,19 +5347,19 @@ func_mode_link ()
 	    # It is a libtool convenience library, so add in its objects.
 	    convenience="$convenience $ladir/$objdir/$old_library"
 	    old_convenience="$old_convenience $ladir/$objdir/$old_library"
+	    tmp_libs=
+	    for deplib in $dependency_libs; do
+	      deplibs="$deplib $deplibs"
+	      if $opt_duplicate_deps ; then
+		case "$tmp_libs " in
+		*" $deplib "*) specialdeplibs="$specialdeplibs $deplib" ;;
+		esac
+	      fi
+	      tmp_libs="$tmp_libs $deplib"
+	    done
 	  elif test "$linkmode" != prog && test "$linkmode" != lib; then
 	    func_fatal_error "\`$lib' is not a convenience library"
 	  fi
-	  tmp_libs=
-	  for deplib in $dependency_libs; do
-	    deplibs="$deplib $deplibs"
-	    if $opt_duplicate_deps ; then
-	      case "$tmp_libs " in
-	      *" $deplib "*) specialdeplibs="$specialdeplibs $deplib" ;;
-	      esac
-	    fi
-	    tmp_libs="$tmp_libs $deplib"
-	  done
 	  continue
 	fi # $pass = conv
 
@@ -5407,7 +5410,7 @@ func_mode_link ()
 	# Find the relevant object directory and library name.
 	if test "X$installed" = Xyes; then
 	  if test ! -f "$libdir/$linklib" && test -f "$abs_ladir/$linklib"; then
-	    # func_warning "library \`$lib' was moved."
+	    func_warning "library \`$lib' was moved."
 	    dir="$ladir"
 	    absdir="$abs_ladir"
 	    libdir="$abs_ladir"
@@ -5893,6 +5896,7 @@ func_mode_link ()
 	  if test "$link_all_deplibs" != no; then
 	    # Add the search paths of all dependency libraries
 	    for deplib in $dependency_libs; do
+	      path=
 	      case $deplib in
 	      -L*) path="$deplib" ;;
 	      *.la)
@@ -5938,8 +5942,8 @@ func_mode_link ()
 		  eval libdir=`${SED} -n -e 's/^libdir=\(.*\)$/\1/p' $deplib`
 		  test -z "$libdir" && \
 		    func_fatal_error "\`$deplib' is not a valid libtool archive"
-		  # test "$absdir" != "$libdir" && \
-		  #   func_warning "\`$deplib' seems to be moved"
+		  test "$absdir" != "$libdir" && \
+		    func_warning "\`$deplib' seems to be moved"
 
 		  path="-L$absdir"
 		fi
@@ -6205,6 +6209,9 @@ func_mode_link ()
 	    age="$number_minor"
 	    revision="$number_minor"
 	    lt_irix_increment=no
+	    ;;
+	  *)
+	    func_fatal_configuration "$modename: unknown library version type \`$version_type'"
 	    ;;
 	  esac
 	  ;;

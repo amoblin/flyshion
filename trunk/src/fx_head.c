@@ -125,8 +125,8 @@ void fx_head_initialize(FxMain* fxmain)
 				   , G_CALLBACK(fx_head_impre_activate_func)
 				   , fxmain);
 	fxhead->impre_label = gtk_label_new(NULL);
+	gtk_label_set_width_chars(GTK_LABEL(fxhead->impre_label) , 15);
 	gtk_misc_set_alignment(GTK_MISC(fxhead->impre_label) , 0 , 0);
-	gtk_widget_set_usize(fxhead->impre_label , 180 , 0);
 
 	alignment = gtk_alignment_new(0 , 0 , 0 , 0);
 	gtk_container_add(GTK_CONTAINER(alignment) , headbox);

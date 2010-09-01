@@ -314,7 +314,8 @@ skin_DATA = bg.jpg \
 			offline.svg \
 			away.svg \
 			invisible.svg \
-			proxy.png
+			proxy.png \
+			ofetion.svg
 
 EXTRA_DIST = $(skin_DATA)
 all: all-recursive

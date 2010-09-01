@@ -43,7 +43,7 @@ void fx_addbuddy_initialize(FxAddbuddy* fxaddbuddy)
 	DEBUG_FOOTPRINT();
 
 	fxaddbuddy->dialog = gtk_dialog_new();
-	icon = gdk_pixbuf_new_from_file(SKIN_DIR"addbuddy.png" , NULL);
+	icon = gdk_pixbuf_new_from_file(SKIN_DIR"add.png" , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxaddbuddy->dialog) , icon);
 	gtk_window_set_title(GTK_WINDOW(fxaddbuddy->dialog) , _("Add Buddy"));
 	gtk_dialog_set_has_separator(GTK_DIALOG(fxaddbuddy->dialog) , FALSE);
