@@ -35,5 +35,6 @@ skin_DATA = bg.jpg \
 			offline_big.png \
 			away_big.png \
 			invisible_big.png \
-			proxy.png
+			proxy.png \
+			ofetion.svg
 EXTRA_DIST = $(skin_DATA)

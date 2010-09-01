@@ -141,9 +141,11 @@ void fx_emotion_initialize(FxEmotion *fxemotion , int x , int y)
 			bzero(path , sizeof(path));
 			if( k < 52 ){
 				sprintf(path , SKIN_DIR"face_images/%d.gif" , (k++) + 1);
+				img = gtk_image_new_from_file(path);
+				if(!img)
+					continue;
 				eventbox = gtk_event_box_new();
 				gtk_widget_set_tooltip_markup(eventbox , _(emotions[k - 1].name));
-				img = gtk_image_new_from_file(path);
 				gtk_container_add(GTK_CONTAINER(eventbox) , img);
 				emotionArgs = (struct args *)malloc(sizeof(struct args));
 				emotionArgs->fxemotion = fxemotion;

@@ -95,7 +95,7 @@ void fx_main_initialize(FxMain* fxmain)
 #endif
 
 	gtk_window_set_default_size(GTK_WINDOW(fxmain->window) , WINDOW_WIDTH , WINDOW_HEIGHT);
-	GdkPixbuf* icon = gdk_pixbuf_new_from_file(SKIN_DIR"fetion.svg" , NULL);
+	GdkPixbuf* icon = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" , 48 , 48 , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxmain->window) , icon);
 	fxmain->trayIcon = gtk_status_icon_new_from_file(SKIN_DIR"offline.svg");
 	gtk_status_icon_set_tooltip(fxmain->trayIcon , "OpenFetion");
@@ -1130,7 +1130,6 @@ int main(int argc , char* argv[])
 
 	setlocale(LC_ALL, "");
 	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
-	printf("%s\n" , LOCALE_DIR);
 	bindtextdomain(GETTEXT_PACKAGE , LOCALE_DIR);
 	textdomain(GETTEXT_PACKAGE);
 

@@ -11,7 +11,7 @@ EXTRA_DIST = $(resource_DATA)
 all:
 	@echo "[Desktop Entry]" > openfetion.desktop
 	@echo "Encoding=UTF-8" >> openfetion.desktop
-	@echo "Icon=$(pkgdatadir)/skin/fetion.png" >> openfetion.desktop
+	@echo "Icon=$(pkgdatadir)/skin/ofetion.svg" >> openfetion.desktop
 	@echo "Name=OpenFetion" >> openfetion.desktop
 	@echo "Name[en_GB]=OpenFetion" >> openfetion.desktop
 	@echo "Name[zh_CN]=飞信(OpenFetion)" >> openfetion.desktop
