@@ -5,7 +5,7 @@ skin_DATA = bg.jpg \
 			delete.png \
 			directsms.png \
 			edit.png \
-			fetion.png \
+			fetion.svg \
 			find.png \
 			pggroup.png \
 			history.png \
@@ -27,14 +27,12 @@ skin_DATA = bg.jpg \
 			user_invisible.png \
 			user_offline.png \
 			user_online.png \
-			warning.png \
-			warning_icon.png \
+			warning.svg \
 			emotion.png \
-			online_big.png \
-			busy_big.png \
-			offline_big.png \
-			away_big.png \
-			invisible_big.png \
-			proxy.png \
-			ofetion.svg
+			online.svg \
+			busy.svg \
+			offline.svg \
+			away.svg \
+			invisible.svg \
+			proxy.png
 EXTRA_DIST = $(skin_DATA)
