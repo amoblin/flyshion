@@ -204,8 +204,7 @@ void fetion_config_download_configuration(User* user)
 	char* ip;
 	sprintf(path , "%s/configuration.xml" , user->config->userPath);
 	ip = get_ip_by_name(uri);
-	if(ip == NULL)
-	{
+	if(ip == NULL){
 		debug_error("Parse configuration uri (%s) failed!!!");
 		return;
 	}

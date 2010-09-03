@@ -268,10 +268,8 @@ char* sipc_aut_action(User* user , const char* response)
 	}
 	sipmsg = fetion_sip_to_string(sip , xml);
 	debug_info("Start sipc authentication , with ak-value");
-	debug_info("contact-version : %s , personal-version %s"
-			 , user->contactVersion , user->personalVersion);
-
-	printf("%s\n" , sipmsg);
+//	debug_info("contact-version : %s , personal-version %s"
+//			 , user->contactVersion , user->personalVersion);
 
 	tcp_connection_send(sip->tcp , sipmsg , strlen(sipmsg));
 	res = fetion_sip_get_response(sip);
@@ -379,19 +377,15 @@ int parse_sipc_auth_response(const char* auth_response , User* user)
 
 	code = fetion_sip_get_code(auth_response);
 	user->loginStatus = code;
-	if(code == 200)
-	{
+
+	if(code == 200){
 		fetion_verification_free(user->verification);
 		user->verification = NULL;
 		debug_info("Sipc authentication success");
-	}
-	else if(code == 421 || code == 420)
-	{
+	}else if(code == 421 || code == 420){
 		parse_add_buddy_verification(user , auth_response);
 		return 2;
-	}
-	else
-	{
+	}else{
 		debug_error("Sipc authentication failed");
 		return -1;
 	}

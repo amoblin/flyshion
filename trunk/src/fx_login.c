@@ -34,7 +34,7 @@ void fx_login_free(FxLogin* fxlogin)
 	DEBUG_FOOTPRINT();
 
 	gtk_widget_destroy(fxlogin->fixed);
-//	free(fxlogin);
+	free(fxlogin);
 }
 
 gboolean fx_login_proxy_button_func(GtkWidget *UNUSED(widget) , GdkEventButton *event , gpointer data)
@@ -297,8 +297,7 @@ login:
 	}
 	parse_ssi_auth_response(pos , user);
 	free(pos);
-	if(user->loginStatus == 421 || user->loginStatus == 420)
-	{
+	if(user->loginStatus == 421 || user->loginStatus == 420){
 		debug_info(user->verification->text);
 		debug_info(user->verification->tips);
 		generate_pic_code(user);
@@ -307,16 +306,13 @@ login:
 				, user->verification->tips , CODE_NOT_ERROR);
 		fx_code_initialize(fxcode);
 		ret = gtk_dialog_run(GTK_DIALOG(fxcode->dialog));
-		if(ret == GTK_RESPONSE_OK)
-		{
+		if(ret == GTK_RESPONSE_OK){
 			strcpy(code , gtk_entry_get_text(GTK_ENTRY(fxcode->codeentry)));
 			fetion_user_set_verification_code(user , code);
 			gtk_widget_destroy(fxcode->dialog);
 			free(fxcode);
 			gdk_threads_leave();
-		}
-		else
-		{
+		}else{
 			gtk_widget_destroy(fxcode->dialog);
 			free(fxcode);
 			gdk_threads_leave();
@@ -325,8 +321,7 @@ login:
 		debug_info("Input verfication code:%s" , code);
 		goto login;
 	}
-	if(user->loginStatus == 401 || user->loginStatus == 400)
-	{
+	if(user->loginStatus == 401 || user->loginStatus == 400){
 		debug_info("Password error!!!");
 		fx_login_show_msg(fxlogin , _("Login failed. Incorrect cell phone number or password"));
 		g_thread_exit(0);
@@ -504,24 +499,22 @@ auth:
 		fetion_group_list_prepend(user->groupList , group);
 	}
 
-	gdk_threads_enter();
-	fx_login_free(fxlogin);
-	gdk_threads_leave();
-	fxmain->loginPanel = NULL;
 	/* initialize head panel */
 	gdk_threads_enter();
 	fx_head_initialize(fxmain);
-	DEBUG_FOOTPRINT();
 	gdk_threads_leave();
+
 	/* initialize main panel which in fact only contains a treeview*/
 	gdk_threads_enter();
 	fxmain->mainPanel = fx_tree_new();
 	fx_tree_initilize(fxmain);
 	gdk_threads_leave();
+
 	/* initialize bottom panel */
 	gdk_threads_enter();
 	fx_bottom_initialize(fxmain);
 	gdk_threads_leave();
+
 	/* set tooltip of status icon */
 	bzero(statusTooltip , sizeof(statusTooltip));
 	sprintf(statusTooltip , "%s\n%s" , user->nickname , user->mobileno);
@@ -531,6 +524,19 @@ auth:
 	/* set title of main window*/
 	gtk_window_set_title(GTK_WINDOW(fxmain->window) , user->nickname );
 	gdk_threads_leave();
+
+	gdk_threads_enter();
+	fx_login_free(fxlogin);
+	fxmain->loginPanel = NULL;
+	gdk_threads_leave();
+
+	gdk_threads_enter();
+	fx_head_show(fxmain);
+	fx_tree_show(fxmain);
+	fx_bottom_show(fxmain);
+	gdk_threads_leave();
+
+
 	/* start sending keep alive request periodically */
 	g_timeout_add_seconds(180 , (GSourceFunc)fx_main_register_func , user);
 

@@ -1401,6 +1401,14 @@ msgstr "群简介："
 msgid "<span color='#808080'>Visible to anyone,less than 256 charactors</span>"
 msgstr "<span color='#808080'>所有人可见，不超过256个字符</span>"
 
+#: ../src/fx_main.c:1194
+msgid ""
+"Sorry,your network connection has been disconnected\n"
+"Please check your network connection and then login again"
+msgstr ""
+"对不起，您的网络连接已断开\n"
+"请检查您的网络连接并尝试重新登录"
+
 #~ msgid "<span color='#0099ff'><small> Proxy[%s]</small></span>"
 #~ msgstr "<span color='#0099ff'><small> 网络代理[%s]</small></span>"
 

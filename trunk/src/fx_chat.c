@@ -563,7 +563,6 @@ void* fx_chat_send_message_thread(void* data)
 	char *text = NULL;
 	struct tm *now = NULL;
 	ThreadArgs *args = NULL;
-	TimeOutArgs *targs = NULL;
 	FxList *fxlist = NULL;
 
 	DEBUG_FOOTPRINT();
@@ -596,16 +595,6 @@ void* fx_chat_send_message_thread(void* data)
 
 		g_usleep(100);
 		fetion_conversation_send_sms(conv , text);
-
-		/**
-		 * start send keep alive message throuth chat chanel
-		 * and put the timeout information into stack
-		 */
-		debug_info("Start periodically sending keep alive request");
-		targs = timeout_args_new(fxchat->fxmain , conv->currentSip , conv->currentContact->sipuri);
-		fxlist = fx_list_new(targs);
-		fx_list_append(fxchat->fxmain->tlist , fxlist);
-		g_timeout_add_seconds(120 , (GSourceFunc)fx_main_chat_keep_alive_func , targs);
 	}
 	return NULL;
 }
@@ -632,6 +621,11 @@ void fx_chat_send_message(FxChat* fxchat)
 
 	if(contact == NULL)
 		return;
+
+	text = gtk_text_buffer_get_text(fxchat->send_buffer , &begin , &end , TRUE);
+	if(strlen(text) == 0)
+		return;
+
 
 	/**
 	 * check whether 'send to phone' button is clicked ,
@@ -716,9 +710,6 @@ send:
 	/***
 	 * show message sent,and truncate the send text area
 	 */
-	text = gtk_text_buffer_get_text(fxchat->send_buffer , &begin , &end , TRUE);
-	if(strlen(text) == 0)
-		return;
 
 	now = get_currenttime();
 	fx_chat_add_message(fxchat , text , now , 1);
@@ -733,13 +724,12 @@ void* fx_chat_send_nudge_thread(void* data)
 	FxChat *fxchat = (FxChat*)data;
 	Conversation *conv = fxchat->conv;
 	ThreadArgs *args = NULL;
-	TimeOutArgs *targs = NULL;
 	FxList *fxlist = NULL;
 
 	DEBUG_FOOTPRINT();
-	if(fetion_conversation_invite_friend(conv) > 0)
-	{
+	if(fetion_conversation_invite_friend(conv) > 0){
 		gdk_threads_enter();
+
 		args = (ThreadArgs*)malloc(sizeof(ThreadArgs));
 		args->fxmain = fxchat->fxmain;
 		args->sip = conv->currentSip;
@@ -749,16 +739,8 @@ void* fx_chat_send_nudge_thread(void* data)
 
 		g_thread_create(fx_main_listen_thread_func , args , FALSE , NULL);
 		fetion_conversation_send_nudge(conv);
+
 		gdk_threads_leave();
-		/**
-		 * start send keep alive message throuth chat chanel
-		 * and put the timeout information into stack
-		 */
-		targs = timeout_args_new(fxchat->fxmain , conv->currentSip , conv->currentContact->sipuri);
-		fxlist = fx_list_new(targs);
-		fx_list_append(fxchat->fxmain->tlist , fxlist);
-		debug_info("Start periodically sending keep alive request");
-		g_timeout_add_seconds(120 , (GSourceFunc)fx_main_chat_keep_alive_func , targs);
 	}
 	return NULL;
 }

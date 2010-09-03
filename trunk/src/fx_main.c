@@ -670,7 +670,6 @@ void fx_main_process_invitation(FxMain* fxmain , const char* sipmsg)
 	timeout = timeout_args_new(fxmain , osip , sipuri);
 	list = fx_list_new(timeout);
 	fx_list_append(fxmain->tlist , list);
-	g_timeout_add_seconds(120 , (GSourceFunc)fx_main_chat_keep_alive_func , timeout);
 } 
 #if 0
 static void process_share_action_accept(FxMain *fxmain
@@ -1178,7 +1177,7 @@ void* fx_main_listen_thread_func(void* data)
 				return NULL;
 		FD_ZERO(&fd_read);
 		FD_SET(sip->tcp->socketfd, &fd_read);
-		ret = select (sip->tcp->socketfd+1, &fd_read, NULL, NULL, NULL);
+		ret = select(sip->tcp->socketfd+1, &fd_read, NULL, NULL, NULL);
 		if (ret == -1 || ret == 0) {
 			debug_info ("Error.. to read socket");
 			g_thread_exit(0);
@@ -1190,6 +1189,15 @@ void* fx_main_listen_thread_func(void* data)
 		}
 
 		msg = fetion_sip_listen(sip);
+		if(!msg){
+			gdk_threads_enter();
+			fx_util_popup_warning(fxmain , _("Sorry,your network connection has been disconnected\n"
+				"Please check your network connection and then login again"));
+			gdk_threads_leave();
+
+			gtk_main_quit();
+			return NULL;
+		}
 		pos = msg;
 		while(pos != NULL){
 			type = fetion_sip_get_type(pos->message);
@@ -1276,27 +1284,13 @@ void fx_main_message_func(GtkWidget *UNUSED(widget) , gpointer data)
 gboolean fx_main_register_func(User* user)
 {
 	if(fetion_user_keep_alive(user) < 0){
-		debug_info("网络连接已断开,请重新登录");
-		gtk_main_quit();
+	//	debug_info("网络连接已断开,请重新登录");
+	//	gtk_main_quit();
 		return FALSE;
 	}
 	return TRUE;
 }
 
-gboolean fx_main_chat_keep_alive_func(TimeOutArgs* args)
-{
-	if(fetion_sip_keep_alive(args->sip) < 0)
-		return FALSE;
-	if(args->terminated == TRUE)
-	{
-		fx_list_remove_timeout_by_sipuri(args->fxmain->tlist , args->sipuri);
-
-		fetion_sip_free(args->sip);
-		free(args);
-		return FALSE;
-	}
-	return TRUE;
-}
 void fx_main_about_fetion_clicked(GtkWidget *UNUSED(widget) , gpointer UNUSED(data))
 {
 	GtkWidget *dialog = gtk_about_dialog_new();

@@ -25,6 +25,8 @@ extern FxBottom* fx_bottom_new();
 
 extern void fx_bottom_initialize(FxMain* fxmain);
 
+extern void fx_bottom_show(FxMain *fxmain);
+
 extern void fx_bottom_free(FxBottom* fxbottom);
 
 extern void fx_bottom_on_setting_clicked(GtkWidget* UNUSED(widget) , gpointer data);
