@@ -98,6 +98,8 @@ extern FxTree* fx_tree_new();
 
 extern void fx_tree_initilize(FxMain* fxmain);
 
+extern void fx_tree_show(FxMain *fxmain);
+
 extern void fx_tree_free(FxTree* fxtree);
 
 extern void fx_tree_move_to_the_first(GtkTreeModel* model , GtkTreeIter* iter);

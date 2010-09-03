@@ -25,11 +25,11 @@
 #include <gdk/gdkkeysyms.h>
 #include <glib.h>
 #include <glib/gi18n.h>
+#include <config.h>
 #ifdef USE_LIBNOTIFY
  #include <libnotify/notify.h>
 #endif
 #include <openfetion.h>
-#include <config.h>
 #include "fx_types.h"
 #include "fx_util.h"
 #include "fx_sound.h"

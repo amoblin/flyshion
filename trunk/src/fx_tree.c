@@ -388,12 +388,18 @@ void fx_tree_initilize(FxMain* fxmain)
 	fetion_contact_subscribe_only(fxmain->user);
 	g_thread_create(fx_tree_update_portrait_thread_func , fxmain , FALSE , NULL);
 	g_thread_create(fx_main_listen_thread_func , args , FALSE , NULL);
+}
+
+void fx_tree_show(FxMain *fxmain)
+{
+	FxTree *fxtree = fxmain->mainPanel;
 	gtk_widget_show_all(fxtree->scrollWindow);
 	gtk_widget_show_all(fxtree->pgScrollWindow);
 	gtk_widget_show_all(fxtree->noLabelScrollWindow);
 	gtk_widget_hide(fxtree->pgScrollWindow);
 	gtk_widget_hide(fxtree->noLabelScrollWindow);
 }
+
 void fx_tree_free(FxTree* fxtree)
 {
 	DEBUG_FOOTPRINT();

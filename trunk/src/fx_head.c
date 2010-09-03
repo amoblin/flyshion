@@ -141,9 +141,15 @@ void fx_head_initialize(FxMain* fxmain)
 	gtk_box_pack_start(GTK_BOX(fxhead->topbox) , halign , FALSE , FALSE , 0);
 	gtk_box_pack_start(GTK_BOX(fxmain->mainbox) , fxhead->topbox , FALSE , FALSE , 10);
 	fx_head_bind(fxmain);	
+}
+
+void fx_head_show(FxMain *fxmain)
+{
+	FxHead *fxhead = fxmain->headPanel;
 	gtk_widget_show_all(fxhead->topbox);
 	gtk_widget_hide(fxhead->impre_entry);
 }
+
 void fx_head_bind(FxMain* fxmain)
 {
 	FxHead* fxhead = fxmain->headPanel;

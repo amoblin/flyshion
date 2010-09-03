@@ -23,6 +23,7 @@
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <arpa/inet.h>
 #include <net/if.h>
 #include <sys/socket.h>
@@ -30,11 +31,46 @@
 
 const char* global_ssi_uri = "https://uid.fetion.com.cn/ssiportal/SSIAppSignInV4.aspx";
 
+int tcp_keep_alive(int socketfd)
+{
+	int keepAlive = 1;
+	int keepIdle = 10;
+	int keepInterval = 3;
+	int keepCount = 5;
+
+	if(setsockopt(socketfd , SOL_SOCKET , SO_KEEPALIVE 
+				,(void*)&keepAlive,sizeof(keepAlive)) == -1){
+		debug_info("set SO_KEEPALIVE failed\n");
+		return -1;
+	}
+
+	if(setsockopt(socketfd , SOL_TCP , TCP_KEEPIDLE 
+				,(void *)&keepIdle,sizeof(keepIdle)) == -1){
+		debug_info("set TCP_KEEPIDEL failed\n");
+		return -1;
+	}
+
+	if(setsockopt(socketfd , SOL_TCP , TCP_KEEPINTVL
+				,(void *)&keepInterval,sizeof(keepInterval)) == -1){
+		debug_info("set TCP_KEEPINTVL failed\n");
+		return -1;
+	}
+
+	if(setsockopt(socketfd , SOL_TCP , TCP_KEEPCNT
+				,(void *)&keepCount,sizeof(keepCount)) == -1){
+		debug_info("set TCP_KEEPCNT failed\n");
+		return -1;
+	}
+	return 1;
+}
+
 FetionConnection* tcp_connection_new(void)
 {
 	FetionConnection* conn = (FetionConnection*)malloc(sizeof(FetionConnection));
 	memset(conn , 0 , sizeof(FetionConnection));
 	conn->socketfd = socket(AF_INET , SOCK_STREAM , 0);
+	if(tcp_keep_alive(conn->socketfd) == -1)
+		return NULL;
 	conn->ssl = NULL;
 	conn->ssl_ctx = NULL;
 	return conn;
@@ -49,13 +85,14 @@ FetionConnection* tcp_connection_new_with_port(const int port)
 	conn = (FetionConnection*)malloc(sizeof(FetionConnection));
 	memset(conn , 0 , sizeof(FetionConnection));
 	conn->socketfd = socket(AF_INET , SOCK_STREAM , 0);
+	if(tcp_keep_alive(conn->socketfd) == -1)
+		return NULL;
 	conn->local_port = port;
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = INADDR_ANY;
 	addr.sin_port = htons(port);
 	ret = bind(conn->socketfd , (struct sockaddr*)(&addr) , sizeof(struct sockaddr));
-	if(ret == -1)
-	{
+	if(ret == -1){
 		printf("Failed to bind");
 		return NULL;
 	}
@@ -71,6 +108,8 @@ FetionConnection* tcp_connection_new_with_ip_and_port(const char* ipaddress , co
 	conn = (FetionConnection*)malloc(sizeof(FetionConnection));
 	memset(conn , 0 , sizeof(FetionConnection));
 	conn->socketfd = socket(AF_INET , SOCK_STREAM , 0);
+	if(tcp_keep_alive(conn->socketfd) == -1)
+		return NULL;
 	strcpy(conn->local_ipaddress , ipaddress);
 	conn->local_port = port;
 	addr.sin_family = AF_INET;

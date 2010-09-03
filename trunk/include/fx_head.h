@@ -27,6 +27,8 @@ extern void fx_head_free(FxHead* fxhead);
 
 extern void fx_head_initialize(FxMain* fxmain);
 
+extern void fx_head_show(FxMain *fxmain);
+
 extern void fx_head_bind(FxMain* fxmain);
 
 void fx_head_set_state_image(FxMain* fxmain , StateType type);

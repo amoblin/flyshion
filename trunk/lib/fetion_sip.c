@@ -383,9 +383,7 @@ char* fetion_sip_get_response(FetionSip* sip)
 
 	memset(buf , 0 , sizeof(buf));
 
-	printf("-----------------------------\n");
 	c = tcp_connection_recv(sip->tcp , buf , sizeof(buf) - 2);
-			printf("%s\n" , buf);
 
 	len = fetion_sip_get_length(buf);
 
@@ -403,8 +401,6 @@ char* fetion_sip_get_response(FetionSip* sip)
 			memset(buf , 0 , sizeof(buf));
 			c1 = tcp_connection_recv(sip->tcp , buf
 					, len -c < (sizeof(buf) - 1) ? len -c : (sizeof(buf) - 1) );
-
-			printf("%s\n" , buf);
 
 			strcpy(res + c, buf);
 			c += c1;

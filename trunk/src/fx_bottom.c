@@ -141,6 +141,11 @@ void fx_bottom_initialize(FxMain* fxmain)
 	gtk_toolbar_append_item(GTK_TOOLBAR(fxbottom->toolbar)
 						  , NULL , _("Get help or give advice at Open Fetion homepage")
 						  , NULL , icon , G_CALLBACK(fx_bottom_on_help_clicked) , NULL);
+}
+
+void fx_bottom_show(FxMain *fxmain)
+{
+	FxBottom *fxbottom = fxmain->bottomPanel;
 	gtk_widget_show_all(fxbottom->toolbar);
 }
 

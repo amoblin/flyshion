@@ -135,20 +135,15 @@ int fetion_user_set_moodphrase(User* user , const char* moodphrase)
 	res = fetion_sip_to_string(sip , body);
 	free(body);
 	tcp_connection_send(sip->tcp , res , strlen(res));
-	printf("%s\n" , res);
 	free(res) ; 
 	res = fetion_sip_get_response(sip);
 	ret = fetion_sip_get_code(res);
-	printf("%s\n" , res);
-	if(ret == 200)
-	{
+	if(ret == 200){
 		parse_set_moodphrase_response(user , res);
 		free(res);
 		debug_info("Set moodphrase success");
 		return 1;
-	}
-	else
-	{
+	}else{
 		free(res);
 		debug_error("Set moodphrase failed , errno :" , ret);
 		return -1;
@@ -172,14 +167,12 @@ int fetion_user_update_info(User* user)
 	free(res) ; 
 	res = fetion_sip_get_response(sip);
 	ret = fetion_sip_get_code(res);
-	if(ret == 200)
-	{
+
+	if(ret == 200){
 		free(res);
 		debug_info("Update information success");
 		return 1;
-	}
-	else
-	{
+	}else{
 		free(res);
 		debug_error("Update information failed , errno :" , ret);
 		return -1;
@@ -260,8 +253,7 @@ Verification* fetion_verification_new()
 }
 void fetion_verification_free(Verification* ver)
 {
-	if(ver != NULL)
-	{
+	if(ver != NULL){
 		free(ver->algorithm);
 		free(ver->type);
 		free(ver->text);
@@ -289,8 +281,7 @@ int fetion_user_upload_portrait(User* user , const char* filename)
 	FetionConnection* tcp;
 
 	ip = get_ip_by_name(server);
-	if(ip == NULL)
-	{
+	if(ip == NULL){
 		debug_error("Parse server ip address failed , %s" , server);
 		return -1;
 	}
@@ -322,8 +313,7 @@ int fetion_user_upload_portrait(User* user , const char* filename)
 
 	memset(buf , 0 , sizeof(buf));
 	int ret;
-	while((n = fread(buf , 1 , sizeof(buf) , f)))
-	{
+	while((n = fread(buf , 1 , sizeof(buf) , f))){
 		ret = tcp_connection_send(tcp , buf , n) ;
 		memset(buf , 0 , sizeof(buf));
 	}
@@ -333,13 +323,10 @@ int fetion_user_upload_portrait(User* user , const char* filename)
 	tcp_connection_recv(tcp , res , sizeof(res));
 	bzero(code , sizeof(code));
 	strncpy(code , res + 9 , 3);
-	if(strcmp(code , "200") == 0)
-	{
+	if(strcmp(code , "200") == 0){
 		debug_info("Upload portrait success");
 		return 1;
-	}
-	else
-	{
+	}else{
 		debug_error("Upload portrait failed");
 		return -1;
 	}
@@ -347,7 +334,7 @@ int fetion_user_upload_portrait(User* user , const char* filename)
 
 int fetion_user_download_portrait(User* user , const char* sipuri)
 {
-    	char uri[256];
+    char uri[256];
 	char *server = user->config->portraitServerName;
 	char *portraitPath = user->config->portraitServerPath;
 	sprintf(uri , "/%s/getportrait.aspx" , portraitPath);
