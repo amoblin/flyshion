@@ -30,4 +30,7 @@ extern void fx_code_code_event_func(GtkWidget* UNUSED(widget) , GdkEventButton* 
 extern void fx_code_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 
 extern void fx_code_on_cancel_clicked(GtkWidget* UNUSED(widget) , gpointer data);
+
+extern gboolean fx_code_on_key_pressed(GtkWidget* UNUSED(widget), GdkEventKey* event, gpointer data);
+
 #endif
