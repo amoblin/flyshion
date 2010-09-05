@@ -16,7 +16,7 @@ all:
 	@echo "Name[en_GB]=OpenFetion" >> openfetion.desktop
 	@echo "Name[zh_CN]=飞信(OpenFetion)" >> openfetion.desktop
 	@echo "Comment=Fetion For Linux" >> openfetion.desktop
-	@echo "Comment[zh_CN]=Linux版飞信客户端" >> openfetion.desktop
+	@echo "Comment[zh_CN]=Linux 版飞信客户端" >> openfetion.desktop
 	@echo "Exec=openfetion" >> openfetion.desktop
 	@echo "StartupNotify=true" >> openfetion.desktop
 	@echo "Terminal=false" >> openfetion.desktop

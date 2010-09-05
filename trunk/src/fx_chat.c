@@ -200,7 +200,6 @@ gboolean fx_chat_focus_out_func(GtkWidget *UNUSED(widget)
 }
 void fx_chat_bind(FxChat* fxchat)
 {
-	
 	FxMain* fxmain = fxchat->fxmain;
 	Config* config = fxmain->user->config;
 	char text[128];
@@ -217,10 +216,6 @@ void fx_chat_bind(FxChat* fxchat)
 		gtk_window_set_icon(GTK_WINDOW(fxchat->dialog) , pixbuf);
 		g_object_unref(pixbuf);
 	}
-	sprintf(text , _("Chatting with[%s]") , fxchat->conv->currentContact->nickname);
-	gtk_window_set_title(GTK_WINDOW(fxchat->dialog) , text);
-
-
 }
 
 static void fx_chat_name_box_func(GtkWidget *UNUSED(widget)

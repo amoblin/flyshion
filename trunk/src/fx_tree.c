@@ -473,7 +473,7 @@ static GtkTreeModel* create_model(User* user)
 			gtk_tree_store_prepend(store , &iter1 , &iter);
 		else
 			gtk_tree_store_append(store , &iter1 , &iter);
-		name = (contact->nickname == NULL || strlen(contact->localname) == 0) ? contact->nickname : contact->localname;
+		name = (contact->localname == NULL || strlen(contact->localname) == 0) ? contact->nickname : contact->localname;
 
 		gtk_tree_store_set(store , &iter1
 						 , B_PIXBUF_COL 	, pb
@@ -1257,7 +1257,7 @@ static void* fx_tree_reload_thread(void* data)
 	if(pb == NULL)
 		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" , 25 , 25 , NULL);
 
-	name = (contact->nickname == NULL || strlen(contact->localname) == 0)
+	name = (contact->localname == NULL || strlen(contact->localname) == 0)
 			? contact->nickname : contact->localname;
 	gtk_tree_store_set(GTK_TREE_STORE(model) , &iter
 					 , B_PIXBUF_COL 	, pb
