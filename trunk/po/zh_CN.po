@@ -1146,7 +1146,7 @@ msgstr "<span color='#0099ff'><small> 网络代理[关闭]</small></span>"
 
 #: ../src/fx_tree.c:114
 msgid "Only allow English word here!"
-msgstr "此处只能输入英文，搜索中文请输入汉字首字符组合"
+msgstr "此处只能输入英文，搜索中文请输入拼音首字母组合"
 
 #: ../src/fx_tree.c:218 ../src/fx_tree.c:897 ../src/fx_pgprofile.c:187
 msgid "%Y-%m-%d"

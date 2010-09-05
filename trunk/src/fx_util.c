@@ -341,7 +341,7 @@ gchar *get_pystring(const gchar *in)
 {
 	gsize inlen , olen , i , j = 0;
 	gchar *gword = g_convert(in , strlen(in)
-			, "gb2312" , "utf8" , &inlen , &olen , NULL);
+			, "gb18030" , "utf8" , &inlen , &olen , NULL);
 
 	guchar *uword = (guchar*)gword;
 	gchar *out = (gchar*)malloc(olen);
@@ -367,7 +367,7 @@ gboolean has_gb(const gchar *in)
 {
 	gsize inlen , olen , i;
 	gchar *gword = g_convert(in , strlen(in)
-			, "gb2312" , "utf8" , &inlen , &olen , NULL);
+			, "gb18030" , "utf8" , &inlen , &olen , NULL);
 
 	guchar *uword = (guchar*)gword;
 
