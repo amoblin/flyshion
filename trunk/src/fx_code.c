@@ -69,6 +69,7 @@ void fx_code_initialize(FxCode *fxcode)
 	fxcode->codeentry = gtk_entry_new();
 	gtk_widget_set_usize(fxcode->codeentry , 300 , 30);
 	gtk_fixed_put(GTK_FIXED(fixed)  , fxcode->codeentry , 150 , 70);
+	g_signal_connect(fxcode->codeentry, "key_press_event" , G_CALLBACK(fx_code_on_key_pressed), fxcode);
 
 	bzero(codePath , sizeof(codePath));
 	sprintf(codePath , "%s/code.gif" , fxcode->fxmain->user->config->globalPath);
@@ -112,6 +113,7 @@ void fx_code_initialize(FxCode *fxcode)
 	gtk_widget_show_all(fxcode->dialog);
 	gtk_widget_hide(fxcode->dialog);
 }
+
 void fx_code_code_event_func(GtkWidget* UNUSED(widget) , GdkEventButton* event , gpointer data)
 {
 	FxCode *fxcode = (FxCode*)data;
@@ -143,6 +145,7 @@ void fx_code_code_event_func(GtkWidget* UNUSED(widget) , GdkEventButton* event ,
 			break;
 	};
 }
+
 void fx_code_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	DEBUG_FOOTPRINT();
@@ -155,4 +158,16 @@ void fx_code_on_cancel_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 	DEBUG_FOOTPRINT();
 
 	gtk_dialog_response(GTK_DIALOG(data) , GTK_RESPONSE_CANCEL);
+}
+
+gboolean fx_code_on_key_pressed(GtkWidget* UNUSED(widget), GdkEventKey* event, gpointer data)
+{
+	FxCode *fxcode = (FxCode*)data;
+
+	if(event->keyval == GDK_Return || event->keyval == GDK_ISO_Enter || event->keyval == GDK_KP_Enter)
+	{
+		fx_code_on_ok_clicked(NULL, fxcode->dialog);
+		return TRUE;
+	}
+	return FALSE;
 }
