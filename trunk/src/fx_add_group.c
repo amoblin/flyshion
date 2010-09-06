@@ -81,7 +81,7 @@ void fx_add_group_initialize(FxAddGroup* fxaddgroup)
 	gtk_window_set_title(GTK_WINDOW(fxaddgroup->dialog) , _("Add a buddy group"));
 	gtk_container_set_border_width(GTK_CONTAINER(fxaddgroup->dialog) , 20);
 
-	fxaddgroup->add_label = gtk_label_new(_("Input name of the new group:"));
+	fxaddgroup->add_label = gtk_label_new(_("Input the name of the new group:"));
 	gtk_misc_set_alignment(GTK_MISC(fxaddgroup->add_label) , 0 , 0 );
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxaddgroup->dialog)->vbox) , fxaddgroup->add_label);
 

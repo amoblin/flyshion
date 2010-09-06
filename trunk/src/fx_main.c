@@ -1306,7 +1306,7 @@ void fx_main_about_fetion_clicked(GtkWidget *UNUSED(widget) , gpointer UNUSED(da
 	logo = gdk_pixbuf_new_from_file(SKIN_DIR"about.png" , NULL);
 	gtk_window_set_icon(GTK_WINDOW(dialog) , logo);
 	gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog), 
-	_("OpenFetion is a non-profit software, to make linux user convenient to use "
+	_("OpenFetion is a non-profit software, aiming at making linux users convenient to use "
 	"fetion."));
 	gtk_about_dialog_set_website(GTK_ABOUT_DIALOG(dialog), 
 	"http://www.basiccoder.com/openfetion");
