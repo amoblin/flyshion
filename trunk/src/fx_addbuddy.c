@@ -73,7 +73,7 @@ void fx_addbuddy_initialize(FxAddbuddy* fxaddbuddy)
 
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxaddbuddy->dialog)->vbox) , fxaddbuddy->tablebox);
 
-	info_frame = gtk_frame_new(_("Contact`s Information"));
+	info_frame = gtk_frame_new(_("Contact's Information"));
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxaddbuddy->dialog)->vbox) , info_frame);
 	
 	info_box = gtk_table_new(2 , 3 , FALSE);
@@ -229,11 +229,11 @@ addbuddy:
 	switch(ret)
 	{
 		case BUDDY_USER_EXIST :
-			fx_util_popup_warning(fxadd->fxmain , _("The contact you added has been in your contact list,please don`t add it repeatly!"));
+			fx_util_popup_warning(fxadd->fxmain , _("The contact you want to add has already been in your contact list, please don't add him(her) repeatedly!"));
 			gtk_dialog_response(GTK_DIALOG(fxadd->dialog) , GTK_RESPONSE_OK);
 			return;
 		case BUDDY_SAME_USER_DAILY_LIMIT :
-			fx_util_popup_warning(fxadd->fxmain , _("You have reached the limit that allow to add buddy , please retry another"));
+			fx_util_popup_warning(fxadd->fxmain , _("You have reached the daily limit of adding buddies, please retry later"));
 			gtk_dialog_response(GTK_DIALOG(fxadd->dialog) , GTK_RESPONSE_OK);
 			return;
 		case BUDDY_BAD_REQUEST :

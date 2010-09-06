@@ -415,7 +415,7 @@ void fx_chat_initialize(FxChat* fxchat)
 	g_object_unref(pb);
 	fxchat->tophone = gtk_toolbar_append_element(GTK_TOOLBAR(fxchat->toolbar)
 					 	, GTK_TOOLBAR_CHILD_TOGGLEBUTTON , NULL
-						, _("Contact`s cell phone")
+						, _("Contact's cell phone")
 					       	, _("Mesage will be send to Contact's cell phone in long SMS format") 
 						, NULL , tophone_icon
 					     , G_CALLBACK(fx_chat_on_tophone_clicked)
@@ -438,7 +438,7 @@ void fx_chat_initialize(FxChat* fxchat)
 
 
 
-	label = gtk_label_new(_("total 180 character,left"));
+	label = gtk_label_new(_("total 180 character left"));
 	fxchat->countLabel = gtk_label_new("");
 	gtk_label_set_markup(GTK_LABEL(fxchat->countLabel) , _("[<span color='#0099ff'>180</span>] characters"));
 	gtk_container_add(GTK_CONTAINER(fxchat->toolbar) , label);
@@ -568,7 +568,7 @@ void* fx_chat_send_message_thread(void* data)
 	text = gtk_text_buffer_get_text(fxchat->send_buffer , &begin , &end , TRUE);
 	if(strlen(text) == 0)
 	{
-		fx_chat_add_information(fxchat , _("Empty mesage is not allowed."));
+		fx_chat_add_information(fxchat , _("Empty messages are not allowed."));
 		return NULL;
 	}
 	now = get_currenttime();
@@ -633,7 +633,7 @@ void fx_chat_send_message(FxChat* fxchat)
 		 */
 		text = gtk_text_buffer_get_text(fxchat->send_buffer , &begin , &end , TRUE);
 		if(strlen(text) == 0){
-			fx_chat_add_information(fxchat , _("Empty mesage is not allowed."));
+			fx_chat_add_information(fxchat , _("Empty messages are not allowed."));
 			return;
 		}
 		if(user->boundToMobile == BOUND_MOBILE_DISABLE){
@@ -643,10 +643,10 @@ send:
 			generate_pic_code(user);
 			bzero(reason , sizeof(reason));
 			if(user->smsDayLimit == user->smsDayCount){
-				fx_chat_add_information(fxchat , _("Sorry, you reached quota of free SMS,can't send SMS,today"));
+				fx_chat_add_information(fxchat , _("Sorry, you have reached the quota of free SMS today, SMS messages cannot be sent any more today."));
 				return;
 			}
-			sprintf(reason , _("You have %d free SMS can send (include this one).Free SMS: %d per month")
+			sprintf(reason , _("You have %d free SMS can send (include this one). Free SMS: %d per month")
 					, user->smsDayLimit - user->smsMonthCount
 					, user->smsMonthLimit );
 			bzero(tips , sizeof(tips));
@@ -680,7 +680,7 @@ send:
 		fx_chat_add_message(fxchat , text , now , 1);
 
 		bzero(tips , sizeof(tips));
-		sprintf(tips , _("Send sucessfully. You have send %d SMS, %d left.")
+		sprintf(tips , _("Message sent sucessfully. You have sent %d SMS, and %d left.")
 				, daycount , user->smsDayLimit - daycount);
 		fx_chat_add_information(fxchat , tips);
 		gtk_text_buffer_delete(fxchat->send_buffer , &begin , &end);
@@ -748,7 +748,7 @@ void fx_chat_on_nudge_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 	DEBUG_FOOTPRINT();
 
 	if(contact->state <= 0){
-		fx_chat_add_information(fxchat , _("Contact is not online.Cannot send screen jitter"));
+		fx_chat_add_information(fxchat , _("Contact is not online. Cannot send screen jitter"));
 		return;
 	}
 
@@ -831,7 +831,7 @@ void fx_chat_on_tophone_clicked(GtkWidget* widget , gpointer data)
  						"more free SMS, bind you cell phone number."));
 				gtk_widget_set_sensitive(fxchat->send_text , FALSE);
 			}else{
-				sprintf(text , _("Mesage will be send toMesage will be send to contact's cell phone. You have %d free SMS left. "
+				sprintf(text , _("Mesage will be sent to contact's cell phone. You have %d free SMS left. "
 						"If want to send more free SMS, bind your cell phone,please.") 
 						, user->smsDayLimit - user->smsDayCount);
 			}
@@ -845,7 +845,7 @@ void fx_chat_on_tophone_clicked(GtkWidget* widget , gpointer data)
 	}else{
 		fxchat->sendtophone = FALSE;
 		gtk_widget_set_sensitive(fxchat->send_text , TRUE);
-		fx_chat_add_information(fxchat , _("Mesage will be send to contact's fetion"));
+		fx_chat_add_information(fxchat , _("Message will be sent to contact's fetion"));
 	}
 }
 void fx_chat_on_close_clicked(GtkWidget* UNUSED(widget) , gpointer data)

@@ -57,8 +57,8 @@ static void row_activate_func(GtkTreeView *view , GtkTreePath *path
 					 , -1);
 	if(relationStatus == RELATION_STATUS_UNAUTHENTICATED)
 	{
-		fx_util_popup_warning(fxmain , _("You can not send a message"
-			",because he(she) is not in your contact list"));
+		fx_util_popup_warning(fxmain , _("You can not send messages to him(her)"
+			", because he(she) is not in your contact list"));
 		return;
 	}
 	if(serviceStatus == BASIC_SERVICE_ABNORMAL && 
@@ -66,7 +66,7 @@ static void row_activate_func(GtkTreeView *view , GtkTreePath *path
 		 (strlen(carrier) != 0 && strlen(mobileno) == 0)))
 	{
 		fx_util_popup_warning(fxmain , _("User has shut his fetion service"
-			",so you can not send a message to him"));
+			", so you can not send a message to him"));
 		return;
 	}
 	fx_main_create_chat_window(fxmain , sipuri);

@@ -63,14 +63,14 @@ void fx_confirm_initialize(FxConfirm *fxconfirm)
 	fixed = gtk_fixed_new();
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxconfirm->dialog)->vbox)
 			, fixed);
-	infoLabel = gtk_label_new(_("Fetion has send verification code as SMS to your cell phone. Please input it."));
+	infoLabel = gtk_label_new(_("Fetion has sent the verification code as SMS to your cell phone. Please input it."));
 	codeLabel = gtk_label_new(_("Verification code"));
 	fxconfirm->codeEntry = gtk_entry_new();
 	gtk_widget_set_usize(fxconfirm->codeEntry , 240 , 25);
 	noteLabel = gtk_label_new(NULL);
 	gtk_label_set_markup(GTK_LABEL(noteLabel)
-			, _("<span color='#808080'>NOTE：A little timelag because of network reason"
-			 "，Please Wait......</span>"));
+			, _("<span color='#808080'>NOTE：A little timelag because of some network reason"
+			 ",Please Wait......</span>"));
 	gtk_fixed_put(GTK_FIXED(fixed) , infoLabel , 40 , 40);
 	gtk_fixed_put(GTK_FIXED(fixed) , codeLabel , 40 , 74);
 	gtk_fixed_put(GTK_FIXED(fixed) , fxconfirm->codeEntry , 120 , 70);
@@ -380,7 +380,7 @@ picreload:
 					ret2 = gtk_dialog_run(GTK_DIALOG(fxconfirm->dialog));
 					if(ret2 == GTK_RESPONSE_CANCEL){
 						bzero(text , sizeof(text));
-						strcpy(text , _("Mesage send failed"));
+						strcpy(text , _("Message sent failed"));
 						fx_dsms_add_information(fxdsms , text);
 						gtk_widget_destroy(fxconfirm->dialog);
 						gdk_threads_leave();

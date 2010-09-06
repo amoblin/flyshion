@@ -33,7 +33,7 @@ msgid "Fetion number:"
 msgstr "飞信号："
 
 #: ../src/fx_addbuddy.c:76
-msgid "Contact`s Information"
+msgid "Contact's Information"
 msgstr "好友信息"
 
 #: ../src/fx_addbuddy.c:82
@@ -73,17 +73,17 @@ msgstr "您不能添加自己为好友"
 
 #: ../src/fx_addbuddy.c:232
 msgid ""
-"The contact you added has been in your contact list,please don`t add it "
-"repeatly!"
+"The contact you want to add has already been in your contact list, please don't add him(her) "
+"repeatedly!"
 msgstr "您添加的好友已经在您的好友列表中，请不要重复添加"
 
 #: ../src/fx_addbuddy.c:236
 msgid ""
-"You have reached the limit that allow to add buddy , please retry another"
+"You have reached the daily limit of adding buddies, please retry later"
 msgstr "您已经达到添加好友的上限，请改日再试"
 
 #: ../src/fx_addbuddy.c:240
-msgid "Add buddy failed.Unknown reason!"
+msgid "Add buddy failed. Unknown reason!"
 msgstr "添加好友失败，原因不详"
 
 #: ../src/fx_bottom.c:91 ../src/fx_main.c:1114 ../src/fx_set.c:191
@@ -439,11 +439,11 @@ msgid "Send"
 msgstr "发送"
 
 #: ../src/fx_search.c:60
-msgid "You can not send a message,because he(she) is not in your contact list"
+msgid "You can not send messages to him(her), because he(she) is not in your contact list"
 msgstr "由于对方未成为您的飞信好友，您不能给对方发送消息"
 
 #: ../src/fx_search.c:68
-msgid "User has shut his fetion service,so you can not send a message to him"
+msgid "User has shut his fetion service, so you can not send a message to him"
 msgstr "该用户已关闭飞信服务，不能给他发消息"
 
 #: ../src/fx_util.c:30 ../src/fx_util.c:58
@@ -491,7 +491,7 @@ msgid "Add a buddy group"
 msgstr "添加一个好友分组"
 
 #: ../src/fx_add_group.c:84
-msgid "Input name of the new group:"
+msgid "Input the name of the new group:"
 msgstr "请输入新建分组名称:"
 
 #: ../src/fx_chat.c:67 ../src/fx_chat.c:71 ../src/fx_pggroup.c:444
@@ -515,7 +515,7 @@ msgid "Emotion"
 msgstr "表情"
 
 #: ../src/fx_chat.c:423
-msgid "Contact`s cell phone"
+msgid "Contact's cell phone"
 msgstr "对方手机"
 
 #: ../src/fx_chat.c:424
@@ -538,8 +538,8 @@ msgstr " 屏幕抖动"
 msgid "Send a screen jitter"
 msgstr "发送一个屏幕抖动"
 
-#: ../src/fx_chat.c:446
-msgid "total 180 character,left"
+#: ../src/fx_chat.c:441
+msgid "total 180 character left"
 msgstr "共可输入180个字，还可输入"
 
 #: ../src/fx_chat.c:448
@@ -547,25 +547,25 @@ msgid "[<span color='#0099ff'>180</span>] characters"
 msgstr "[<span color='#0099ff'>180</span>]个字"
 
 #: ../src/fx_chat.c:577 ../src/fx_chat.c:647
-msgid "Empty mesage is not allowed."
+msgid "Empty messages are not allowed."
 msgstr "不允许发送空信息"
 
 #: ../src/fx_chat.c:657
-msgid "Sorry, you reached quota of free SMS,can't send SMS,today"
+msgid "Sorry, you have reached the quota of free SMS today, SMS messages cannot be sent any more today."
 msgstr "对不起，你今天的免费短信限额已经用完，不能再发送短信"
 
 #: ../src/fx_chat.c:660
 #, c-format
-msgid "You have %d free SMS can send (include this one).Free SMS: %d per month"
+msgid "You have %d free SMS can send (include this one). Free SMS: %d per month"
 msgstr "您还可以发送%d条免费短信（含本条），免费短信限额：每月%d条"
 
 #: ../src/fx_chat.c:694
 #, c-format
-msgid "Send sucessfully. You have send %d SMS, %d left."
+msgid "Message sent sucessfully. You have sent %d SMS, and %d left."
 msgstr "发送成功，今天已发送%d条短信息，还可以发送%d条。"
 
 #: ../src/fx_chat.c:774
-msgid "Contact is not online.Cannot send screen jitter"
+msgid "Contact is not online. Cannot send screen jitter"
 msgstr "对方不在线，不能发送窗口抖动"
 
 #: ../src/fx_chat.c:853
@@ -579,7 +579,7 @@ msgstr ""
 #: ../src/fx_chat.c:857
 #, c-format
 msgid ""
-"Mesage will be send toMesage will be send to contact's cell phone. You have "
+"Mesage will be sent to contact's cell phone. You have "
 "%d free SMS left. If want to send more free SMS, bind your cell phone,please."
 msgstr ""
 "消息将直接发送到对方手机。您还可以发送%d条免费短信。如果您还想发送更多免费短"
@@ -593,7 +593,7 @@ msgstr ""
 "信息将以长短信的方式发送到对方的手机上，您今天发送了%d条，还可以发送%d条"
 
 #: ../src/fx_chat.c:871
-msgid "Mesage will be send to contact's fetion"
+msgid "Message will be sent to contact's fetion"
 msgstr "消息将直接发送到对方飞信"
 
 #: ../src/fx_chat.c:952
@@ -603,7 +603,7 @@ msgstr "[<span color='#0099ff'>%d</span>]个字"
 
 #: ../src/fx_dsms.c:66
 msgid ""
-"Fetion has send verification code as SMS to your cell phone. Please input it."
+"Fetion has sent the verification code as SMS to your cell phone. Please input it."
 msgstr "飞信已经将短信验证码发送到您好的手机，请输入短信验证码"
 
 #: ../src/fx_dsms.c:67
@@ -612,7 +612,7 @@ msgstr "短信验证码："
 
 #: ../src/fx_dsms.c:72
 msgid ""
-"<span color='#808080'>NOTE：A little timelag because of network reason，"
+"<span color='#808080'>NOTE：A little timelag because of some network reason,"
 "Please Wait......</span>"
 msgstr ""
 "<span color='#808080'>注意：短信可能由于网络等原因有一些延迟，请稍候...</"
@@ -642,7 +642,7 @@ msgid "Send message failed"
 msgstr "消息发送失败"
 
 #: ../src/fx_dsms.c:383
-msgid "Mesage send failed"
+msgid "Message sent failed"
 msgstr "消息发送失败"
 
 #: ../src/fx_dsms.c:438
@@ -902,7 +902,7 @@ msgstr "退出 OpenFetion "
 
 #: ../src/fx_main.c:1316
 msgid ""
-"OpenFetion is a non-profit software, to make linux user convenient to use "
+"OpenFetion is a non-profit software, aiming at making linux users convenient to use "
 "fetion."
 msgstr "OpenFetion 属于非盈利性软件，旨在方便 Linux 用户使用飞信。"
 
@@ -1020,7 +1020,7 @@ msgid "Notification"
 msgstr "提示信息"
 
 #: ../src/fx_close.c:68
-msgid "Are you sure to exit OpenFetion ?"
+msgid "Are you sure you want to quit OpenFetion?"
 msgstr "确定要退出 OpenFetion 吗？"
 
 #: ../src/fx_close.c:71
