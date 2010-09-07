@@ -358,8 +358,9 @@ void fx_chat_initialize(FxChat* fxchat)
 								, 1 , 2 , 0 , 1 
 								, GTK_FILL , GTK_FILL , 0 , 0);
 
-
-	fxchat->impre_label = gtk_label_new(contact->impression);
+	snprintf(nametext , 510 , "%s" , contact->impression);
+	escape_impression(nametext);
+	fxchat->impre_label = gtk_label_new(nametext);
 	gtk_label_set_justify(GTK_LABEL(fxchat->impre_label) , GTK_JUSTIFY_LEFT);
 	gtk_table_attach(GTK_TABLE(fxchat->headbox) , fxchat->impre_label  
 								, 1 , 10 , 1 , 2

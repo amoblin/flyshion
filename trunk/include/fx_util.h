@@ -29,6 +29,8 @@ extern char *fx_util_str_replace(char *str , const char *oldstr , const char *ne
 
 extern char *fx_util_replace_emotion(char *str);
 
+extern void escape_impression(char *impre);
+
 extern gchar *get_pystring(const gchar *in);
 
 extern gboolean has_gb(const gchar *in);

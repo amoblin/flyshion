@@ -832,6 +832,7 @@ static void fx_tree_text_cell_data_func(GtkTreeViewColumn *UNUSED(col),
 		sid = fetion_sip_get_sid_by_sipuri(sipuri);
 		bzero(stateStr1 , sizeof(stateStr1));
 		snprintf(stateStr1 , 255 , "<span color='#0099FF'>%s</span>" , stateStr);
+		escape_impression(impression);
 		if( size < 30)
 		{
 			snprintf(text , 1023 , "<b>%s</b>%s%s"

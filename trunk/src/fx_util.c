@@ -300,6 +300,15 @@ char *fx_util_replace_emotion(char *str)
 	return str;
 }
 
+void escape_impression(char *impre)
+{
+	int i;
+	for(i = 0 ; i < strlen(impre); i++){
+		if(impre[i] == 10 || impre[i] == 13)
+			impre[i] = 32;
+	}
+}
+
 static gchar getpychar(guchar uword0 , guchar uword1)
 {
 	gchar pychar;
