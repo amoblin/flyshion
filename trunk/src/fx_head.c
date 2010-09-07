@@ -169,14 +169,17 @@ void fx_head_bind(FxMain* fxmain)
 			, user->nickname == NULL ? user->sId : user->nickname );
 
 	gtk_label_set_markup(GTK_LABEL(fxhead->name_label) , name );
+	
 
 	strcpy(fxhead->oldimpression
 		, (strlen(user->impression) == 0 || user->impression == NULL)
 		? "Click here to input signature" : user->impression);
-	bzero(tooltip , sizeof(tooltip));
+
+	memset(tooltip , 0 , sizeof(tooltip));
 	sprintf(tooltip , "<b>%s</b>" , user->impression);
 	gtk_widget_set_tooltip_markup(fxhead->impre_label
 			, tooltip);
+	escape_impression(fxhead->oldimpression);
 	gtk_label_set_text(GTK_LABEL(fxhead->impre_label) , fxhead->oldimpression);
 
 	bzero(name , sizeof(name));
