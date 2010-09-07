@@ -107,6 +107,10 @@ void fx_login_initialize(FxMain* fxmain)
 	fxlogin->password = gtk_entry_new();
 	gtk_widget_set_size_request(GTK_WIDGET(fxlogin->password) , 200 , 25);
 	gtk_entry_set_visibility(GTK_ENTRY(fxlogin->password) , FALSE);
+	g_signal_connect(G_OBJECT(fxlogin->password)
+					 , "activate"
+					 , G_CALLBACK(fx_login_action_func)
+					 , fxmain);
 
 	fxlogin->passlabel = gtk_label_new(_("Please input password:"));
 	gtk_label_set_justify(GTK_LABEL(fxlogin->passlabel) , GTK_JUSTIFY_CENTER);
