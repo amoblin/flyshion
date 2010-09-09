@@ -111,7 +111,7 @@ static void show_search(GtkEntry *entry , gpointer data)
 		return;
 
 	if(has_gb(text)){
-		fx_util_popup_warning(fxmain , _("Only allow English word here!"));
+		fx_util_popup_warning(fxmain , _("Only English words are allowed here!"));
 		return;
 	}
 
@@ -615,7 +615,7 @@ static void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* UNUSED(tree)
 		fx_tree_create_menu( !all_light ? _("Hightlight all contacts") : _("Hightlight online contacts") , SKIN_DIR"hilight.png"
 						, menu , TRUE , fx_tree_on_hightlight_clicked , NULL);
 
-		fx_tree_create_menu(iconsize > 30 ? _("Use little icon") : _("Use big icon")
+		fx_tree_create_menu(iconsize > 30 ? _("Use small icon") : _("Use big icon")
 						, SKIN_DIR"bigimage.png" , menu , TRUE , fx_tree_on_iconchange_clicked , fxmain);
 
 		fx_tree_create_menu(_("Remove this contact") , SKIN_DIR"delete.png"
@@ -1065,7 +1065,7 @@ static void fx_tree_on_double_click(GtkTreeView *treeview
 						 , -1);
 		if(relationStatus == RELATION_STATUS_UNAUTHENTICATED)
 		{
-			fx_util_popup_warning(fxmain , _("People not in your contact list ,to whom you can not send a message"));
+			fx_util_popup_warning(fxmain , _("You can not send a message to anyone who has not been in your contact list"));
 			return;
 		}
 		if(serviceStatus == BASIC_SERVICE_ABNORMAL && 

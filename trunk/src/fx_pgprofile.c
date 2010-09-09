@@ -110,7 +110,7 @@ void fx_pgprofile_initialize(FxPGProfile *fxpg)
 	gtk_fixed_put(GTK_FIXED(fixed) , frame , 20 , 225);
 
 	label = gtk_label_new(NULL);
-	gtk_label_set_markup(GTK_LABEL(label) , _("<span color='#808080'>Only visible to group members,less than 256 charactors</span>"));
+	gtk_label_set_markup(GTK_LABEL(label) , _("<span color='#808080'>Only visible to group members,less than 256 characters</span>"));
 	gtk_fixed_put(GTK_FIXED(fixed) , label , 40 , 250);
 
 	scroll = gtk_scrolled_window_new(NULL , NULL);
@@ -132,7 +132,7 @@ void fx_pgprofile_initialize(FxPGProfile *fxpg)
 	gtk_fixed_put(GTK_FIXED(fixed) , frame , 20 , 370);
 
 	label = gtk_label_new(NULL);
-	gtk_label_set_markup(GTK_LABEL(label) , _("<span color='#808080'>Visible to anyone,less than 256 charactors</span>"));
+	gtk_label_set_markup(GTK_LABEL(label) , _("<span color='#808080'>Visible to anyone,less than 256 characters</span>"));
 	gtk_fixed_put(GTK_FIXED(fixed) , label , 40 , 390);
 
 	scroll = gtk_scrolled_window_new(NULL , NULL);

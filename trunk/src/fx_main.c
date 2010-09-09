@@ -1191,7 +1191,7 @@ void* fx_main_listen_thread_func(void* data)
 		msg = fetion_sip_listen(sip);
 		if(!msg){
 			gdk_threads_enter();
-			fx_util_popup_warning(fxmain , _("Sorry,your network connection has been disconnected\n"
+			fx_util_popup_warning(fxmain , _("Sorry,your network connection has been closed\n"
 				"Please check your network connection and then login again"));
 			gdk_threads_leave();
 

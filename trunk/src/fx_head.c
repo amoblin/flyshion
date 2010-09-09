@@ -460,7 +460,7 @@ void* fx_head_change_portrait_thread(void* data)
 										GTK_DIALOG_DESTROY_WITH_PARENT,
 										GTK_MESSAGE_WARNING,
 										GTK_BUTTONS_OK,
-										_("Upload avatar failed. Note: This appliaction don't support autocompress "
+										_("Upload avatar failed. Note: This appliaction doesn't support auto-compression "
 										"of image. Please be sure that the avater is in 150px × 150px."));
 		gtk_window_set_title(GTK_WINDOW(dialog), "Warning");
 		gtk_dialog_run(GTK_DIALOG(dialog));

@@ -48,7 +48,7 @@ void fx_lookup_initialize(FxLookup* fxlookup)
 	gtk_widget_set_usize(fxlookup->dialog , 300 , 150);
 	gtk_container_set_border_width(GTK_CONTAINER(fxlookup->dialog) , 20);
 
-	fxlookup->remark_label = gtk_label_new(_("Please input users phone number or fetion number:"));
+	fxlookup->remark_label = gtk_label_new(_("Please input the user's phone number or fetion number:"));
 	gtk_misc_set_alignment(GTK_MISC(fxlookup->remark_label) , 0 , 0 );
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxlookup->dialog)->vbox) , fxlookup->remark_label);
 
