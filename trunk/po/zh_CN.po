@@ -1053,14 +1053,14 @@ msgstr "上传"
 
 #: ../src/fx_head.c:454
 msgid ""
-"Upload avatar failed. Note: This appliaction don't support autocompress of "
+"Upload avatar failed. Note: This appliaction doesn't support auto-compression of "
 "image. Please be sure that the avater is in 150px × 150px."
 msgstr ""
 "上传头像失败，友情提示：本程序暂不提供图片自动压缩功能,上传头像尺寸请控制在 "
 "150px × 150px 以内"
 
 #: ../src/fx_lookup.c:51
-msgid "Please input users phone number or fetion number:"
+msgid "Please input the user's phone number or fetion number:"
 msgstr "请输入用户的手机号或飞信号:"
 
 #: ../src/fx_lookup.c:58
@@ -1095,8 +1095,8 @@ msgstr "请输入消息内容"
 #: ../src/fx_many.c:571
 #, c-format
 msgid ""
-"Mesage \"%s\" has been sent to \"%s\". Today you have sent %d and this month "
-"%d\n"
+"Mesage \"%s\" has been sent to \"%s\". You have sent %d today and "
+"%d this month\n"
 msgstr "消息“%s”成功发送至“%s”，今天已发送短信息%d条，本月已发送%d条\n"
 
 #: ../src/fx_many.c:574
@@ -1145,7 +1145,7 @@ msgid "<span color='#0099ff'><small> Proxy [off]</small></span>"
 msgstr "<span color='#0099ff'><small> 网络代理[关闭]</small></span>"
 
 #: ../src/fx_tree.c:114
-msgid "Only allow English word here!"
+msgid "Only English words are allowed here!"
 msgstr "此处只能输入英文，搜索中文请输入拼音首字母组合"
 
 #: ../src/fx_tree.c:218 ../src/fx_tree.c:897 ../src/fx_pgprofile.c:187
@@ -1190,7 +1190,7 @@ msgid "Hightlight online contacts"
 msgstr "在线友好高亮"
 
 #: ../src/fx_tree.c:612
-msgid "Use little icon"
+msgid "Use small icon"
 msgstr "使用小图标"
 
 #: ../src/fx_tree.c:612
@@ -1247,7 +1247,7 @@ msgstr ""
 "<span color='#808080'>创建时间：%s</span>"
 
 #: ../src/fx_tree.c:1061
-msgid "People not in your contact list ,to whom you can not send a message"
+msgid "You can not send a message to anyone who has not been in your contact list"
 msgstr "由于对方尚未成为你的飞信好友，您不能给对方发送消息"
 
 #: ../src/fx_tree.c:1068
@@ -1346,7 +1346,7 @@ msgstr "<span color='#0099ff'>[超级管理员]</span>"
 
 #: ../src/fx_pggroup.c:545
 msgid ""
-"Group member who didn`t bind fetion number to mobile number can`t receive "
+"Group member who didn't bind fetion number to mobile number can't receive "
 "the group sms you send"
 msgstr "未绑定手机号的群成员将无法接收到您发送的群短信"
 
@@ -1390,7 +1390,7 @@ msgstr "群公告："
 #: ../src/fx_pgprofile.c:113
 msgid ""
 "<span color='#808080'>Only visible to group members,less than 256 "
-"charactors</span>"
+"characters</span>"
 msgstr "<span color='#808080'>仅群成员可见，不超过256个字符</span>"
 
 #: ../src/fx_pgprofile.c:130
@@ -1398,12 +1398,12 @@ msgid "Group Summary:"
 msgstr "群简介："
 
 #: ../src/fx_pgprofile.c:135
-msgid "<span color='#808080'>Visible to anyone,less than 256 charactors</span>"
+msgid "<span color='#808080'>Visible to anyone,less than 256 characters</span>"
 msgstr "<span color='#808080'>所有人可见，不超过256个字符</span>"
 
 #: ../src/fx_main.c:1194
 msgid ""
-"Sorry,your network connection has been disconnected\n"
+"Sorry,your network connection has been closed\n"
 "Please check your network connection and then login again"
 msgstr ""
 "对不起，您的网络连接已断开\n"

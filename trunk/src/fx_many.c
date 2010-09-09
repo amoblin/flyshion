@@ -568,8 +568,8 @@ static void* fx_many_sms_send_func(void* data)
 			if(fetion_conversation_send_sms_to_phone_with_reply(conv
 						, text , &daycount , &monthcount) > 0){
 				bzero(alertmsg , sizeof(alertmsg));
-				sprintf(alertmsg , _("Mesage \"%s\" has been sent to \"%s\". Today you have sent %d and this "
-						 "month %d\n") , text , name , daycount , monthcount);
+				sprintf(alertmsg , _("Mesage \"%s\" has been sent to \"%s\". You have sent %d today and "
+						 "%d this month\n") , text , name , daycount , monthcount);
 			}else{
 				sprintf(alertmsg , _("Mesage \"%s\" did not send to \"%s\"\n") , text , name);
 			}

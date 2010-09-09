@@ -542,8 +542,8 @@ void pggroup_on_sendsms_clicked(GtkWidget *widget , gpointer data)
     	FxPGGroup *fxpg = (FxPGGroup*)data;
 	GtkToggleButton *btn = GTK_TOGGLE_BUTTON(widget);
 	if(gtk_toggle_button_get_active(btn)){
-		add_information(fxpg , _("Group member who didn`t bind fetion number"
-			    " to mobile number can`t receive the group sms you send"));
+		add_information(fxpg , _("Group member who didn't bind fetion number"
+			    " to mobile number can't receive the group sms you send"));
 	}
 }
 
