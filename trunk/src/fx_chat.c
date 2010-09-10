@@ -838,8 +838,8 @@ void fx_chat_on_tophone_clicked(GtkWidget* widget , gpointer data)
 			}
 			fx_chat_add_information(fxchat , text);
 		}else{
-			sprintf(text , _("Mesage will be seed to you phone as long SMS."
-						" You have seed %d, and %d left.")
+			sprintf(text , _("Mesage will be sent to you phone as long SMS."
+						" You have sent %d, and %d left.")
 					, user->smsDayCount , user->smsDayLimit - user->smsDayCount);
 			fx_chat_add_information(fxchat , text);
 		}

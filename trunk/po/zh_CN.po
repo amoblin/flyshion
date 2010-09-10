@@ -588,7 +588,7 @@ msgstr ""
 #: ../src/fx_chat.c:863
 #, c-format
 msgid ""
-"Mesage will be seed to you phone as long SMS. You have seed %d, and %d left."
+"Mesage will be sent to you phone as long SMS. You have sent %d, and %d left."
 msgstr ""
 "信息将以长短信的方式发送到对方的手机上，您今天发送了%d条，还可以发送%d条"
 
