@@ -556,7 +556,7 @@ void pggroup_on_space_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 	if(fork() == 0){
 		pgsid = fetion_sip_get_pgid_by_sipuri(fxpg->pggroup->pguri);
 		sprintf(text , "%s?GroupID=%s" , PGGROUP_SPACE_URI , pgsid);
-		execlp("firefox" , "firefox" , text , (char**)NULL);
+		execlp("xdg-open" , "xdg-open" , text , (char**)NULL);
 	}
 }
 static void *pggroup_update_portrait_thread(void *data)

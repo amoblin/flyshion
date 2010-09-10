@@ -33,7 +33,7 @@ static void fx_on_more_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 	char *url = (char*)data;
 	if(fork() == 0)
 	{
-		execlp("firefox" , "firefox" , url , NULL);
+		execlp("xdg-open" , "xdg-open" , url , NULL);
 		free(url);
 		return;
 	}
