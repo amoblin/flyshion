@@ -1317,7 +1317,7 @@ void fx_main_about_fetion_clicked(GtkWidget *UNUSED(widget) , gpointer UNUSED(da
 void fx_main_check_update_clicked(GtkWidget* UNUSED(widget) , gpointer UNUSED(data))
 {
 	if(fork() == 0){
-		execlp("firefox" , "firefox" , "http://basiccoder.com/openfetion" , (char**)NULL);
+		execlp("xdg-open" , "xdg-open" , "http://basiccoder.com/openfetion" , (char**)NULL);
 		return;
 	}
 }
@@ -1325,7 +1325,7 @@ void fx_main_check_update_clicked(GtkWidget* UNUSED(widget) , gpointer UNUSED(da
 void fx_main_about_author_clicked(GtkWidget* UNUSED(widget) , gpointer UNUSED(data))
 {
 	if(fork() == 0){
-		execlp("firefox" , "firefox" , "http://www.basiccoder.com" , (char**)NULL);
+		execlp("xdg-open" , "xdg-open" , "http://www.basiccoder.com" , (char**)NULL);
 		return;
 	}
 }

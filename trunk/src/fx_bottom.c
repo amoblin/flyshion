@@ -70,7 +70,7 @@ static void
 fx_bottom_on_help_clicked(GtkWidget* UNUSED(widget) , gpointer UNUSED(data))
 {
 	if(fork() == 0){
-		execlp("firefox" , "firefox" , "http://basiccoder.com/openfetion" , (char**)NULL);
+		execlp("xdg-open" , "xdg-open" , "http://basiccoder.com/openfetion" , (char**)NULL);
 	}
 }
 void fx_bottom_initialize(FxMain* fxmain)
