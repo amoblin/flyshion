@@ -415,12 +415,15 @@ void fx_head_change_portrait_func(GtkWidget* widget , GdkEventButton* event , gp
 	if(response == 1)
 	{
 		filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(filechooser));
-		anim_pixbuf = gdk_pixbuf_animation_new_from_file(SKIN_DIR"LoadingImage.gif", NULL); 
-		gtk_image_set_from_animation(GTK_IMAGE(fxmain->headPanel->portrait) , anim_pixbuf);
-		args->fxmain = fxmain;
-		bzero(args->filename , sizeof(args->filename));
-		strcpy(args->filename , filename);
-		g_thread_create(fx_head_change_portrait_thread , args , FALSE , NULL);
+		if (filename)
+		{
+			anim_pixbuf = gdk_pixbuf_animation_new_from_file(SKIN_DIR"LoadingImage.gif", NULL); 
+			gtk_image_set_from_animation(GTK_IMAGE(fxmain->headPanel->portrait) , anim_pixbuf);
+			args->fxmain = fxmain;
+			bzero(args->filename , sizeof(args->filename));
+			strcpy(args->filename , filename);
+			g_thread_create(fx_head_change_portrait_thread , args , FALSE , NULL);
+		}
 	}
 	
 	gtk_widget_destroy(filechooser);
