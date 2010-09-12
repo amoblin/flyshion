@@ -22,7 +22,7 @@ struct emotion emotions[] = {
 	{ N_("Rain") , "(st)", 18 } ,
 	{ N_("Clock") , "(o)", 19 } ,
 	{ N_("Red heart") , "(l)", 20 } ,
-	{ N_("Break heart") , "(u)", 21 } ,
+	{ N_("Broken heart") , "(u)", 21 } ,
 	{ N_("Face of cat") , "(@)", 22 } ,
 	{ N_("Face of dog") , "(&)", 23 } ,
 	{ N_("Snail") , "(sn)", 24 } ,

@@ -204,7 +204,7 @@ msgid "Red heart"
 msgstr "红心"
 
 #: ../src/fx_emotion.c:25
-msgid "Break heart"
+msgid "Broken heart"
 msgstr "破碎的心"
 
 #: ../src/fx_emotion.c:26
