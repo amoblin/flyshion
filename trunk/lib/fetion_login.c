@@ -77,14 +77,13 @@ char* generate_response(const char* nouce , const char* userid
 	BN_hex2bn(&bnn, modulus);
 	BN_hex2bn(&bne, exponent);
 	r->n = bnn;	r->e = bne;	r->d = NULL;
-	RSA_print_fp(stdout, r, 5);
+//	RSA_print_fp(stdout, r, 5);
 	flen = RSA_size(r);
 	out =  (unsigned char*)malloc(flen);
 	memset(out , 0 , flen);
 	debug_info("Start encrypting response");
 	ret = RSA_public_encrypt(nonce_len + aeskey_len + psd_len, res , out, r, RSA_PKCS1_PADDING);
-	if (ret < 0)
-	{
+	if (ret < 0){
 		debug_info("Encrypt response failed!");
 		return NULL;
 	}
@@ -271,7 +270,6 @@ char* sipc_aut_action(User* user , const char* response)
 //	debug_info("contact-version : %s , personal-version %s"
 //			 , user->contactVersion , user->personalVersion);
 
-	printf("%s\n" , sipmsg);
 	tcp_connection_send(sip->tcp , sipmsg , strlen(sipmsg));
 	res = fetion_sip_get_response(sip);
 	free(sipmsg);

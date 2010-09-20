@@ -20,6 +20,8 @@
 
 #include "fx_include.h"
 
+static void fx_lookup_on_entry_activated(GtkWidget *UNUSED(widget) , gpointer data);
+
 FxLookup* fx_lookup_new(FxMain* fxmain)
 {
 	FxLookup *fxlookup = (FxLookup*)malloc(sizeof(FxLookup));
@@ -54,6 +56,8 @@ void fx_lookup_initialize(FxLookup* fxlookup)
 
 	fxlookup->remark_entry = gtk_entry_new();
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxlookup->dialog)->vbox) , fxlookup->remark_entry);
+	g_signal_connect(fxlookup->remark_entry , "activate" 
+			, G_CALLBACK(fx_lookup_on_entry_activated) , fxlookup);
 
 	fxlookup->ok_button = gtk_button_new_with_label(_("Find"));
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxlookup->dialog)->action_area) , fxlookup->ok_button);
@@ -120,4 +124,11 @@ void fx_lookup_on_cancel_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 	DEBUG_FOOTPRINT();
 
 	gtk_dialog_response(GTK_DIALOG(data) , GTK_RESPONSE_CANCEL);
+}
+
+static void fx_lookup_on_entry_activated(GtkWidget *UNUSED(widget) , gpointer data)
+{
+	DEBUG_FOOTPRINT();
+
+	g_thread_create(fx_lookup_ok_thread , data , FALSE , NULL);
 }

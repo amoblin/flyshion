@@ -37,7 +37,8 @@ void fx_login_free(FxLogin* fxlogin)
 	free(fxlogin);
 }
 
-gboolean fx_login_proxy_button_func(GtkWidget *UNUSED(widget) , GdkEventButton *event , gpointer data)
+gboolean fx_login_proxy_button_func(GtkWidget *UNUSED(widget)
+		, GdkEventButton *event , gpointer data)
 {
 	FxLogin *fxlogin = (FxLogin*)data;
 	Proxy *proxy = fxlogin->proxy;
@@ -213,15 +214,15 @@ GtkTreeModel* fx_login_create_state_model()
 		const gchar* icon;
 		int type;
 	} presence[] = {
-		{ N_("Online")	 , SKIN_DIR"user_online.png" , P_ONLINE } , 
-		{ N_("Leave")	 , SKIN_DIR"user_away.png" , P_AWAY } , 
-		{ N_("Busy")	 , SKIN_DIR"user_busy.png" , P_BUSY } ,
-		{ N_("Hide")	 , SKIN_DIR"user_invisible.png" , P_HIDDEN } , 
-		{ N_("Eating out") , SKIN_DIR"user_away.png" , P_OUTFORLUNCH } ,
-		{ N_("Do Not Disturb") , SKIN_DIR"user_away.png" , P_DONOTDISTURB } , 
-		{ N_("Back Soon") , SKIN_DIR"user_away.png" , P_RIGHTBACK } , 
-		{ N_("Meeting")	 , SKIN_DIR"user_away.png" , P_MEETING } , 
-		{ N_("Calling")	 , SKIN_DIR"user_away.png" , P_ONTHEPHONE} ,
+		{ N_("Online")	 , SKIN_DIR"online.svg" , P_ONLINE } , 
+		{ N_("Leave")	 , SKIN_DIR"away.svg" , P_AWAY } , 
+		{ N_("Busy")	 , SKIN_DIR"busy.svg" , P_BUSY } ,
+		{ N_("Hide")	 , SKIN_DIR"invisible.svg" , P_HIDDEN } , 
+		{ N_("Eating out") , SKIN_DIR"away.svg" , P_OUTFORLUNCH } ,
+		{ N_("Do Not Disturb") , SKIN_DIR"away.svg" , P_DONOTDISTURB } , 
+		{ N_("Back Soon") , SKIN_DIR"away.svg" , P_RIGHTBACK } , 
+		{ N_("Meeting")	 , SKIN_DIR"away.svg" , P_MEETING } , 
+		{ N_("Calling")	 , SKIN_DIR"away.svg" , P_ONTHEPHONE} ,
 		{ NULL		 , NULL 			   , -1}
 	};
 	enum
@@ -235,7 +236,8 @@ GtkTreeModel* fx_login_create_state_model()
 	for(i = 0 ; presence[i].type != -1 ; i++)
 	{
 		gtk_list_store_append(store , &iter);
-		pb = gdk_pixbuf_new_from_file(presence[i].icon , NULL);
+		pb = gdk_pixbuf_new_from_file_at_size(presence[i].icon,
+				20, 20, NULL);
 		gtk_list_store_set(store , &iter
 				, PIXBUF_COL , pb 
 				, TEXT_COL , _(presence[i].name)

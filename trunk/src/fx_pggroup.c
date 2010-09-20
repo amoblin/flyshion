@@ -49,6 +49,8 @@ static void on_double_click(GtkTreeView *treeview
 		, gpointer data);
 static void *on_contact_show(void *data);
 static void pg_window_destroy(GtkWidget *UNUSED(widget) , gpointer data);
+static gboolean key_press_func(GtkWidget *UNUSED(widget) , GdkEventKey *event
+		, gpointer data);
 
 FxPGGroup *fx_pggroup_new(FxMain *fxmain , PGGroup *pggroup)
 {
@@ -95,6 +97,8 @@ void fx_pggroup_initialize(FxPGGroup *fxpggroup )
 	gtk_window_set_title(GTK_WINDOW(fxpggroup->window) , text);
 	g_signal_connect(fxpggroup->window , "destroy"
 	       	, G_CALLBACK(pg_window_destroy) , fxpggroup);
+	g_signal_connect(fxpggroup->window , "key-press-event"
+			, G_CALLBACK(key_press_func) , fxpggroup);
 	pixbuf = gdk_pixbuf_new_from_file(SKIN_DIR"pggroup.png" , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxpggroup->window) , pixbuf);
 	gtk_widget_set_size_request(fxpggroup->window , 650 , 490);
@@ -575,11 +579,15 @@ static void *pggroup_update_portrait_thread(void *data)
 
 	if(gtk_tree_model_get_iter_first(model , &iter)){
 		do{
+			if(!fxpg)
+				return NULL;
 			gtk_tree_model_get(model , &iter , M_SIPURI_COL , &sipuri , -1);
 			sid = fetion_sip_get_sid_by_sipuri(sipuri);
 			snprintf(path , 1023 , "%s/%s.jpg" , config->iconPath , sid);
 			pixbuf = gdk_pixbuf_new_from_file_at_size(path
 			       	, MEMBER_PROTRAIT_SIZED , MEMBER_PROTRAIT_SIZED , NULL);
+			if(!fxpg)
+				return NULL;
 			if(pixbuf == NULL && fxpg->pggroup->hasImage == 0){
 			    snprintf(portraitPath , 255 , "/%s/getportrait.aspx" , config->portraitServerPath );
 			    fetion_user_download_portrait_with_uri(user , sipuri
@@ -599,6 +607,8 @@ static void *pggroup_update_portrait_thread(void *data)
 			free(sid);
 
 		}while(gtk_tree_model_iter_next(model , &iter));
+		if(!fxpg)
+			return NULL;
 		fxpg->pggroup->hasImage = 1;
 	}
 	return NULL;
@@ -715,4 +725,20 @@ static void pg_window_destroy(GtkWidget *UNUSED(widget) , gpointer data)
 	fx_list_remove_pg_by_sipuri(fxpg->fxmain->pglist , fxpg->pggroup->pguri);
 
 	free(fxpg);
+	fxpg = NULL;
+}
+
+static gboolean key_press_func(GtkWidget *widget , GdkEventKey *event
+		, gpointer UNUSED(data))
+{
+	if(event->keyval == GDK_w){
+		if(event->state & GDK_CONTROL_MASK){
+			gtk_widget_destroy(widget);
+			return TRUE;
+		}else{
+			return FALSE;
+		}
+	}
+
+	return FALSE;
 }
