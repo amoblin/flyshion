@@ -35,7 +35,7 @@ int tcp_keep_alive(int socketfd)
 {
 	int keepAlive = 1;
 	int keepIdle = 10;
-	int keepInterval = 1;
+	int keepInterval = 5;
 	int keepCount = 5;
 
 	if(setsockopt(socketfd , SOL_SOCKET , SO_KEEPALIVE 
