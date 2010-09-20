@@ -84,6 +84,9 @@ void fx_close_initialize(FxClose *fxclose)
 	gtk_box_pack_start_defaults(action_area , okBtn);
 	gtk_box_pack_start_defaults(action_area , cancelBtn);
 
+	GTK_WIDGET_SET_FLAGS(okBtn, GTK_CAN_FOCUS);
+	gtk_widget_grab_focus(okBtn);
+
 	gtk_widget_show_all(fxclose->dialog);
 	gtk_widget_hide(fxclose->dialog);
 }

@@ -21,14 +21,12 @@
 #include "fx_include.h"
 
 static void fx_many_add_information(FxMany* fxmany , const char* text);
-
 static void fx_many_on_close_clicked(GtkWidget* UNUSED(widget) , gpointer data);
-
 static void fx_many_on_send_clicked(GtkWidget* UNUSED(widget) , gpointer data);
-
 static void* fx_many_sms_send_func(void* data);
-
 static GtkTreeModel* fx_many_create_all_model(FxMany* fxmany);
+static gboolean key_press_func(GtkWidget *UNUSED(widget) , GdkEventKey *event
+		, gpointer data);
 
 FxMany* fx_many_new(FxMain* fxmain)
 {
@@ -400,6 +398,8 @@ void fx_many_initialize(FxMany* fxmany)
 	gtk_window_set_icon(GTK_WINDOW(fxmany->dialog) , pb);
 	gtk_window_set_title(GTK_WINDOW(fxmany->dialog) , _("SMS To Many"));
 	gtk_widget_set_usize(fxmany->dialog , 660 , 520);
+	g_signal_connect(fxmany->dialog , "key-press-event"
+			, G_CALLBACK(key_press_func) , fxmany);
 	gtk_container_set_border_width(GTK_CONTAINER(fxmany->dialog) , 5);
 
 	fxmany->hbox = gtk_hbox_new(FALSE , 0);
@@ -581,4 +581,21 @@ static void* fx_many_sms_send_func(void* data)
 		while(gtk_tree_model_iter_next(model , &iter));
 	}
 	return NULL;
+}
+
+static gboolean key_press_func(GtkWidget *UNUSED(widget) , GdkEventKey *event
+		, gpointer data)
+{
+	FxMany *fxmany ;
+	if(event->keyval == GDK_w){
+		if(event->state & GDK_CONTROL_MASK){
+			fxmany = (FxMany*)data;
+			gtk_dialog_response(GTK_DIALOG(fxmany->dialog) , GTK_RESPONSE_OK);
+			return TRUE;
+		}else{
+			return FALSE;
+		}
+	}
+
+	return FALSE;
 }

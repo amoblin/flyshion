@@ -20,6 +20,9 @@
 
 #include "fx_include.h"
 
+static gboolean key_press_func(GtkWidget *UNUSED(widget) , GdkEventKey *event
+		, gpointer data);
+
 FxConfirm* fx_confirm_new(FxMain *fxmain)
 {
 	FxConfirm *fxconfirm ;
@@ -548,6 +551,8 @@ void fx_dsms_initialize(FxDSMS *fxdsms)
 	pb = gdk_pixbuf_new_from_file(SKIN_DIR"directsms.png" , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxdsms->dialog) , pb);
 	gtk_window_set_title(GTK_WINDOW(fxdsms->dialog) , _("SMS directly"));
+	g_signal_connect(fxdsms->dialog , "key-press-event"
+			, G_CALLBACK(key_press_func) , fxdsms);
 
 	infoLabel = gtk_label_new(NULL);
 	gtk_label_set_markup(GTK_LABEL(infoLabel)
@@ -684,4 +689,21 @@ void fx_dsms_initialize(FxDSMS *fxdsms)
 
 	gtk_widget_show_all(fxdsms->dialog);
 	gtk_widget_hide(fxdsms->chooseList);
+}
+
+static gboolean key_press_func(GtkWidget *UNUSED(widget) , GdkEventKey *event
+		, gpointer data)
+{
+	FxDSMS *fxdsms ;
+	if(event->keyval == GDK_w){
+		if(event->state & GDK_CONTROL_MASK){
+			fxdsms = (FxDSMS*)data;
+			gtk_widget_destroy(fxdsms->dialog);
+			return TRUE;
+		}else{
+			return FALSE;
+		}
+	}
+
+	return FALSE;
 }

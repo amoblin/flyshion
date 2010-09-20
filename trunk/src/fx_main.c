@@ -32,6 +32,8 @@ int window_pos_y_old = 0;
 
 static void fx_main_process_pggetgroupinfo(FxMain *fxmain , const char *sipmsg);
 static void fx_main_process_pgpresencechanged(FxMain *fxmain , const char *sipmsg);
+static gboolean key_press_func(GtkWidget *widget , GdkEventKey *event
+		, gpointer data);
 
 FxMain* fx_main_new()
 {
@@ -78,6 +80,10 @@ void fx_main_initialize(FxMain* fxmain)
 	g_signal_connect(G_OBJECT(fxmain->window)
 				  , "delete-event"
 				  , G_CALLBACK(fx_main_delete)
+				  , fxmain);
+	g_signal_connect(G_OBJECT(fxmain->window)
+				  , "key-press-event"
+				  , G_CALLBACK(key_press_func)
 				  , fxmain);
 	g_signal_connect(G_OBJECT(fxmain->window)
 				  , "destroy"
@@ -1563,4 +1569,27 @@ static void fx_main_process_pgpresencechanged(FxMain *fxmain , const char *sipms
 			pg_group_update_group_info(fxmain->user , pgcur);
 	}
 #endif
+}
+
+static gboolean key_press_func(GtkWidget *widget , GdkEventKey *event
+		, gpointer data)
+{
+	if(event->keyval == GDK_w){
+		if(event->state & GDK_CONTROL_MASK){
+			gtk_window_iconify(GTK_WINDOW(widget));
+			return TRUE;
+		}else{
+			return FALSE;
+		}
+	}
+	if(event->keyval == GDK_q){
+		if(event->state & GDK_CONTROL_MASK){
+			fx_main_delete(widget , NULL , data);
+			return TRUE;
+		}else{
+			return FALSE;
+		}
+	}
+
+	return FALSE;
 }

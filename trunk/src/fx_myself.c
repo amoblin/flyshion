@@ -20,6 +20,9 @@
 
 #include "fx_include.h"
 
+static gboolean key_press_func(GtkWidget *UNUSED(widget) , GdkEventKey *event
+		, gpointer data);
+
 FxMyself* fx_myself_new(FxMain* fxmain)
 {
 	FxMyself* fxmyself = (FxMyself*)malloc(sizeof(FxMyself));
@@ -114,6 +117,8 @@ void fx_myself_initialize(FxMyself* fxmyself)
 	gtk_window_set_modal(GTK_WINDOW(fxmyself->dialog) , FALSE);
 	gtk_widget_set_usize(fxmyself->dialog , 550 , 490);
 	gtk_dialog_set_has_separator(GTK_DIALOG(fxmyself->dialog) , FALSE);
+	g_signal_connect(fxmyself->dialog , "key-press-event"
+			, G_CALLBACK(key_press_func) , fxmyself);
 	gtk_container_set_border_width(GTK_CONTAINER(fxmyself->dialog) , 10);
 
 	fxmyself->headbox = gtk_table_new(2 , 10 , FALSE );
@@ -260,5 +265,23 @@ gboolean fx_myself_on_enter_pressed(GtkWidget* widget , GdkEventKey* event , gpo
 			}
 		}		
 	}
+	return FALSE;
+}
+
+static gboolean key_press_func(GtkWidget *widget , GdkEventKey *event
+		, gpointer data)
+{
+	FxMyself *fxmyself;
+	if(event->keyval == GDK_w){
+		if(event->state & GDK_CONTROL_MASK){
+			fxmyself = (FxMyself*)data;
+			gtk_dialog_response(GTK_DIALOG(fxmyself->dialog)
+					, GTK_RESPONSE_OK);
+			return TRUE;
+		}else{
+			return FALSE;
+		}
+	}
+
 	return FALSE;
 }
