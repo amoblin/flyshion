@@ -509,8 +509,8 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const char* sipms
 				if(config->msgAlert == MSG_ALERT_ENABLE){	
 					senderContact = fetion_contact_list_find_by_sipuri(user->contactList , msg->sipuri);
 					if( senderContact){
-						bzero(notifySum , sizeof(notifySum));
-						bzero(iconPath , sizeof(iconPath));
+						memset(notifySum , 0 , sizeof(notifySum));
+						memset(iconPath , 0 , sizeof(iconPath));
 						sprintf(iconPath , "%s/%s.jpg" , config->iconPath , senderContact->sId);
 						senderSid = fetion_sip_get_sid_by_sipuri(msg->sipuri);
 						sprintf(notifySum , _("%s(%s) said:") , senderContact->nickname , senderContact->sId);
