@@ -90,6 +90,19 @@ void fx_head_initialize(FxMain* fxmain)
 					 , "button_press_event"
 					 , GTK_SIGNAL_FUNC(fx_head_popup_statemenu_func)
 					 , fxmain);
+	g_signal_connect(G_OBJECT(fxhead->state_button)
+					 , "enter_notify_event"
+					 , GTK_SIGNAL_FUNC(fx_head_popup_statemenu_func)
+					 , fxmain);
+	g_signal_connect(G_OBJECT(fxhead->state_button)
+					 , "leave_notify_event"
+					 , GTK_SIGNAL_FUNC(fx_head_popup_statemenu_func)
+					 , fxmain);
+
+	g_signal_connect(G_OBJECT(fxhead->portraitbox)
+				   , "leave_notify_event"
+				   , GTK_SIGNAL_FUNC(fx_head_change_portrait_func)
+				   , fxmain);
 
 	gtk_box_pack_start(GTK_BOX(headbox) , fxhead->state_button , TRUE , TRUE , 0);
 
@@ -202,6 +215,7 @@ void fx_head_bind(FxMain* fxmain)
 void fx_head_set_state_image(FxMain* fxmain , StateType type)
 {
 	FxHead* fxhead = fxmain->headPanel;
+	GdkPixbuf *pixbuf;
 	char* statename = fx_util_get_state_name(type);
 
 	DEBUG_FOOTPRINT();
@@ -210,40 +224,51 @@ void fx_head_set_state_image(FxMain* fxmain , StateType type)
 	switch(type)
 	{
 		case P_ONLINE :
-			gtk_image_set_from_file(GTK_IMAGE(fxhead->state_img)
-								  , SKIN_DIR"user_online.png");
+			pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"online.svg" , 20 , 20 , NULL);
 			gtk_status_icon_set_from_file(fxmain->trayIcon
 										, SKIN_DIR"online.svg");
 			break;
 		case P_BUSY :
-			gtk_image_set_from_file(GTK_IMAGE(fxhead->state_img)
-					              , SKIN_DIR"user_busy.png");
+			pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"busy.svg" , 20 , 20 , NULL);
 			gtk_status_icon_set_from_file(fxmain->trayIcon
 										, SKIN_DIR"busy.svg");
 			break;
 		case P_HIDDEN :
-			gtk_image_set_from_file(GTK_IMAGE(fxhead->state_img)
-								  , SKIN_DIR"user_invisible.png");
+			pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"invisible.svg" , 20 , 20 , NULL);
 			gtk_status_icon_set_from_file(fxmain->trayIcon
 										, SKIN_DIR"invisible.svg");
 			break;
 		default :
-			gtk_image_set_from_file(GTK_IMAGE(fxhead->state_img)
-								  , SKIN_DIR"user_away.png");
+			pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"away.svg" , 20 , 20 , NULL);
 			gtk_status_icon_set_from_file(fxmain->trayIcon
 										, SKIN_DIR"away.svg");
 			break;
 	}
+	gtk_image_set_from_pixbuf(GTK_IMAGE(fxhead->state_img) , pixbuf);
+	g_object_unref(pixbuf);
 	free(statename);
 }
-void fx_head_popup_statemenu_func(GtkWidget* UNUSED(widget)
+void fx_head_popup_statemenu_func(GtkWidget* widget
 		, GdkEventButton* event , gpointer data)
 {
 	FxMain* fxmain = (FxMain*)data;
 	GtkWidget* separator;
+	GdkCursor* cursor;
 	GtkWidget* presence_menu = gtk_menu_new();
 
 	DEBUG_FOOTPRINT();
+
+	if(event->type == GDK_ENTER_NOTIFY) {
+		cursor = gdk_cursor_new (GDK_HAND2);
+		gdk_window_set_cursor(widget->window , cursor);
+		return;
+	}
+
+	if(event->type == GDK_LEAVE_NOTIFY)	{
+		cursor = gdk_cursor_new (GDK_LEFT_PTR);
+		gdk_window_set_cursor(widget->window , cursor);
+		return;
+	}
 
 	fx_head_create_presence_item(P_ONLINE , _("Online") , presence_menu , fxmain);
 	fx_head_create_presence_item(P_AWAY   , _("Leave") , presence_menu , fxmain);
@@ -272,6 +297,7 @@ void fx_head_create_presence_item(int type , const char* message , GtkWidget* me
 	} Args;
 	GtkWidget* item = gtk_image_menu_item_new_with_label(message);
 	GtkWidget* item_img = NULL;
+	GdkPixbuf *pixbuf;
 	Args *args = (Args*)malloc(sizeof(Args));
 	args->fxmain = fxmain;
 	args->type = type;
@@ -279,19 +305,21 @@ void fx_head_create_presence_item(int type , const char* message , GtkWidget* me
 	switch(type)
 	{
 		case P_ONLINE :
-			item_img = gtk_image_new_from_file(SKIN_DIR"user_online.png");
+			pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"online.svg" , 20 , 20 , NULL);
 			break;
 		case P_BUSY :
-			item_img = gtk_image_new_from_file(SKIN_DIR"user_busy.png");
+			pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"busy.svg" , 20 , 20 , NULL);
 			break;
 		case P_HIDDEN :
-			item_img = gtk_image_new_from_file(SKIN_DIR"user_invisible.png");
+			pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"invisible.svg" , 20 , 20 , NULL);
 			break;
 		default :
-			item_img = gtk_image_new_from_file(SKIN_DIR"user_away.png");
+			pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"away.svg" , 20 , 20 , NULL);
 			break;
 	}
+	item_img = gtk_image_new_from_pixbuf(pixbuf);
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item) , item_img);
+	g_object_unref(pixbuf);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu) , item);
 }
 void fx_head_impre_event_func(GtkWidget* widget , GdkEventButton* event , gpointer data)

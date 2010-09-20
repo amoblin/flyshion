@@ -302,11 +302,6 @@ skin_DATA = bg.jpg \
 			profile.png \
 			refresh.png \
 			groupsend.png \
-			user_away.png \
-			user_busy.png \
-			user_invisible.png \
-			user_offline.png \
-			user_online.png \
 			warning.svg \
 			emotion.png \
 			online.svg \

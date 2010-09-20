@@ -71,7 +71,7 @@ void fx_code_initialize(FxCode *fxcode)
 	gtk_fixed_put(GTK_FIXED(fixed)  , fxcode->codeentry , 150 , 70);
 	g_signal_connect(fxcode->codeentry, "key_press_event" , G_CALLBACK(fx_code_on_key_pressed), fxcode);
 
-	bzero(codePath , sizeof(codePath));
+	memset(codePath , 0 , sizeof(codePath));
 	sprintf(codePath , "%s/code.gif" , fxcode->fxmain->user->config->globalPath);
 	pb = gdk_pixbuf_new_from_file_at_size(codePath , 130 , 36 , NULL);
 	fxcode->codepic = gtk_image_new_from_pixbuf(pb);
