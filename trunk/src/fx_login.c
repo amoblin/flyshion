@@ -452,12 +452,10 @@ auth:
 		}
 		debug_info("Input verfication code:%s" , code);
 	}
+	fx_login_show_msg(fxlogin , _("Initializing main panel"));
 	
-	fx_login_show_msg(fxlogin , _("Login sucessful"));
-
 	pg_group_get_list(user);
 
-	gdk_threads_enter();
 #ifdef USE_LIBNOTIFY
 	char notifyText[1024];
 	char iconPath[256];
@@ -478,14 +476,20 @@ auth:
 			pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" , 48 , 48 , NULL);
 		}
 	}
+	gdk_threads_enter();
 	notify_notification_update(fxmain->notify , _("Login successful")// notifySummary
 			, notifyText , NULL);
 	notify_notification_set_icon_from_pixbuf(fxmain->notify , pb);
 	notify_notification_show(fxmain->notify , NULL);
+	gdk_threads_leave();
 	g_object_unref(pb);
 #endif
+	fx_login_show_msg(fxlogin , _("Login sucessful"));
+
+	gdk_threads_enter();
 	gtk_window_set_resizable(GTK_WINDOW(fxmain->window) , TRUE);
 	gdk_threads_leave();
+
 
 	/**
 	 *  if there is not a buddylist name "Ungrouped" or "Strangers", create one

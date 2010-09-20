@@ -291,29 +291,48 @@ char* ssl_connection_get(FetionConnection* conn , const char* buf)
 
 char* http_connection_get_response(FetionConnection* conn)
 {
-	char buf[1024] , ls[10] , *pos , *res;
+	char buf[1024*4];
+	char ls[10];
+	char *pos;
+	char *res;
 	int  n = 0 , c , len;
-	bzero(buf , sizeof(buf));
+
+	memset(buf, 0, sizeof(buf));
+
 	do{
-		n += tcp_connection_recv(conn , buf + n , sizeof(buf) - n - 1);
-	}while(strstr(buf , "\r\n\r\n") == NULL);
+		c = tcp_connection_recv(conn
+			, buf + n , sizeof(buf) - n - 1);
+		n += c;
+		if(n >= sizeof(buf))
+			return NULL;
+	}while(!strstr(buf , "\r\n\r\n"));
+
+	printf("%s\n" , buf);
+
 	pos = strstr(buf , "Content-Length: ") + 16;
-	len = strlen(pos) - strlen(strstr(pos , "\r\n\r\n"));
+	len = strlen(pos) - strlen(strstr(pos , "\r\n"));
+	memset(ls , 0 , sizeof(ls));
 	strncpy(ls , pos , len);
 	len = atoi(ls);
+
 	pos = strstr(pos , "\r\n\r\n") + 4;
 	n = strlen(pos);
+
 	res = (char*)malloc(len + 1);
 	memset(res , 0 , len + 1);
 	strcpy(res , pos);
+
 	for(;;){
-		bzero(buf , sizeof(buf));
+		memset(buf , 0 , sizeof(buf));
 		c = tcp_connection_recv(conn , buf , sizeof(buf) - 1);
-		strcpy(res + n , buf);
+		if(c <= 0)
+			break;
+		strcpy(res + n, buf);
 		n += c;
 		if(n >= len)
 			break;
 	}
+
 	return res;
 }
 int http_connection_get_body_length(const char* http)

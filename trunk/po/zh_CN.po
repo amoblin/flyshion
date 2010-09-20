@@ -1409,6 +1409,10 @@ msgstr ""
 "对不起，您的网络连接已断开\n"
 "请检查您的网络连接并尝试重新登录"
 
+#: ../src/fx_login.c:487
+msgid "Initializing main panel"
+msgstr "正在初始化主界面"
+
 #~ msgid "<span color='#0099ff'><small> Proxy[%s]</small></span>"
 #~ msgstr "<span color='#0099ff'><small> 网络代理[%s]</small></span>"
 

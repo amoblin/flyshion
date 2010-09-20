@@ -637,7 +637,7 @@ static void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* UNUSED(tree)
 								 , G_NAME_COL 			 , &groupname
 								 , G_ID_COL 			 , &groupid , -1);
 				moveargs = fx_args_new(fxmain , iter , userid , groupid);
-				fx_tree_create_menu(groupname 	  , SKIN_DIR"user_invisible.png"
+				fx_tree_create_menu(groupname 	  , SKIN_DIR"online.svg"
 								  , groupSubmenu , TRUE , fx_tree_on_movemenu_clicked
 								  , moveargs);
 				free(groupname);
