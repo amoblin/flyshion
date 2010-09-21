@@ -1151,8 +1151,6 @@ int main(int argc , char* argv[])
 #endif
 	gtk_init(&argc , &argv);
 
-	gtk_rc_parse(RESOURCE_DIR"style.rc");
-
 	DEBUG_FOOTPRINT();
 
 	fx_main_initialize(fxmain);
