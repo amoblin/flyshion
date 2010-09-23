@@ -1211,7 +1211,7 @@ msgstr "所有好友高亮"
 
 #: ../src/fx_tree.c:615
 msgid "Hightlight online contacts"
-msgstr "在线友好高亮"
+msgstr "在线好友高亮"
 
 #: ../src/fx_tree.c:618
 msgid "Use small icon"

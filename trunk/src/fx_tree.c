@@ -624,7 +624,7 @@ static void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* UNUSED(tree)
 		fx_tree_create_menu(_("Edit note name") , SKIN_DIR"edit.png"
 						, menu , TRUE , fx_tree_on_editmenu_clicked , profileargs);
 
-		fx_tree_create_menu( config->allHighlight ? _("Hightlight all contacts") : _("Hightlight online contacts") , SKIN_DIR"hilight.png"
+		fx_tree_create_menu( config->allHighlight ? _("Hightlight online contacts") : _("Hightlight all contacts") , SKIN_DIR"hilight.png"
 						, menu , TRUE , fx_tree_on_hightlight_clicked , fxmain);
 
 		fx_tree_create_menu(iconsize > 30 ? _("Use small icon") : _("Use big icon")
