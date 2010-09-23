@@ -10,7 +10,7 @@ install: install-recursive
 	fi
 	@echo "----------------------------------------------------------";
 	@echo "|                                                        |";
-	@echo "|       OpenFetion 1.8 by lwp(levin108@gmail.com)        |";
+	@echo "|       OpenFetion 1.9 by lwp(levin108@gmail.com)        |";
 	@echo "|                                                        |";
 	@echo "|  OpenFetion a fetion client for linux based on GTK+2.0,|";
 	@echo "|  using Fetion Protocol Version 4. It supports most     |";

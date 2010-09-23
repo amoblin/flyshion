@@ -188,8 +188,10 @@ GtkWidget* fx_main_create_menu1(const char* name
 							 )
 {
 	GtkWidget *item = gtk_image_menu_item_new_with_label(name);
+#if 0
 	GtkWidget *img = gtk_image_new_from_stock(stockid , GTK_ICON_SIZE_MENU);
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item) , img);
+#endif
 	gtk_menu_shell_append(GTK_MENU_SHELL(parent) , item);
 	if(func != NULL)
 		g_signal_connect(item , "activate" , G_CALLBACK(func) , data);
@@ -1040,9 +1042,10 @@ static void fx_main_direct_sms_clicked(GtkWidget *UNUSED(widget) , gpointer data
 void fx_main_tray_popmenu_func(GtkWidget* UNUSED(widget)
 		, guint button , guint activate_time , gpointer data)
 {
-	FxMain* fxmain = (FxMain*)data;
+	FxMain *fxmain = (FxMain*)data;
+	User *user = fxmain->user;
 	Config *config = NULL;
-	GtkWidget *muteItem;
+	GtkWidget *item;
 	char stateMenu[48];
 	int i;
 	typedef struct 
@@ -1060,15 +1063,15 @@ void fx_main_tray_popmenu_func(GtkWidget* UNUSED(widget)
 		const gchar* icon;
 		int type;
 	} presence[] = {
-		{ N_("Online")	 , SKIN_DIR"user_online.png" , P_ONLINE } , 
-		{ N_("Leave")	 , SKIN_DIR"user_away.png" , P_AWAY } , 
-		{ N_("Busy")	 , SKIN_DIR"user_busy.png" , P_BUSY } ,
-		{ N_("Hide")	 , SKIN_DIR"user_invisible.png" , P_HIDDEN } , 
-		{ N_("Eating out") , SKIN_DIR"user_away.png" , P_OUTFORLUNCH } ,
-		{ N_("Do Not Disturb") , SKIN_DIR"user_away.png" , P_DONOTDISTURB } , 
-		{ N_("Back Soon") , SKIN_DIR"user_away.png" , P_RIGHTBACK } , 
-		{ N_("Meeting")	 , SKIN_DIR"user_away.png" , P_MEETING } , 
-		{ N_("Calling")	 , SKIN_DIR"user_away.png" , P_ONTHEPHONE} ,
+		{ N_("Online")	 , SKIN_DIR"online.svg" , P_ONLINE } , 
+		{ N_("Leave")	 , SKIN_DIR"away.svg" , P_AWAY } , 
+		{ N_("Busy")	 , SKIN_DIR"busy.svg" , P_BUSY } ,
+		{ N_("Hide")	 , SKIN_DIR"invisible.svg" , P_HIDDEN } , 
+		{ N_("Eating out") , SKIN_DIR"away.svg" , P_OUTFORLUNCH } ,
+		{ N_("Do Not Disturb") , SKIN_DIR"away.svg" , P_DONOTDISTURB } , 
+		{ N_("Back Soon") , SKIN_DIR"away.svg" , P_RIGHTBACK } , 
+		{ N_("Meeting")	 , SKIN_DIR"away.svg" , P_MEETING } , 
+		{ N_("Calling")	 , SKIN_DIR"away.svg" , P_ONTHEPHONE} ,
 		{ NULL		 , NULL 			   , -1}
 	};
 
@@ -1084,13 +1087,25 @@ void fx_main_tray_popmenu_func(GtkWidget* UNUSED(widget)
 	if(fxmain->user != NULL && fxmain->user->loginStatus != -1)
 	{
 		config = fxmain->user->config;
-		muteItem = gtk_check_menu_item_new_with_label(_("Close sound"));
+
+		item = gtk_check_menu_item_new_with_label(_("Close sound"));
 		if(config->isMute == MUTE_ENABLE)
-			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(muteItem) , TRUE);
+			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item) , TRUE);
 		else
-			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(muteItem) , FALSE);
-		g_signal_connect(muteItem , "activate" , G_CALLBACK(fx_main_mute_clicked) , fxmain);
-		gtk_menu_shell_append(GTK_MENU_SHELL(menu) , muteItem);
+			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item) , FALSE);
+		g_signal_connect(item , "activate" , G_CALLBACK(fx_main_mute_clicked) , fxmain);
+		gtk_menu_shell_append(GTK_MENU_SHELL(menu) , item);
+
+
+		item = gtk_check_menu_item_new_with_label(_("Receive SMS"));
+		if(strcmp(user->smsOnLineStatus , "0.00:00:00") &&
+			strcmp(user->smsOnLineStatus , "0.0:0:0"))
+			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item) , FALSE);
+		else
+			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item) , TRUE);
+		gtk_menu_shell_append(GTK_MENU_SHELL(menu) , item);
+		g_signal_connect(item , "activate" , G_CALLBACK(fx_head_set_sms_clicked) , fxmain);
+
 		fx_main_create_menu1(_("Information query") , GTK_STOCK_FIND
 						 , menu , fx_main_info_lookup_clicked , fxmain);
 		if(fxmain->user->boundToMobile == BOUND_MOBILE_ENABLE){
@@ -1104,7 +1119,7 @@ void fx_main_tray_popmenu_func(GtkWidget* UNUSED(widget)
 			args = (Args*)malloc(sizeof(Args));
 			args->fxmain = fxmain;
 			args->type = presence[i].type;
-			bzero(stateMenu , sizeof(stateMenu));
+			memset(stateMenu , 0 , sizeof(stateMenu));
 			sprintf(stateMenu , "%s      " , _(presence[i].name));
 			fx_main_create_menu(stateMenu , presence[i].icon
 							 , submenu , fx_main_set_state_clicked , args);
@@ -1329,7 +1344,7 @@ void fx_main_check_update_clicked(GtkWidget* UNUSED(widget) , gpointer UNUSED(da
 void fx_main_about_author_clicked(GtkWidget* UNUSED(widget) , gpointer UNUSED(data))
 {
 	if(fork() == 0){
-		execlp("xdg-open" , "xdg-open" , "http://www.basiccoder.com" , (char**)NULL);
+		execlp("xdg-open" , "xdg-open" , "http://basiccoder.com" , (char**)NULL);
 		return;
 	}
 }

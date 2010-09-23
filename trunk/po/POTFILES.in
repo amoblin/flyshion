@@ -29,3 +29,4 @@ src/fx_proxy.c
 src/fx_tree.c
 src/fx_pggroup.c
 src/fx_pgprofile.c
+src/fx_smsstat.c

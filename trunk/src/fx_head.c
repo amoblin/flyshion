@@ -20,6 +20,7 @@
 
 #include "fx_include.h"
 
+
 FxHead* fx_head_new()
 {
 	FxHead* fxhead = (FxHead*)malloc(sizeof(FxHead));
@@ -77,7 +78,7 @@ void fx_head_initialize(FxMain* fxmain)
 	headbox = gtk_hbox_new(FALSE , 0);
 
 	fxhead->state_button = gtk_event_box_new();
-	pb = gdk_pixbuf_new_from_file(SKIN_DIR"user_online.png" , FALSE);
+	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"online.svg" , 20 , 20 , FALSE);
 	fxhead->state_img = gtk_image_new_from_pixbuf(pb);
 	gtk_container_add(GTK_CONTAINER(fxhead->state_button) , fxhead->state_img);
 	gtk_widget_set_events(fxhead->state_button
@@ -252,9 +253,12 @@ void fx_head_popup_statemenu_func(GtkWidget* widget
 		, GdkEventButton* event , gpointer data)
 {
 	FxMain* fxmain = (FxMain*)data;
-	GtkWidget* separator;
-	GdkCursor* cursor;
-	GtkWidget* presence_menu = gtk_menu_new();
+	User *user = fxmain->user;
+	GtkWidget *item;
+	GtkWidget *img;
+	GtkWidget *separator;
+	GdkCursor *cursor;
+	GtkWidget *presence_menu = gtk_menu_new();
 
 	DEBUG_FOOTPRINT();
 
@@ -282,6 +286,31 @@ void fx_head_popup_statemenu_func(GtkWidget* widget
 	fx_head_create_presence_item(P_DONOTDISTURB , _("Do Not Disturb") , presence_menu , fxmain);
 	fx_head_create_presence_item(P_MEETING      , _("Meeting") , presence_menu , fxmain);
 	fx_head_create_presence_item(P_ONTHEPHONE   , _("Calling") , presence_menu , fxmain);
+
+	separator = gtk_separator_menu_item_new();
+	gtk_menu_shell_append(GTK_MENU_SHELL(presence_menu) , separator);
+
+	item = gtk_check_menu_item_new_with_label(_("Receive SMS"));
+	if(strcmp(user->smsOnLineStatus , "0.00:00:00") &&
+		strcmp(user->smsOnLineStatus , "0.0:0:0"))
+		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item) , FALSE);
+	else
+		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item) , TRUE);
+	gtk_menu_shell_append(GTK_MENU_SHELL(presence_menu) , item);
+	g_signal_connect(item , "activate" , G_CALLBACK(fx_head_set_sms_clicked) , fxmain);
+
+	item = gtk_image_menu_item_new_with_label(_("Modify Profile"));
+	img = gtk_image_new_from_file(SKIN_DIR"edit.png");
+	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item) , img);
+	gtk_menu_shell_append(GTK_MENU_SHELL(presence_menu) , item);
+	g_signal_connect(item , "activate" , G_CALLBACK(fx_bottom_on_setting_clicked) , fxmain);
+
+	item = gtk_image_menu_item_new_with_label(_("Exit OpenFetion "));
+	img = gtk_image_new_from_file(SKIN_DIR"exit.png");
+	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item) , img);
+	gtk_menu_shell_append(GTK_MENU_SHELL(presence_menu) , item);
+	g_signal_connect(item , "activate" , G_CALLBACK(fx_main_destroy) , fxmain);
+
 
 	gtk_widget_show_all(presence_menu);
 	
@@ -509,4 +538,25 @@ void* fx_head_change_portrait_thread(void* data)
 	}
 	free(args);
 	return NULL;
+}
+
+gboolean fx_head_set_sms_clicked(GtkWidget *widget , gpointer data)
+{
+	FxMain *fxmain = (FxMain*)data;
+	User *user = fxmain->user;
+	FxSmsstat *fxst;
+
+	if(strcmp(user->smsOnLineStatus , "0.00:00:00") == 0 || 
+		strcmp(user->smsOnLineStatus , "0.0:0:0") == 0){
+
+		fxst = fx_smsstat_new(fxmain);
+		fx_smsstat_initialize(fxst);
+		gtk_dialog_run(GTK_DIALOG(fxst->dialog));	
+
+		gtk_widget_destroy(fxst->dialog);
+		free(fxst);
+	}else{
+		fetion_user_set_sms_status(user , 0);
+	}
+	return FALSE;
 }

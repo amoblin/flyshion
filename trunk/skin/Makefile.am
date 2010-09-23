@@ -4,6 +4,7 @@ skin_DATA = bigimage.png \
 			delete.png \
 			directsms.png \
 			edit.png \
+			exit.png \
 			fetion.svg \
 			find.png \
 			pggroup.png \

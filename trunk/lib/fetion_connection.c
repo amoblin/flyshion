@@ -232,8 +232,6 @@ int tcp_connection_getname(FetionConnection* connection , char **ip , int *port)
 	ret = getsockname(connection->socketfd
 			, (struct sockaddr*)&addr , &len);
 
-	printf("RET: ret");
-
 	*ip = inet_ntoa(addr.sin_addr);
 	*port = ntohs(addr.sin_port);
 
@@ -306,8 +304,6 @@ char* http_connection_get_response(FetionConnection* conn)
 		if(n >= sizeof(buf))
 			return NULL;
 	}while(!strstr(buf , "\r\n\r\n"));
-
-	printf("%s\n" , buf);
 
 	pos = strstr(buf , "Content-Length: ") + 16;
 	len = strlen(pos) - strlen(strstr(pos , "\r\n"));

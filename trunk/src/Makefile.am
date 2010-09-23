@@ -39,4 +39,5 @@ openfetion_SOURCES = fx_add_group.c \
 					 fx_search.c \
 					 fx_close.c \
 					 fx_pggroup.c \
-					 fx_pgprofile.c
+					 fx_pgprofile.c \
+					 fx_smsstat.c

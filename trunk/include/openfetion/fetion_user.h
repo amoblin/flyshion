@@ -140,4 +140,6 @@ extern Contact* fetion_user_parse_presence_body(const char* body , User* user);
 
 extern Contact* fetion_user_parse_syncuserinfo_body(const char* body , User* user);
 
+extern int fetion_user_set_sms_status(User *user , int days);
+
 #endif

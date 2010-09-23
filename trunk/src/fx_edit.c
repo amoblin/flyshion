@@ -35,7 +35,8 @@ FxEdit* fx_edit_new(FxMain* fxmain , GtkTreeIter iter , const char* userid)
 
 void fx_edit_initialize(FxEdit* fxedit)
 {
-	GdkPixbuf* pb = gdk_pixbuf_new_from_file(SKIN_DIR"user_online.png" , NULL);
+	GdkPixbuf* pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"online.svg",
+				   22 , 22,	NULL);
 	fxedit->dialog = gtk_dialog_new();
 
 	DEBUG_FOOTPRINT();
@@ -54,6 +55,7 @@ void fx_edit_initialize(FxEdit* fxedit)
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxedit->dialog)->vbox) , fxedit->remark_label);
 
 	fxedit->remark_entry = gtk_entry_new();
+	g_signal_connect(fxedit->remark_entry , "activate" , G_CALLBACK(fx_edit_on_ok_clicked) , fxedit);
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxedit->dialog)->vbox) , fxedit->remark_entry);
 	
 	fxedit->ok_button = gtk_button_new_with_label(_("OK"));
