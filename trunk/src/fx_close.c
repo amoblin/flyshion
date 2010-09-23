@@ -55,8 +55,9 @@ void fx_close_initialize(FxClose *fxclose)
 	
 	fxclose->dialog = gtk_dialog_new();
 	gtk_window_set_title(GTK_WINDOW(fxclose->dialog) , _("Notification"));
-	pb = gdk_pixbuf_new_from_file(SKIN_DIR"online.svg" , NULL);
+	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"online.svg" , 22 , 22 , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxclose->dialog) , pb);
+	g_object_unref(pb);
 	gtk_widget_set_usize(fxclose->dialog , 280 , 180);
 	gtk_window_set_resizable(GTK_WINDOW(fxclose->dialog) , FALSE);
 

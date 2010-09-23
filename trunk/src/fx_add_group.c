@@ -73,11 +73,12 @@ void fx_add_group_initialize(FxAddGroup* fxaddgroup)
 	DEBUG_FOOTPRINT();
 
 	fxaddgroup->dialog = gtk_dialog_new();
-	pb = gdk_pixbuf_new_from_file(SKIN_DIR"online.svg" , NULL);
+	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"online.svg" , 22 , 22 , NULL);
 	gtk_dialog_set_has_separator(GTK_DIALOG(fxaddgroup->dialog) , FALSE);
 	gtk_window_set_resizable(GTK_WINDOW(fxaddgroup->dialog) , FALSE);
 	gtk_widget_set_usize(fxaddgroup->dialog , 300 , 150);
 	gtk_window_set_icon(GTK_WINDOW(fxaddgroup->dialog) , pb);
+	g_object_unref(pb);
 	gtk_window_set_title(GTK_WINDOW(fxaddgroup->dialog) , _("Add a buddy group"));
 	gtk_container_set_border_width(GTK_CONTAINER(fxaddgroup->dialog) , 20);
 
@@ -86,6 +87,7 @@ void fx_add_group_initialize(FxAddGroup* fxaddgroup)
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxaddgroup->dialog)->vbox) , fxaddgroup->add_label);
 
 	fxaddgroup->add_entry = gtk_entry_new();
+	g_signal_connect(fxaddgroup->add_entry , "activate" , G_CALLBACK(fx_add_group_on_ok_clicked) , fxaddgroup);
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxaddgroup->dialog)->vbox) , fxaddgroup->add_entry);
 	
 	fxaddgroup->ok_button = gtk_button_new_with_label(_("OK"));

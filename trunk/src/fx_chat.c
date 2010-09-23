@@ -179,6 +179,7 @@ gboolean fx_chat_focus_in_func(GtkWidget *UNUSED(widget)
 			pb = gdk_pixbuf_new_from_file(SKIN_DIR"online.svg" , NULL);
 		gtk_status_icon_set_blinking(GTK_STATUS_ICON(fxmain->trayIcon) , TRUE);
 		gtk_status_icon_set_from_pixbuf(GTK_STATUS_ICON(fxmain->trayIcon) , pb);
+		g_object_unref(pb);
 		g_signal_handler_disconnect(fxmain->trayIcon , fxmain->iconConnectId);
 		fxmain->iconConnectId = g_signal_connect(G_OBJECT(fxmain->trayIcon) 
 							 , "activate"

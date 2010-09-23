@@ -8,14 +8,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenFetion 1.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-23 16:29+0800\n"
+"POT-Creation-Date: 2010-09-23 17:20+0800\n"
 "PO-Revision-Date: 2010-09-23 16:30+0800\n"
 "Last-Translator: Xhacker Liu <liu.dongyuan@gmail.com>\n"
 "Language-Team: Chinese (China) <i18n-zh@googlegroup.com>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ../src/fx_addbuddy.c:48 ../src/fx_bottom.c:99
@@ -975,8 +975,8 @@ msgid "Auto popup message"
 msgstr "自动弹出消息窗口"
 
 #: ../src/fx_set.c:447
-msgid "Enable Message Notification"
-msgstr "启用消息提示"
+msgid "Disable Message Notification"
+msgstr "关闭消息提示"
 
 #: ../src/fx_set.c:450
 msgid "Mute"

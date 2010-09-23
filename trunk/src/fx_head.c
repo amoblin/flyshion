@@ -54,9 +54,15 @@ void fx_head_initialize(FxMain* fxmain)
 
 	pb = gdk_pixbuf_new_from_file_at_scale(SKIN_DIR"fetion.svg" , 50 , 50 , TRUE , NULL);
 	fxhead->portrait = gtk_image_new_from_pixbuf(pb);
+	g_object_unref(pb);
+
+	GtkWidget *frame;
+	frame = gtk_frame_new(NULL);
+	gtk_widget_set_usize(frame , 55 , 55);
 	fxhead->portraitbox = gtk_event_box_new();
 	gtk_container_add(GTK_CONTAINER(fxhead->portraitbox) , fxhead->portrait);
-	gtk_box_pack_start(GTK_BOX(hbox) , fxhead->portraitbox , FALSE , FALSE , 10 );
+	gtk_container_add(GTK_CONTAINER(frame) , fxhead->portraitbox);
+	gtk_box_pack_start(GTK_BOX(hbox) , frame , FALSE , FALSE , 10 );
 
 	g_signal_connect(G_OBJECT(fxhead->portraitbox)
 				   , "button_press_event"
@@ -80,6 +86,7 @@ void fx_head_initialize(FxMain* fxmain)
 	fxhead->state_button = gtk_event_box_new();
 	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"online.svg" , 20 , 20 , FALSE);
 	fxhead->state_img = gtk_image_new_from_pixbuf(pb);
+	g_object_unref(pb);
 	gtk_container_add(GTK_CONTAINER(fxhead->state_button) , fxhead->state_img);
 	gtk_widget_set_events(fxhead->state_button
 						, GDK_MOTION_NOTIFY
@@ -518,6 +525,7 @@ void* fx_head_change_portrait_thread(void* data)
 		if(pb == NULL)
 			pb = gdk_pixbuf_new_from_file_at_size(filepath , 50 , 50 , NULL);
 		gtk_image_set_from_pixbuf(GTK_IMAGE(fxhead->portrait) , pb);
+		g_object_unref(pb);
 		gdk_threads_leave();
 	}
 	else
@@ -541,6 +549,7 @@ void* fx_head_change_portrait_thread(void* data)
 		if(pb == NULL)
 			pb = gdk_pixbuf_new_from_file_at_size(filepath , 50 , 50 , NULL);
 		gtk_image_set_from_pixbuf(GTK_IMAGE(fxhead->portrait) , pb);
+		g_object_unref(pb);
 		gdk_threads_leave();
 	}
 	free(args);

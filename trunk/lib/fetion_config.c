@@ -294,38 +294,170 @@ int fetion_config_load_xml(User* user)
 	xmlFree(res);
 	return 1;
 }
-int fetion_config_load_data(User* user)
+
+int fetion_config_load_data(User *user)
 {
 	char path[256];
-	FILE *file;
-	size_t n;
-	Config config;
+	xmlDocPtr doc;
+	xmlNodePtr node;
+	xmlNodePtr pnode;
+	xmlChar *res;
 	Config *cfg = user->config;
 
-	bzero(path , sizeof(path));
-	sprintf(path , "%s/config.dat" , cfg->userPath);
 
-	file = fopen(path , "rb");
-
-	if(file == NULL)
+	memset(path , 0 , sizeof(path));
+	snprintf(path , 255 , "%s/config.xml" , cfg->userPath);
+	doc = xmlParseFile(path);
+	if(!doc)
 		return -1;
+	pnode = xmlDocGetRootElement(doc);
 
-	debug_info("Loading config data file");
-	n = fread(&config , sizeof(Config) , 1 , file);
-	if(n != 1)
+	node = xml_goto_node(pnode , "icon_size");
+	if(node){
+		res = xmlGetProp(node , BAD_CAST "value");
+		cfg->iconSize = atoi((char*)res);	
+		xmlFree(res);
+	}
+
+	node = xml_goto_node(pnode , "close_alert");
+	if(node){
+		res = xmlGetProp(node , BAD_CAST "value");
+		cfg->closeAlert = atoi((char*)res);	
+		xmlFree(res);
+	}
+
+	node = xml_goto_node(pnode , "auto_reply");
+	if(node){
+		res = xmlGetProp(node , BAD_CAST "value");
+		cfg->autoReply = atoi((char*)res);	
+		xmlFree(res);
+	}
+
+	node = xml_goto_node(pnode , "is_mute");
+	if(node){
+		res = xmlGetProp(node , BAD_CAST "value");
+		cfg->isMute = atoi((char*)res);	
+		xmlFree(res);
+	}
+
+	node = xml_goto_node(pnode , "message_alert");
+	if(node){
+		res = xmlGetProp(node , BAD_CAST "value");
+		cfg->msgAlert = atoi((char*)res);	
+		xmlFree(res);
+	}
+
+	node = xml_goto_node(pnode , "auto_popup");
+	if(node){
+		res = xmlGetProp(node , BAD_CAST "value");
+		cfg->autoPopup = atoi((char*)res);	
+		xmlFree(res);
+	}
+
+	node = xml_goto_node(pnode , "send_mode");
+	if(node){
+		res = xmlGetProp(node , BAD_CAST "value");
+		cfg->sendMode = atoi((char*)res);	
+		xmlFree(res);
+	}
+
+	node = xml_goto_node(pnode , "close_mode");
+	if(node){
+		res = xmlGetProp(node , BAD_CAST "value");
+		cfg->closeMode = atoi((char*)res);	
+		xmlFree(res);
+	}
+
+	node = xml_goto_node(pnode , "can_iconify");
+	if(node){
+		res = xmlGetProp(node , BAD_CAST "value");
+		cfg->canIconify = atoi((char*)res);	
+		xmlFree(res);
+	}
+
+	node = xml_goto_node(pnode , "all_highlight");
+	if(node){
+		res = xmlGetProp(node , BAD_CAST "value");
+		cfg->allHighlight = atoi((char*)res);	
+		xmlFree(res);
+	}
+
+	xmlFreeDoc(doc);
+
+	return 1;
+
+}
+
+int fetion_config_save(User* user)
+{
+	const char xml[] = "<config></config>";
+	char path[256];
+	char buffer[1024];
+	xmlDocPtr doc;
+	xmlNodePtr pnode;
+	xmlNodePtr node;
+	Config *config = user->config;
+
+	memset(path , 0 , sizeof(path));
+	snprintf(path , 255 , "%s/config.xml" , config->userPath);
+
+	debug_info("Save configration file");
+
+	doc = xmlParseMemory(xml , strlen(xml));
+	if(!doc){
+		debug_info("save configuration file failed\n");
 		return -1;
+	}
+	pnode = xmlDocGetRootElement(doc);
+	node = xmlNewChild(pnode , NULL , BAD_CAST "icon_size" , NULL);
+	sprintf(buffer , "%d" , config->iconSize);
+	xmlNewProp(node , BAD_CAST "value" , BAD_CAST buffer);
 
-	cfg->iconSize = config.iconSize;
-	cfg->autoReply = config.autoReply;
-	bzero(cfg->autoReplyMessage , sizeof(cfg->autoReplyMessage));
-	strcpy(cfg->autoReplyMessage , config.autoReplyMessage);
-	cfg->autoPopup = config.autoPopup;
-	cfg->sendMode = config.sendMode;
-	cfg->closeMode = config.closeMode;
-	cfg->iconSize = config.iconSize;
-	cfg->closeAlert = config.closeAlert;
-	cfg->msgAlert = config.msgAlert;
-	cfg->canIconify = config.canIconify;
+	node = xmlNewChild(pnode , NULL , BAD_CAST "close_alert" , NULL);
+	sprintf(buffer , "%d" , config->closeAlert);
+	xmlNewProp(node , BAD_CAST "value" , BAD_CAST buffer);
+
+	node = xmlNewChild(pnode , NULL , BAD_CAST "auto_reply" , NULL);
+	sprintf(buffer , "%d" , config->autoReply);
+	xmlNewProp(node , BAD_CAST "value" , BAD_CAST buffer);
+
+	node = xmlNewChild(pnode , NULL , BAD_CAST "is_mute" , NULL);
+	sprintf(buffer , "%d" , config->isMute);
+	xmlNewProp(node , BAD_CAST "value" , BAD_CAST buffer);
+
+#if 0
+	node = xmlNewChild(pnode , NULL , BAD_CAST "auto_reply_message" , NULL);
+	sprintf(buffer , "%s" , config->autoReplyMessage);
+	xmlNewProp(node , BAD_CAST "value" , BAD_CAST buffer);
+#endif
+
+	node = xmlNewChild(pnode , NULL , BAD_CAST "message_alert" , NULL);
+	sprintf(buffer , "%d" , config->msgAlert);
+	xmlNewProp(node , BAD_CAST "value" , BAD_CAST buffer);
+
+	node = xmlNewChild(pnode , NULL , BAD_CAST "auto_popup" , NULL);
+	sprintf(buffer , "%d" , config->autoPopup);
+	xmlNewProp(node , BAD_CAST "value" , BAD_CAST buffer);
+
+	node = xmlNewChild(pnode , NULL , BAD_CAST "send_mode" , NULL);
+	sprintf(buffer , "%d" , config->sendMode);
+	xmlNewProp(node , BAD_CAST "value" , BAD_CAST buffer);
+
+	node = xmlNewChild(pnode , NULL , BAD_CAST "close_mode" , NULL);
+	sprintf(buffer , "%d" , config->closeMode);
+	xmlNewProp(node , BAD_CAST "value" , BAD_CAST buffer);
+
+	node = xmlNewChild(pnode , NULL , BAD_CAST "can_iconify" , NULL);
+	sprintf(buffer , "%d" , config->canIconify);
+	xmlNewProp(node , BAD_CAST "value" , BAD_CAST buffer);
+
+	node = xmlNewChild(pnode , NULL , BAD_CAST "all_highlight" , NULL);
+	sprintf(buffer , "%d" , config->allHighlight);
+	xmlNewProp(node , BAD_CAST "value" , BAD_CAST buffer);
+
+	xmlSaveFormatFile(path , doc , 0);
+	xmlFreeDoc(doc);
+	
 	return 1;
 }
 
@@ -373,25 +505,6 @@ void fetion_config_save_proxy(Proxy *proxy)
 	fwrite(proxy , sizeof(Proxy) , 1 , file);
 
 	fclose(file);
-}
-
-int fetion_config_save(User* user)
-{
-	char path[256];
-	Config *config = user->config;
-	FILE *file;
-
-	bzero(path , sizeof(path));
-	sprintf(path , "%s/config.dat" , config->userPath);
-
-	file = fopen(path , "wb+");
-
-	debug_info("Save configration file");
-	fwrite(config , sizeof(Config) , 1 , file);
-
-	fclose(file);
-	
-	return 1;
 }
 
 char* generate_configuration_body(User* user)
@@ -491,7 +604,7 @@ xmlNodePtr xml_goto_node(xmlNodePtr node , const char* name)
 		if(strcmp(name , (char*)pos->name) == 0)
 			return pos;
 		tmp = pos->xmlChildrenNode;
-		if(tmp != NULL
+		if(tmp != NULL && xmlStrcmp(tmp->name , BAD_CAST "text") != 0
 		   &&tmp->type == XML_ELEMENT_NODE
 		   && (tmp = xml_goto_node(tmp , name)) != NULL )
 			return tmp;

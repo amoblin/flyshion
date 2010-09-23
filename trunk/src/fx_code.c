@@ -58,6 +58,7 @@ void fx_code_initialize(FxCode *fxcode)
 	gtk_widget_set_usize(fxcode->dialog , 460 , 250);
 	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"warning.svg" , 96 , 96 , NULL);
 	warningpic = gtk_image_new_from_pixbuf(pb);
+	g_object_unref(pb);
 	gtk_fixed_put(GTK_FIXED(fixed) , warningpic , 20 , 20 );
 	
 	fxcode->reasonlabel = gtk_label_new(fxcode->reason);
@@ -75,6 +76,7 @@ void fx_code_initialize(FxCode *fxcode)
 	sprintf(codePath , "%s/code.gif" , fxcode->fxmain->user->config->globalPath);
 	pb = gdk_pixbuf_new_from_file_at_size(codePath , 130 , 36 , NULL);
 	fxcode->codepic = gtk_image_new_from_pixbuf(pb);
+	g_object_unref(pb);
 	gtk_widget_set_tooltip_markup(fxcode->codepic , _("Click here getting new verification code"));
 	fxcode->codebox = gtk_event_box_new();
 	g_signal_connect(G_OBJECT(fxcode->codebox)
@@ -132,6 +134,7 @@ void fx_code_code_event_func(GtkWidget* UNUSED(widget) , GdkEventButton* event ,
 			sprintf(codePath , "%s/code.gif" , fxcode->fxmain->user->config->globalPath);
 			pb = gdk_pixbuf_new_from_file_at_size(codePath , 130 , 36 , NULL);
 			gtk_image_set_from_pixbuf(GTK_IMAGE(fxcode->codepic) , pb);
+			g_object_unref(pb);
 			break;
 		case GDK_ENTER_NOTIFY :
 			cursor = gdk_cursor_new (GDK_HAND2);

@@ -169,12 +169,14 @@ void fx_set_initialize(FxSet* fxset)
 	GtkWidget *ok_button = NULL;
 	GtkWidget* cancel_button = NULL;
 
-	GdkPixbuf* pb = gdk_pixbuf_new_from_file(SKIN_DIR"online.svg" , NULL);
+	GdkPixbuf* pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"online.svg",
+				   22, 22, NULL);
 
 	DEBUG_FOOTPRINT();
 
 	fxset->dialog = gtk_dialog_new();
 	gtk_window_set_icon(GTK_WINDOW(fxset->dialog) , pb);
+	g_object_unref(pb);
 	gtk_dialog_set_has_separator(GTK_DIALOG(fxset->dialog)
 							   , FALSE);
 	gtk_widget_set_usize(fxset->dialog , 500 , 360);
@@ -294,6 +296,7 @@ void fx_set_initialize_personal(FxSet* fxset)
 
 	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" , 90 , 90 , NULL);
 	fxset->image = gtk_image_new_from_pixbuf(pb);
+	g_object_unref(pb);
 	gtk_fixed_put(GTK_FIXED(box) , fxset->image , 10 , 15 );
 
 	fxset->sid_label = gtk_label_new(_("Fetion number:"));
@@ -413,8 +416,10 @@ void fx_set_initialize_personal(FxSet* fxset)
 
 	sprintf(filepath , "%s/%s.jpg" , config->iconPath , user->sId);
 	pb = gdk_pixbuf_new_from_file_at_size(filepath , 90 , 90 , NULL);
-	if(pb != NULL)
+	if(pb != NULL){
 		gtk_image_set_from_pixbuf(GTK_IMAGE(fxset->image) , pb);
+		g_object_unref(pb);
+	}
 }
 
 void fx_set_initialize_system(FxSet* fxset)
@@ -444,7 +449,7 @@ void fx_set_initialize_system(FxSet* fxset)
 	fxset->ppCb = gtk_check_button_new_with_label(_("Auto popup message"));
 	gtk_fixed_put(GTK_FIXED(fixed) , fxset->ppCb , 40 , 67);
 
-	fxset->alertBtn = gtk_check_button_new_with_label(_("Enable Message Notification"));
+	fxset->alertBtn = gtk_check_button_new_with_label(_("Disable Message Notification"));
 	gtk_fixed_put(GTK_FIXED(fixed) , fxset->alertBtn , 230 , 67);
 
 	fxset->muteBtn = gtk_check_button_new_with_label(_("Mute"));
