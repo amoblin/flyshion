@@ -158,8 +158,7 @@ typedef struct
 	GtkWidget* province_entry ;
 	GtkWidget* city_label ;
 	GtkWidget* city_entry ;
-	GtkWidget* ok_button ;
-	GtkWidget* cancel_button ;
+	GtkWidget* finish_button ;
 } FxProfile;
 
 typedef struct
