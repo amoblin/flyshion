@@ -8,14 +8,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenFetion 1.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-23 14:20+0800\n"
-"PO-Revision-Date: 2010-08-30 13:53+0800\n"
+"POT-Creation-Date: 2010-09-23 16:29+0800\n"
+"PO-Revision-Date: 2010-09-23 16:30+0800\n"
 "Last-Translator: Xhacker Liu <liu.dongyuan@gmail.com>\n"
 "Language-Team: Chinese (China) <i18n-zh@googlegroup.com>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ../src/fx_addbuddy.c:48 ../src/fx_bottom.c:99
@@ -54,17 +54,16 @@ msgstr "您好，我是"
 
 #: ../src/fx_addbuddy.c:117 ../src/fx_code.c:102 ../src/fx_lookupres.c:210
 #: ../src/fx_add_group.c:91 ../src/fx_dsms.c:82 ../src/fx_gedit.c:60
-#: ../src/fx_profile.c:144 ../src/fx_set.c:203 ../src/fx_app.c:120
-#: ../src/fx_close.c:80 ../src/fx_edit.c:59 ../src/fx_proxy.c:128
-#: ../src/fx_smsstat.c:96
+#: ../src/fx_set.c:203 ../src/fx_app.c:120 ../src/fx_close.c:80
+#: ../src/fx_edit.c:61 ../src/fx_proxy.c:128 ../src/fx_smsstat.c:96
 msgid "OK"
 msgstr "确定"
 
 #: ../src/fx_addbuddy.c:121 ../src/fx_code.c:108 ../src/fx_lookupres.c:213
 #: ../src/fx_add_group.c:95 ../src/fx_dsms.c:83 ../src/fx_gedit.c:64
-#: ../src/fx_profile.c:147 ../src/fx_set.c:207 ../src/fx_app.c:123
-#: ../src/fx_close.c:82 ../src/fx_edit.c:63 ../src/fx_head.c:464
-#: ../src/fx_lookup.c:66 ../src/fx_proxy.c:131 ../src/fx_smsstat.c:100
+#: ../src/fx_set.c:207 ../src/fx_app.c:123 ../src/fx_close.c:82
+#: ../src/fx_edit.c:65 ../src/fx_head.c:476 ../src/fx_lookup.c:66
+#: ../src/fx_proxy.c:131 ../src/fx_smsstat.c:100
 msgid "Cancel"
 msgstr "取消"
 
@@ -86,7 +85,7 @@ msgstr "您已经达到添加好友的上限，请改日再试"
 msgid "Add buddy failed.Unknown reason!"
 msgstr "添加好友失败，原因不详"
 
-#: ../src/fx_bottom.c:91 ../src/fx_main.c:1119 ../src/fx_set.c:191
+#: ../src/fx_bottom.c:91 ../src/fx_main.c:1134 ../src/fx_set.c:191
 msgid "Personal setting"
 msgstr "个人设置"
 
@@ -94,11 +93,11 @@ msgstr "个人设置"
 msgid "Send a message to myself"
 msgstr "给自己发短信"
 
-#: ../src/fx_bottom.c:114 ../src/fx_main.c:1113
+#: ../src/fx_bottom.c:114 ../src/fx_main.c:1128
 msgid "SMS to many"
 msgstr "短信群发"
 
-#: ../src/fx_bottom.c:121 ../src/fx_dsms.c:553 ../src/fx_main.c:1115
+#: ../src/fx_bottom.c:121 ../src/fx_dsms.c:553 ../src/fx_main.c:1130
 msgid "SMS directly"
 msgstr "直接短信"
 
@@ -178,7 +177,7 @@ msgstr "咬牙切齿"
 msgid "Tired"
 msgstr "困"
 
-#: ../src/fx_emotion.c:19 ../src/fx_lookupres.c:52 ../src/fx_profile.c:176
+#: ../src/fx_emotion.c:19 ../src/fx_lookupres.c:52 ../src/fx_profile.c:172
 #: ../src/fx_set.c:399 ../src/fx_set.c:400 ../src/fx_set.c:498
 msgid "Secrecy"
 msgstr "保密"
@@ -369,7 +368,7 @@ msgid "Export"
 msgstr "导出"
 
 #: ../src/fx_history.c:130 ../src/fx_myself.c:190 ../src/fx_chat.c:468
-#: ../src/fx_dsms.c:682 ../src/fx_sysmsg.c:79 ../src/fx_many.c:497
+#: ../src/fx_dsms.c:682 ../src/fx_sysmsg.c:80 ../src/fx_many.c:497
 #: ../src/fx_pggroup.c:205
 msgid "Close"
 msgstr "关闭"
@@ -387,20 +386,20 @@ msgstr "导出文件"
 msgid "logs with %s.txt"
 msgstr "与 %s 的聊天记录.txt"
 
-#: ../src/fx_lookupres.c:52 ../src/fx_profile.c:176 ../src/fx_set.c:496
+#: ../src/fx_lookupres.c:52 ../src/fx_profile.c:172 ../src/fx_set.c:496
 msgid "Male"
 msgstr "男"
 
-#: ../src/fx_lookupres.c:52 ../src/fx_profile.c:176 ../src/fx_set.c:497
+#: ../src/fx_lookupres.c:52 ../src/fx_profile.c:172 ../src/fx_set.c:497
 msgid "Female"
 msgstr "女"
 
-#: ../src/fx_lookupres.c:64 ../src/fx_profile.c:188
+#: ../src/fx_lookupres.c:64 ../src/fx_profile.c:184
 msgid "China"
 msgstr "中国"
 
-#: ../src/fx_lookupres.c:69 ../src/fx_lookupres.c:76 ../src/fx_profile.c:193
-#: ../src/fx_profile.c:200
+#: ../src/fx_lookupres.c:69 ../src/fx_lookupres.c:76 ../src/fx_profile.c:189
+#: ../src/fx_profile.c:196
 msgid "Unknown"
 msgstr "未知"
 
@@ -408,24 +407,24 @@ msgstr "未知"
 msgid "Sex:"
 msgstr "性别："
 
-#: ../src/fx_lookupres.c:157 ../src/fx_profile.c:91 ../src/fx_set.c:327
+#: ../src/fx_lookupres.c:157 ../src/fx_profile.c:90 ../src/fx_set.c:327
 msgid "Nickname:"
 msgstr "昵称："
 
-#: ../src/fx_lookupres.c:165 ../src/fx_lookupres.c:178 ../src/fx_profile.c:99
+#: ../src/fx_lookupres.c:165 ../src/fx_lookupres.c:178 ../src/fx_profile.c:98
 #: ../src/fx_set.c:334
 msgid "Personal signature:"
 msgstr "个性签名："
 
-#: ../src/fx_lookupres.c:186 ../src/fx_profile.c:120
+#: ../src/fx_lookupres.c:186 ../src/fx_profile.c:119
 msgid "Country:"
 msgstr "国家："
 
-#: ../src/fx_lookupres.c:194 ../src/fx_profile.c:128 ../src/fx_set.c:342
+#: ../src/fx_lookupres.c:194 ../src/fx_profile.c:127 ../src/fx_set.c:342
 msgid "Province:"
 msgstr "省份："
 
-#: ../src/fx_lookupres.c:202 ../src/fx_profile.c:136 ../src/fx_set.c:351
+#: ../src/fx_lookupres.c:202 ../src/fx_profile.c:135 ../src/fx_set.c:351
 msgid "City:"
 msgstr "城市："
 
@@ -726,39 +725,39 @@ msgstr "登录"
 msgid "Remember password"
 msgstr "记住密码"
 
-#: ../src/fx_login.c:217 ../src/fx_main.c:1063 ../src/fx_head.c:278
+#: ../src/fx_login.c:217 ../src/fx_main.c:1066 ../src/fx_head.c:277
 msgid "Online"
 msgstr "上线"
 
-#: ../src/fx_login.c:218 ../src/fx_main.c:1064 ../src/fx_head.c:279
+#: ../src/fx_login.c:218 ../src/fx_main.c:1067 ../src/fx_head.c:278
 msgid "Leave"
 msgstr "离开"
 
-#: ../src/fx_login.c:219 ../src/fx_main.c:1065 ../src/fx_head.c:280
+#: ../src/fx_login.c:219 ../src/fx_main.c:1068 ../src/fx_head.c:279
 msgid "Busy"
 msgstr "忙碌"
 
-#: ../src/fx_login.c:220 ../src/fx_main.c:1066 ../src/fx_head.c:281
+#: ../src/fx_login.c:220 ../src/fx_main.c:1069 ../src/fx_head.c:280
 msgid "Hide"
 msgstr "隐身"
 
-#: ../src/fx_login.c:221 ../src/fx_main.c:1067 ../src/fx_head.c:286
+#: ../src/fx_login.c:221 ../src/fx_main.c:1070 ../src/fx_head.c:285
 msgid "Eating out"
 msgstr "外出就餐"
 
-#: ../src/fx_login.c:222 ../src/fx_main.c:1068 ../src/fx_head.c:287
+#: ../src/fx_login.c:222 ../src/fx_main.c:1071 ../src/fx_head.c:286
 msgid "Do Not Disturb"
 msgstr "请勿打扰"
 
-#: ../src/fx_login.c:223 ../src/fx_main.c:1069
+#: ../src/fx_login.c:223 ../src/fx_main.c:1072
 msgid "Back Soon"
 msgstr "马上回来"
 
-#: ../src/fx_login.c:224 ../src/fx_main.c:1070 ../src/fx_head.c:288
+#: ../src/fx_login.c:224 ../src/fx_main.c:1073 ../src/fx_head.c:287
 msgid "Meeting"
 msgstr "会议中"
 
-#: ../src/fx_login.c:225 ../src/fx_main.c:1071 ../src/fx_head.c:289
+#: ../src/fx_login.c:225 ../src/fx_main.c:1074 ../src/fx_head.c:288
 msgid "Calling"
 msgstr "电话中"
 
@@ -836,12 +835,12 @@ msgstr "未分组"
 msgid "Strangers"
 msgstr "陌生人"
 
-#: ../src/fx_main.c:318
+#: ../src/fx_main.c:320
 #, c-format
 msgid "%s , now ONLINE"
 msgstr "%s , 上线啦"
 
-#: ../src/fx_main.c:320
+#: ../src/fx_main.c:322
 #, c-format
 msgid ""
 "Phone Number: %s\n"
@@ -852,60 +851,64 @@ msgstr ""
 "飞信号 : %s\n"
 "个性签名：%s"
 
-#: ../src/fx_main.c:516
+#: ../src/fx_main.c:518
 #, c-format
 msgid "%s(%s) said:"
 msgstr "%s(%s) 说："
 
-#: ../src/fx_main.c:716
+#: ../src/fx_main.c:718
 msgid "Receive a window jitter"
 msgstr "收到一个窗口抖动"
 
-#: ../src/fx_main.c:812
+#: ../src/fx_main.c:814
 msgid "Your fetion login elsewhere. You are forced quit."
 msgstr "您的飞信已经在别处登录，您被强制退出"
 
-#: ../src/fx_main.c:1078
+#: ../src/fx_main.c:1081
 msgid "About OpenFetion"
 msgstr "关于 OpenFetion"
 
-#: ../src/fx_main.c:1080
+#: ../src/fx_main.c:1083
 msgid "About Authors"
 msgstr "关于作者"
 
-#: ../src/fx_main.c:1082
+#: ../src/fx_main.c:1085
 msgid "Look for new version"
 msgstr "查找更新"
 
-#: ../src/fx_main.c:1087
+#: ../src/fx_main.c:1091
 msgid "Close sound"
 msgstr "关闭声音"
 
-#: ../src/fx_main.c:1094
+#: ../src/fx_main.c:1100 ../src/fx_head.c:293
+msgid "Receive SMS"
+msgstr "接收短信息"
+
+#: ../src/fx_main.c:1109
 msgid "Information query"
 msgstr "信息查询"
 
-#: ../src/fx_main.c:1097
+#: ../src/fx_main.c:1112
 msgid "SMS myself"
 msgstr "短信自己"
 
-#: ../src/fx_main.c:1100
+#: ../src/fx_main.c:1115
 msgid "Edit statement"
 msgstr "修改状态"
 
-#: ../src/fx_main.c:1117
+#: ../src/fx_main.c:1132
 msgid "Add contact"
 msgstr "添加好友"
 
-#: ../src/fx_main.c:1121 ../src/fx_set.c:197
+#: ../src/fx_main.c:1136 ../src/fx_set.c:197
 msgid "System setting"
 msgstr "系统设置"
 
-#: ../src/fx_main.c:1125
+#: ../src/fx_main.c:1140 ../src/fx_head.c:308
 msgid "Exit OpenFetion "
 msgstr "退出 OpenFetion "
 
-#: ../src/fx_main.c:1198
+#: ../src/fx_main.c:1213
 msgid ""
 "Sorry,your network connection has been closed\n"
 "Please check your network connection and then login again"
@@ -913,7 +916,7 @@ msgstr ""
 "对不起，您的网络连接已断开\n"
 "请检查您的网络连接并尝试重新登录"
 
-#: ../src/fx_main.c:1313
+#: ../src/fx_main.c:1328
 msgid ""
 "OpenFetion is a non-profit software, aiming at making linux users convenient "
 "to use fetion."
@@ -923,9 +926,13 @@ msgstr "OpenFetion 属于非盈利性软件，旨在方便 Linux 用户使用飞
 msgid "view contact's information"
 msgstr "查看好友信息"
 
-#: ../src/fx_profile.c:112 ../src/fx_app.c:90
+#: ../src/fx_profile.c:111 ../src/fx_app.c:90
 msgid "Note name:"
 msgstr "备注名："
+
+#: ../src/fx_profile.c:143
+msgid "Finish"
+msgstr "完成"
 
 #: ../src/fx_set.c:94
 msgid "Nick can not be empty!"
@@ -999,7 +1006,7 @@ msgstr "CTRL + Enter 发送消息"
 msgid "System mesage"
 msgstr "系统消息"
 
-#: ../src/fx_sysmsg.c:77 ../src/fx_app.c:99
+#: ../src/fx_sysmsg.c:78 ../src/fx_app.c:99
 msgid "View details"
 msgstr "查看详情"
 
@@ -1048,31 +1055,27 @@ msgstr "最小化到托盘"
 msgid "Don't notify again"
 msgstr "不再提示"
 
-#: ../src/fx_edit.c:44 ../src/fx_tree.c:612
+#: ../src/fx_edit.c:45 ../src/fx_tree.c:612
 msgid "Edit note name"
 msgstr "修改备注名称"
 
-#: ../src/fx_edit.c:52
+#: ../src/fx_edit.c:53
 msgid "Please input note name:"
 msgstr "请输入备注名称:"
 
-#: ../src/fx_head.c:294
-msgid "Receive SMS"
-msgstr "接收短信息"
-
-#: ../src/fx_head.c:303
+#: ../src/fx_head.c:302
 msgid "Modify Profile"
 msgstr "修改资料"
 
-#: ../src/fx_head.c:462
+#: ../src/fx_head.c:474
 msgid "Choose the avatar file to upload"
 msgstr "请选择要上传的头像文件"
 
-#: ../src/fx_head.c:464
+#: ../src/fx_head.c:476
 msgid "Upload"
 msgstr "上传"
 
-#: ../src/fx_head.c:518
+#: ../src/fx_head.c:530
 msgid ""
 "Upload avatar failed. Note: This appliaction doesn't support auto-"
 "compression of image. Please be sure that the avater is in 150px × 150px."

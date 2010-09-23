@@ -64,7 +64,7 @@ void fx_profile_initialize(FxProfile* fxprofile)
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxprofile->image , 0 , 1 , 0 , 4);
 
 	fxprofile->sid_label = gtk_label_new(_("Fetion number:"));
-	gtk_misc_set_alignment(GTK_MISC(fxprofile->sid_label) , 0 , 0);
+	gtk_misc_set_alignment(GTK_MISC(fxprofile->sid_label) , 0 , 1);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxprofile->sid_label , 1 , 2 , 0 , 1);
 
 	fxprofile->sid_entry = gtk_entry_new();
@@ -72,7 +72,7 @@ void fx_profile_initialize(FxProfile* fxprofile)
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxprofile->sid_entry , 1 , 2 , 1 , 2);
 
 	fxprofile->gender_label = gtk_label_new(_("Sex:"));
-	gtk_misc_set_alignment(GTK_MISC(fxprofile->gender_label) , 0 , 0);
+	gtk_misc_set_alignment(GTK_MISC(fxprofile->gender_label) , 0 , 1);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxprofile->gender_label , 2 , 3 , 0 , 1);
 
 	fxprofile->gender_entry = gtk_entry_new();
@@ -80,16 +80,15 @@ void fx_profile_initialize(FxProfile* fxprofile)
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxprofile->gender_entry , 2 , 3 , 1 , 2);
 
 	fxprofile->mno_label = gtk_label_new(_("Cell phone number:"));
-	gtk_misc_set_alignment(GTK_MISC(fxprofile->mno_label) , 0 , 0);
+	gtk_misc_set_alignment(GTK_MISC(fxprofile->mno_label) , 0 , 1);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxprofile->mno_label , 1 , 2 , 2 , 3);
 
 	fxprofile->mno_entry = gtk_entry_new();
-	gtk_widget_set_usize(fxprofile->mno_entry , 150 , 25);
 	gtk_entry_set_editable(GTK_ENTRY(fxprofile->mno_entry) , FALSE);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxprofile->mno_entry , 1 , 2 , 3 , 4);
 
 	fxprofile->nick_label = gtk_label_new(_("Nickname:"));
-	gtk_misc_set_alignment(GTK_MISC(fxprofile->nick_label) , 0 , 0);
+	gtk_misc_set_alignment(GTK_MISC(fxprofile->nick_label) , 0 , 1);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxprofile->nick_label , 2 , 3 , 2 , 3);
 
 	fxprofile->nick_entry = gtk_entry_new();
@@ -97,7 +96,7 @@ void fx_profile_initialize(FxProfile* fxprofile)
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxprofile->nick_entry , 2 , 3 , 3 , 4);
 
 	fxprofile->impre_label = gtk_label_new(_("Personal signature:"));
-	gtk_misc_set_alignment(GTK_MISC(fxprofile->impre_label) , 0 , 0);
+	gtk_misc_set_alignment(GTK_MISC(fxprofile->impre_label) , 0 , 1);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxprofile->impre_label , 0 , 3 , 4, 5);
 
 	fxprofile->impre_entry = gtk_entry_new();
@@ -110,7 +109,7 @@ void fx_profile_initialize(FxProfile* fxprofile)
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxprofile->dialog)->vbox) , inbox);
 
 	fxprofile->local_label = gtk_label_new(_("Note name:"));
-	gtk_misc_set_alignment(GTK_MISC(fxprofile->local_label) , 0 , 0 );
+	gtk_misc_set_alignment(GTK_MISC(fxprofile->local_label) , 0 , 1);
 	gtk_table_attach_defaults(GTK_TABLE(inbox) , fxprofile->local_label , 0 , 1 , 0 , 1);
 
 	fxprofile->local_entry = gtk_entry_new();
@@ -118,7 +117,7 @@ void fx_profile_initialize(FxProfile* fxprofile)
 	gtk_entry_set_editable(GTK_ENTRY(fxprofile->local_entry) , FALSE);
 
 	fxprofile->nation_label = gtk_label_new(_("Country:"));
-	gtk_misc_set_alignment(GTK_MISC(fxprofile->nation_label) , 0 , 0 );
+	gtk_misc_set_alignment(GTK_MISC(fxprofile->nation_label) , 0 , 1);
 	gtk_table_attach_defaults(GTK_TABLE(inbox) , fxprofile->nation_label , 1 , 2 , 0 , 1);
 
 	fxprofile->nation_entry = gtk_entry_new();
@@ -126,7 +125,7 @@ void fx_profile_initialize(FxProfile* fxprofile)
 	gtk_table_attach_defaults(GTK_TABLE(inbox) , fxprofile->nation_entry , 1 , 2 , 1 , 2);
 
 	fxprofile->province_label = gtk_label_new(_("Province:"));
-	gtk_misc_set_alignment(GTK_MISC(fxprofile->province_label) , 0 , 0 );
+	gtk_misc_set_alignment(GTK_MISC(fxprofile->province_label) , 0 , 1);
 	gtk_table_attach_defaults(GTK_TABLE(inbox) , fxprofile->province_label , 0 , 1 , 2 , 3);
 
 	fxprofile->province_entry = gtk_entry_new();
@@ -134,22 +133,19 @@ void fx_profile_initialize(FxProfile* fxprofile)
 	gtk_table_attach_defaults(GTK_TABLE(inbox) , fxprofile->province_entry , 0 , 1 , 3 , 4);
 
 	fxprofile->city_label = gtk_label_new(_("City:"));
-	gtk_misc_set_alignment(GTK_MISC(fxprofile->city_label) , 0 , 0 );
+	gtk_misc_set_alignment(GTK_MISC(fxprofile->city_label) , 0 , 1);
 	gtk_table_attach_defaults(GTK_TABLE(inbox) , fxprofile->city_label , 1 , 2 , 2 , 3);
 
 	fxprofile->city_entry = gtk_entry_new();
 	gtk_entry_set_editable(GTK_ENTRY(fxprofile->city_entry) , FALSE);
 	gtk_table_attach_defaults(GTK_TABLE(inbox) , fxprofile->city_entry , 1 , 2 , 3 , 4);
 	
-	fxprofile->ok_button = gtk_button_new_with_label(_("OK"));
-	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxprofile->dialog)->action_area) , fxprofile->ok_button);
+	fxprofile->finish_button = gtk_button_new_with_label(_("Finish"));
+	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxprofile->dialog)->action_area) , fxprofile->finish_button);
+	GTK_WIDGET_SET_FLAGS(fxprofile->finish_button, GTK_CAN_FOCUS);
+	gtk_widget_grab_focus(fxprofile->finish_button);
 
-	fxprofile->cancel_button = gtk_button_new_with_label(_("Cancel"));
-	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxprofile->dialog)->action_area) , fxprofile->cancel_button);
-
-	g_signal_connect(fxprofile->ok_button , "clicked" , G_CALLBACK(fx_profile_on_button_clicked) , fxprofile->dialog);
-
-	g_signal_connect(fxprofile->cancel_button , "clicked" , G_CALLBACK(fx_profile_on_button_clicked) , fxprofile->dialog);
+	g_signal_connect(fxprofile->finish_button , "clicked" , G_CALLBACK(fx_profile_on_button_clicked) , fxprofile->dialog);
 
 	fx_profile_bind(fxprofile);
 
