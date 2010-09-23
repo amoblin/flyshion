@@ -59,7 +59,7 @@ void fx_confirm_initialize(FxConfirm *fxconfirm)
 	fxconfirm->dialog = gtk_dialog_new();
 	gtk_widget_set_usize(fxconfirm->dialog , 420 , 220);
 	gtk_window_set_resizable(GTK_WINDOW(fxconfirm->dialog) , FALSE);
-	pb = gdk_pixbuf_new_from_file(SKIN_DIR"user_online.png" , NULL);
+	pb = gdk_pixbuf_new_from_file(SKIN_DIR"online.svg" , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxconfirm->dialog) , pb);
 	gtk_window_set_title(GTK_WINDOW(fxconfirm->dialog) , ("SMS directly"));
 
@@ -118,7 +118,7 @@ add_contact(gpointer data)
 
 	gtk_widget_show(fxdsms->chooseList);
 	gtk_widget_hide(fxdsms->msgLabel);
-	pb = gdk_pixbuf_new_from_file(SKIN_DIR"user_online.png" , NULL);
+	pb = gdk_pixbuf_new_from_file(SKIN_DIR"online.svg" , NULL);
 	number = gtk_entry_get_text(GTK_ENTRY(fxdsms->numberEntry));
 	if(strlen(number) == 0)
 		return;

@@ -176,7 +176,7 @@ gboolean fx_chat_focus_in_func(GtkWidget *UNUSED(widget)
 		free(sid);
 		pb = gdk_pixbuf_new_from_file(path , NULL);
 		if(pb == NULL)
-			pb = gdk_pixbuf_new_from_file(SKIN_DIR"user_online.png" , NULL);
+			pb = gdk_pixbuf_new_from_file(SKIN_DIR"online.svg" , NULL);
 		gtk_status_icon_set_blinking(GTK_STATUS_ICON(fxmain->trayIcon) , TRUE);
 		gtk_status_icon_set_from_pixbuf(GTK_STATUS_ICON(fxmain->trayIcon) , pb);
 		g_signal_handler_disconnect(fxmain->trayIcon , fxmain->iconConnectId);
