@@ -54,6 +54,7 @@ void fx_smsstat_initialize(FxSmsstat *fxst)
 				   20 , 20 ,NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxst->dialog) , pixbuf);
 	g_object_unref(pixbuf);
+	gtk_window_set_resizable(GTK_WINDOW(fxst->dialog) , FALSE);
 
 	fixed = gtk_fixed_new();
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxst->dialog)->vbox) , fixed);

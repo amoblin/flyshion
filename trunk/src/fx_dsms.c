@@ -61,6 +61,7 @@ void fx_confirm_initialize(FxConfirm *fxconfirm)
 	gtk_window_set_resizable(GTK_WINDOW(fxconfirm->dialog) , FALSE);
 	pb = gdk_pixbuf_new_from_file(SKIN_DIR"online.svg" , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxconfirm->dialog) , pb);
+	g_object_unref(pb);
 	gtk_window_set_title(GTK_WINDOW(fxconfirm->dialog) , ("SMS directly"));
 
 	fixed = gtk_fixed_new();
@@ -118,7 +119,8 @@ add_contact(gpointer data)
 
 	gtk_widget_show(fxdsms->chooseList);
 	gtk_widget_hide(fxdsms->msgLabel);
-	pb = gdk_pixbuf_new_from_file(SKIN_DIR"online.svg" , NULL);
+	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"online.svg",
+				   22 , 22 , NULL);
 	number = gtk_entry_get_text(GTK_ENTRY(fxdsms->numberEntry));
 	if(strlen(number) == 0)
 		return;
@@ -126,6 +128,7 @@ add_contact(gpointer data)
 	gtk_tree_store_set(GTK_TREE_STORE(model) , &iter
 			, PIXBUF_COL , pb , NUMBER_COL , number , -1);
 	gtk_entry_set_text(GTK_ENTRY(fxdsms->numberEntry) , "");
+	g_object_unref(pb);
 }
 
 static gboolean
@@ -550,6 +553,7 @@ void fx_dsms_initialize(FxDSMS *fxdsms)
 	gtk_window_set_resizable(GTK_WINDOW(fxdsms->dialog) , FALSE);
 	pb = gdk_pixbuf_new_from_file(SKIN_DIR"directsms.png" , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxdsms->dialog) , pb);
+	g_object_unref(pb);
 	gtk_window_set_title(GTK_WINDOW(fxdsms->dialog) , _("SMS directly"));
 	g_signal_connect(fxdsms->dialog , "key-press-event"
 			, G_CALLBACK(key_press_func) , fxdsms);
@@ -656,6 +660,7 @@ void fx_dsms_initialize(FxDSMS *fxdsms)
 	sprintf(path , "%s/%s.jpg" , config->iconPath , user->sId);
 	pb = gdk_pixbuf_new_from_file_at_size(path , 140 , 140 , NULL);
 	portrait = gtk_image_new_from_pixbuf(pb);
+	g_object_unref(pb);
 	gtk_container_add(GTK_CONTAINER(portraitFrame) , portrait);
 	gtk_box_pack_start(GTK_BOX(rvbox) , portraitFrame , FALSE , FALSE , 2);
 	/* bottom box */

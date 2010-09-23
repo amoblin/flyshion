@@ -305,6 +305,7 @@ void fx_tree_initilize(FxMain* fxmain)
 
 	DEBUG_FOOTPRINT();
 
+	all_light = fxmain->user->config->allHighlight;
 	fxtree = fxmain->mainPanel;
 
 	fxtree->searchbox = gtk_entry_new();
@@ -544,12 +545,21 @@ int fx_tree_get_buddy_iter_by_userid(GtkTreeModel* model , const char* userid , 
 	}
 	return -1;
 }
-static void fx_tree_on_hightlight_clicked(GtkWidget *UNUSED(widget) , gpointer UNUSED(data))
+static void fx_tree_on_hightlight_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 {
-	if(all_light)
+	FxMain *fxmain = (FxMain*)data;
+	User *user = fxmain->user;
+	Config *config = user->config;
+
+	if(all_light){
 		all_light = 0;
-	else
+		config->allHighlight = 0;
+	}else{
 		all_light = 1;
+		config->allHighlight = 1;
+	}
+
+	fetion_config_save(user);
 }
 static void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* UNUSED(tree)
 		, GtkTreePath* path , GdkEventButton* event , GtkTreeIter iter)
@@ -565,6 +575,8 @@ static void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* UNUSED(tree)
 	GtkTreeIter groupiter;
 	Args *profileargs , *moveargs , *chatargs;
 	FxTree* fxtree = fxmain->mainPanel;
+	User *user = fxmain->user;
+	Config *config = user->config;
 
 	DEBUG_FOOTPRINT();
 
@@ -612,8 +624,8 @@ static void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* UNUSED(tree)
 		fx_tree_create_menu(_("Edit note name") , SKIN_DIR"edit.png"
 						, menu , TRUE , fx_tree_on_editmenu_clicked , profileargs);
 
-		fx_tree_create_menu( !all_light ? _("Hightlight all contacts") : _("Hightlight online contacts") , SKIN_DIR"hilight.png"
-						, menu , TRUE , fx_tree_on_hightlight_clicked , NULL);
+		fx_tree_create_menu( config->allHighlight ? _("Hightlight all contacts") : _("Hightlight online contacts") , SKIN_DIR"hilight.png"
+						, menu , TRUE , fx_tree_on_hightlight_clicked , fxmain);
 
 		fx_tree_create_menu(iconsize > 30 ? _("Use small icon") : _("Use big icon")
 						, SKIN_DIR"bigimage.png" , menu , TRUE , fx_tree_on_iconchange_clicked , fxmain);

@@ -37,11 +37,13 @@ FxGEdit* fx_gedit_new(FxMain* fxmain , GtkTreeIter iter , int groupid)
 void fx_gedit_initialize(FxGEdit* fxgedit)
 {
 	fxgedit->dialog = gtk_dialog_new();
-	GdkPixbuf* pb = gdk_pixbuf_new_from_file(SKIN_DIR"online.svg" , NULL);
+	GdkPixbuf* pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"online.svg",
+				   22 ,22,NULL);
 
 	DEBUG_FOOTPRINT();
 
 	gtk_window_set_icon(GTK_WINDOW(fxgedit->dialog) , pb);
+	g_object_unref(pb);
 	gtk_window_set_title(GTK_WINDOW(fxgedit->dialog) , _("Edit name of a group"));
 	gtk_window_set_modal(GTK_WINDOW(fxgedit->dialog) , TRUE);
 
@@ -55,6 +57,7 @@ void fx_gedit_initialize(FxGEdit* fxgedit)
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxgedit->dialog)->vbox) , fxgedit->remark_label);
 
 	fxgedit->remark_entry = gtk_entry_new();
+	g_signal_connect(fxgedit->remark_entry , "activate" , G_CALLBACK(fx_gedit_on_ok_clicked) , fxgedit);
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxgedit->dialog)->vbox) , fxgedit->remark_entry);
 	
 	fxgedit->ok_button = gtk_button_new_with_label(_("OK"));

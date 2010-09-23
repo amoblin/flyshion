@@ -85,6 +85,7 @@ static GtkTreeModel* fx_many_create_all_model(FxMany* fxmany)
 								 , S_NAME_COL   , name
 								 , S_SIPURI_COL , sipuri
 								 , -1);
+				g_object_unref(pb);
 				free(name);
 				free(sipuri);
 			}
@@ -396,6 +397,7 @@ void fx_many_initialize(FxMany* fxmany)
 	fxmany->dialog = gtk_dialog_new();
 	pb = gdk_pixbuf_new_from_file(SKIN_DIR"groupsend.png" , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxmany->dialog) , pb);
+	g_object_unref(pb);
 	gtk_window_set_title(GTK_WINDOW(fxmany->dialog) , _("SMS To Many"));
 	gtk_widget_set_usize(fxmany->dialog , 660 , 520);
 	g_signal_connect(fxmany->dialog , "key-press-event"

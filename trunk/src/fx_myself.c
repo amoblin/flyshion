@@ -53,11 +53,12 @@ void fx_myself_bind(FxMyself* fxmyself)
 	if(pb != NULL) {
 		gtk_image_set_from_pixbuf(GTK_IMAGE(fxmyself->headimage) , pb);
 		gtk_window_set_icon(GTK_WINDOW(fxmyself->dialog) , pb);
+		g_object_unref(pb);
 	}
 	gtk_window_set_title(GTK_WINDOW(fxmyself->dialog) ,
 			_("Sending sms to myself"));
 
-	bzero(name , sizeof(name)); sprintf(name , "%s(%s)" , user->nickname ,
+   	sprintf(name , "%s(%s)" , user->nickname ,
 			user->sId);
 	gtk_label_set_markup(GTK_LABEL(fxmyself->name_label) ,
 				name);

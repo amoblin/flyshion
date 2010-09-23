@@ -318,9 +318,10 @@ typedef struct
 	int autoPopup;						/* whether auto pupup chat dialog enabled				  */
 	int sendMode;						/* press enter to send message or ctrl + enter 			  */
 	int closeMode;						/* close button clicked to close window or iconize it	  */
+	int canIconify;
+	int allHighlight;
 	struct userlist* ul;				/* user list stored in local data file					  */
 	Proxy *proxy;						/* structure stores the global proxy information 		  */
-	int canIconify;
 } Config;
 
 /**
