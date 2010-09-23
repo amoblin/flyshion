@@ -61,9 +61,10 @@ void fx_sysmsg_initialize(FxSysmsg *sysmsg)
 	vbox = GTK_BOX(GTK_DIALOG(sysmsg->dialog)->vbox);
 	action_area = GTK_BOX(GTK_DIALOG(sysmsg->dialog)->action_area);
 
-	pb = gdk_pixbuf_new_from_file(SKIN_DIR"user_online.png" , NULL);
+	pb = gdk_pixbuf_new_from_file(SKIN_DIR"online.svg" , NULL);
 	gtk_window_set_icon(GTK_WINDOW(sysmsg->dialog) , pb);
 	gtk_window_set_title(GTK_WINDOW(sysmsg->dialog) , _("System mesage"));
+	gtk_window_set_position(GTK_WINDOW(sysmsg->dialog) , GTK_WIN_POS_CENTER);
 	gtk_widget_set_usize(GTK_WIDGET(sysmsg->dialog) , 400 , 250);
 	gtk_window_set_resizable(GTK_WINDOW(sysmsg->dialog) , FALSE);
 
