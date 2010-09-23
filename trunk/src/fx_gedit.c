@@ -37,7 +37,7 @@ FxGEdit* fx_gedit_new(FxMain* fxmain , GtkTreeIter iter , int groupid)
 void fx_gedit_initialize(FxGEdit* fxgedit)
 {
 	fxgedit->dialog = gtk_dialog_new();
-	GdkPixbuf* pb = gdk_pixbuf_new_from_file(SKIN_DIR"user_online.png" , NULL);
+	GdkPixbuf* pb = gdk_pixbuf_new_from_file(SKIN_DIR"online.svg" , NULL);
 
 	DEBUG_FOOTPRINT();
 

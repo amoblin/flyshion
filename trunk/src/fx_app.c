@@ -59,7 +59,7 @@ void fx_app_initialize(FxApp* fxapp)
 
 	fxapp->dialog = gtk_dialog_new();
 	gtk_window_set_title(GTK_WINDOW(fxapp->dialog) , _("Receive an Add Buddy request"));
-	pb = gdk_pixbuf_new_from_file(SKIN_DIR"user_online.png" , NULL);
+	pb = gdk_pixbuf_new_from_file(SKIN_DIR"online.svg" , NULL);
 	gtk_window_set_modal(GTK_WINDOW(fxapp->dialog) , FALSE);
 	gtk_window_set_transient_for(GTK_WINDOW(fxapp->dialog) , GTK_WINDOW(fxmain->window));
 	gtk_window_set_icon(GTK_WINDOW(fxapp->dialog) , pb);
@@ -238,7 +238,7 @@ void* fx_app_ok_thread(void* data)
 	pb = gdk_pixbuf_new_from_file_at_size(portraitPath
 			, config->iconSize , config->iconSize , NULL);
 	if(pb == NULL)
-		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"user_online.png"
+		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"online.svg"
 				, config->iconSize , config->iconSize , NULL);
 
 	gtk_tree_store_set(GTK_TREE_STORE(model) , &iter1

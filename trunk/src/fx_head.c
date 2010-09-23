@@ -355,6 +355,9 @@ void fx_head_impre_event_func(GtkWidget* widget , GdkEventButton* event , gpoint
 {
 	FxMain* fxmain = (FxMain*)data;
 	FxHead* fxhead = fxmain->headPanel;
+	GdkColor color;
+	gdk_color_parse ("white", &color);
+	GdkCursor* cursor = NULL;
 	const char* text = NULL;
 
 	DEBUG_FOOTPRINT();
@@ -370,10 +373,14 @@ void fx_head_impre_event_func(GtkWidget* widget , GdkEventButton* event , gpoint
 			gtk_widget_hide(widget);
 			break;
 		case GDK_ENTER_NOTIFY :
-			gtk_container_set_border_width(GTK_CONTAINER(fxhead->impre_box) , 2);
+			gtk_widget_modify_bg(fxhead->impre_box, GTK_STATE_NORMAL, &color);
+			cursor = gdk_cursor_new (GDK_HAND2);
+			gdk_window_set_cursor(widget->window , cursor);
 			break;
 		case GDK_LEAVE_NOTIFY :
-			gtk_container_set_border_width(GTK_CONTAINER(fxhead->impre_box) , 0);
+			gtk_widget_modify_bg(fxhead->impre_box, GTK_STATE_NORMAL, NULL);
+			cursor = gdk_cursor_new (GDK_LEFT_PTR);
+			gdk_window_set_cursor(widget->window , cursor);
 			break;
 		default:
 			break;

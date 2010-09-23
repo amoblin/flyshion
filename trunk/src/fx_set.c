@@ -169,7 +169,7 @@ void fx_set_initialize(FxSet* fxset)
 	GtkWidget *ok_button = NULL;
 	GtkWidget* cancel_button = NULL;
 
-	GdkPixbuf* pb = gdk_pixbuf_new_from_file(SKIN_DIR"user_online.png" , NULL);
+	GdkPixbuf* pb = gdk_pixbuf_new_from_file(SKIN_DIR"online.svg" , NULL);
 
 	DEBUG_FOOTPRINT();
 

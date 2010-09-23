@@ -73,7 +73,7 @@ void fx_add_group_initialize(FxAddGroup* fxaddgroup)
 	DEBUG_FOOTPRINT();
 
 	fxaddgroup->dialog = gtk_dialog_new();
-	pb = gdk_pixbuf_new_from_file(SKIN_DIR"user_online.png" , NULL);
+	pb = gdk_pixbuf_new_from_file(SKIN_DIR"online.svg" , NULL);
 	gtk_dialog_set_has_separator(GTK_DIALOG(fxaddgroup->dialog) , FALSE);
 	gtk_window_set_resizable(GTK_WINDOW(fxaddgroup->dialog) , FALSE);
 	gtk_widget_set_usize(fxaddgroup->dialog , 300 , 150);
