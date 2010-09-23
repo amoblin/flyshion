@@ -514,4 +514,13 @@ typedef struct
 	GtkWidget *bulletinView;
 } FxPGProfile;
 
+typedef struct
+{
+	FxMain *fxmain;
+
+	GtkWidget *dialog;
+	GtkWidget *label;
+	GSList *gslist;
+} FxSmsstat;
+
 #endif

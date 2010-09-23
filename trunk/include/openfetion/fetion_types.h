@@ -40,7 +40,7 @@
 #endif
 
 #define FETION_NAME "OpenFetion"
-#define FETION_VERSION "1.8"
+#define FETION_VERSION "1.9"
 #define PROTO_VERSION "4.0.2510"
 #define NAVIGATION_URI "nav.fetion.com.cn"
 #define PGGROUP_SPACE_URI "http://group.feixin.10086.cn/space/Index/"
@@ -351,6 +351,7 @@ typedef struct
 	char province[6];					/* the province which your number belongs to				*/
 	char city[6];						/* the city which your number belongs to 					*/
 	int gender;							/* the gender of your self									*/
+	char smsOnLineStatus[32];
 
 	int smsDayLimit;
 	int smsDayCount;

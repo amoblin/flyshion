@@ -103,7 +103,7 @@ void generate_pic_code(User* user)
 	char* ip;
 
 	FILE* picfd;
-	int piclen;
+	int piclen = 0;
 	unsigned char* pic;
 	int n;
 
@@ -530,6 +530,12 @@ static void parse_personal_info(xmlNodePtr node , User* user)
 	{
 		buf = xmlGetProp(node , BAD_CAST "gender");
 		user->gender = atoi((char*)buf);
+		xmlFree(buf);
+	}
+	if(xmlHasProp(node , BAD_CAST "sms-online-status"))
+	{
+		buf = xmlGetProp(node , BAD_CAST "sms-online-status");
+		strcpy(user->smsOnLineStatus , (char*)buf);
 		xmlFree(buf);
 	}
 	if(xmlHasProp(node , BAD_CAST "impresa"))

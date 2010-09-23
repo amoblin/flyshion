@@ -69,7 +69,8 @@ am_openfetion_OBJECTS = openfetion-fx_add_group.$(OBJEXT) \
 	openfetion-fx_sound.$(OBJEXT) openfetion-fx_sysmsg.$(OBJEXT) \
 	openfetion-fx_util.$(OBJEXT) openfetion-fx_search.$(OBJEXT) \
 	openfetion-fx_close.$(OBJEXT) openfetion-fx_pggroup.$(OBJEXT) \
-	openfetion-fx_pgprofile.$(OBJEXT)
+	openfetion-fx_pgprofile.$(OBJEXT) \
+	openfetion-fx_smsstat.$(OBJEXT)
 openfetion_OBJECTS = $(am_openfetion_OBJECTS)
 am__DEPENDENCIES_1 =
 openfetion_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
@@ -293,7 +294,8 @@ openfetion_SOURCES = fx_add_group.c \
 					 fx_search.c \
 					 fx_close.c \
 					 fx_pggroup.c \
-					 fx_pgprofile.c
+					 fx_pgprofile.c \
+					 fx_smsstat.c
 
 all: all-am
 
@@ -407,6 +409,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_proxy.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_search.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_set.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_smsstat.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_sound.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_sysmsg.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_tree.Po@am__quote@
@@ -838,6 +841,20 @@ openfetion-fx_pgprofile.obj: fx_pgprofile.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='fx_pgprofile.c' object='openfetion-fx_pgprofile.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o openfetion-fx_pgprofile.obj `if test -f 'fx_pgprofile.c'; then $(CYGPATH_W) 'fx_pgprofile.c'; else $(CYGPATH_W) '$(srcdir)/fx_pgprofile.c'; fi`
+
+openfetion-fx_smsstat.o: fx_smsstat.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT openfetion-fx_smsstat.o -MD -MP -MF $(DEPDIR)/openfetion-fx_smsstat.Tpo -c -o openfetion-fx_smsstat.o `test -f 'fx_smsstat.c' || echo '$(srcdir)/'`fx_smsstat.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/openfetion-fx_smsstat.Tpo $(DEPDIR)/openfetion-fx_smsstat.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='fx_smsstat.c' object='openfetion-fx_smsstat.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o openfetion-fx_smsstat.o `test -f 'fx_smsstat.c' || echo '$(srcdir)/'`fx_smsstat.c
+
+openfetion-fx_smsstat.obj: fx_smsstat.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT openfetion-fx_smsstat.obj -MD -MP -MF $(DEPDIR)/openfetion-fx_smsstat.Tpo -c -o openfetion-fx_smsstat.obj `if test -f 'fx_smsstat.c'; then $(CYGPATH_W) 'fx_smsstat.c'; else $(CYGPATH_W) '$(srcdir)/fx_smsstat.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/openfetion-fx_smsstat.Tpo $(DEPDIR)/openfetion-fx_smsstat.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='fx_smsstat.c' object='openfetion-fx_smsstat.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o openfetion-fx_smsstat.obj `if test -f 'fx_smsstat.c'; then $(CYGPATH_W) 'fx_smsstat.c'; else $(CYGPATH_W) '$(srcdir)/fx_smsstat.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

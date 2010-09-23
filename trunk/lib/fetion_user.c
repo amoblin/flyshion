@@ -27,6 +27,8 @@ static char* generate_set_moodphrase_body(const char* customConfigVersion
 static char* generate_update_information_body(User* user);
 static char* generate_keep_alive_body();
 static void parse_set_moodphrase_response(User* user , const char* sipmsg);
+static char* generate_set_sms_status_body(int days);
+static void parse_set_sms_status_response(User *user , const char *sipmsg);
 
 User* fetion_user_new(const char* no , const char* password)
 {
@@ -332,6 +334,41 @@ int fetion_user_upload_portrait(User* user , const char* filename)
 	}
 }
 
+int fetion_user_set_sms_status(User *user , int days)
+{
+	FetionSip *sip = user->sip;
+	SipHeader *eheader;
+	char buffer[2048];
+	char code[16];
+	char *body;
+	char *res;
+
+	fetion_sip_set_type(sip , SIP_SERVICE);
+	eheader = fetion_sip_event_header_new(SIP_EVENT_SETUSERINFO);
+	fetion_sip_add_header(sip , eheader);
+	body = generate_set_sms_status_body(days);
+	res = fetion_sip_to_string(sip , body);
+	tcp_connection_send(sip->tcp , res , strlen(res));
+	free(res);
+	memset(buffer , 0 , sizeof(buffer));
+	tcp_connection_recv(sip->tcp , buffer , sizeof(buffer));
+
+	res = strstr(buffer , " ") + 1;
+	memset(code , 0 , sizeof(code));
+	strncpy(code , res , 3);
+	if(strcmp(code , "200") == 0){
+		parse_set_sms_status_response(user , buffer);
+		debug_info("set sms online status to %d days[%s]"
+					   	, days , user->smsOnLineStatus);
+		return 1;
+	}else{
+		debug_error("failed to set sms online status");
+		return -1;
+	}
+
+	return 1;
+}
+
 int fetion_user_download_portrait(User* user , const char* sipuri)
 {
     char uri[256];
@@ -462,6 +499,7 @@ end:
 	tcp = NULL;
 	return 0;
 }
+
 static int fetion_user_download_portrait_again(const char* filepath , const char* buf , Proxy* proxy)
 {
 	char location[1024] = { 0 };
@@ -641,11 +679,6 @@ Contact* fetion_user_parse_presence_body(const char* body , User* user)
 #if 0
 		if(xmlHasProp(cnode , BAD_CAST "sms")){
 			pos = xmlGetProp(cnode , BAD_CAST "sms");
-			if(strstr((char*)pos , "365")
-			&& currentContact->serviceStatus == BASIC_SERVICE_NORMAL
-			&& currentContact->carrierStatus == CARRIER_STATUS_NORMAL
-			&& strlen(currentContact->carrier) != 0)
-				currentContact->state = P_OFFLINE;
 			xmlFree(pos);
 		}
 #endif
@@ -834,6 +867,46 @@ static void parse_set_moodphrase_response(User* user , const char* sipmsg)
 	user->customConfig = (char*)malloc(strlen((char*)res) + 1);
 	bzero(user->customConfig , strlen((char*)res) + 1);
 	strcpy(user->customConfig , (char*)res);
+	xmlFree(res);
+	xmlFreeDoc(doc);
+}
+
+static char* generate_set_sms_status_body(int days)
+{
+	char args[] = "<args></args>";
+	xmlChar *res;
+	xmlDocPtr doc;
+	xmlNodePtr node;
+	char status[16];
+
+	doc = xmlParseMemory(args , strlen(args));
+	node = xmlDocGetRootElement(doc);
+	node = xmlNewChild(node , NULL , BAD_CAST "userinfo" , NULL);
+	node = xmlNewChild(node , NULL , BAD_CAST "personal" , NULL);
+	memset(status , 0 , sizeof(status));
+	sprintf(status , "%d.00:00:00" , days);
+	xmlNewProp(node , BAD_CAST "sms-online-status" , BAD_CAST status);
+	xmlDocDumpMemory(doc , &res , NULL);
+	xmlFreeDoc(doc);
+	return xml_convert(res);
+}
+
+static void parse_set_sms_status_response(User *user , const char *sipmsg)
+{
+	char *pos;
+	xmlChar* res;
+	xmlDocPtr doc;
+	xmlNodePtr node;
+	pos = strstr(sipmsg , "\r\n\r\n") + 4;
+	doc = xmlParseMemory(pos , strlen(pos));
+	node = xmlDocGetRootElement(doc);
+	node = xml_goto_node(node , "personal");
+	if(!node)
+		return;
+	if(!xmlHasProp(node , BAD_CAST "sms-online-status"))
+		return;
+	res = xmlGetProp(node , BAD_CAST "sms-online-status");
+	strcpy(user->smsOnLineStatus , (char*)res);
 	xmlFree(res);
 	xmlFreeDoc(doc);
 }

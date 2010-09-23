@@ -60,4 +60,5 @@
 #include "fx_search.h"
 #include "fx_pggroup.h"
 #include "fx_pgprofile.h"
+#include "fx_smsstat.h"
 #endif
