@@ -345,20 +345,21 @@ login:
 	ul = fetion_user_list_load(config);
 	newul = fetion_user_list_find_by_no(ul , no);
 	if(newul == NULL){
-		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxlogin->remember))){
+		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxlogin->remember)))
 			newul = fetion_user_list_new(no , password , state , 1);
-		}else{
+		else
 			newul = fetion_user_list_new(no , NULL , state , 1);
-		}
+
 		fetion_user_list_append(ul , newul);
 	}else{
-		bzero(newul->password , sizeof(newul->password));
+		memset(newul->password , 0 , sizeof(newul->password));
 		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxlogin->remember)))
 			strcpy(newul->password , password);
 		newul->laststate = state;
-		foreach_userlist(ul , ul_cur){
+
+		foreach_userlist(ul , ul_cur)
 			ul_cur->islastuser = 0;
-		}
+
 		newul->islastuser = 1;
 	}
 	fetion_user_list_save(config , ul);

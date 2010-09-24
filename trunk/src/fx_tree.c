@@ -1683,6 +1683,8 @@ static gboolean pg_on_rightbutton_click(GtkWidget* UNUSED(tree)
 		model = gtk_tree_view_get_model(GTK_TREE_VIEW(fxtree->pgTreeView));
 		gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(fxtree->pgTreeView) 
 				, (gint)event->x , (gint)event->y , &path , NULL , NULL , NULL);
+		if(!path)
+			return FALSE;
 
 		gtk_tree_model_get_iter(GTK_TREE_MODEL(model) , &iter , path);
 		gtk_tree_model_get(model , &iter
