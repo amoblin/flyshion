@@ -129,9 +129,7 @@ char* contruct_message_sip(const char *sid, Message *msg)
 {
 	char *res;
 	char time[128];
-	char body[2048];
 	char buffer[2048];
-	char *locale;
 	struct tm st = msg->sendtime;
 	
 	memset(time , 0 , sizeof(time));
