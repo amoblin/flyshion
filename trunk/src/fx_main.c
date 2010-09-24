@@ -339,8 +339,7 @@ void fx_main_process_presence(FxMain* fxmain , const char* xml)
 			}
 #endif
 		}
-		if(fxchat != NULL)
-		{
+		if(fxchat != NULL){
 			fxchat->state = contact->state;
 		}
 		name = (contact->nickname == NULL || strlen(contact->localname) == 0) ? contact->nickname : contact->localname;
@@ -1230,7 +1229,6 @@ void* fx_main_listen_thread_func(void* data)
 
 		msg = fetion_sip_listen(sip);
 		if(!msg){
-			continue;
 			gdk_threads_enter();
 			fx_util_popup_warning(fxmain , _("Sorry,your network connection has been closed\n"
 				"Please check your network connection and then login again"));
