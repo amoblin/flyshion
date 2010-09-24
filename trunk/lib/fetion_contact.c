@@ -149,12 +149,14 @@ Contact* fetion_contact_get_contact_info(User* user , const char* userid)
 	tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
 	res = fetion_sip_get_response(sip);
+	if(res == NULL){
+		return NULL;
+	}
 	pos = strstr(res , "\r\n\r\n") + 4;
 	doc = xmlParseMemory(pos , strlen(pos));
 	node = xmlDocGetRootElement(doc);
 	node = node->xmlChildrenNode;
-	if(xmlHasProp(node , BAD_CAST "carrier-region"))
-	{
+	if(xmlHasProp(node , BAD_CAST "carrier-region")){
 		cs = xmlGetProp(node , BAD_CAST "carrier-region");
 		pos = (char*)cs;
 		n = strlen(pos) - strlen(strstr(pos , "."));

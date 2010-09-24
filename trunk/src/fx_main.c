@@ -1230,6 +1230,7 @@ void* fx_main_listen_thread_func(void* data)
 
 		msg = fetion_sip_listen(sip);
 		if(!msg){
+			continue;
 			gdk_threads_enter();
 			fx_util_popup_warning(fxmain , _("Sorry,your network connection has been closed\n"
 				"Please check your network connection and then login again"));
@@ -1324,11 +1325,8 @@ void fx_main_message_func(GtkWidget *UNUSED(widget) , gpointer data)
 }
 gboolean fx_main_register_func(User* user)
 {
-	if(fetion_user_keep_alive(user) < 0){
-	//	debug_info("网络连接已断开,请重新登录");
-	//	gtk_main_quit();
-		return FALSE;
-	}
+	if(fetion_user_keep_alive(user) < 0)
+		debug_info("network connection terminated,retrying...");
 	return TRUE;
 }
 

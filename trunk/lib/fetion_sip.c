@@ -386,6 +386,9 @@ char* fetion_sip_get_response(FetionSip* sip)
 
 	c = tcp_connection_recv(sip->tcp , buf , sizeof(buf) - 2);
 
+	if(c == -1)
+		return NULL;
+
 	len = fetion_sip_get_length(buf);
 
 	if(strstr(buf , "\r\n\r\n") == NULL)
