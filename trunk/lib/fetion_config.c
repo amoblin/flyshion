@@ -302,14 +302,21 @@ int fetion_config_load_data(User *user)
 	xmlNodePtr node;
 	xmlNodePtr pnode;
 	xmlChar *res;
+	FILE *test_fd;
 	Config *cfg = user->config;
 
 
 	memset(path , 0 , sizeof(path));
 	snprintf(path , 255 , "%s/config.xml" , cfg->userPath);
+	test_fd = fopen(path , "r");
+	if(test_fd)
+		fclose(test_fd);
+	else
+		return -1;
 	doc = xmlParseFile(path);
 	if(!doc)
 		return -1;
+
 	pnode = xmlDocGetRootElement(doc);
 
 	node = xml_goto_node(pnode , "icon_size");
