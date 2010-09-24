@@ -20,6 +20,8 @@
 
 #include "fx_include.h"
 
+extern GStaticMutex mutex;
+
 FxChat* fx_chat_new(FxMain* fxmain , Conversation* conv)
 {
 	FxChat* fxchat = (FxChat*)malloc(sizeof(FxChat));
@@ -65,7 +67,8 @@ void fx_chat_add_message(FxChat* fxchat , const char* msg
 
 	/* timeout alert msg */
 	if(issysback) {
-		snprintf(text ,1023 , "您于[%s]发送的消息“%s”发送失败，请重新发送\n",
+		snprintf(text ,1023,
+				_("The message \"%s\" sent at [%s] send failed,please resend it"),
 				time , msg);
 		fx_chat_add_information(fxchat , text);
 		return;
@@ -165,8 +168,10 @@ gboolean fx_chat_focus_in_func(GtkWidget *UNUSED(widget)
 
 	DEBUG_FOOTPRINT();
 
-	if(list_empty(ctlist))
-	{
+	g_static_mutex_lock(&mutex);
+
+	if(list_empty(ctlist)){
+
 		fx_head_set_state_image(fxmain , fxmain->user->state);
 		gtk_status_icon_set_blinking(GTK_STATUS_ICON(fxmain->trayIcon) , FALSE);
 		g_signal_handler_disconnect(fxmain->trayIcon , fxmain->iconConnectId);
@@ -174,13 +179,11 @@ gboolean fx_chat_focus_in_func(GtkWidget *UNUSED(widget)
 							 , "activate"
 							 , GTK_SIGNAL_FUNC(fx_main_tray_activate_func)
 							 , fxmain);
-	}
-	else
-	{
+	}else{
 		message = (Message*)(ctlist->data);
 		sipuri = message->sipuri;
 		sid = fetion_sip_get_sid_by_sipuri(sipuri);
-		bzero(path , sizeof(path));
+		memset(path , 0 , sizeof(path));
 		sprintf(path , "%s/%s.jpg" , config->iconPath , sid);
 		free(sid);
 		pb = gdk_pixbuf_new_from_file(path , NULL);
@@ -196,6 +199,8 @@ gboolean fx_chat_focus_in_func(GtkWidget *UNUSED(widget)
 							, fxmain);
 	}
 	fxchat->hasFocus = CHAT_DIALOG_FOCUSED;
+
+	g_static_mutex_unlock(&mutex);
 	return FALSE;
 }
 gboolean fx_chat_focus_out_func(GtkWidget *UNUSED(widget)
@@ -447,8 +452,6 @@ void fx_chat_initialize(FxChat* fxchat)
 											   , fxchat );									   
 	gtk_toolbar_append_space(GTK_TOOLBAR(fxchat->toolbar));
 
-
-
 	label = gtk_label_new(_("total 180 character left"));
 	fxchat->countLabel = gtk_label_new("");
 	gtk_label_set_markup(GTK_LABEL(fxchat->countLabel) , _("[<span color='#0099ff'>180</span>] characters"));
@@ -555,9 +558,11 @@ void fx_chat_destroy(GtkWidget* UNUSED(widget) , gpointer data)
 
 	DEBUG_FOOTPRINT();
 
+	g_static_mutex_lock(&mutex);
 	fx_list_remove_chat_by_sipuri(fxchat->fxmain->clist
 				, fxchat->conv->currentContact->sipuri);
 	fx_chat_free(fxchat);
+	g_static_mutex_unlock(&mutex);
 
 }
 
@@ -585,9 +590,9 @@ void* fx_chat_send_message_thread(void* data)
 	now = get_currenttime();
 	fx_chat_add_message(fxchat , text , now , 1 , 0);
 	gtk_text_buffer_delete(fxchat->send_buffer , &begin , &end);
-
 	gdk_threads_leave();
 
+	g_static_mutex_lock(&mutex);
 	if(fetion_conversation_invite_friend(conv) > 0)
 	{
 		args = (ThreadArgs*)malloc(sizeof(ThreadArgs));
@@ -599,9 +604,11 @@ void* fx_chat_send_message_thread(void* data)
 
 		g_thread_create(fx_main_listen_thread_func , args , FALSE , NULL);
 
-		g_usleep(100);
+		//g_usleep(100);
 		fetion_conversation_send_sms(conv , text);
 	}
+	g_static_mutex_unlock(&mutex);
+
 	return NULL;
 }
 
@@ -637,8 +644,7 @@ void fx_chat_send_message(FxChat* fxchat)
 	 * check whether 'send to phone' button is clicked ,
 	 * if true , just send to phone and return
 	 */
-	if(fxchat->sendtophone == TRUE)
-	{
+	if(fxchat->sendtophone == TRUE)	{
 		/***
 		 * show message sent,and truncate the send text area
 		 */
@@ -647,6 +653,7 @@ void fx_chat_send_message(FxChat* fxchat)
 			fx_chat_add_information(fxchat , _("Empty messages are not allowed."));
 			return;
 		}
+
 		if(user->boundToMobile == BOUND_MOBILE_DISABLE){
 
 			user->verification = fetion_verification_new();
@@ -654,10 +661,13 @@ send:
 			generate_pic_code(user);
 			bzero(reason , sizeof(reason));
 			if(user->smsDayLimit == user->smsDayCount){
-				fx_chat_add_information(fxchat , _("Sorry, you have reached the quota of free SMS today, SMS messages cannot be sent any more today."));
+				fx_chat_add_information(fxchat , _("Sorry, you have reached"
+										" the quota of free SMS today, SMS"
+										" messages cannot be sent any more today."));
 				return;
 			}
-			sprintf(reason , _("You have %d free SMS can send (include this one). Free SMS: %d per month")
+			sprintf(reason , _("You have %d free SMS can send "
+					" (include this one). Free SMS: %d per month")
 					, user->smsDayLimit - user->smsMonthCount
 					, user->smsMonthLimit );
 			bzero(tips , sizeof(tips));
@@ -734,8 +744,8 @@ void* fx_chat_send_nudge_thread(void* data)
 	FxList *fxlist = NULL;
 
 	DEBUG_FOOTPRINT();
+	g_static_mutex_lock(&mutex);
 	if(fetion_conversation_invite_friend(conv) > 0){
-		gdk_threads_enter();
 
 		args = (ThreadArgs*)malloc(sizeof(ThreadArgs));
 		args->fxmain = fxchat->fxmain;
@@ -744,11 +754,14 @@ void* fx_chat_send_nudge_thread(void* data)
 		fxlist = fx_list_new(conv->currentSip);
 		fx_list_append(fxchat->fxmain->slist , fxlist);
 
+		gdk_threads_enter();
+
 		g_thread_create(fx_main_listen_thread_func , args , FALSE , NULL);
 		fetion_conversation_send_nudge(conv);
 
 		gdk_threads_leave();
 	}
+	g_static_mutex_unlock(&mutex);
 	return NULL;
 }
 void fx_chat_on_nudge_clicked(GtkWidget* UNUSED(widget) , gpointer data)

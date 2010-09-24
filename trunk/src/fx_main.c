@@ -25,11 +25,13 @@
 #include <glib/gi18n.h>
 #include <sys/select.h>
 #include <locale.h>
+#include <glib.h>
 int window_pos_x;
 int window_pos_y;
 int window_pos_x_old = 0;
 int window_pos_y_old = 0;
 extern struct unacked_list *unackedlist;
+GStaticMutex mutex = G_STATIC_MUTEX_INIT;
 
 static void fx_main_process_pggetgroupinfo(FxMain *fxmain , const char *sipmsg);
 static void fx_main_process_pgpresencechanged(FxMain *fxmain , const char *sipmsg);
@@ -39,7 +41,6 @@ static gboolean key_press_func(GtkWidget *widget , GdkEventKey *event
 FxMain* fx_main_new()
 {
 	FxMain* fxmain = (FxMain*)malloc(sizeof(FxMain));
-
 	DEBUG_FOOTPRINT();
 
 	memset(fxmain , 0 , sizeof(FxMain));
@@ -1183,6 +1184,7 @@ int main(int argc , char* argv[])
 #endif
 	gtk_init(&argc , &argv);
 
+
 	DEBUG_FOOTPRINT();
 
 	fx_main_initialize(fxmain);
@@ -1202,9 +1204,7 @@ void* fx_main_listen_thread_func(void* data)
 
 	DEBUG_FOOTPRINT();
 
-	gdk_threads_enter();
 	debug_info("A new thread entered");
-	gdk_threads_leave();
 
 	sip = (sip == NULL ? fxmain->user->sip : sip);
 	for(;;){
@@ -1214,7 +1214,9 @@ void* fx_main_listen_thread_func(void* data)
 
 		FD_ZERO(&fd_read);
 
+		g_static_mutex_lock(&mutex);
 		FD_SET(sip->tcp->socketfd, &fd_read);
+		g_static_mutex_unlock(&mutex);
 		ret = select(sip->tcp->socketfd+1, &fd_read, NULL, NULL, NULL);
 		if (ret == -1 || ret == 0) {
 			debug_info ("Error.. to read socket");

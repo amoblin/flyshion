@@ -31,6 +31,8 @@ extern void fetion_message_set_message(Message* msg , const char* message);
 
 extern void fetion_message_set_time(Message* msg , struct tm sendtime);
 
+extern void fetion_message_set_callid(Message* msg , int callid);
+
 extern void fetion_message_free(Message* msg);
 
 extern struct unacked_list *unacked_list_new(Message *message); 
