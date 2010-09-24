@@ -302,6 +302,7 @@ void fx_tree_initilize(FxMain* fxmain)
 	ThreadArgs* args = (ThreadArgs*)malloc(sizeof(ThreadArgs));
 	args->fxmain = fxmain;
 	args->sip = NULL;
+	GValue value = { 0, };
 
 	DEBUG_FOOTPRINT();
 
@@ -309,6 +310,12 @@ void fx_tree_initilize(FxMain* fxmain)
 	fxtree = fxmain->mainPanel;
 
 	fxtree->searchbox = gtk_entry_new();
+	g_value_init(&value, G_TYPE_STRING);
+	g_value_set_static_string(&value, "gtk-im-context-simple");
+	g_object_set_property(G_OBJECT(fxtree->searchbox),
+						"im-module",
+						&value);
+	g_value_unset (&value);
 	gtk_entry_set_icon_from_stock(GTK_ENTRY(fxtree->searchbox)
 			, GTK_ENTRY_ICON_SECONDARY , GTK_STOCK_FIND);
 	g_signal_connect(fxtree->searchbox , "icon-press" , G_CALLBACK(on_search_button_clicked) , fxmain);
