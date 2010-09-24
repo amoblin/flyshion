@@ -371,7 +371,9 @@ login:
 		fx_login_show_msg(fxlogin , _("Login failed"));
 		return NULL;
 	}
-	fetion_config_load_data(user);
+	if(fetion_config_load_data(user) < 0)
+		fetion_config_save(user);
+
 
 	user->state = state;
 

@@ -3,11 +3,6 @@ SUBDIRS = lib src include skin resource po
 EXTRA_DIST = config.rpath  m4/ChangeLog  LICENSE LICENSE.OpenSSL 
 
 install: install-recursive
-	@if [ -d ~/.openfetion ];\
-	then \
-		cd ~/.openfetion; \
-		find . -name "config.dat" -exec rm {} \;;\
-	fi
 	@echo "----------------------------------------------------------";
 	@echo "|                                                        |";
 	@echo "|       OpenFetion 1.9 by lwp(levin108@gmail.com)        |";
