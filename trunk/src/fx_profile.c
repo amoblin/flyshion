@@ -147,15 +147,17 @@ void fx_profile_initialize(FxProfile* fxprofile)
 
 	g_signal_connect(fxprofile->finish_button , "clicked" , G_CALLBACK(fx_profile_on_button_clicked) , fxprofile->dialog);
 
-	fx_profile_bind(fxprofile);
-
 	gtk_widget_show_all(fxprofile->dialog);
 	gtk_widget_hide(fxprofile->dialog);
 }
 
-void fx_profile_bind(FxProfile* fxprofile)
+Contact *fx_profile_fetch(FxProfile *fxprofile)
 {
-	Contact* contact;
+	return fetion_contact_get_contact_info(fxprofile->fxmain->user , fxprofile->userid);
+}
+
+void fx_profile_bind(FxProfile* fxprofile , Contact *contact)
+{
 	GdkPixbuf* pb;
 	char* res;
 	User* user = fxprofile->fxmain->user;
@@ -163,7 +165,6 @@ void fx_profile_bind(FxProfile* fxprofile)
 
 	DEBUG_FOOTPRINT();
 		
-	contact = fetion_contact_get_contact_info(fxprofile->fxmain->user , fxprofile->userid);
 
 	if(contact->nickname != NULL)
 		gtk_entry_set_text(GTK_ENTRY(fxprofile->nick_entry) , contact->nickname);
@@ -206,8 +207,7 @@ void fx_profile_bind(FxProfile* fxprofile)
 
 	pb = gdk_pixbuf_new_from_file_at_size(portrait , 90 , 90 , NULL);
 
-	if(pb != NULL)
-	{
+	if(pb != NULL){
 		gtk_image_set_from_pixbuf(GTK_IMAGE(fxprofile->image) , pb);
 		g_object_unref(pb);
 	}

@@ -169,16 +169,15 @@ int fetion_conversation_send_sms_to_phone_with_reply(Conversation* conversation
 	debug_info("Sent a message to (%s)`s mobile phone" , sipuri);
 	tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
-	bzero(rep , sizeof(rep));
+
+	memset(rep , 0 , sizeof(rep));
 	tcp_connection_recv(sip->tcp , rep , sizeof(rep));
-	if(fetion_sip_get_code(rep) == 280)
-	{
+
+	if(fetion_sip_get_code(rep) == 280){
 		xml = strstr(rep , "\r\n\r\n") + 4;
 		fetion_conversation_parse_send_sms(xml , daycount , monthcount);
 		return 1;
-	}
-	else
-	{
+	}else{
 		debug_error("Send a message to (%s)`s mobile phone failed");
 		return -1;
 	}
@@ -187,7 +186,7 @@ int fetion_conversation_invite_friend(Conversation* conversation)
 {
 	FetionSip* sip = conversation->currentUser->sip;
 	char *res , *ip , *credential , auth[256] , *body;
-	int port;
+	int port , ret;
 	FetionConnection* conn;
 	Proxy *proxy = conversation->currentUser->config->proxy;
 	SipHeader *eheader , *theader , *mheader , *nheader , *aheader;
@@ -201,20 +200,25 @@ int fetion_conversation_invite_friend(Conversation* conversation)
 	tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res); res = NULL;
 	res = fetion_sip_get_response(sip);
-	bzero(auth , sizeof(auth));
+	if(!res)
+		return -1;
+	memset(auth , 0 , sizeof(auth));
 	fetion_sip_get_attr(res , "A" , auth);
 	fetion_sip_get_auth_attr(auth , &ip , &port , &credential);
 	free(res); res = NULL;
 	conn = tcp_connection_new();
 
 	if(proxy != NULL && proxy->proxyEnabled)
-		tcp_connection_connect_with_proxy(conn , ip , port , proxy);
+		ret = tcp_connection_connect_with_proxy(conn , ip , port , proxy);
 	else
-		tcp_connection_connect(conn , ip , port);
+		ret = tcp_connection_connect(conn , ip , port);
+
+	if(ret == -1)
+		return -1;
 
 	/*clone sip*/
 	conversation->currentSip = fetion_sip_clone(conversation->currentUser->sip);
-	bzero(conversation->currentSip->sipuri , sizeof(conversation->currentSip->sipuri));
+	memset(conversation->currentSip->sipuri, 0 , sizeof(conversation->currentSip->sipuri));
 	strcpy(conversation->currentSip->sipuri , conversation->currentContact->sipuri);
 	fetion_sip_set_connection(conversation->currentSip , conn);
 	free(ip); ip = NULL;

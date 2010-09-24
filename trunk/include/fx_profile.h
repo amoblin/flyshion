@@ -25,9 +25,11 @@ extern FxProfile* fx_profile_new(FxMain* fxmain , const char* userid);
 
 extern void fx_profile_initialize(FxProfile* fxprofile);
 
-extern void fx_profile_bind(FxProfile* fxprofile);
+extern Contact *fx_profile_fetch(FxProfile *fxprofile);
 
-extern void fx_profile_free(FxProfile* fxprofile);
+extern void fx_profile_bind(FxProfile *fxprofile , Contact *contact);
+
+extern void fx_profile_free(FxProfile *fxprofile);
 
 extern void fx_profile_on_button_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 

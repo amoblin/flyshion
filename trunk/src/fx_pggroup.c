@@ -20,6 +20,8 @@
 
 #include <fx_include.h>
 
+static GStaticMutex pg_mutex = G_STATIC_MUTEX_INIT;
+
 static void on_close_clicked(GtkWidget *UNUSED(widget) , gpointer data);
 static void on_send_clicked(GtkWidget *UNUSED(widget) , gpointer data);
 static GtkTreeModel *create_model(PGGroup *pggroup);
@@ -579,15 +581,18 @@ static void *pggroup_update_portrait_thread(void *data)
 
 	if(gtk_tree_model_get_iter_first(model , &iter)){
 		do{
-			if(!fxpg)
+			if(!fxpg || !fxpg->pggroup)
 				return NULL;
 			gtk_tree_model_get(model , &iter , M_SIPURI_COL , &sipuri , -1);
 			sid = fetion_sip_get_sid_by_sipuri(sipuri);
 			snprintf(path , 1023 , "%s/%s.jpg" , config->iconPath , sid);
 			pixbuf = gdk_pixbuf_new_from_file_at_size(path
 			       	, MEMBER_PROTRAIT_SIZED , MEMBER_PROTRAIT_SIZED , NULL);
-			if(!fxpg)
+
+			if(!fxpg || !fxpg->pggroup)
 				return NULL;
+
+			g_static_mutex_lock(&pg_mutex);
 			if(pixbuf == NULL && fxpg->pggroup->hasImage == 0){
 			    snprintf(portraitPath , 255 , "/%s/getportrait.aspx" , config->portraitServerPath );
 			    fetion_user_download_portrait_with_uri(user , sipuri
@@ -596,6 +601,11 @@ static void *pggroup_update_portrait_thread(void *data)
 			    pixbuf = gdk_pixbuf_new_from_file_at_size(path
 				    , MEMBER_PROTRAIT_SIZED , MEMBER_PROTRAIT_SIZED , NULL);
 			}
+			g_static_mutex_unlock(&pg_mutex);
+
+			if(!fxpg || !fxpg->pggroup)
+				return NULL;
+
 			if(pixbuf != NULL){
 				gdk_threads_enter();
 				gtk_tree_store_set(GTK_TREE_STORE(model) , &iter
@@ -724,8 +734,7 @@ static void pg_window_destroy(GtkWidget *UNUSED(widget) , gpointer data)
 
 	fx_list_remove_pg_by_sipuri(fxpg->fxmain->pglist , fxpg->pggroup->pguri);
 
-	free(fxpg);
-	fxpg = NULL;
+	fxpg->pggroup = NULL;
 }
 
 static gboolean key_press_func(GtkWidget *widget , GdkEventKey *event

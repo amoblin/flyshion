@@ -1154,20 +1154,37 @@ static void fx_tree_on_chatmenu_clicked(GtkWidget* UNUSED(widget) , gpointer dat
 	free(args);
 }
 
-static void fx_tree_on_profilemenu_clicked(GtkWidget* UNUSED(widget) , gpointer data)
+static void* on_profile_thread(void *data)
 {
 	Args* args = (Args*)data;
 	FxMain* fxmain = args->fxmain;
+	Contact *contact;
 	char* userid = args->s;
 	FxProfile* fxprofile = fx_profile_new(fxmain , userid);
 
 	DEBUG_FOOTPRINT();
 
+	gdk_threads_enter();
 	fx_profile_initialize(fxprofile);
+	gdk_threads_leave();
+
+	contact = fx_profile_fetch(fxprofile);
+
+	gdk_threads_enter();
+	if(contact)
+		fx_profile_bind(fxprofile , contact);
 	gtk_dialog_run(GTK_DIALOG(fxprofile->dialog));
 	gtk_widget_destroy(fxprofile->dialog);
+	gdk_threads_leave();
+
 	free(fxprofile);
 	free(args);
+	return NULL;
+}
+
+static void fx_tree_on_profilemenu_clicked(GtkWidget* UNUSED(widget) , gpointer data)
+{
+	g_thread_create(on_profile_thread , data , FALSE , NULL);
 }
 
 static void fx_tree_on_historymenu_clicked(GtkWidget* UNUSED(widget) , gpointer data)
