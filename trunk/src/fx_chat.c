@@ -34,7 +34,8 @@ FxChat* fx_chat_new(FxMain* fxmain , Conversation* conv)
 	return fxchat;
 }
 void fx_chat_add_message(FxChat* fxchat , const char* msg 
-	, const struct tm* datetime , const int issendmsg)
+	, const struct tm* datetime , int issendmsg,
+	int issysback)
 {
 	GtkTextIter iter;
 	GtkTextBuffer* buffer;
@@ -61,6 +62,14 @@ void fx_chat_add_message(FxChat* fxchat , const char* msg
 
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(fxchat->recv_text));
 	strftime(time , sizeof(time) , "%H:%M:%S" , datetime);
+
+	/* timeout alert msg */
+	if(issysback) {
+		snprintf(text ,1023 , "您于[%s]发送的消息“%s”发送失败，请重新发送\n",
+				time , msg);
+		fx_chat_add_information(fxchat , text);
+		return;
+	}
 
 	usid = fetion_sip_get_sid_by_sipuri(contact->sipuri);
 	if(issendmsg == 0){
@@ -568,13 +577,13 @@ void* fx_chat_send_message_thread(void* data)
 	gtk_text_buffer_get_start_iter(fxchat->send_buffer , &begin);
 	gtk_text_buffer_get_end_iter(fxchat->send_buffer , &end);
 	text = gtk_text_buffer_get_text(fxchat->send_buffer , &begin , &end , TRUE);
-	if(strlen(text) == 0)
-	{
+	if(strlen(text) == 0){
 		fx_chat_add_information(fxchat , _("Empty messages are not allowed."));
 		return NULL;
 	}
+
 	now = get_currenttime();
-	fx_chat_add_message(fxchat , text , now , 1);
+	fx_chat_add_message(fxchat , text , now , 1 , 0);
 	gtk_text_buffer_delete(fxchat->send_buffer , &begin , &end);
 
 	gdk_threads_leave();
@@ -679,13 +688,14 @@ send:
 					, text , &daycount , &monthcount);
 		}
 		now = get_currenttime();
-		fx_chat_add_message(fxchat , text , now , 1);
+		fx_chat_add_message(fxchat , text , now , 1 , 0);
 
-		bzero(tips , sizeof(tips));
+		memset(tips , 0 , sizeof(tips));
 		sprintf(tips , _("Message sent sucessfully. You have sent %d SMS, and %d left.")
 				, daycount , user->smsDayLimit - daycount);
 		fx_chat_add_information(fxchat , tips);
 		gtk_text_buffer_delete(fxchat->send_buffer , &begin , &end);
+
 		return;
 	}
 	/**
@@ -709,7 +719,7 @@ send:
 	 */
 
 	now = get_currenttime();
-	fx_chat_add_message(fxchat , text , now , 1);
+	fx_chat_add_message(fxchat , text , now , 1 , 0);
 
 	gtk_text_buffer_delete(fxchat->send_buffer , &begin , &end);
 
@@ -862,6 +872,7 @@ void fx_chat_on_close_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 void fx_chat_on_send_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	DEBUG_FOOTPRINT();
+
 
 	fx_chat_send_message((FxChat*)data);
 }

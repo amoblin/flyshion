@@ -20,6 +20,8 @@
 
 #include <openfetion.h>
 
+struct unacked_list *unackedlist;
+
 static int fetion_user_download_portrait_again(const char* filepath , const char* buf , Proxy *proxy);
 static char* generate_set_state_body(StateType state);
 static char* generate_set_moodphrase_body(const char* customConfigVersion
@@ -58,6 +60,9 @@ User* fetion_user_new(const char* no , const char* password)
 	user->customConfig = NULL;
 	user->ssic = NULL;
 	user->config = NULL;
+
+	unackedlist = unacked_list_new(NULL);
+
 	return user;
 }
 

@@ -75,6 +75,16 @@ void fetion_message_set_time(Message* msg , struct tm sendtime)
 	msg->sendtime = sendtime;
 }
 
+void fetion_message_set_callid(Message* msg , int callid)
+{
+	if(msg == NULL)
+	{
+		debug_error("Message is NULL , at(fetion_message_set_callid)");
+		return;
+	}
+	msg->callid = callid;
+}
+
 void fetion_message_free(Message* msg)
 {
 	if(msg != NULL)
@@ -85,4 +95,66 @@ void fetion_message_free(Message* msg)
 			free(msg->message);
 		free(msg);
 	}
+}
+
+struct unacked_list *unacked_list_new(Message *message)
+{
+	struct unacked_list *list =
+			(struct unacked_list*)malloc(sizeof(struct unacked_list));
+	list->timeout = 0;
+	list->message = message;
+	list->next = list->pre = list;
+	return list;
+}
+
+void unacked_list_append(struct unacked_list *head
+			   	, struct unacked_list *newnode)
+{
+	head->next->pre = newnode;
+	newnode->next = head->next;
+	newnode->pre = head;
+	head->next = newnode;
+}
+
+void unacked_list_remove(struct unacked_list *head,
+				struct unacked_list *delnode)
+{
+	delnode->next->pre = delnode->pre;
+	delnode->pre->next = delnode->next;
+	if(delnode->timeout && head->timeout)
+		head->timeout --;
+}
+
+char* contruct_message_sip(const char *sid, Message *msg)
+{
+	char *res;
+	char time[128];
+	char body[2048];
+	char buffer[2048];
+	char *locale;
+	struct tm st = msg->sendtime;
+	
+	memset(time , 0 , sizeof(time));
+	st.tm_hour -= 8;
+	strftime(time , sizeof(time),
+			", %d Sep %Y %T GMT" , &st);	
+
+	snprintf(buffer , 2047 , "M %s SIP-C/4.0\r\n"
+		"I: 15\r\n"
+		"Q: 5 M\r\n"
+		"F: %s\r\n"
+		"C: text/html-fragment\r\n"
+		"K: SaveHistory\r\n"
+		"D: %s\r\n"
+		"BK: 1\r\n"
+		"XI: BB6EE2B50BB01CA526C194D0C99B99FE\r\n\r\n%s",
+		sid , msg->sipuri , time,
+	   	msg->message);
+
+	res = (char*)malloc(strlen(buffer) + 1);
+	memset(res , 0 , strlen(buffer) + 1);
+	strcpy(res , buffer);
+
+	return res;
+
 }

@@ -24,13 +24,17 @@ extern char* generate_invite_friend_body(const char* sipuri);
 extern char* generate_send_nudge_body();
 extern void fetion_conversation_parse_send_sms(const char* xml , int* daycount , int* mountcount);
 
-Conversation* fetion_conversation_new(User* user , const char* sipuri , FetionSip* sip)
+extern struct unacked_list *unackedlist;
+
+Conversation* fetion_conversation_new(User* user,
+			  const char* sipuri , FetionSip* sip)
 {
 	Conversation* conversation = (Conversation*)malloc(sizeof(Conversation));
 	memset(conversation , 0 , sizeof(Conversation));
 	conversation->currentUser = user;
 	if(sipuri != NULL)
-		conversation->currentContact = fetion_contact_list_find_by_sipuri(user->contactList , sipuri);
+		conversation->currentContact = 
+				fetion_contact_list_find_by_sipuri(user->contactList , sipuri);
 	else
 		conversation->currentContact = NULL;
 	if(sipuri != NULL && conversation->currentContact == NULL)
@@ -41,9 +45,15 @@ Conversation* fetion_conversation_new(User* user , const char* sipuri , FetionSi
 
 void fetion_conversation_send_sms(Conversation* conversation , const char* msg)
 {
-	FetionSip* sip = conversation->currentSip == NULL ? conversation->currentUser->sip : conversation->currentSip;
+	FetionSip* sip = conversation->currentSip == NULL ?
+		   	conversation->currentUser->sip : conversation->currentSip;
 	SipHeader *toheader , *cheader , *kheader , *nheader;
+	Message *message;
+	struct unacked_list *unacked;
 	char* res;
+	struct tm *now;
+	struct tm now_copy;
+
 	fetion_sip_set_type(sip , SIP_MESSAGE);
 	nheader  = fetion_sip_event_header_new(SIP_EVENT_CATMESSAGE);
 	toheader = fetion_sip_header_new("T" , conversation->currentContact->sipuri);
@@ -53,12 +63,26 @@ void fetion_conversation_send_sms(Conversation* conversation , const char* msg)
 	fetion_sip_add_header(sip , cheader);
 	fetion_sip_add_header(sip , kheader);
 	fetion_sip_add_header(sip , nheader);
+	/* add message to list */
+	now = get_currenttime();
+	now_copy = *now;
+	message = fetion_message_new();
+	fetion_message_set_sipuri(message , conversation->currentContact->sipuri);
+	fetion_message_set_time(message , now_copy);
+	fetion_message_set_message(message , msg);
+	fetion_message_set_callid(message , sip->callid);
+	unacked = unacked_list_new(message);
+	unacked_list_append(unackedlist , unacked);
+
 	res = fetion_sip_to_string(sip , msg);
 	debug_info("Sent a message to %s" , conversation->currentContact->sipuri);
 	tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
+
+	
 }
-void fetion_conversation_send_sms_to_myself(Conversation* conversation , const char* message)
+void fetion_conversation_send_sms_to_myself(Conversation* conversation,
+			   	const char* message)
 {
 	SipHeader *toheader = NULL;
 	SipHeader *eheader = NULL;
@@ -77,7 +101,8 @@ void fetion_conversation_send_sms_to_myself(Conversation* conversation , const c
 	res = fetion_sip_get_response(sip);
 	free(res);
 }
-int fetion_conversation_send_sms_to_phone(Conversation* conversation , const char* message)
+int fetion_conversation_send_sms_to_phone(Conversation* conversation,
+			   	const char* message)
 {
 	
 	SipHeader *toheader = NULL;
@@ -220,8 +245,8 @@ int fetion_conversation_invite_friend(Conversation* conversation)
 	tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res); res = NULL;
 	res = fetion_sip_get_response(sip);
-	if(fetion_sip_get_code(res) == 200)
-	{
+
+	if(fetion_sip_get_code(res) == 200)	{
 		free(res);
 		res = (char*)malloc(2048);
 		memset(res , 0 , 2048);
@@ -229,9 +254,7 @@ int fetion_conversation_invite_friend(Conversation* conversation)
 		//res = fetion_sip_get_response(sip);
 		free(res);
 		return 1;
-	}
-	else
-	{
+	}else{
 		free(res);
 		return -1;
 	}

@@ -4,7 +4,8 @@
 extern FxChat* fx_chat_new(FxMain* fxmain , Conversation* conv);
 
 extern void fx_chat_add_message(FxChat* fxchat , const char* msg
-		, const struct tm* datetime , const int issendmsg);
+		, const struct tm* datetime , int issendmsg,
+		int issysback);
 
 extern void fx_chat_add_information(FxChat* fxchat , const char* msg);
 
