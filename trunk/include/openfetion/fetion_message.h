@@ -33,4 +33,19 @@ extern void fetion_message_set_time(Message* msg , struct tm sendtime);
 
 extern void fetion_message_free(Message* msg);
 
+extern struct unacked_list *unacked_list_new(Message *message); 
+
+extern void unacked_list_append(struct unacked_list *head,
+				struct unacked_list *newnode);
+
+extern void unacked_list_remove(struct unacked_list *head,
+				struct unacked_list *delnode);
+
+#define unacked_list_empty(head) (head->next == head)
+
+#define foreach_unacked_list(head,c) \
+		for(c=head;(c=c->next)!=head;)
+
+extern char* contruct_message_sip(const char *sid, Message *msg);
+
 #endif

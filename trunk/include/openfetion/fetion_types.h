@@ -397,6 +397,8 @@ typedef struct
 	char* message;						 /* message content  		*/
 	char* sipuri;						 /* sender`s sip uri 		*/
 	char* pguri;
+	int callid;
+	int sysback;
 	struct tm sendtime;					 /* message sent time 		*/
 } Message;
 
@@ -444,5 +446,12 @@ typedef struct{
 	int outerUdpPort;
 	int outerTcpPort;
 } Share;
+
+struct unacked_list {
+	int timeout;
+	Message *message;
+	struct unacked_list *next;
+	struct unacked_list *pre;
+};
 
 #endif

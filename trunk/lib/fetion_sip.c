@@ -366,7 +366,8 @@ int fetion_sip_get_type(const char* sip)
 		return SIP_MESSAGE;
 	if(strcmp(res , "BN") == 0)
 		return SIP_NOTIFICATION;
-	if(strcmp(res , "SIP-C/4.0") == 0)
+	if(strcmp(res , "SIP-C/4.0") == 0
+		|| strcmp(res , "SIP-C/2.0") == 0)
 		return SIP_SIPC_4_0;
 	if(strcmp(res , "IN") == 0)
 		return SIP_INCOMING;
@@ -422,8 +423,7 @@ SipMsg* fetion_sip_listen(FetionSip* sip)
 	int bodyLen;
 	SipMsg *msglist = NULL;
 	SipMsg* msg; 
-	bzero(buffer , sizeof(buffer));
-	sleep(0.1);
+	memset(buffer , 0 , sizeof(buffer));
 	bodyLen = tcp_connection_recv_dont_wait(sip->tcp , buffer , 1024);
 	buf = buffer;
 	if( bodyLen == 0 || bodyLen == -1 )
@@ -674,24 +674,29 @@ void fetion_sip_parse_notification(const char* sip , int* type , int* event , ch
 }
 void fetion_sip_parse_message(FetionSip* sip , const char* sipmsg , Message** msg)
 {
-	char len[10] , callid[10] , sequence[10] ;
+	char len[16] , callid[16] , sequence[16] ;
 	char sendtime[32] , from[64] , rep[256];
-	char memsipuri[64];
+	char memsipuri[64] , sysback[256];
+
 	char *pos = NULL;
 	xmlDocPtr doc;
 	xmlNodePtr node;
-	bzero(len , sizeof(len));
-	bzero(callid , sizeof(callid));
-	bzero(sequence , sizeof(sequence));
-	bzero(sendtime , sizeof(sendtime));
-	bzero(from , sizeof(from));
+	memset(len , 0 , sizeof(len));
+	memset(callid , 0 , sizeof(callid));
+	memset(sequence , 0 , sizeof(sequence));
+	memset(sendtime , 0 , sizeof(sendtime));
+	memset(from , 0 , sizeof(from));
 	fetion_sip_get_attr(sipmsg , "F" , from);
 	fetion_sip_get_attr(sipmsg , "L" , len);
 	fetion_sip_get_attr(sipmsg , "I" , callid);
 	fetion_sip_get_attr(sipmsg , "Q" , sequence);
 	fetion_sip_get_attr(sipmsg , "D" , sendtime);	
+	fetion_sip_get_attr(sipmsg , "BK" , sysback);
 
 	*msg = fetion_message_new();
+
+	if(strlen(sysback))
+		(*msg)->sysback = atoi(sysback);
 
 	/* group message */
 	if(strstr(from , "PG") != NULL){

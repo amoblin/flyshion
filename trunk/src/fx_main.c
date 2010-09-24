@@ -29,6 +29,7 @@ int window_pos_x;
 int window_pos_y;
 int window_pos_x_old = 0;
 int window_pos_y_old = 0;
+extern struct unacked_list *unackedlist;
 
 static void fx_main_process_pggetgroupinfo(FxMain *fxmain , const char *sipmsg);
 static void fx_main_process_pgpresencechanged(FxMain *fxmain , const char *sipmsg);
@@ -484,20 +485,25 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const char* sipms
 		{
 			sid = fetion_sip_get_sid_by_sipuri(msg->sipuri);
 			/* system message */
-			if(strlen(sid) < 8 || strcmp(sid , "10000") == 0){
+			if(strlen(sid) < 5 || strcmp(sid , "10000") == 0){
 				free(sid);
 				sid = NULL;
 				process_system_message(sipmsg);
+				fetion_message_free(msg);
 				gdk_threads_leave();
 				return;
 			}
 			if(config->autoPopup == AUTO_POPUP_ENABLE){
 				fxchat = fx_main_create_chat_window(fxmain , msg->sipuri);
 				if(fxchat == NULL){
+					fetion_message_free(msg);
 					gdk_threads_leave();
 					return;
 				}
-				fx_chat_add_message(fxchat , msg->message , &(msg->sendtime) , 0);
+				fx_chat_add_message(fxchat , msg->message,
+								&(msg->sendtime) , 0 , msg->sysback);
+				fetion_message_free(msg);
+				return;
 			}else{
 				mitem = fx_list_new(msg);
 				fx_list_append(fxmain->mlist , mitem );
@@ -530,9 +536,10 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const char* sipms
 #endif
 			}
 		}else{
-			fx_chat_add_message(fxchat , msg->message , &(msg->sendtime) , 0);
+			fx_chat_add_message(fxchat , msg->message,
+						 &(msg->sendtime) , 0 , msg->sysback);
 		}
-		bzero(path , sizeof(path));
+		memset(path , 0 , sizeof(path));
 		sid = fetion_sip_get_sid_by_sipuri(msg->sipuri);
 		sprintf(path , "%s/%s.jpg" , config->iconPath , sid);
 		free(sid);
@@ -549,10 +556,16 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const char* sipms
 							, "activate"
 							, GTK_SIGNAL_FUNC(fx_main_message_func)
 							, fxmain);
+		/* no message was pushed into the message queue,just free it */
+		if(fxchat && fxchat->hasFocus == CHAT_DIALOG_NOT_FOCUSED)
+			fetion_message_free(msg);
 	}
 	else
 	{
-		fx_chat_add_message(fxchat , msg->message , &(msg->sendtime) , 0);
+		fx_chat_add_message(fxchat , msg->message,
+					   	&(msg->sendtime) , 0, msg->sysback);
+		/* message was showed in the chat dialog directly,just free it */
+		fetion_message_free(msg);
 	}
 	gdk_threads_leave();
 	if(config->isMute == MUTE_DISABLE)
@@ -587,8 +600,7 @@ void fx_main_process_user_left(FxMain* fxmain , const char* msg)
 	 * else just exit current thread
 	 */
 	fxchat = fx_list_find_chat_by_sipuri(clist , sipuri);
-	if(fxchat == NULL)
-	{
+	if(fxchat == NULL) {
 		debug_info("User %s left conversation" , sipuri);
 		debug_info("Thread exit");
 		free(sipuri);
@@ -618,8 +630,7 @@ FxChat* fx_main_create_chat_window(FxMain* fxmain , const char* sipuri)
 	conv = fetion_conversation_new(fxmain->user , sipuri , NULL);
 	
 	/* this buddy is not in the friend list*/
-	if(conv == NULL)
-	{
+	if(conv == NULL) {
 		sid = fetion_sip_get_sid_by_sipuri(sipuri);
 		if(strlen(sid) < 8 || strcmp(sid , "10000") == 0)
 			return NULL;
@@ -704,8 +715,7 @@ void fx_main_process_incoming(FxMain* fxmain
 	DEBUG_FOOTPRINT();
 
 	fetion_sip_parse_incoming(sip , sipmsg , &sipuri , &type , &action);
-	switch(type)
-	{
+	switch(type) {
 		case INCOMING_NUDGE :
 			{
 				gdk_threads_enter();
@@ -761,6 +771,8 @@ void fx_main_process_sipc(FxMain* fxmain , const char* sipmsg)
 	char *xml = NULL;
 	User *user = fxmain->user;
 
+	struct unacked_list *ulist;
+	
 	PGGroup *pggroup = user->pggroup;
 	PGGroup *pgcur;
 
@@ -772,6 +784,15 @@ void fx_main_process_sipc(FxMain* fxmain , const char* sipmsg)
 		fx_main_process_group(fxmain , xml);
 		gdk_threads_leave();
 		return;
+	}
+
+	foreach_unacked_list(unackedlist , ulist) {
+		if(callid == ulist->message->callid){
+			unacked_list_remove(unackedlist , ulist);
+			fetion_message_free(ulist->message);
+			free(ulist);
+			return;
+		}
 	}
 
 	if(pggroup != NULL){
@@ -828,15 +849,11 @@ void fx_main_process_syncuserinfo(FxMain* fxmain , const char* xml)
 	if(contact == NULL)
 		return;
 	gtk_tree_model_get_iter_root(model , &iter);
-	do
-	{
-		if(gtk_tree_model_iter_children(model , &cIter , &iter))
-		{
-			do
-			{
+	do {
+		if(gtk_tree_model_iter_children(model , &cIter , &iter)){
+			do{
 				gtk_tree_model_get(model , &cIter , B_USERID_COL , &userid , -1);
-				if(strcmp(userid , contact->userId) == 0)
-				{
+				if(strcmp(userid , contact->userId) == 0){
 
 					gdk_threads_enter();
 					gtk_tree_store_set(GTK_TREE_STORE(model) , &cIter
@@ -1193,8 +1210,10 @@ void* fx_main_listen_thread_func(void* data)
 	for(;;){
 		
 		if(fxmain == NULL)
-				return NULL;
+			return NULL;
+
 		FD_ZERO(&fd_read);
+
 		FD_SET(sip->tcp->socketfd, &fd_read);
 		ret = select(sip->tcp->socketfd+1, &fd_read, NULL, NULL, NULL);
 		if (ret == -1 || ret == 0) {
@@ -1275,15 +1294,16 @@ void fx_main_message_func(GtkWidget *UNUSED(widget) , gpointer data)
 			    printf("%s:%s\n" , msg->sipuri ,  msg->message);
 			    continue;
 		    }
-		    fx_chat_add_message(fxchat , msg->message , &(msg->sendtime) , 0);
+		    fx_chat_add_message(fxchat , msg->message,
+					&(msg->sendtime) , 0 , msg->sysback);
 		}else{
 			/*group message*/
 		    fxpg = pg_create_window(fxmain , msg->pguri);
 		    foreach_pg_member(fxpg->pggroup->member , memcur){
-			if(strcmp(memcur->sipuri , msg->sipuri) == 0){
+				if(strcmp(memcur->sipuri , msg->sipuri) == 0){
 			    	pg_add_message(fxpg , msg->message , &(msg->sendtime) , memcur );
-				break;
-			}
+					break;
+				}
 		    }
 		}
 		fetion_message_free(msg);
@@ -1306,6 +1326,31 @@ gboolean fx_main_register_func(User* user)
 	//	debug_info("网络连接已断开,请重新登录");
 	//	gtk_main_quit();
 		return FALSE;
+	}
+	return TRUE;
+}
+
+gboolean fx_main_check_func(FxMain* fxmain)
+{
+	struct unacked_list *list;
+	struct tm *now;
+	char *msg;
+	time_t now_t , msg_time_t;
+	long seconds;
+
+	now = get_currenttime();
+	foreach_unacked_list(unackedlist , list){
+		now_t = mktime(now);
+		msg_time_t = mktime(&(list->message->sendtime));
+		seconds = (long)now_t - (long)msg_time_t;
+		if(seconds > 10) {
+			unacked_list_remove(unackedlist , list);
+			msg = contruct_message_sip(fxmain->user->sId , list->message);
+			fx_main_process_message(fxmain , fxmain->user->sip , msg);
+			free(msg);
+			fetion_message_free(list->message);
+			free(list);
+		}
 	}
 	return TRUE;
 }

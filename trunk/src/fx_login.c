@@ -549,6 +549,7 @@ auth:
 
 	/* start sending keep alive request periodically */
 	g_timeout_add_seconds(180 , (GSourceFunc)fx_main_register_func , user);
+	g_timeout_add_seconds(10 , (GSourceFunc)fx_main_check_func , fxmain);
 
 	/*====================================*/
 
