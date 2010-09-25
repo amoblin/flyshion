@@ -1,6 +1,6 @@
 SUBDIRS = lib src include skin resource po 
 
-EXTRA_DIST = config.rpath  m4/ChangeLog  LICENSE LICENSE.OpenSSL 
+EXTRA_DIST = config.rpath  m4/ChangeLog  LICENSE License.OpenSSL 
 
 install: install-recursive
 	@echo "----------------------------------------------------------";

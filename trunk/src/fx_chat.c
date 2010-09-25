@@ -701,7 +701,7 @@ send:
 		fx_chat_add_message(fxchat , text , now , 1 , 0);
 
 		memset(tips , 0 , sizeof(tips));
-		sprintf(tips , _("Message sent sucessfully. You have sent %d SMS, and %d left.")
+		sprintf(tips , _("Message sent successfully. You have sent %d SMS, and %d left.")
 				, daycount , user->smsDayLimit - daycount);
 		fx_chat_add_information(fxchat , tips);
 		gtk_text_buffer_delete(fxchat->send_buffer , &begin , &end);
