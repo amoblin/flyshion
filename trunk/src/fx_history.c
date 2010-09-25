@@ -149,6 +149,9 @@ void fx_history_bind(FxHistory* fxhistory , FxList *list)
 	gtk_text_buffer_get_end_iter(buffer , &end);
 	gtk_text_buffer_delete(buffer , &begin , &end);
 
+	if(!list)
+		return;
+
 	foreach_list(list , cur){
 		bzero(text , sizeof(text));
 		bzero(time , sizeof(time));

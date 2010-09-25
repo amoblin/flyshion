@@ -35,7 +35,6 @@ FxAddbuddy* fx_addbuddy_new(FxMain* fxmain)
 void fx_addbuddy_initialize(FxAddbuddy* fxaddbuddy)
 {
 	GdkPixbuf *icon;
-	GtkWidget *renderer;
 	GtkWidget *group_text , *info_frame , *info_box , *ok_button;
 	GtkWidget *cancel_button , *name_text , *msg_frame , *msglabel;
 	GtkWidget *group_entry , *name_hbox , *name_alignment;
@@ -76,10 +75,8 @@ void fx_addbuddy_initialize(FxAddbuddy* fxaddbuddy)
 
 	info_frame = gtk_frame_new(_("Contact's Information"));
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxaddbuddy->dialog)->vbox) , info_frame);
-	gtk_container_set_border_width(GTK_CONTAINER(info_frame) , 5);
 	
 	info_box = gtk_table_new(2 , 3 , FALSE);
-	gtk_container_set_border_width(GTK_CONTAINER(info_box) , 7);
 	gtk_container_add(GTK_CONTAINER(info_frame) , info_box);
 
 	group_text = gtk_label_new(_("Group: "));
@@ -89,27 +86,23 @@ void fx_addbuddy_initialize(FxAddbuddy* fxaddbuddy)
 	gtk_table_attach_defaults(GTK_TABLE(info_box) , name_text , 0 , 1 , 1 , 2 );
 
 	model = fx_addbuddy_create_group_model(fxaddbuddy);
-	fxaddbuddy->group_combo = gtk_combo_box_new_with_model(model);
-    renderer = gtk_cell_renderer_text_new();
-    gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(fxaddbuddy->group_combo), renderer, TRUE);
-    gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(fxaddbuddy->group_combo), renderer,
-				    "text", 0,
-				    NULL);
+	fxaddbuddy->group_combo = gtk_combo_box_entry_new_with_model(model , GROUP_NAME_COL);
+
 
 
 	group_entry = gtk_bin_get_child(GTK_BIN(fxaddbuddy->group_combo));
 	gtk_entry_set_editable(GTK_ENTRY(group_entry) , FALSE);
 	
+	gtk_widget_set_usize(fxaddbuddy->group_combo , 130 , 25);
 	gtk_table_attach_defaults(GTK_TABLE(info_box) , fxaddbuddy->group_combo , 1 , 2 , 0 , 1 );
 
 	fxaddbuddy->name_entry = gtk_entry_new();
+	gtk_widget_set_usize(fxaddbuddy->name_entry , 130 , 25);
 	gtk_table_attach_defaults(GTK_TABLE(info_box) , fxaddbuddy->name_entry , 1 , 2 , 1 , 2);
 
 	msg_frame = gtk_frame_new(_("Send Message:"));
-	gtk_container_set_border_width(GTK_CONTAINER(msg_frame) , 5);
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxaddbuddy->dialog)->vbox) , msg_frame);
 	fxaddbuddy->msgbox = gtk_vbox_new(FALSE , 3);
-	gtk_container_set_border_width(GTK_CONTAINER(fxaddbuddy->msgbox) , 7);
 	msglabel = gtk_label_new(_("Hello ,I am "));
 	fxaddbuddy->myname_entry = gtk_entry_new();
 	gtk_widget_set_usize(fxaddbuddy->myname_entry , 70 , 30);
