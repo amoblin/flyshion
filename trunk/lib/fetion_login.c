@@ -106,17 +106,24 @@ void generate_pic_code(User* user)
 	int piclen = 0;
 	unsigned char* pic;
 	int n;
+	Config *config = user->config;
 
 	xmlDocPtr doc;
 	xmlNodePtr node;
 
 	DEBUG_FOOTPRINT();
 
-	bzero(buf , sizeof(buf));
+	memset(buf , 0 , sizeof(buf));
 	ip = get_ip_by_name(NAVIGATION_URI);
 	FetionConnection* con = tcp_connection_new();
-	tcp_connection_connect(con , ip , 80);
-	bzero(cookie , sizeof(cookie));
+
+	if(config->proxy != NULL && config->proxy->proxyEnabled)
+		tcp_connection_connect_with_proxy(con , ip,
+				80 , config->proxy);
+	else
+		tcp_connection_connect(con , ip , 80);
+
+	memset(cookie , 0 , sizeof(cookie));
 	if(user->ssic){
 		sprintf(cookie , "Cookie: ssic=%s\r\n" , user->ssic);
 	}
