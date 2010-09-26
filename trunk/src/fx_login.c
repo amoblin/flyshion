@@ -327,7 +327,7 @@ login:
 		debug_info("Input verfication code:%s" , code);
 		goto login;
 	}
-	if(user->loginStatus == 401 || user->loginStatus == 400){
+	if(user->loginStatus == 401 || user->loginStatus == 400 || user->loginStatus == 404){
 		debug_info("Password error!!!");
 		fx_login_show_msg(fxlogin , _("Login failed. Incorrect cell phone number or password"));
 		g_thread_exit(0);
