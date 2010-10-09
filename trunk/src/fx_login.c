@@ -349,7 +349,8 @@ login:
 			newul = fetion_user_list_new(no , password , state , 1);
 		else
 			newul = fetion_user_list_new(no , NULL , state , 1);
-
+		foreach_userlist(ul , ul_cur)
+			ul_cur->islastuser = 0;
 		fetion_user_list_append(ul , newul);
 	}else{
 		memset(newul->password , 0 , sizeof(newul->password));

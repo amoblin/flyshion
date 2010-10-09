@@ -89,21 +89,20 @@ void fetion_config_free(Config *config)
 	    free(config);
 	}
 }
-struct userlist* fetion_user_list_new(const char* no , const char* password
-		, int laststate , int islastuser)
+struct userlist* fetion_user_list_new(const char* no,
+	    	const char* password, int laststate , int islastuser)
 {
 	struct userlist* ul;
 
 	ul = (struct userlist*)malloc(sizeof(struct userlist));
 	memset(ul , 0 , sizeof(struct userlist));
-	if(no != NULL)
+	if(no)
 		strcpy(ul->no , no);
-	if(password != NULL)
+	if(password)
 		strcpy(ul->password , password);
 	ul->laststate = laststate;
 	ul->islastuser = islastuser;
-	ul->next = ul;
-	ul->pre = ul;
+	ul->next = ul->pre = ul;
 	return ul;
 }
 void fetion_user_list_append(struct userlist* head , struct userlist* ul)
@@ -116,15 +115,38 @@ void fetion_user_list_append(struct userlist* head , struct userlist* ul)
 void fetion_user_list_save(Config* config , struct userlist* ul)
 {	
 	char path[256];
-	FILE* file;
-	struct userlist* pos;
-	bzero(path , sizeof(path));
-	sprintf(path , "%s/global.dat" , config->globalPath);
-	file = fopen(path , "wb+");
-	foreach_userlist(ul , pos){
-		fwrite(pos , sizeof(struct userlist) , 1 , file);
+	char sql[1024];
+	sqlite3 *db;
+	char *errMsg = NULL;
+	struct userlist *pos;
+
+	memset(path , 0 , sizeof(path));
+	sprintf(path , "%s/data.db" , config->globalPath);
+	if(sqlite3_open(path, &db)){
+		debug_error("failed to save user list");
+		return;
 	}
-	fclose(file);
+
+	sprintf(sql, "delete from userlist;");
+	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+		debug_error("delete userlist failed:%s",
+					errMsg ? errMsg : "");
+		sqlite3_close(db);
+		return;
+	}
+
+	foreach_userlist(ul, pos){
+		sprintf(sql, "insert into userlist values"
+					"('%s','%s',%d,%d)",
+					pos->no, pos->password,
+					pos->laststate, pos->islastuser);
+		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+			debug_error("insert no : %s failed: %s",
+						pos->no, errMsg ? errMsg : "");
+			continue;
+		}
+	}
+	sqlite3_close(db);
 }
 
 void fetion_user_list_set_lastuser_by_no(struct userlist* ul , const char* no)
@@ -150,31 +172,44 @@ struct userlist* fetion_user_list_find_by_no(struct userlist* list , const char*
 struct userlist* fetion_user_list_load(Config* config)
 {
 	char path[256];
-	FILE* file;
+	char sql[1024];
+	sqlite3 *db;
+	char *errMsg = NULL;
+	char **sqlres;
 	struct userlist *res = NULL , *pos;
-	int n;
+	int ncols, nrows, i, start;
 
 	res = fetion_user_list_new(NULL , NULL , 0 , 0);
 
-	bzero(path , sizeof(path));
-	sprintf(path , "%s/global.dat" , config->globalPath);
-
-	file = fopen(path , "rb");
-	if(file == NULL)
+	memset(path , 0 , sizeof(path));
+	sprintf(path , "%s/data.db" , config->globalPath);
+	if(sqlite3_open(path, &db)){
+		debug_error("failed to load user list");
 		return res;
-	debug_info("Loading user list store in local data file");
-	while(!feof(file)){
-		pos = (struct userlist*)malloc(sizeof(struct userlist));
-		n = fread(pos , sizeof(struct userlist) , 1 , file);
-		pos->next = NULL;
-		if(n > 0 ){
-			fetion_user_list_append(res , pos);
-		}else{
-			free(pos);
-			break;
-		}
 	}
-	fclose(file);
+
+	sprintf(sql, "select * from userlist order by islastuser desc;");
+	if(sqlite3_get_table(db, sql, &sqlres,
+						&nrows, &ncols, &errMsg)){
+		sprintf(sql, "create table userlist (no, password"
+						", laststate, islastuser);");
+		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg))
+			debug_error("create table userlist failed:%s",
+							sqlite3_errmsg(db));
+		sqlite3_close(db);
+		return res;
+	}
+
+	debug_info("Loading user list store in local data file");
+	for(i = 0; i < nrows; i ++){
+		start = ncols + i * ncols;
+		pos = fetion_user_list_new(sqlres[start],
+					sqlres[start + 1],
+				   	atoi(sqlres[start + 2]),
+					atoi(sqlres[start + 3]));
+		fetion_user_list_append(res , pos);
+	}
+	sqlite3_close(db);
 	return res;
 }
 
@@ -470,48 +505,112 @@ int fetion_config_save(User* user)
 
 Proxy* fetion_config_load_proxy()
 {
-	Proxy *proxy = (Proxy*)malloc(sizeof(Proxy));
-	FILE *file = NULL;
+	Proxy *proxy;
+	sqlite3 *db;
+	char *errMsg;
+	char **sqlres;
+	char sql[1024];
 	char path[1024];
-	
-	bzero(path , sizeof(path));
+	int ncols, nrows;
 
-	sprintf(path , "%s/.openfetion/proxy.dat" , getenv("HOME"));
+	proxy = (Proxy*)malloc(sizeof(Proxy));
 
-	file = fopen(path , "rb");
+	sprintf(path, "%s/.openfetion/data.db",
+				   	getenv("HOME"));
 
-	if(file == NULL)
-	{
-		free(proxy);
+	debug_info("Read proxy information");
+	if(sqlite3_open(path, &db)){
+		debug_error("open data.db:%s",
+					sqlite3_errmsg(db));
 		return NULL;
 	}
 
-	debug_info("Read proxy information");
-
-	if(fread(proxy , sizeof(Proxy) , 1 , file) > 0)
-	{
-		fclose(file);
-		return proxy;
+	sprintf(sql, "select * from proxy;");
+	if(sqlite3_get_table(db, sql, &sqlres
+						, &nrows, &ncols, &errMsg)){
+		sprintf(sql, "create table proxy ("
+					"proxyEnabled, proxyHost,"
+					"proxyPort, proxyUser, proxyPass);");
+		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+			debug_info("create table proxy:%s",
+							errMsg);
+		}
+		sqlite3_close(db);
+		return NULL;
 	}
-	free(proxy);
-	fclose(file);
-	return NULL;
+	if(!nrows)
+		return NULL;
+
+	proxy->proxyEnabled = atoi(sqlres[ncols]);
+	strcpy(proxy->proxyHost, sqlres[ncols+1]);
+	proxy->proxyPort = atoi(sqlres[ncols+2]);
+	strcpy(proxy->proxyUser, sqlres[ncols+3]);
+	strcpy(proxy->proxyPass, sqlres[ncols+4]);
+
+	return proxy;
 }
 
 void fetion_config_save_proxy(Proxy *proxy)
 {
-	FILE *file = NULL;
+	sqlite3 *db;
+	char *errMsg;
+	char **sqlres;
+	char sql[1024];
 	char path[1024];
-	
-	bzero(path , sizeof(path));
+	int ncols, nrows;
 
-	sprintf(path , "%s/.openfetion/proxy.dat" , getenv("HOME"));
+	sprintf(path, "%s/.openfetion/data.db",
+				   	getenv("HOME"));
 
-	file = fopen(path , "wb+");
+	debug_info("Save proxy information");
+	if(sqlite3_open(path, &db)){
+		debug_error("open data.db:%s",
+					sqlite3_errmsg(db));
+		return;
+	}
 
-	fwrite(proxy , sizeof(Proxy) , 1 , file);
+	sprintf(sql, "select * from proxy;");
+	if(sqlite3_get_table(db, sql, &sqlres
+						, &nrows, &ncols, &errMsg)){
+		sprintf(sql, "create table proxy ("
+					"proxyEnabled, proxyHost,"
+					"proxyPort, proxyUser, proxyPass);");
+		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+			debug_error("create table proxy:%s",
+							errMsg ? errMsg : "");
+		}
+		nrows = 0;
+		sqlite3_close(db);
+	}
 
-	fclose(file);
+	if(nrows == 0){
+		sprintf(sql, "insert into proxy values("
+					"%d,'%s',%d,'%s','%s');",
+					proxy->proxyEnabled,
+					proxy->proxyHost,
+					proxy->proxyPort,
+					proxy->proxyUser,
+					proxy->proxyPass);
+		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+			debug_error("insert into proxy:%s",
+							errMsg ? errMsg : "");
+			return;
+		}
+	}else{
+		sprintf(sql, "update proxy set proxyEnabled=%d,"
+					"proxyHost='%s',proxyPort='%d',"
+					"proxyUser='%s',proxyPass='%s';",
+					proxy->proxyEnabled,
+					proxy->proxyHost,
+					proxy->proxyPort,
+					proxy->proxyUser,
+					proxy->proxyPass);
+		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+			debug_error("update proxy:%s",
+							errMsg ? errMsg : "");
+			return;
+		}
+	}
 }
 
 char* generate_configuration_body(User* user)

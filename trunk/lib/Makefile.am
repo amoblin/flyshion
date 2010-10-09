@@ -4,7 +4,7 @@ libofetion_la_CPPFLAGS= $(LIBXML_CFLAGS) $(LIBSSL_CFLAGS) \
 						-g -Wall -I../include/openfetion -I ../. \
 						-DRESOURCE_DIR=\"$(pkgdatadir)/resource/\"
 
-libofetion_la_LDFLAGS= $(LIBXML_LIBS) $(LIBSSL_LIBS)
+libofetion_la_LDFLAGS= $(LIBXML_LIBS) $(LIBSSL_LIBS) -lsqlite3 -ldl
 
 libofetion_la_SOURCES = fetion_buddylist.c \
 						fetion_connection.c \
