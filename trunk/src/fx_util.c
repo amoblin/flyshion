@@ -302,6 +302,8 @@ char *fx_util_replace_emotion(char *str)
 
 void escape_impression(char *impre)
 {
+	if(!impre)
+		return;
 	int i;
 	for(i = 0 ; i < strlen(impre); i++){
 		if(impre[i] == 10 || impre[i] == 13)
