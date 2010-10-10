@@ -47,11 +47,6 @@ User* fetion_user_new(const char* no , const char* password)
 		user->loginType = LOGIN_TYPE_FETIONNO;
 	}
 	strcpy(user->password , password);
-	strcpy(user->personalVersion , "0");
-	strcpy(user->contactVersion , "0");
-	strcpy(user->configServersVersion , "0");
-	strcpy(user->configHintsVersion , "0");
-	strcpy(user->customConfigVersion , "0");
 	user->contactList = fetion_contact_new();
 	user->groupList = fetion_group_new();
 	user->pggroup = NULL;
@@ -767,6 +762,115 @@ Contact* fetion_user_parse_syncuserinfo_body(const char* body , User* user)
 	xmlFreeDoc(doc);
 	return currentContact;
 }
+
+void fetion_user_save(User *user)
+{
+	char path[256];
+	char sql[4096];
+	char *errMsg;
+	sqlite3 *db;
+	Config *config = user->config;
+
+	sprintf(path, "%s/data.db",
+				   	config->userPath);
+
+	debug_info("Save user information");
+	if(sqlite3_open(path, &db)){
+		debug_error("open data.db:%s",
+					sqlite3_errmsg(db));
+		return;
+	}
+
+	sprintf(sql, "delete from user;");
+	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+		sprintf(sql, "create table user ("
+					"sId,userId,mobileno,password,sipuri,"
+					"publicIp,lastLoginIp,lastLoginTime,"
+					"personalVersion,contactVersion,"
+					"nickname,impression,country,province,"
+					"city,gender,smsOnLineStatus,"
+					"customConfigVersion, customConfig,"
+					"boundToMobile);");
+		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+			debug_error("create table user:%s",
+							errMsg ? errMsg : "");
+			sqlite3_close(db);
+			return;
+		}
+	}
+	snprintf(sql, sizeof(sql)-1, "insert into user "
+				"values ('%s','%s','%s','%s','%s',"
+				"'%s','%s','%s','%s','%s',"
+				"'%s','%s','%s','%s','%s',%d,'%s',"
+				" '%s', '%s',%d);",
+				user->sId, user->userId, user->mobileno,
+				user->password, user->sipuri, user->publicIp,
+				user->lastLoginIp, user->lastLoginTime,
+				user->personalVersion, user->contactVersion,
+				user->nickname, user->impression, user->country,
+				user->province, user->city, user->gender,
+				user->smsOnLineStatus, user->customConfigVersion,
+				user->customConfig, user->boundToMobile);
+	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg))
+		debug_error("update user:%s\n%s",
+						errMsg ? errMsg : "", sql);
+
+	sqlite3_close(db);
+}
+
+void fetion_user_load(User *user)
+{
+	char path[256];
+	char sql[4096];
+	char *errMsg;
+	char **sqlres;
+	sqlite3 *db;
+	int ncols, nrows;
+	Config *config = user->config;
+
+	sprintf(path, "%s/data.db",
+				   	config->userPath);
+
+	debug_info("Load user information");
+	if(sqlite3_open(path, &db)){
+		debug_error("open data.db:%s",
+					sqlite3_errmsg(db));
+		return;
+	}
+
+	sprintf(sql, "select * from user;");
+	if(sqlite3_get_table(db, sql, &sqlres
+						, &nrows, &ncols, &errMsg)){
+		sqlite3_close(db);
+		return;
+	}
+
+	strcpy(user->sId , 				sqlres[ncols]);
+	strcpy(user->userId , 			sqlres[ncols+1]);
+	strcpy(user->mobileno , 		sqlres[ncols+2]);
+	strcpy(user->password , 		sqlres[ncols+3]);
+	strcpy(user->sipuri , 			sqlres[ncols+4]);
+	strcpy(user->publicIp , 		sqlres[ncols+5]);
+	strcpy(user->lastLoginIp , 		sqlres[ncols+6]);
+	strcpy(user->lastLoginTime , 	sqlres[ncols+7]);
+	strcpy(user->personalVersion , 	sqlres[ncols+8]);
+	strcpy(user->contactVersion , 	sqlres[ncols+9]);
+	strcpy(user->nickname , 		sqlres[ncols+10]);
+	strcpy(user->impression , 		sqlres[ncols+11]);
+	strcpy(user->country , 			sqlres[ncols+12]);
+	strcpy(user->province , 		sqlres[ncols+13]);
+	strcpy(user->city , 			sqlres[ncols+14]);
+	user->gender = 					atoi(sqlres[ncols+15]);
+	strcpy(user->smsOnLineStatus ,  sqlres[ncols+16]);
+	strcpy(user->customConfigVersion ,  sqlres[ncols+17]);
+	user->customConfig = (char*)malloc(strlen(sqlres[ncols+18])+1);
+	memset(user->customConfig, 0, strlen(sqlres[ncols+18])+1);
+	strcpy(user->customConfig, sqlres[ncols+18]);
+	user->boundToMobile = atoi(sqlres[ncols+19]);
+
+	sqlite3_close(db);
+}
+
 static char* generate_set_state_body(StateType state)	
 {
 	char s[5];

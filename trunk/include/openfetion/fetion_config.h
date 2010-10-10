@@ -33,9 +33,7 @@ extern void fetion_config_download_configuration(User* user);
 
 extern int fetion_config_initialize(Config* config , const char* userid);
 
-extern int fetion_config_load_xml(User* user);
-
-extern int fetion_config_load_data(User* user);
+extern int fetion_config_load(User* user);
 
 extern Proxy* fetion_config_load_proxy();
 
@@ -72,12 +70,6 @@ extern struct userlist* fetion_user_list_load(Config* config);
 
 extern void fetion_user_list_free(struct userlist *list);
 
-
-/*private*/
-extern char* generate_configuration_body(User* user);
-
-extern void refresh_configuration_xml(const char* xml
-		, const char* xmlPath , User* user);
 
 extern xmlNodePtr xml_goto_node(xmlNodePtr node , const char* xml);
 

@@ -416,9 +416,11 @@ int parse_sipc_auth_response(const char* auth_response , User* user)
 	strcpy(user->customConfigVersion , (char*)buf);
 	xmlFree(buf);
 	buf = xmlNodeGetContent(node1);
-	user->customConfig = malloc(strlen((char*)buf) + 1);
-	memset(user->customConfig , 0 , strlen((char*)buf) + 1);
-	strcpy(user->customConfig , (char*)buf);
+	if(xmlStrlen(buf) > 0){
+		user->customConfig = malloc(strlen((char*)buf) + 1);
+		memset(user->customConfig , 0 , strlen((char*)buf) + 1);
+		strcpy(user->customConfig , (char*)buf);
+	}
 	xmlFree(buf);
 	node1 = xml_goto_node(node , "contact-list");
 	parse_contact_list(node1 , user);
@@ -474,18 +476,17 @@ static char* generate_auth_body(User* user)
 	xmlNewProp(node , BAD_CAST "mobile-no" , BAD_CAST user->mobileno);
 	xmlNewProp(node , BAD_CAST "user-id" , BAD_CAST user->userId);
 	node1 = xmlNewChild(node , NULL , BAD_CAST "personal" , NULL);
-	xmlNewProp(node1 , BAD_CAST "version" , BAD_CAST "0");//user->personalVersion);
+	xmlNewProp(node1 , BAD_CAST "version" , BAD_CAST user->personalVersion);
 	xmlNewProp(node1 , BAD_CAST "attributes" , BAD_CAST "v4default");
 	node1 = xmlNewChild(node , NULL , BAD_CAST "custom-config" , NULL);
-	xmlNewProp(node1 , BAD_CAST "version" , BAD_CAST "0");// user->customConfigVersion);
+	xmlNewProp(node1 , BAD_CAST "version" , BAD_CAST user->customConfigVersion);
 	node1 = xmlNewChild(node , NULL , BAD_CAST "contact-list" , NULL);
-	xmlNewProp(node1 , BAD_CAST "version" , BAD_CAST "0");//user->contactVersion);
+	xmlNewProp(node1 , BAD_CAST "version" , BAD_CAST user->contactVersion);
 	xmlNewProp(node1 , BAD_CAST "buddy-attributes" , BAD_CAST "v4default");
 	node = xmlNewChild(rootnode , NULL , BAD_CAST "credentials" , NULL);
 	xmlNewProp(node , BAD_CAST "domains" , BAD_CAST "fetion.com.cn");
 	node = xmlNewChild(rootnode , NULL , BAD_CAST "presence" , NULL);
 	node1 = xmlNewChild(node , NULL , BAD_CAST "basic" , NULL);
-	bzero(state , sizeof(state));
 	sprintf(state , "%d" , user->state);
 	xmlNewProp(node1 , BAD_CAST "value" , BAD_CAST state);
 	xmlNewProp(node1 , BAD_CAST "desc" , BAD_CAST "");
@@ -576,14 +577,14 @@ static void parse_contact_list(xmlNodePtr node , User* user)
 
 	DEBUG_FOOTPRINT();
 
-//	buf = xmlGetProp(node , BAD_CAST "version");
+	buf = xmlGetProp(node , BAD_CAST "version");
 	debug_info("Start reading contact list ");
-//	if(strcmp(user->contactVersion , (char*) buf) == 0){
-//		debug_info("Contact list is the same as that stored in the local disk!");
-//		return ;
-//	}
-//	strcpy(user->contactVersion , (char*)buf);
-//	xmlFree(buf);
+	if(strcmp(user->contactVersion , (char*) buf) == 0){
+		debug_info("Contact list is the same as that stored in the local disk!");
+		return ;
+	}
+	strcpy(user->contactVersion , (char*)buf);
+	xmlFree(buf);
 	node1 = xml_goto_node(node , "buddy-lists");
 	node2 = node1->xmlChildrenNode;
 	while(node2 != NULL){
