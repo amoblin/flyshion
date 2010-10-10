@@ -20,6 +20,9 @@
 
 #include <openfetion.h>
 
+static int parse_configuration_xml(User *user, const char *xml);
+static char* generate_configuration_body(User* user);
+
 Config* fetion_config_new()
 {
 	char* homepath = NULL;
@@ -232,12 +235,12 @@ void fetion_user_list_free(struct userlist *list)
 
 void fetion_config_download_configuration(User* user)
 {
-	char http[1025] , path[256] , *body , *res;
+	char http[1025] , *body , *res;
 	FetionConnection* conn = NULL;
 	Config *config = user->config;
 	char uri[] = "nav.fetion.com.cn";
 	char* ip;
-	sprintf(path , "%s/configuration.xml" , user->config->userPath);
+
 	ip = get_ip_by_name(uri);
 	if(ip == NULL){
 		debug_error("Parse configuration uri (%s) failed!!!");
@@ -250,14 +253,14 @@ void fetion_config_download_configuration(User* user)
 		tcp_connection_connect(conn , ip , 80);
 	body = generate_configuration_body(user);
 	sprintf(http , "POST /nav/getsystemconfig.aspx HTTP/1.1\r\n"
-				   "User-Agent: IIC2.0/PC 3.6.1900\r\n"
+				   "User-Agent: IIC2.0/PC "PROTO_VERSION"\r\n"
 				   "Host: %s\r\n"
 				   "Connection: Close\r\n"
 				   "Content-Length: %d\r\n\r\n%s"
 				 , uri , strlen(body) , body);
 	tcp_connection_send(conn , http , strlen(http));
 	res = http_connection_get_response(conn);
-	refresh_configuration_xml(res , path , user);
+	parse_configuration_xml(user, res);
 	free(res);
 }
 int fetion_config_initialize(Config* config , const char* userid)
@@ -287,10 +290,10 @@ int fetion_config_initialize(Config* config , const char* userid)
 	}
 	return 0;
 }
-int fetion_config_load_xml(User* user)
+
+static int parse_configuration_xml(User *user, const char *xml)
 {
 	Config* config = user->config;
-	char configFilePath[256];
 	char sipcIP[20] , sipcPort[6]; 
 	char* pos;
 	int n;
@@ -299,138 +302,177 @@ int fetion_config_load_xml(User* user)
 	xmlNodePtr node;
 	xmlNodePtr cnode;
 
-	bzero(configFilePath , sizeof(configFilePath));
-	bzero(sipcIP , sizeof(sipcIP));
-	bzero(sipcPort , sizeof(sipcPort));
-	sprintf(configFilePath , "%s/configuration.xml" , config->userPath);
+	memset(sipcIP, 0, sizeof(sipcIP));
+	memset(sipcPort, 0, sizeof(sipcPort));
 
-	doc = xmlParseFile(configFilePath);
-	if(doc == NULL)
-	{
-		debug_error("Can not fild configuration file");
+	doc = xmlParseMemory(xml, strlen(xml));
+
+	if(!doc){
+		debug_error("Can not read configuration");
 		return -1;
 	}
+
 	node = xmlDocGetRootElement(doc);
-	cnode = xml_goto_node(node , "sipc-proxy");
-	res = xmlNodeGetContent(cnode);
-	n = strlen((char*)res) - strlen(strstr((char*)res , ":"));
-	strncpy(config->sipcProxyIP , (char*)res , n);
-	pos = strstr((char*)res , ":") + 1;
-	config->sipcProxyPort = atoi(pos);
-	xmlFree(res);
+	cnode = xml_goto_node(node, "servers");
+	if(cnode && xmlHasProp(cnode, BAD_CAST "version")){
+		res = xmlGetProp(cnode, BAD_CAST "version");
+		strcpy(config->configServersVersion, (char*)res);
+		xmlFree(res);
+	}
+	cnode = xml_goto_node(node, "parameters");
+	if(cnode && xmlHasProp(cnode, BAD_CAST "version")){
+		res = xmlGetProp(cnode, BAD_CAST "version");
+		strcpy(config->configParametersVersion, (char*)res);
+		xmlFree(res);
+	}
+	cnode = xml_goto_node(node, "hints");
+	if(cnode && xmlHasProp(cnode, BAD_CAST "version")){
+		res = xmlGetProp(cnode, BAD_CAST "version");
+		strcpy(config->configHintsVersion, (char*)res);
+		xmlFree(res);
+	}
+	cnode = xml_goto_node(node, "sipc-proxy");
+	if(cnode){
+		res = xmlNodeGetContent(cnode);
+		n = strlen((char*)res) - strlen(strstr((char*)res , ":"));
+		strncpy(config->sipcProxyIP , (char*)res , n);
+		pos = strstr((char*)res , ":") + 1;
+		config->sipcProxyPort = atoi(pos);
+		xmlFree(res);
+	}
+
 	cnode = xml_goto_node(node , "get-uri");
-	res = xmlNodeGetContent(cnode);
-	pos = strstr((char*)res , "//") + 2;
-	n = strlen(pos) - strlen(strstr(pos , "/"));
-	strncpy(config->portraitServerName , pos , n);
-	pos = strstr(pos , "/") + 1;
-	n = strlen(pos) - strlen(strstr(pos , "/"));
-	strncpy(config->portraitServerPath , pos , n);
-	xmlFree(res);
+	if(cnode){
+		res = xmlNodeGetContent(cnode);
+		pos = strstr((char*)res , "//") + 2;
+		n = strlen(pos) - strlen(strstr(pos , "/"));
+		strncpy(config->portraitServerName , pos , n);
+		pos = strstr(pos , "/") + 1;
+		n = strlen(pos) - strlen(strstr(pos , "/"));
+		strncpy(config->portraitServerPath , pos , n);
+		xmlFree(res);
+	}
 	return 1;
 }
 
-int fetion_config_load_data(User *user)
+int fetion_config_load(User *user)
 {
 	char path[256];
-	xmlDocPtr doc;
-	xmlNodePtr node;
-	xmlNodePtr pnode;
-	xmlChar *res;
-	FILE *test_fd;
-	Config *cfg = user->config;
+	char sql[4096];
+	char *errMsg;
+	char **sqlres;
+	sqlite3 *db;
+	int ncols, nrows;
+	Config *config = user->config;
 
+	sprintf(path, "%s/data.db",
+				   	config->userPath);
 
-	memset(path , 0 , sizeof(path));
-	snprintf(path , 255 , "%s/config.xml" , cfg->userPath);
-	test_fd = fopen(path , "r");
-	if(test_fd)
-		fclose(test_fd);
-	else
+	debug_info("Load configuration");
+	if(sqlite3_open(path, &db)){
+		debug_error("open data.db:%s",
+					sqlite3_errmsg(db));
 		return -1;
-	doc = xmlParseFile(path);
-	if(!doc)
+	}
+
+	sprintf(sql, "select * from config;");
+	if(sqlite3_get_table(db, sql, &sqlres
+						, &nrows, &ncols, &errMsg)){
+		sqlite3_close(db);
 		return -1;
-
-	pnode = xmlDocGetRootElement(doc);
-
-	node = xml_goto_node(pnode , "icon_size");
-	if(node){
-		res = xmlGetProp(node , BAD_CAST "value");
-		cfg->iconSize = atoi((char*)res);	
-		xmlFree(res);
 	}
 
-	node = xml_goto_node(pnode , "close_alert");
-	if(node){
-		res = xmlGetProp(node , BAD_CAST "value");
-		cfg->closeAlert = atoi((char*)res);	
-		xmlFree(res);
-	}
+	strcpy(config->sipcProxyIP, sqlres[ncols]);
+	config->sipcProxyPort = atoi(sqlres[ncols+1]);
+	strcpy(config->portraitServerName, sqlres[ncols+2]);
+	strcpy(config->portraitServerPath, sqlres[ncols+3]);
+	config->iconSize = atoi(sqlres[ncols+4]);
+	config->closeAlert = atoi(sqlres[ncols+5]);
+	config->autoReply = atoi(sqlres[ncols+6]);
+	config->isMute = atoi(sqlres[ncols+7]);
+	strcpy(config->autoReplyMessage, sqlres[ncols+8]);
+	config->msgAlert = atoi(sqlres[ncols+9]);
+	config->autoPopup = atoi(sqlres[ncols+10]);
+	config->sendMode = atoi(sqlres[ncols+11]);
+	config->closeMode = atoi(sqlres[ncols+12]);
+	config->canIconify = atoi(sqlres[ncols+13]);
+	config->allHighlight = atoi(sqlres[ncols+14]);
+	strcpy(config->configServersVersion, sqlres[ncols+15]);
+	strcpy(config->configParametersVersion, sqlres[ncols+16]);
+	strcpy(config->configHintsVersion, sqlres[ncols+17]);
 
-	node = xml_goto_node(pnode , "auto_reply");
-	if(node){
-		res = xmlGetProp(node , BAD_CAST "value");
-		cfg->autoReply = atoi((char*)res);	
-		xmlFree(res);
-	}
 
-	node = xml_goto_node(pnode , "is_mute");
-	if(node){
-		res = xmlGetProp(node , BAD_CAST "value");
-		cfg->isMute = atoi((char*)res);	
-		xmlFree(res);
-	}
-
-	node = xml_goto_node(pnode , "message_alert");
-	if(node){
-		res = xmlGetProp(node , BAD_CAST "value");
-		cfg->msgAlert = atoi((char*)res);	
-		xmlFree(res);
-	}
-
-	node = xml_goto_node(pnode , "auto_popup");
-	if(node){
-		res = xmlGetProp(node , BAD_CAST "value");
-		cfg->autoPopup = atoi((char*)res);	
-		xmlFree(res);
-	}
-
-	node = xml_goto_node(pnode , "send_mode");
-	if(node){
-		res = xmlGetProp(node , BAD_CAST "value");
-		cfg->sendMode = atoi((char*)res);	
-		xmlFree(res);
-	}
-
-	node = xml_goto_node(pnode , "close_mode");
-	if(node){
-		res = xmlGetProp(node , BAD_CAST "value");
-		cfg->closeMode = atoi((char*)res);	
-		xmlFree(res);
-	}
-
-	node = xml_goto_node(pnode , "can_iconify");
-	if(node){
-		res = xmlGetProp(node , BAD_CAST "value");
-		cfg->canIconify = atoi((char*)res);	
-		xmlFree(res);
-	}
-
-	node = xml_goto_node(pnode , "all_highlight");
-	if(node){
-		res = xmlGetProp(node , BAD_CAST "value");
-		cfg->allHighlight = atoi((char*)res);	
-		xmlFree(res);
-	}
-
-	xmlFreeDoc(doc);
-
+	sqlite3_close(db);
 	return 1;
 
 }
 
-int fetion_config_save(User* user)
+int fetion_config_save(User *user)
+{
+	char path[256];
+	char sql[4096];
+	sqlite3 *db;
+	char *errMsg = NULL;
+	Config *config = user->config;
+
+	sprintf(path , "%s/data.db" , config->userPath);
+
+	debug_info("Save configuration");
+
+	if(sqlite3_open(path, &db)){
+		debug_error("failed to load user list");
+		return -1;
+	}
+
+	sprintf(sql, "delete from config;");
+	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+		sprintf(sql, "create table config ("
+				"sipcProxyIP,sipcProxyPort,"
+				"portraitServerName,portraitServerPath,"
+				"iconSize,closeAlert,autoReply,isMute,"
+				"autoReplyMessage,msgAlert,autoPopup,"
+				"sendMode,closeMode,canIconify,allHighlight,"
+				"serversVersion,paremetersVersion,hintsVersion);");
+		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+			debug_error("create table config:%s",
+							sqlite3_errmsg(db));
+			sqlite3_close(db);
+			return -1;
+		}
+	}
+
+	sprintf(sql, "insert into config values ("
+				"'%s',%d,'%s','%s',%d,%d,%d,"
+				"%d,'%s',%d,%d,%d,%d,%d,%d,'%s','%s','%s');",
+				config->sipcProxyIP,
+				config->sipcProxyPort,
+				config->portraitServerName,
+				config->portraitServerPath,
+				config->iconSize,
+				config->closeAlert,
+				config->autoReply,
+				config->isMute,
+				config->autoReplyMessage,
+				config->msgAlert,
+				config->autoPopup,
+				config->sendMode,
+				config->closeMode,
+				config->canIconify,
+				config->allHighlight,
+				config->configServersVersion,
+				config->configParametersVersion,
+				config->configHintsVersion);
+	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+		debug_error("save config:%s",
+					sqlite3_errmsg(db));
+		sqlite3_close(db);
+		return -1;
+	}
+	sqlite3_close(db);
+	return 1;
+}
+
+int fetion_config_save1(User* user)
 {
 	const char xml[] = "<config></config>";
 	char path[256];
@@ -613,7 +655,7 @@ void fetion_config_save_proxy(Proxy *proxy)
 	}
 }
 
-char* generate_configuration_body(User* user)
+static char* generate_configuration_body(User* user)
 {
 	xmlChar* buf;
 	xmlDocPtr doc;
@@ -622,83 +664,38 @@ char* generate_configuration_body(User* user)
 	doc = xmlParseMemory(body , strlen(body));
 	node = xmlDocGetRootElement(doc);
 	cnode = xmlNewChild(node , NULL , BAD_CAST "user" , NULL);
-	if(user->loginType == LOGIN_TYPE_FETIONNO){
+
+	if(user->loginType == LOGIN_TYPE_FETIONNO)
 		xmlNewProp(cnode , BAD_CAST "sid" , BAD_CAST user->sId);
-	}else{
+	else
 		xmlNewProp(cnode , BAD_CAST "mobile-no" , BAD_CAST user->mobileno);
-	}
+	
 	cnode = xmlNewChild(node , NULL , BAD_CAST "client" , NULL);
 	xmlNewProp(cnode , BAD_CAST "type" , BAD_CAST "PC");
 	xmlNewProp(cnode , BAD_CAST "version" , BAD_CAST PROTO_VERSION);
 	xmlNewProp(cnode , BAD_CAST "platform" , BAD_CAST "W5.1");
 	cnode = xmlNewChild(node , NULL , BAD_CAST "servers" , NULL);
-	xmlNewProp(cnode , BAD_CAST "version" , BAD_CAST user->configServersVersion);
-/*	cnode = xmlNewChild(node , NULL , BAD_CAST "service-no" , NULL);
-	xmlNewProp(cnode , BAD_CAST "version" , BAD_CAST "0");*/
+	xmlNewProp(cnode , BAD_CAST "version",
+				   	BAD_CAST user->config->configServersVersion);
 	cnode = xmlNewChild(node , NULL , BAD_CAST "parameters" , NULL);
-	xmlNewProp(cnode , BAD_CAST "version" , BAD_CAST "0");
+	xmlNewProp(cnode , BAD_CAST "version",
+				   	BAD_CAST user->config->configParametersVersion);
 	cnode = xmlNewChild(node , NULL , BAD_CAST "hints" , NULL);
-	xmlNewProp(cnode , BAD_CAST "version" , BAD_CAST user->configServersVersion);
-/*	cnode = xmlNewChild(node , NULL , BAD_CAST "http-applications" , NULL);
+	xmlNewProp(cnode , BAD_CAST "version",
+				   	BAD_CAST user->config->configHintsVersion);
+#if 0
+	cnode = xmlNewChild(node , NULL , BAD_CAST "service-no" , NULL);
+	xmlNewProp(cnode , BAD_CAST "version" , BAD_CAST "0");
+	cnode = xmlNewChild(node , NULL , BAD_CAST "http-applications" , NULL);
 	xmlNewProp(cnode , BAD_CAST "version" , BAD_CAST "0");
 	cnode = xmlNewChild(node , NULL , BAD_CAST "client-config" , NULL);
 	xmlNewProp(cnode , BAD_CAST "version" , BAD_CAST "0");
 	cnode = xmlNewChild(node , NULL , BAD_CAST "services" , NULL);
-	xmlNewProp(cnode , BAD_CAST "version" , BAD_CAST "0");*/
+	xmlNewProp(cnode , BAD_CAST "version" , BAD_CAST "0");
+#endif
 	xmlDocDumpMemory(doc , &buf , NULL);
 	xmlFreeDoc(doc);	
 	return xml_convert(buf);
-}
-void refresh_configuration_xml(const char* xml , const char* xmlPath , User* user)
-{
-	FILE* xmlfd;
-	xmlDocPtr olddoc , newdoc;
-	xmlNodePtr oldnode , newnode , oldpos , newpos , newpos1;
-	xmlChar* c;
-
-	if(xml == NULL)
-		return;
-	xmlfd = fopen(xmlPath , "r");
-
-	if(xmlfd == NULL)
-	{
-		xmlfd = fopen(xmlPath , "wb+");
-		fwrite(xml , strlen(xml) , 1 , xmlfd);
-		fclose(xmlfd);
-	}
-	else
-	{
-		fclose(xmlfd);
-		olddoc = xmlParseFile(xmlPath);
-		newdoc = xmlParseMemory(xml , strlen(xml));
-		oldnode = xmlDocGetRootElement(olddoc);
-		newnode = xmlDocGetRootElement(newdoc);
-		newpos = xml_goto_node(newnode , "servers");
-		if(newpos != NULL)
-		{
-			c = xmlGetProp(newpos , BAD_CAST "version");
-			strcpy(user->configServersVersion , (char*)c);
-			xmlFree(c);
-			oldpos = xml_goto_node(oldnode , "servers");
-			if(oldpos != NULL)
-				oldpos->xmlChildrenNode = newpos->xmlChildrenNode;
-			else
-				xmlAddChild(oldnode , newpos);
-		}
-		newpos1 = xml_goto_node(newnode , "hints");
-		if(newpos1 != NULL)
-		{
-			c = xmlGetProp(newpos1 , BAD_CAST "version");
-			strcpy(user->configHintsVersion , (char*)c);
-			xmlFree(c);
-			oldpos = xml_goto_node(oldnode , "hints");
-			if(oldpos != NULL)
-				oldpos->xmlChildrenNode = newpos1->xmlChildrenNode;
-			else
-				xmlAddChild(oldnode , newpos1);
-		}
-		xmlSaveFile(xmlPath , olddoc);
-	}
 }
 
 xmlNodePtr xml_goto_node(xmlNodePtr node , const char* name)

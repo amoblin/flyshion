@@ -20,6 +20,8 @@
 
 #include "fx_include.h"
 
+static void* localization_thread(void *data);
+
 FxLogin* fx_login_new()
 {
 	FxLogin* fxlogin = (FxLogin*)malloc(sizeof(FxLogin));
@@ -100,10 +102,12 @@ void fx_login_initialize(FxMain* fxmain)
 	noentry = gtk_bin_get_child(GTK_BIN(fxlogin->username));
 	gtk_widget_set_size_request(GTK_WIDGET(fxlogin->username) , 200 , 25);
 
-	g_signal_connect(fxlogin->username , "changed" , G_CALLBACK(fx_login_user_change_func) , fxlogin);
+	g_signal_connect(fxlogin->username, "changed",
+				   	G_CALLBACK(fx_login_user_change_func) , fxlogin);
 
 	fxlogin->userlabel = gtk_label_new(gettext("Cell number or fetion number:"));
-	gtk_label_set_justify(GTK_LABEL(fxlogin->userlabel) , GTK_JUSTIFY_CENTER);
+	gtk_label_set_justify(GTK_LABEL(fxlogin->userlabel),
+				   	GTK_JUSTIFY_CENTER);
 
 	fxlogin->password = gtk_entry_new();
 	gtk_widget_set_size_request(GTK_WIDGET(fxlogin->password) , 200 , 25);
@@ -178,7 +182,8 @@ void fx_login_initialize(FxMain* fxmain)
 
 	fx_login_set_last_login_user(fxlogin);
 
-	img = gtk_image_new_from_pixbuf(gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" , 128 , 128 , NULL));
+	img = gtk_image_new_from_pixbuf(
+		gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" , 128 , 128 , NULL));
 
 	fxlogin->fixed = gtk_fixed_new();
 	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , img , 70, 25);
@@ -327,9 +332,12 @@ login:
 		debug_info("Input verfication code:%s" , code);
 		goto login;
 	}
-	if(user->loginStatus == 401 || user->loginStatus == 400 || user->loginStatus == 404){
+	if(user->loginStatus == 401 ||
+	  	user->loginStatus == 400 ||
+	   	user->loginStatus == 404){
 		debug_info("Password error!!!");
-		fx_login_show_msg(fxlogin , _("Login failed. Incorrect cell phone number or password"));
+		fx_login_show_msg(fxlogin,
+			_("Login failed. Incorrect cell phone number or password"));
 		g_thread_exit(0);
 	}
 	
@@ -337,7 +345,8 @@ login:
 
 	fetion_config_initialize(config , user->userId);
 
-	gtk_combo_box_get_active_iter(GTK_COMBO_BOX(fxlogin->statecombo) , &stateIter);
+	gtk_combo_box_get_active_iter(GTK_COMBO_BOX(fxlogin->statecombo),
+				   	&stateIter);
 	stateModel = gtk_combo_box_get_model(GTK_COMBO_BOX(fxlogin->statecombo));
 	gtk_tree_model_get(stateModel , &stateIter , 2 , &state , -1);
 
@@ -368,25 +377,30 @@ login:
 
 	/* download xml configuration file from the server */
 	fx_login_show_msg(fxlogin , _("Downloading configuration files"));
+
+	fetion_config_load(user);
 	fetion_config_download_configuration(user);
-	if(fetion_config_load_xml(user) < 0){
-		fx_login_show_msg(fxlogin , _("Login failed"));
-		return NULL;
-	}
-	if(fetion_config_load_data(user) < 0)
-		fetion_config_save(user);
+	fetion_config_save(user);
 
+	fetion_user_set_st(user , state);
 
-	user->state = state;
+	/*load local data*/
+	fetion_user_load(user);
+	fetion_contact_load(user);
 
 	/* start a new tcp connection for registering to sipc server */
 	conn = tcp_connection_new();
 	if(config->proxy != NULL && config->proxy->proxyEnabled){
 		fx_login_show_msg(fxlogin , _("Connecting to proxy server"));
-		tcp_connection_connect_with_proxy(conn , config->sipcProxyIP , config->sipcProxyPort , config->proxy);
+		tcp_connection_connect_with_proxy(conn,
+					   	config->sipcProxyIP,
+					   	config->sipcProxyPort,
+					   	config->proxy);
 	}else{
 		fx_login_show_msg(fxlogin , _("Connecting to registration server"));
-		tcp_connection_connect(conn , config->sipcProxyIP , config->sipcProxyPort);
+		tcp_connection_connect(conn,
+					   	config->sipcProxyIP, 
+						config->sipcProxyPort);
 	}
 
 	FetionSip* sip = fetion_sip_new(conn , user->sId);
@@ -395,16 +409,17 @@ login:
 	fx_login_show_msg(fxlogin , _("Registering to SIPC Server"));
 	pos = sipc_reg_action(user);
 
-	if(pos == NULL){
+	if(!pos){
 		fx_login_show_msg(fxlogin , _("Login failed"));
-		return NULL;
+		g_thread_exit(0);
 	}
 
 	parse_sipc_reg_response(pos , &nonce , &key);
 	free(pos);
 
 	aeskey = generate_aes_key();
-	response = generate_response(nonce , user->userId , user->password , key , aeskey);
+	response = generate_response(nonce, user->userId,
+				   	user->password, key, aeskey);
 	free(nonce);
 	free(key);
 	free(aeskey);
@@ -428,7 +443,7 @@ auth:
 	if(user->loginStatus == 401 || user->loginStatus == 400){
 		debug_info("Password error , login failed!!!");
 		fx_login_show_msg(fxlogin , _("Authenticate failed."));
-		return NULL;
+		g_thread_exit(0);
 	}
 
 	if(user->loginStatus == 421 || user->loginStatus == 420){
@@ -436,23 +451,21 @@ auth:
 		debug_info(user->verification->tips);
 		generate_pic_code(user);
 		gdk_threads_enter();
-		fxcode = fx_code_new(fxmain , user->verification->text , user->verification->tips , CODE_NOT_ERROR);
+		fxcode = fx_code_new(fxmain, user->verification->text,
+					  	user->verification->tips, CODE_NOT_ERROR);
 		fx_code_initialize(fxcode);
+
 		ret = gtk_dialog_run(GTK_DIALOG(fxcode->dialog));
 		if(ret == GTK_RESPONSE_OK){
-
 			strcpy(code , gtk_entry_get_text(GTK_ENTRY(fxcode->codeentry)));
 			fetion_user_set_verification_code(user , code);
 			gtk_widget_destroy(fxcode->dialog);
 			gdk_threads_leave();
 			goto auth;
-
 		}else{
-
 			gtk_widget_destroy(fxcode->dialog);
 			gdk_threads_leave();
 			return NULL;
-
 		}
 		debug_info("Input verfication code:%s" , code);
 	}
@@ -464,24 +477,24 @@ auth:
 	char notifyText[1024];
 	char iconPath[256];
 	GdkPixbuf *pb;
-	bzero(iconPath , sizeof(iconPath));
 	sprintf(iconPath , "%s/%s.jpg" , config->iconPath , user->sId);
-	bzero(notifyText , sizeof(notifyText));
 	sprintf(notifyText ,
 			_("Public IP: %s\n"
 			"IP of last login: %s\n"
-			"Time of last login: %s\n")
-			, user->publicIp , user->lastLoginIp , user->lastLoginTime);
+			"Time of last login: %s\n"),
+		   	user->publicIp , user->lastLoginIp,
+		   	user->lastLoginTime);
 	pb = gdk_pixbuf_new_from_file_at_size(iconPath , 48 , 48 , NULL);
-	if(pb == NULL){
+	if(!pb){
 		fetion_user_download_portrait(user , user->sipuri);
 		pb = gdk_pixbuf_new_from_file_at_size(iconPath , 48 , 48 , NULL);
-		if(pb == NULL){
-			pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" , 48 , 48 , NULL);
-		}
+		if(!pb)
+			pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg",
+						   	48, 48, NULL);
 	}
 	gdk_threads_enter();
-	notify_notification_update(fxmain->notify , _("Login successful")// notifySummary
+	notify_notification_update(fxmain->notify,
+				   	_("Login successful")// notifySummary
 			, notifyText , NULL);
 	notify_notification_set_icon_from_pixbuf(fxmain->notify , pb);
 	notify_notification_show(fxmain->notify , NULL);
@@ -490,23 +503,27 @@ auth:
 #endif
 	fx_login_show_msg(fxlogin , _("Login sucessful"));
 
+	/*localization*/
+	g_thread_create(localization_thread, user, FALSE, NULL);
+
 	gdk_threads_enter();
 	gtk_window_set_resizable(GTK_WINDOW(fxmain->window) , TRUE);
 	gdk_threads_leave();
 
-
 	/**
 	 *  if there is not a buddylist name "Ungrouped" or "Strangers", create one
 	 */
-	if(fetion_group_list_find_by_id(user->groupList , BUDDY_LIST_NOT_GROUPED) == NULL
-		&& fetion_contact_has_ungrouped(user->contactList)){
+	if(fetion_group_list_find_by_id(user->groupList,
+			BUDDY_LIST_NOT_GROUPED) == NULL &&
+		    fetion_contact_has_ungrouped(user->contactList)){
 		group = fetion_group_new();
 		group->groupid = BUDDY_LIST_NOT_GROUPED;
 		strcpy(group->groupname , N_("Ungrouped"));
 		fetion_group_list_append(user->groupList , group);
 	}
-	if(fetion_group_list_find_by_id(user->groupList , BUDDY_LIST_STRANGER) == NULL
-		&& fetion_contact_has_strangers(user->contactList)){
+	if(fetion_group_list_find_by_id(user->groupList,
+			BUDDY_LIST_STRANGER) == NULL &&
+			fetion_contact_has_strangers(user->contactList)){
 		group = fetion_group_new();
 		group->groupid = BUDDY_LIST_STRANGER;
 		strcpy(group->groupname , N_("Strangers"));
@@ -530,13 +547,15 @@ auth:
 	gdk_threads_leave();
 
 	/* set tooltip of status icon */
-	bzero(statusTooltip , sizeof(statusTooltip));
-	sprintf(statusTooltip , "%s\n%s" , user->nickname , user->mobileno);
+	sprintf(statusTooltip, "%s\n%s",
+			 user->nickname , user->mobileno);
 
 	gdk_threads_enter();
-	gtk_status_icon_set_tooltip(GTK_STATUS_ICON(fxmain->trayIcon) , statusTooltip);
+	gtk_status_icon_set_tooltip(GTK_STATUS_ICON(fxmain->trayIcon),
+				   	statusTooltip);
 	/* set title of main window*/
-	gtk_window_set_title(GTK_WINDOW(fxmain->window) , user->nickname );
+	gtk_window_set_title(GTK_WINDOW(fxmain->window),
+				   	user->nickname );
 	gdk_threads_leave();
 
 	gdk_threads_enter();
@@ -663,4 +682,11 @@ void fx_login_user_change_func(GtkWidget* widget , gpointer data)
 							   , strlen(pwd) == 0 ? FALSE : TRUE);
 
 	free(pwd);
+}
+
+static void* localization_thread(void *data)
+{
+	fetion_user_save((User*)data);
+	fetion_contact_save((User*)data);
+	return NULL;
 }

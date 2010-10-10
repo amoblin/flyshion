@@ -22,23 +22,15 @@
 /*private */
 
 static char* generate_subscribe_body(const char* version);
-
 static char* generate_contact_info_body(const char* userid);
-
 static char* generate_contact_info_by_no_body(const char* no , NumberType nt);
-
 static char* generate_set_mobileno_perssion(const char* userid , int show);
-
 static char* generate_set_displayname_body(const char* userid , const char* name);
-
 static char* generate_move_to_group_body(const char* userid , int buddylist);
-
 static char* generate_delete_buddy_body(const char* userid);
-
 static char* generate_add_buddy_body(const char* no , NumberType notype
 								, int buddylist , const char* localname
 								, const char* desc , int phraseid);
-
 static char* generate_handle_contact_request_body(const char* sipuri
 								, const char* userid , const char* localname
 								, int buddylist , int result );
@@ -66,7 +58,7 @@ Contact* fetion_contact_list_find_by_userid(Contact* contactlist , const char* u
 {
 	Contact* cl_cur;
 	foreach_contactlist(contactlist , cl_cur){
-		//printf("%s , %s\n" , cl_cur->userId , userid);
+		//printf("-------- %s , %s\n" , cl_cur->userId , userid);
 		if(strcmp(cl_cur->userId , userid) == 0)
 			return cl_cur;
 	}
@@ -149,9 +141,9 @@ Contact* fetion_contact_get_contact_info(User* user , const char* userid)
 	tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
 	res = fetion_sip_get_response(sip);
-	if(res == NULL){
+	if(res == NULL)
 		return NULL;
-	}
+
 	pos = strstr(res , "\r\n\r\n") + 4;
 	doc = xmlParseMemory(pos , strlen(pos));
 	node = xmlDocGetRootElement(doc);
@@ -910,4 +902,191 @@ void parse_add_buddy_verification(User* user , const char* str)
 	strncpy(ver->tips , (char*)res , n - 1);
 	xmlFree(res);
 	user->verification = ver;
+}
+
+void fetion_contact_load(User *user)
+{
+	char path[256];
+	char sql[4096];
+	sqlite3 *db;
+	char *errMsg = NULL;
+	char **sqlres;
+	int ncols, nrows, i, j, start;
+	Contact *pos;
+	Group *gpos;
+	Config *config = user->config;
+
+	debug_info("Load contact list");
+
+	sprintf(path , "%s/data.db" , config->userPath);
+	if(sqlite3_open(path, &db)){
+		debug_error("failed to load contact list");
+		return;
+	}
+
+	sprintf(sql, "select * from groups;");
+	if(sqlite3_get_table(db, sql, &sqlres,
+						&nrows, &ncols, &errMsg)){
+		sqlite3_close(db);
+		return;
+	}
+
+	for(i = 0; i < nrows; i++){
+		gpos = fetion_group_new();
+		for(j = 0; j < ncols; j++){
+			start = ncols + i * ncols;
+			gpos->groupid = atoi(sqlres[start]);
+			strcpy(gpos->groupname, sqlres[start+1]);
+		}
+		fetion_group_list_append(user->groupList, gpos);
+	}
+
+	sprintf(sql, "select * from contacts;");
+	if(sqlite3_get_table(db, sql, &sqlres,
+						&nrows, &ncols, &errMsg)){
+		sqlite3_close(db);
+		return;
+	}
+	
+	for(i = 0; i < nrows; i++){
+		pos = fetion_contact_new();
+		for(j = 0; j < ncols; j++){
+			start = ncols + i * ncols;
+			strcpy(pos->userId, 	sqlres[start]);
+			strcpy(pos->sId, 		sqlres[start+1]);
+			strcpy(pos->sipuri, 	sqlres[start+2]);
+			strcpy(pos->localname, 	sqlres[start+3]);
+			strcpy(pos->nickname, 	sqlres[start+4]);
+			strcpy(pos->impression, sqlres[start+5]);
+			strcpy(pos->mobileno, 	sqlres[start+6]);
+			strcpy(pos->devicetype, sqlres[start+7]);
+			strcpy(pos->portraitCrc,sqlres[start+8]);
+			strcpy(pos->birthday, 	sqlres[start+9]);
+			strcpy(pos->country, 	sqlres[start+10]);
+			strcpy(pos->province, 	sqlres[start+11]);
+			strcpy(pos->city, 		sqlres[start+12]);
+			pos->identity = 		atoi(sqlres[start+13]);
+			pos->scoreLevel = 		atoi(sqlres[start+14]);
+			pos->serviceStatus = 	atoi(sqlres[start+15]);
+			pos->carrierStatus = 	atoi(sqlres[start+16]);
+			pos->relationStatus = 	atoi(sqlres[start+17]);
+			strcpy(pos->carrier,	sqlres[start+18]);
+			pos->groupid = 			atoi(sqlres[start+19]);
+			pos->gender = 			atoi(sqlres[start+20]);
+		}
+		fetion_contact_list_append(user->contactList, pos);
+	}
+	sqlite3_close(db);
+}
+
+void fetion_contact_save(User *user)
+{
+	char path[256];
+	char sql[4096];
+	sqlite3 *db;
+	char *errMsg = NULL;
+	char **sqlres;
+	int ncols, nrows;
+	Contact *pos;
+	Group *gpos;
+	Config *config = user->config;
+
+	debug_info("Save contact list");
+
+	sprintf(path , "%s/data.db" , config->userPath);
+	if(sqlite3_open(path, &db)){
+		debug_error("failed to load user list");
+		return;
+	}
+
+	sprintf(sql, "delete from groups");
+	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+		sprintf(sql, "create table groups (groupid,groupname)");
+		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+			debug_error("create table groups:%s",
+							sqlite3_errmsg(db));
+			sqlite3_close(db);
+			return;
+		}
+	}
+	foreach_grouplist(user->groupList, gpos){
+		snprintf(sql, sizeof(sql)-1, "insert into groups "
+				"values (%d,'%s');", gpos->groupid,
+				gpos->groupname);
+		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+			debug_error("insert group info:%s",
+							sqlite3_errmsg(db));
+			continue;
+		}
+	}
+
+	sprintf(sql, "select * from contacts;");
+	if(sqlite3_get_table(db, sql, &sqlres,
+						&nrows, &ncols, &errMsg)){
+		sprintf(sql, "create table contacts (userId,"
+						"sId,sipuri,localname,nickname,"
+						"impression,mobileno,devicetype,"
+						"portraitCrc,birthday,country,"
+						"province,city,identity,scoreLevel,"
+						"serviceStatus,carrierStatus,"
+						"relationStatus,carrier,groupid,gender);");
+		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg))
+			debug_error("create table contacts:%s",
+							sqlite3_errmsg(db));
+		sqlite3_close(db);
+		return;
+	}
+
+	foreach_contactlist(user->contactList, pos){
+		sprintf(sql, "select sId from contacts where "
+					"userId='%s';", pos->userId);
+		if(sqlite3_get_table(db, sql, &sqlres,
+						&nrows, &ncols, &errMsg)){
+			debug_error("save contact :%s\n%s",
+						 errMsg, sql);
+			continue;
+		}
+		if(nrows == 0){
+			snprintf(sql, sizeof(sql)-1, "insert into contacts "
+					"values ('%s','%s','%s','%s','%s','%s',"
+					"'%s','%s','%s','%s','%s','%s','%s','%d',%d,"
+					"%d,%d,%d,'%s',%d,%d);",
+					pos->userId, pos->sId, pos->sipuri,
+					pos->localname, pos->nickname,
+					pos->impression, pos->mobileno,
+					pos->devicetype, pos->portraitCrc,
+					pos->birthday, pos->country, pos->province,
+				   	pos->city, pos->identity, pos->scoreLevel,
+					pos->serviceStatus, pos->carrierStatus,
+					pos->relationStatus, pos->carrier,
+					pos->groupid, pos->gender);
+
+		}else{
+			snprintf(sql, sizeof(sql)-1, "update contacts set "
+					"userId='%s',sId='%s',sipuri='%s',"
+					"localname='%s',nickname='%s',"
+					"impression='%s',mobileno='%s',"
+					"devicetype='%s',portraitCrc='%s',"
+					"birthday='%s',country='%s',"
+					"province='%s',city='%s',"
+					"identity=%d,scoreLevel=%d,"
+					"serviceStatus=%d,carrierStatus=%d,"
+					"relationStatus=%d,carrier='%s',"
+					"groupid=%d,gender=%d where userId='%s'",
+					pos->userId, pos->sId, pos->sipuri,
+					pos->localname, pos->nickname,
+					pos->impression, pos->mobileno,
+					pos->devicetype, pos->portraitCrc,
+					pos->birthday, pos->country, pos->province,
+				   	pos->city, pos->identity, pos->scoreLevel,
+					pos->serviceStatus, pos->carrierStatus,
+					pos->relationStatus, pos->carrier,
+					pos->groupid, pos->gender, pos->userId);
+		}
+		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg))
+			debug_error("insert contact %s:%s",
+							pos->userId, errMsg ? errMsg : "");
+	}
+	sqlite3_close(db);
+	debug_info("Load contact list successfully");
 }

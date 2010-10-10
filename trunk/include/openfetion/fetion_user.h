@@ -142,4 +142,14 @@ extern Contact* fetion_user_parse_syncuserinfo_body(const char* body , User* use
 
 extern int fetion_user_set_sms_status(User *user , int days);
 
+extern void fetion_user_save(User *user);
+
+extern void fetion_user_load(User *user);
+
+static inline void
+fetion_user_set_st(User *user, int state){
+	user->state = state;
+}
+
+
 #endif

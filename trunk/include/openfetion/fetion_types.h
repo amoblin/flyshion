@@ -320,6 +320,11 @@ typedef struct
 	int closeMode;						/* close button clicked to close window or iconize it	  */
 	int canIconify;
 	int allHighlight;
+
+	char configServersVersion[16];		/* the version of some related servers such as sipc server	*/
+	char configParametersVersion[16];
+	char configHintsVersion[16];		/* the version of hints										*/
+
 	struct userlist* ul;				/* user list stored in local data file					  */
 	Proxy *proxy;						/* structure stores the global proxy information 		  */
 } Config;
@@ -341,9 +346,6 @@ typedef struct
 	char personalVersion[16];			/* the version of personal information						*/
 	char contactVersion[16];			/* the version of contact information						*/
 	char customConfigVersion[16];		/* the version of custom config string,unused now			*/
-
-	char configServersVersion[16];		/* the version of some related servers such as sipc server	*/
-	char configHintsVersion[16];		/* the version of hints										*/
 
 	char nickname[48];					/* nickname of yourself										*/
 	char impression[256];				/* mood phrase of yourself									*/
