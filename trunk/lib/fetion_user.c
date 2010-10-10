@@ -36,13 +36,10 @@ User* fetion_user_new(const char* no , const char* password)
 {
 	User* user = (User*)malloc(sizeof(User));
 	memset(user , 0 , sizeof(User));
-	if(strlen(no) == 11)
-	{
+	if(strlen(no) == 11){
 		strcpy(user->mobileno , no);
 		user->loginType = LOGIN_TYPE_MOBILENO;
-	}
-	else
-	{
+	}else{
 		strcpy(user->sId , no);
 		user->loginType = LOGIN_TYPE_FETIONNO;
 	}
