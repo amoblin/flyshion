@@ -23,7 +23,7 @@
 
 typedef struct
 {
-	char* content;
+	char content[256];
 	int phraseid;
 } Phrase;
 

@@ -36,6 +36,7 @@ static char* generate_handle_contact_request_body(const char* sipuri
 								, int buddylist , int result );
 static Contact* parse_handle_contact_request_response(const char* sipmsg);
 static Contact* parse_add_buddy_response(const char* sipmsg , int* statuscode);
+static int has_special_word(const char *in);
 
 Contact* fetion_contact_new()
 {
@@ -955,7 +956,7 @@ void fetion_contact_load(User *user)
 			strcpy(pos->userId, 	sqlres[start]);
 			strcpy(pos->sId, 		sqlres[start+1]);
 			strcpy(pos->sipuri, 	sqlres[start+2]);
-			strcpy(pos->localname, 	sqlres[start+3]);
+			strcpy(pos->localname,  sqlres[start+3]);
 			strcpy(pos->nickname, 	sqlres[start+4]);
 			strcpy(pos->impression, sqlres[start+5]);
 			strcpy(pos->mobileno, 	sqlres[start+6]);
@@ -1019,7 +1020,43 @@ void fetion_contact_save(User *user)
 			continue;
 		}
 	}
-
+	sprintf(sql, "delete from contacts;");
+	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+		sprintf(sql, "create table contacts (userId,"
+						"sId,sipuri,localname,nickname,"
+						"impression,mobileno,devicetype,"
+						"portraitCrc,birthday,country,"
+						"province,city,identity,scoreLevel,"
+						"serviceStatus,carrierStatus,"
+						"relationStatus,carrier,groupid,gender);");
+		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+			debug_error("create table contacts:%s",
+							sqlite3_errmsg(db));
+			sqlite3_close(db);
+			return;
+		}
+	}
+	foreach_contactlist(user->contactList, pos){
+		snprintf(sql, sizeof(sql)-1, "insert into contacts "
+				"values ('%s','%s','%s','%s','%s','%s',"
+				"'%s','%s','%s','%s','%s','%s','%s','%d',%d,"
+				"%d,%d,%d,'%s',%d,%d);",
+				pos->userId, pos->sId, pos->sipuri,
+				has_special_word(pos->localname) ? "": pos->localname,
+			   	has_special_word(pos->nickname)? "": pos->nickname,
+				has_special_word(pos->impression)?"": pos->impression,
+			   	pos->mobileno,
+				pos->devicetype, pos->portraitCrc,
+				pos->birthday, pos->country, pos->province,
+				pos->city, pos->identity, pos->scoreLevel,
+				pos->serviceStatus, pos->carrierStatus,
+				pos->relationStatus, pos->carrier,
+				pos->groupid, pos->gender);
+		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg))
+			debug_error("insert contact %s:%s\n%s",
+							pos->userId, errMsg ? errMsg : "", sql);
+	}
+#if 0
 	sprintf(sql, "select * from contacts;");
 	if(sqlite3_get_table(db, sql, &sqlres,
 						&nrows, &ncols, &errMsg)){
@@ -1087,6 +1124,17 @@ void fetion_contact_save(User *user)
 			debug_error("insert contact %s:%s",
 							pos->userId, errMsg ? errMsg : "");
 	}
+#endif
 	sqlite3_close(db);
-	debug_info("Load contact list successfully");
+	debug_info("Save contact list successfully");
+}
+
+static int has_special_word(const char *in)
+{
+	int i = 0;
+	for(;i< strlen(in); i++){
+		if(in[i] == '\'')
+			return 1;
+	}
+	return 0;
 }
