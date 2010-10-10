@@ -59,10 +59,11 @@ void fx_app_initialize(FxApp* fxapp)
 
 	fxapp->dialog = gtk_dialog_new();
 	gtk_window_set_title(GTK_WINDOW(fxapp->dialog) , _("Receive an Add Buddy request"));
-	pb = gdk_pixbuf_new_from_file(SKIN_DIR"online.svg" , NULL);
+	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" , 24 , 24 , NULL);
 	gtk_window_set_modal(GTK_WINDOW(fxapp->dialog) , FALSE);
 	gtk_window_set_transient_for(GTK_WINDOW(fxapp->dialog) , GTK_WINDOW(fxmain->window));
 	gtk_window_set_icon(GTK_WINDOW(fxapp->dialog) , pb);
+	g_object_unref(pb);
 	gtk_window_set_resizable(GTK_WINDOW(fxapp->dialog) , FALSE);
 	gtk_widget_set_usize(fxapp->dialog , 440 , 280);
 

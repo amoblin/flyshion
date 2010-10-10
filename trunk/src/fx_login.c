@@ -435,9 +435,13 @@ login:
 	fetion_user_list_free(ul);
 
 	/* download xml configuration file from the server */
-	fx_login_show_msg(fxlogin , _("Downloading configuration files"));
-
 	fetion_config_load(user);
+	if(config->sipcProxyPort == 0)
+		fx_login_show_msg(fxlogin,
+					"系统检测到这是您初次登录飞信\n正在下载配置文件...");
+	else
+		fx_login_show_msg(fxlogin,
+					_("Downloading configuration files"));
 	fetion_config_download_configuration(user);
 	fetion_config_save(user);
 
@@ -572,9 +576,6 @@ auth:
 #endif
 	fx_login_show_msg(fxlogin , _("Login sucessful"));
 
-	/*localization*/
-	g_thread_create(localization_thread, user, FALSE, NULL);
-
 	gdk_threads_enter();
 	gtk_window_set_resizable(GTK_WINDOW(fxmain->window) , TRUE);
 	gdk_threads_leave();
@@ -638,6 +639,9 @@ auth:
 	/* start sending keep alive request periodically */
 	g_timeout_add_seconds(180 , (GSourceFunc)fx_main_register_func , user);
 	g_timeout_add_seconds(10 , (GSourceFunc)fx_main_check_func , fxmain);
+
+	/*localization*/
+	g_thread_create(localization_thread, user, FALSE, NULL);
 
 	/*====================================*/
 

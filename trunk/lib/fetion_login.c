@@ -37,7 +37,6 @@ static char* hash_password_v4(const char* userid , const char* password);
 static char* generate_cnouce() ;
 static unsigned char* decode_base64(const char* in , int* len);
 
-
 char* generate_response(const char* nouce , const char* userid 
 		, const char* password , const char* publickey , const char* key)
 {
@@ -666,6 +665,8 @@ static void parse_contact_list(xmlNodePtr node , User* user)
 	}
 	debug_info("Read contact list complete");
 }
+
+
 static void parse_stranger_list(xmlNodePtr node , User* user)
 {
 	xmlNodePtr node1 = node->xmlChildrenNode;

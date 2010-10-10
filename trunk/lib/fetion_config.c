@@ -22,6 +22,7 @@
 
 static int parse_configuration_xml(User *user, const char *xml);
 static char* generate_configuration_body(User* user);
+static void save_phrase(xmlNodePtr node, User *user);
 
 Config* fetion_config_new()
 {
@@ -51,37 +52,46 @@ Config* fetion_config_new()
 FxList* fetion_config_get_phrase(Config* config)
 {
 	
-	char path[256] ;
-	xmlDocPtr doc;
-	xmlNodePtr node;
-	xmlChar *res;
-	FxList *list;
-	FxList *pos;
+	char path[256];
+	char sql[1024];
+	sqlite3 *db;
+	char *errMsg = NULL;
+	char **sqlres;
+	int ncols, nrows, i, start;
+	FxList *list, *pos;
 	Phrase *phrase;
-	sprintf(path , "%s/configuration.xml" , config->userPath);
-	
-	doc = xmlParseFile(path);
-	node = xmlDocGetRootElement(doc);
-	node = xml_goto_node(node , "addbuddy-phrases");
-	node = node->xmlChildrenNode;
+
 	list = fx_list_new(NULL);
-	while(node != NULL)
-	{
+
+	sprintf(path , "%s/data.db" , config->userPath);
+	if(sqlite3_open(path, &db)){
+		debug_error("failed to load user list");
+		return list;
+	}
+
+	sprintf(sql, "select * from phrases order by id desc;");
+	if(sqlite3_get_table(db, sql, &sqlres,
+						&nrows, &ncols, &errMsg)){
+		debug_error("read phrases :%s",
+						sqlite3_errmsg(db));
+		sqlite3_close(db);
+		return list;
+	}
+
+	for(i = 0; i < nrows; i ++){
 		phrase = (Phrase*)malloc(sizeof(Phrase));
-		res = xmlNodeGetContent(node);
-		phrase->content = (char*)res;
-		res = xmlGetProp(node , BAD_CAST "id");
-		phrase->phraseid = atoi((char*)res);
+		start = ncols + i * ncols;
+		phrase->phraseid = atoi(sqlres[start]);
+		strncpy(phrase->content, sqlres[start+1], 255);
 		pos = fx_list_new(phrase);
 		fx_list_append(list , pos);
-		node = node->next;
 	}
+
+	sqlite3_close(db);
 	return list;
 }
 void fetion_phrase_free(Phrase* phrase)
 {
-	if(phrase != NULL)
-		free(phrase->content);
 	free(phrase);
 }
 
@@ -352,6 +362,7 @@ static int parse_configuration_xml(User *user, const char *xml)
 		strncpy(config->portraitServerPath , pos , n);
 		xmlFree(res);
 	}
+	save_phrase(node, user);
 	return 1;
 }
 
@@ -469,79 +480,6 @@ int fetion_config_save(User *user)
 		return -1;
 	}
 	sqlite3_close(db);
-	return 1;
-}
-
-int fetion_config_save1(User* user)
-{
-	const char xml[] = "<config></config>";
-	char path[256];
-	char buffer[1024];
-	xmlDocPtr doc;
-	xmlNodePtr pnode;
-	xmlNodePtr node;
-	Config *config = user->config;
-
-	memset(path , 0 , sizeof(path));
-	snprintf(path , 255 , "%s/config.xml" , config->userPath);
-
-	debug_info("Save configration file");
-
-	doc = xmlParseMemory(xml , strlen(xml));
-	if(!doc){
-		debug_info("save configuration file failed\n");
-		return -1;
-	}
-	pnode = xmlDocGetRootElement(doc);
-	node = xmlNewChild(pnode , NULL , BAD_CAST "icon_size" , NULL);
-	sprintf(buffer , "%d" , config->iconSize);
-	xmlNewProp(node , BAD_CAST "value" , BAD_CAST buffer);
-
-	node = xmlNewChild(pnode , NULL , BAD_CAST "close_alert" , NULL);
-	sprintf(buffer , "%d" , config->closeAlert);
-	xmlNewProp(node , BAD_CAST "value" , BAD_CAST buffer);
-
-	node = xmlNewChild(pnode , NULL , BAD_CAST "auto_reply" , NULL);
-	sprintf(buffer , "%d" , config->autoReply);
-	xmlNewProp(node , BAD_CAST "value" , BAD_CAST buffer);
-
-	node = xmlNewChild(pnode , NULL , BAD_CAST "is_mute" , NULL);
-	sprintf(buffer , "%d" , config->isMute);
-	xmlNewProp(node , BAD_CAST "value" , BAD_CAST buffer);
-
-#if 0
-	node = xmlNewChild(pnode , NULL , BAD_CAST "auto_reply_message" , NULL);
-	sprintf(buffer , "%s" , config->autoReplyMessage);
-	xmlNewProp(node , BAD_CAST "value" , BAD_CAST buffer);
-#endif
-
-	node = xmlNewChild(pnode , NULL , BAD_CAST "message_alert" , NULL);
-	sprintf(buffer , "%d" , config->msgAlert);
-	xmlNewProp(node , BAD_CAST "value" , BAD_CAST buffer);
-
-	node = xmlNewChild(pnode , NULL , BAD_CAST "auto_popup" , NULL);
-	sprintf(buffer , "%d" , config->autoPopup);
-	xmlNewProp(node , BAD_CAST "value" , BAD_CAST buffer);
-
-	node = xmlNewChild(pnode , NULL , BAD_CAST "send_mode" , NULL);
-	sprintf(buffer , "%d" , config->sendMode);
-	xmlNewProp(node , BAD_CAST "value" , BAD_CAST buffer);
-
-	node = xmlNewChild(pnode , NULL , BAD_CAST "close_mode" , NULL);
-	sprintf(buffer , "%d" , config->closeMode);
-	xmlNewProp(node , BAD_CAST "value" , BAD_CAST buffer);
-
-	node = xmlNewChild(pnode , NULL , BAD_CAST "can_iconify" , NULL);
-	sprintf(buffer , "%d" , config->canIconify);
-	xmlNewProp(node , BAD_CAST "value" , BAD_CAST buffer);
-
-	node = xmlNewChild(pnode , NULL , BAD_CAST "all_highlight" , NULL);
-	sprintf(buffer , "%d" , config->allHighlight);
-	xmlNewProp(node , BAD_CAST "value" , BAD_CAST buffer);
-
-	xmlSaveFormatFile(path , doc , 0);
-	xmlFreeDoc(doc);
-	
 	return 1;
 }
 
@@ -794,4 +732,56 @@ char* fetion_config_get_province_name(const char* province)
 	}
 	xmlFreeDoc(doc);
 	return NULL;
+}
+
+static void save_phrase(xmlNodePtr node, User *user)
+{
+	char path[256];
+	char sql[4096];
+	char *errMsg;
+	sqlite3 *db;
+	xmlChar *res, *res1;
+	Config *config = user->config;
+
+	node = xml_goto_node(node , "addbuddy-phrases");
+	if(!node)
+		return;
+
+	sprintf(path, "%s/data.db",
+				   	config->userPath);
+
+	debug_info("Load user information");
+	if(sqlite3_open(path, &db)){
+		debug_error("open data.db:%s",
+					sqlite3_errmsg(db));
+		return;
+	}
+
+	sprintf(sql, "delete from phrases;");
+	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+		sprintf(sql, "create table phrases "
+					"(id,content);");
+		if(sqlite3_exec(db, sql,
+					NULL, NULL, &errMsg)){
+			debug_error("create table phrase:%s",
+						errMsg?errMsg:"");
+			sqlite3_close(db);
+			return;
+		}
+	}
+	node = node->xmlChildrenNode;
+	while(node){
+		res = xmlNodeGetContent(node);
+		res1 = xmlGetProp(node , BAD_CAST "id");
+		sprintf(sql, "insert into phrases values ("
+					"%s,'%s');", (char*)res1, (char*)res);
+		xmlFree(res);
+		xmlFree(res1);
+		if(sqlite3_exec(db, sql,
+					NULL, NULL, &errMsg)){
+			debug_error("insert phrase:%s\n%s",
+						errMsg?errMsg:"", sql);
+		}
+		node = node->next;
+	}
 }
