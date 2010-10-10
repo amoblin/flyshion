@@ -43,7 +43,6 @@ typedef struct
 	GtkWidget* username;
 	GtkWidget* password;
 	GtkWidget* loginbutton;
-	GtkWidget* label;
 	GtkWidget* userlabel;
 	GtkWidget* passlabel;
 	GtkWidget* statecombo;
@@ -52,6 +51,10 @@ typedef struct
 	GtkWidget* proxyLabel;
 	GtkListStore* store;
 	GtkTreeModel* model;
+	/* logining panel */
+	GtkWidget* fixed1;
+	GtkWidget* image;
+	GtkWidget* label;
 } FxLogin;
 
 typedef struct

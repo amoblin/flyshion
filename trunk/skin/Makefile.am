@@ -13,6 +13,7 @@ skin_DATA = bigimage.png \
 			home.png \
 			move.png \
 			LoadingImage.gif \
+			logining.gif \
 			login.png \
 			myselfsms.png \
 			nudge.png \
