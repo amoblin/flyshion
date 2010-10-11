@@ -168,10 +168,11 @@ gboolean fx_chat_focus_in_func(GtkWidget *UNUSED(widget)
 
 	DEBUG_FOOTPRINT();
 
-	g_static_mutex_lock(&mutex);
+	fxchat->hasFocus = CHAT_DIALOG_FOCUSED;
 
 	if(list_empty(ctlist)){
-
+		if(gtk_status_icon_get_blinking(GTK_STATUS_ICON(fxmain->trayIcon)))
+			return FALSE;
 		fx_head_set_state_image(fxmain , fxmain->user->state);
 		gtk_status_icon_set_blinking(GTK_STATUS_ICON(fxmain->trayIcon) , FALSE);
 		g_signal_handler_disconnect(fxmain->trayIcon , fxmain->iconConnectId);
@@ -180,14 +181,14 @@ gboolean fx_chat_focus_in_func(GtkWidget *UNUSED(widget)
 							 , GTK_SIGNAL_FUNC(fx_main_tray_activate_func)
 							 , fxmain);
 	}else{
-		message = (Message*)(ctlist->data);
+		message = (Message*)(ctlist->next->data);
 		sipuri = message->sipuri;
+		printf("----------========== %d \n" , sipuri == NULL);
 		sid = fetion_sip_get_sid_by_sipuri(sipuri);
-		memset(path , 0 , sizeof(path));
 		sprintf(path , "%s/%s.jpg" , config->iconPath , sid);
 		free(sid);
 		pb = gdk_pixbuf_new_from_file(path , NULL);
-		if(pb == NULL)
+		if(!pb)
 			pb = gdk_pixbuf_new_from_file(SKIN_DIR"online.svg" , NULL);
 		gtk_status_icon_set_blinking(GTK_STATUS_ICON(fxmain->trayIcon) , TRUE);
 		gtk_status_icon_set_from_pixbuf(GTK_STATUS_ICON(fxmain->trayIcon) , pb);
@@ -198,8 +199,8 @@ gboolean fx_chat_focus_in_func(GtkWidget *UNUSED(widget)
 							 , GTK_SIGNAL_FUNC(fx_main_message_func)
 							, fxmain);
 	}
-	fxchat->hasFocus = CHAT_DIALOG_FOCUSED;
 
+	g_static_mutex_lock(&mutex);
 	g_static_mutex_unlock(&mutex);
 	return FALSE;
 }

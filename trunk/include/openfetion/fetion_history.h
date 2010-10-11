@@ -22,7 +22,7 @@
 #define FETION_HISTORY_H
 
 #define HISTORY_TODAY 1
-#define HISTORY_YEST  2
+#define HISTORY_WEEK  2
 #define HISTORY_MONTH 3
 #define HISTORY_ALL   4
 
@@ -43,5 +43,7 @@ extern FxList* fetion_history_get_e_list(Config *config , const char *userid , i
 
 extern int fetion_history_export(Config *config , const char *myid
 		, const char *userid , const char *filename);
+
+extern int fetion_history_delete(Config *config, const char *userid);
 
 #endif

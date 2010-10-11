@@ -81,7 +81,8 @@ char* generate_response(const char* nouce , const char* userid
 	out =  (unsigned char*)malloc(flen);
 	memset(out , 0 , flen);
 	debug_info("Start encrypting response");
-	ret = RSA_public_encrypt(nonce_len + aeskey_len + psd_len, res , out, r, RSA_PKCS1_PADDING);
+	ret = RSA_public_encrypt(nonce_len + aeskey_len + psd_len,
+			res , out, r, RSA_PKCS1_PADDING);
 	if (ret < 0){
 		debug_info("Encrypt response failed!");
 		return NULL;
@@ -278,6 +279,7 @@ char* sipc_aut_action(User* user , const char* response)
 
 	tcp_connection_send(sip->tcp , sipmsg , strlen(sipmsg));
 	res = fetion_sip_get_response(sip);
+	debug_info("Got sipc response");
 	free(sipmsg);
 	return res;
 }
@@ -424,13 +426,13 @@ int parse_sipc_auth_response(const char* auth_response , User* user)
 	node1 = xml_goto_node(node , "contact-list");
 	parse_contact_list(node1 , user);
 	node1 = xml_goto_node(node , "chat-friends");
-	if(node1 != NULL){
+	if(node1)
 		parse_stranger_list(node1 , user);
-	}
+	
 	node1 = xml_goto_node(node , "quota-frequency");
-	if(node1 != NULL){
+	if(node1)
 		parse_sms_frequency(node1 , user);
-	}
+	
 	xmlFreeDoc(doc);
 	return 1;
 }

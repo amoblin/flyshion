@@ -55,6 +55,7 @@ typedef struct
 	GtkWidget* fixed1;
 	GtkWidget* image;
 	GtkWidget* label;
+	GtkWidget* errlabel;
 } FxLogin;
 
 typedef struct

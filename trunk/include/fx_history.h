@@ -27,20 +27,4 @@ extern void fx_history_initialize(FxHistory* fxhistory);
 
 extern void fx_history_bind(FxHistory* fxhistory , FxList *list);
 
-extern GtkTreeModel* fx_history_create_count_model();
-
-extern void fx_history_on_close_clicked(GtkWidget* UNUSED(widget) , gpointer data);
-
-extern void fx_history_on_refresh_clicked(GtkWidget* UNUSED(widget) , gpointer data);
-
-extern void fx_history_on_today_clicked(GtkWidget* UNUSED(widget) , gpointer data);
-
-extern void fx_history_on_yestorday_clicked(GtkWidget* UNUSED(widget) , gpointer data);
-
-extern void fx_history_on_month_clicked(GtkWidget* UNUSED(widget) , gpointer data);
-
-extern void fx_history_on_all_clicked(GtkWidget* UNUSED(widget) , gpointer data);
-
-extern void fx_history_on_export_clicked(GtkWidget* UNUSED(widget) , gpointer data);
-
 #endif

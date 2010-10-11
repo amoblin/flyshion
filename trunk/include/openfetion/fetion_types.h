@@ -411,7 +411,7 @@ typedef struct
 {
 	char name[48];						 /* name of message sender	   */
 	char userid[16];					 /* userid of message sender   */
-	struct tm sendtime;					 /* message sent time		   */
+	char sendtime[32];					 /* message sent time		   */
 	char message[550];					 /* message content			   */
 	int issend;							 /* message is sent of received*/	
 } History;
@@ -419,7 +419,7 @@ typedef struct
 typedef struct
 {
 	User* user;
-	FILE* file;
+	sqlite3 *db;
 } FetionHistory;
 
 #define FILE_RECEIVE 1

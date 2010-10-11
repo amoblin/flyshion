@@ -21,6 +21,8 @@
 #include "fx_include.h"
 
 static void* localization_thread(void *data);
+static void fx_login_show_msg(FxLogin *fxlogin , const char *msg);
+static void fx_login_show_err(FxLogin *fxlogin , const char *msg);
 
 FxLogin* fx_login_new()
 {
@@ -87,6 +89,7 @@ void fx_logining_show(FxMain *fxmain)
 	GdkPixbuf *pixbuf;
 	GtkWidget *mainbox;
 	GtkWidget *frame;
+	GtkWidget *label;
 	FxLogin *fxlogin;
 
 	mainbox = fxmain->mainbox;
@@ -110,6 +113,28 @@ void fx_logining_show(FxMain *fxmain)
 	gtk_label_set_justify(GTK_LABEL(fxlogin->label),
 					GTK_JUSTIFY_CENTER);
 
+	label = gtk_label_new(NULL);
+	gtk_widget_set_usize(label,
+					WINDOW_WIDTH, 0);
+	gtk_label_set_justify(GTK_LABEL(label),
+					GTK_JUSTIFY_CENTER);
+	gtk_label_set_markup(GTK_LABEL(label),
+			"<b>Welcome to OpenFetion</b>");
+	gtk_fixed_put(GTK_FIXED(fxlogin->fixed1),
+					label, 0, 350);
+
+	label = gtk_label_new(NULL);
+	gtk_label_set_markup(GTK_LABEL(label),
+			"<small>OpenFetion a fetion client for linux"
+			" based on GTK+2.0, using Fetion Protocol"
+			" Version 4.\nOpenFetion is a non-profit software,"
+			" aiming at making linux users convenient "
+			"to use fetion.</small>");
+	gtk_widget_set_usize(label, WINDOW_WIDTH - 40, 0);
+	gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
+	gtk_fixed_put(GTK_FIXED(fxlogin->fixed1),
+					label, 20, 390);
+
 	gtk_widget_show_all(fxlogin->fixed1);
 }
 
@@ -129,9 +154,7 @@ void fx_login_initialize(FxMain *fxmain)
 	DEBUG_FOOTPRINT();
 
 	config = fetion_config_new();
-	/**
-	 * load proxy information
-	 */
+	/* load proxy information */
 	proxy = fetion_config_load_proxy();
 	fxlogin->proxy = proxy;
 	
@@ -158,9 +181,9 @@ void fx_login_initialize(FxMain *fxmain)
 	fxlogin->passlabel = gtk_label_new(_("Please input password:"));
 	gtk_label_set_justify(GTK_LABEL(fxlogin->passlabel) , GTK_JUSTIFY_CENTER);
 
-	fxlogin->label = gtk_label_new(NULL);
-	gtk_widget_set_size_request(GTK_WIDGET(fxlogin->label) , WINDOW_WIDTH - 10 , 25);
-	gtk_label_set_justify(GTK_LABEL(fxlogin->label) , GTK_JUSTIFY_CENTER);
+	fxlogin->errlabel = gtk_label_new(NULL);
+	gtk_widget_set_size_request(GTK_WIDGET(fxlogin->errlabel) , WINDOW_WIDTH - 10 , 25);
+	gtk_label_set_justify(GTK_LABEL(fxlogin->errlabel) , GTK_JUSTIFY_CENTER);
 
 	fxlogin->loginbutton = gtk_button_new_with_label(_("Login"));
 
@@ -231,7 +254,7 @@ void fx_login_initialize(FxMain *fxmain)
 	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->password , (WINDOW_WIDTH - 200)/2 , 235);
 	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->statecombo , (WINDOW_WIDTH - 120)/2 , 265);
 	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->remember , (WINDOW_WIDTH - 80)/2 , 305);
-	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->label , 5 , 325);
+	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->errlabel , 5 , 325);
 	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->loginbutton , (WINDOW_WIDTH - 80)/2 , 355);
 	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->proxyBtn , (WINDOW_WIDTH - 100) / 2 , 405);
 	gtk_box_pack_start(GTK_BOX(fxmain->mainbox) , fxlogin->fixed , TRUE , TRUE , 0);
@@ -288,10 +311,19 @@ GtkTreeModel* fx_login_create_state_model()
 	return GTK_TREE_MODEL(store);
 
 }
-void fx_login_show_msg(FxLogin *fxlogin , const char *msg)
+
+static void fx_login_show_msg(FxLogin *fxlogin , const char *msg)
 {
 	gdk_threads_enter();
 	gtk_label_set_text(GTK_LABEL(fxlogin->label) , msg);	
+	update();
+	gdk_threads_leave();
+}
+
+static void fx_login_show_err(FxLogin *fxlogin , const char *msg)
+{
+	gdk_threads_enter();
+	gtk_label_set_text(GTK_LABEL(fxlogin->errlabel) , msg);	
 	update();
 	gdk_threads_leave();
 }
@@ -350,8 +382,8 @@ void* fx_login_thread_func(void* data)
 
 	config = fetion_config_new();
 	if(!user){
-		fx_login_show_msg(fxlogin , _("Login failed"));
-		return NULL;
+		fx_login_show_err(fxlogin , _("Login failed"));
+		goto failed;
 	}
 
 	/* set the proxy structure to config */
@@ -362,14 +394,16 @@ void* fx_login_thread_func(void* data)
 login:
 	pos = ssi_auth_action(user);
 	if(!pos){
-		fx_login_show_msg(fxlogin , _("Login failed"));
-		return NULL;
+		fx_login_show_err(fxlogin , _("Login failed"));
+		goto failed;
 	}
 	parse_ssi_auth_response(pos , user);
 	free(pos);
 	if(user->loginStatus == 421 || user->loginStatus == 420){
 		debug_info(user->verification->text);
 		debug_info(user->verification->tips);
+		fx_login_show_msg(fxlogin,
+				_("Getting code picture，please wait..."));
 		generate_pic_code(user);
 		gdk_threads_enter();
 		fxcode = fx_code_new(fxmain,
@@ -398,12 +432,12 @@ login:
 	  	user->loginStatus == 400 ||
 	   	user->loginStatus == 404){
 		debug_info("password ERROR!!!");
-		fx_login_show_msg(fxlogin,
+		fx_login_show_err(fxlogin,
 			_("Login failed. Incorrect cell phone number or password"));
-		g_thread_exit(0);
+		goto failed;
 	}
 	
-	fx_login_show_msg(fxlogin,
+	fx_login_show_err(fxlogin,
 				 _("Loading local user information"));
 
 	fetion_config_initialize(config , user->userId);
@@ -438,7 +472,9 @@ login:
 	fetion_config_load(user);
 	if(config->sipcProxyPort == 0)
 		fx_login_show_msg(fxlogin,
-					"系统检测到这是您初次登录飞信\n正在下载配置文件...");
+					_("It detected that this`s"
+					" this first time you login\n"
+					"downloading configuration file..."));
 	else
 		fx_login_show_msg(fxlogin,
 					_("Downloading configuration files"));
@@ -476,8 +512,8 @@ login:
 	pos = sipc_reg_action(user);
 
 	if(!pos){
-		fx_login_show_msg(fxlogin , _("Login failed"));
-		g_thread_exit(0);
+		fx_login_show_err(fxlogin , _("Login failed"));
+		goto failed;
 	}
 
 	parse_sipc_reg_response(pos , &nonce , &key);
@@ -495,26 +531,28 @@ login:
 auth:
 	pos = sipc_aut_action(user , response);
 	if(pos == NULL){
-		fx_login_show_msg(fxlogin , _("Login failed"));
-		return NULL;
+		fx_login_show_err(fxlogin , _("Login failed"));
+		goto failed;
 	}
 
 	if(parse_sipc_auth_response(pos , user) < 0){
 		debug_info("Password error , login failed!!!");
-		fx_login_show_msg(fxlogin , _("Authenticate failed."));
-		return NULL;
+		fx_login_show_err(fxlogin , _("Authenticate failed."));
+		goto failed;
 	}
 	free(pos); pos = NULL;
 
 	if(user->loginStatus == 401 || user->loginStatus == 400){
 		debug_info("Password error , login failed!!!");
-		fx_login_show_msg(fxlogin , _("Authenticate failed."));
-		g_thread_exit(0);
+		fx_login_show_err(fxlogin , _("Authenticate failed."));
+		goto failed;
 	}
 
 	if(user->loginStatus == 421 || user->loginStatus == 420){
 		debug_info(user->verification->text);
 		debug_info(user->verification->tips);
+		fx_login_show_msg(fxlogin,
+				_("Getting code picture，please wait..."));
 		generate_pic_code(user);
 		gdk_threads_enter();
 		fxcode = fx_code_new(fxmain,
@@ -534,7 +572,7 @@ auth:
 		}else{
 			gtk_widget_destroy(fxcode->dialog);
 			gdk_threads_leave();
-			return NULL;
+			goto failed;
 		}
 		debug_info("Input verfication code:%s" , code);
 	}
@@ -557,6 +595,7 @@ auth:
 	pb = gdk_pixbuf_new_from_file_at_size(iconPath,
 				   	48 , 48 , NULL);
 	if(!pb){
+		fx_login_show_msg(fxlogin, _("Getting portrait..."));
 		fetion_user_download_portrait(user , user->sipuri);
 		pb = gdk_pixbuf_new_from_file_at_size(iconPath,
 					   	48 , 48 , NULL);
@@ -599,6 +638,7 @@ auth:
 		strcpy(group->groupname , N_("Strangers"));
 		fetion_group_list_prepend(user->groupList , group);
 	}
+	fx_login_show_msg(fxlogin , _("Initializing main panel"));
 
 	/* initialize head panel */
 	gdk_threads_enter();
@@ -643,16 +683,21 @@ auth:
 	/*localization*/
 	g_thread_create(localization_thread, user, FALSE, NULL);
 
-	/*====================================*/
-
-	/*====================================*/
-
+	g_thread_exit(0);
+failed:
+	gdk_threads_enter();
+	gtk_widget_destroy(fxlogin->fixed1);
+	gtk_widget_show(fxlogin->fixed);
+	gtk_widget_grab_focus(fxlogin->loginbutton);
+	gdk_threads_leave();
+	g_thread_exit(0);
 	return NULL;
 }
 void fx_login_action_func(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	FxMain* fxmain = (FxMain*)data;
-	fxmain->loginPanel->loginThread = g_thread_create(fx_login_thread_func , fxmain , FALSE , NULL);
+	g_thread_create(fx_login_thread_func,
+			fxmain , FALSE , NULL);
 }
 GtkTreeModel* fx_login_create_user_model(Config* config)
 {
@@ -691,21 +736,20 @@ void fx_login_set_last_login_user(FxLogin* fxlogin)
 
 	if(!gtk_tree_model_get_iter_root(model , &iter))
 		return;
-	do
-	{
+	do{
 		gtk_tree_model_get(model    , &iter
 						 , L_NO_COL   , &no
 						 , L_PWD_COL  , &pwd
 						 , L_STATE_COL, &state
 						 , L_LAST_COL , &last
 						 , -1);
-		if(last == 1)
-		{
+		if(last == 1){
 			gtk_combo_box_set_active_iter(combo , &iter);
 			gtk_entry_set_text(GTK_ENTRY(fxlogin->password) , pwd);
 			fx_login_set_last_login_state(fxlogin , state);	
 			if(strlen(pwd) != 0)
-				gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxlogin->remember) , TRUE);
+				gtk_toggle_button_set_active(
+						GTK_TOGGLE_BUTTON(fxlogin->remember) , TRUE);
 			free(no);
 			free(pwd);
 			break;
@@ -715,18 +759,19 @@ void fx_login_set_last_login_user(FxLogin* fxlogin)
 }
 void fx_login_set_last_login_state(FxLogin* fxlogin , StateType state)
 {
-	GtkTreeModel* model = gtk_combo_box_get_model(GTK_COMBO_BOX(fxlogin->statecombo));
+	GtkTreeModel* model = gtk_combo_box_get_model(
+			GTK_COMBO_BOX(fxlogin->statecombo));
 	GtkTreeIter iter;
 	int s;
 
 	DEBUG_FOOTPRINT();
 
 	gtk_tree_model_get_iter_root(model , &iter);
-	do
-	{
+	do{
 		gtk_tree_model_get(model , &iter , 2 , &s , -1);
 		if(s == state)
-			gtk_combo_box_set_active_iter(GTK_COMBO_BOX(fxlogin->statecombo) , &iter);
+			gtk_combo_box_set_active_iter(
+					GTK_COMBO_BOX(fxlogin->statecombo) , &iter);
 	}
 	while(gtk_tree_model_iter_next(model , &iter));
 

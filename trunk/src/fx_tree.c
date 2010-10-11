@@ -617,7 +617,10 @@ static void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* UNUSED(tree)
 						  , fx_tree_on_chatmenu_clicked , chatargs);
 
 		fx_tree_create_menu(_("view contact's information") , SKIN_DIR"profile.png"
-						, menu , TRUE , fx_tree_on_profilemenu_clicked , profileargs);
+						, menu , (serviceStatus == BASIC_SERVICE_ABNORMAL
+						  && (carrierStatus == CARRIER_STATUS_CLOSED ||
+							  (strlen(carrier)!= 0 && strlen(mobileno) == 0))) ? 
+						FALSE : TRUE , fx_tree_on_profilemenu_clicked , profileargs);
 #if 0
 		fx_tree_create_menu("FILE" , SKIN_DIR"sendfile.png"
 						, menu , TRUE , fx_tree_on_sendfile_clicked , profileargs);

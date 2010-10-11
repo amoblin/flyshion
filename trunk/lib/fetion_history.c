@@ -21,15 +21,18 @@
 #include <openfetion.h>
 #include <errno.h>
 
-History* fetion_history_message_new(const char* name , const char* userid
-		, struct tm time , const char* msg , const int issend)
+History* fetion_history_message_new(const char* name,
+		const char* userid, struct tm time,
+		const char* msg , const int issend)
 {
 	History* history = (History*)malloc(sizeof(History));
 	memset(history , 0 , sizeof(History));
 
 	strcpy(history->name , name);
 	strcpy(history->userid , userid);
-	memcpy(&(history->sendtime) , &time , sizeof(struct tm));
+	strftime(history->sendtime,
+			sizeof(history->sendtime),
+			"%Y-%m-%d %H:%M:%S" , &time);
 	snprintf(history->message , 549 , "%s" , msg);
 	history->issend = issend;
 
@@ -49,168 +52,266 @@ FetionHistory* fetion_history_new(User* user)
 	fhistory = (FetionHistory*)malloc(sizeof(FetionHistory));
 	memset(fhistory , 0 , sizeof(FetionHistory));
 	fhistory->user = user;
-	bzero(filepath , sizeof(filepath));
-	sprintf(filepath , "%s/history.dat" , config->userPath);
-	fhistory->file = fopen(filepath , "a+");
+	sprintf(filepath, "%s/data.db",
+			config->userPath);
+	sqlite3_open(filepath, &(fhistory->db));
 	return fhistory;
 }
 
 void fetion_history_free(FetionHistory* fhistory)
 {
-	if(fhistory != NULL){
-		if(fhistory->file != NULL)
-			fclose(fhistory->file);
+	if(fhistory){
+		if(fhistory->db)
+			sqlite3_close(fhistory->db);
 		free(fhistory);
 	}
 }
 void fetion_history_add(FetionHistory* fhistory , History* history)
 {
-	if(fhistory->file != NULL){
-		fwrite(history , sizeof(History) , 1 , fhistory->file);
-		fflush(fhistory->file);
+	sqlite3 *db;
+	char sql[4096];
+	char sql1[4096];
+	char *errMsg;
+	db = fhistory->db;
+
+	if(!db){
+		debug_error("db is closed,write history FAILED");
+		return;
 	}
+
+	escape_sql(history->message);
+
+	sprintf(sql, "insert into history values"
+			" ('%s','%s','%s',datetime('%s'),%d)",
+			history->name, history->userid,
+			history->message, history->sendtime,
+			history->issend);
+
+	if(sqlite3_exec(db, sql, 0, 0, &errMsg)){
+		sprintf(sql1, "create table history ("
+				"name,userid,message,updatetime,issend);");
+		if(sqlite3_exec(db, sql1, 0, 0, &errMsg))
+			debug_error("create table history:%s",
+					errMsg);
+		if(sqlite3_exec(db, sql, 0, 0, &errMsg))
+			debug_error("%s\n%s",errMsg, sql);
+	}
+
 }
 
-FxList* fetion_history_get_list(Config* config , const char* userid , int count)
+FxList* fetion_history_get_list(Config* config,
+		const char* userid , int count)
 {
-	int len = 0;
-	History* his;
-	FxList* hislist;
-	FxList* pos = NULL;
-	FILE* file;
-	char path[128];
-	int n = 0;
+	sqlite3 *db;
+	char sql[4096];
+	char path[256];
+	char *errMsg;
+	char **res;
+	int nrows, ncols, start, i;
+	FxList *hislist, *pos;
+	History *his;
 
-	bzero(path , sizeof(path));
-	sprintf(path , "%s/history.dat" , config->userPath);
-	file = fopen(path , "r");
-	if(file == NULL)
-		return NULL;
+	sprintf(path, "%s/data.db",
+				   	config->userPath);
+
 	hislist = fx_list_new(NULL);
-	while(!feof(file))
-	{
+
+	debug_info("Load chat history with %s",
+			userid);
+	if(sqlite3_open(path, &db)){
+		debug_error("open data.db:%s",
+					sqlite3_errmsg(db));
+		return hislist;
+	}
+
+	sprintf(sql, "select * from history"
+			" where userid='%s' order"
+			" by updatetime desc limit %d;",
+			userid, count);
+
+	if(sqlite3_get_table(db, sql, &res,
+				&nrows, &ncols, &errMsg)){
+		sqlite3_close(db);
+		return hislist;
+	}
+
+	for(i = 0; i < nrows; i ++){
+		start = ncols + i * ncols;
 		his = (History*)malloc(sizeof(History));
 		memset(his , 0 , sizeof(History));
-		len = fread(his , sizeof(History) , 1 , file);
-		if(len > 0 && strcmp(userid , his->userid) == 0){
-			pos = fx_list_new(his);
-			fx_list_prepend(hislist , pos);
-		}else{
-			free(his);
-		}
-	}
-	fclose(file);
-	foreach_list_back(hislist , pos){
-		if(n ++ == count){
-			hislist->next = pos->next;
-			break;
-		}
+		strcpy(his->name, res[start]);
+		strcpy(his->userid, res[start+1]);
+		strcpy(his->message, res[start+2]);
+		if(res[start+3])
+			strcpy(his->sendtime, res[start+3]);
+		his->issend = atoi(res[start+4]);
+		unescape_sql(his->message);
+		pos = fx_list_new(his);
+		fx_list_prepend(hislist , pos);
 	}
 	return hislist;
 }
 
-FxList* fetion_history_get_e_list(Config *config , const char *userid , int type)
+FxList* fetion_history_get_e_list(Config *config,
+		const char *userid , int type)
 {
-	
-	int len = 0;
-	History* his;
-	FxList* hislist;
-	FxList* pos = NULL;
-	FILE* file;
-	char path[128];
-	time_t now;
-	struct tm *tm;
+	sqlite3 *db;
+	char sql[4096];
+	char path[256];
+	char condition[256];
+	char *errMsg;
+	char **res;
+	int nrows, ncols, start, i;
+	FxList *hislist, *pos;
+	History *his;
 
-	bzero(path , sizeof(path));
-	sprintf(path , "%s/history.dat" , config->userPath);
-	file = fopen(path , "r");
-	if(file == NULL)
-		return NULL;
-
-	time(&now);
-	tm = gmtime(&now);
+	sprintf(path, "%s/data.db",
+				   	config->userPath);
 
 	hislist = fx_list_new(NULL);
-	while(!feof(file))
-	{
+
+	debug_info("Load chat history with %s",
+			userid);
+	if(sqlite3_open(path, &db)){
+		debug_error("open data.db:%s",
+					sqlite3_errmsg(db));
+		return hislist;
+	}
+
+	switch(type){
+		case HISTORY_TODAY:
+			sprintf(condition,
+				"strftime('%%Y',updatetime) == strftime('%%Y','now') and "
+				"strftime('%%m',updatetime) == strftime('%%m','now') and "
+				"strftime('%%d',updatetime) == strftime('%%d','now') ");
+			break;
+		case HISTORY_WEEK:
+			sprintf(condition,
+				"strftime('%%Y',updatetime) == strftime('%%Y','now') and "
+				"strftime('%%W',updatetime) == strftime('%%W','now') ");
+			break;
+		case HISTORY_MONTH:
+			sprintf(condition,
+				"strftime('%%Y',updatetime) == strftime('%%Y','now') and "
+				"strftime('%%m',updatetime) == strftime('%%m','now') ");
+			break;
+		case HISTORY_ALL:
+			sprintf(condition, "1==1");
+			break;
+		default:
+			break;
+	};
+
+	sprintf(sql, "select * from history"
+			" where userid='%s' and %s order"
+			" by updatetime desc;",
+			userid, condition);
+
+	if(sqlite3_get_table(db, sql, &res,
+				&nrows, &ncols, &errMsg)){
+		sqlite3_close(db);
+		return hislist;
+	}
+
+	for(i = 0; i < nrows; i ++){
+		start = ncols + i * ncols;
 		his = (History*)malloc(sizeof(History));
 		memset(his , 0 , sizeof(History));
-		len = fread(his , sizeof(History) , 1 , file);
-		if(len > 0 && strcmp(userid , his->userid) == 0){
-			  if(type == HISTORY_TODAY){
-				  if(his->sendtime.tm_year == tm->tm_year
-					  && his->sendtime.tm_yday == tm->tm_yday){
-					pos = fx_list_new(his);
-					fx_list_prepend(hislist , pos);
-				  }
-			  }else if(type == HISTORY_YEST){
-				  if(his->sendtime.tm_year == tm->tm_year
-					  && his->sendtime.tm_yday == tm->tm_yday - 1){
-					pos = fx_list_new(his);
-					fx_list_prepend(hislist , pos);
-				  }
-			  }else if(type == HISTORY_MONTH){
-				  if(his->sendtime.tm_year == tm->tm_year
-					  && his->sendtime.tm_mon == tm->tm_mon){
-					pos = fx_list_new(his);
-					fx_list_prepend(hislist , pos);
-				  }
-			  }else if(type == HISTORY_ALL){
-					pos = fx_list_new(his);
-					fx_list_prepend(hislist , pos);
-			  }else{
-			  		free(his);
-			  }
-
-		}else{
-			free(his);
-		}
+		strcpy(his->name, res[start]);
+		strcpy(his->userid, res[start+1]);
+		strcpy(his->message, res[start+2]);
+		if(res[start+3])
+			strcpy(his->sendtime, res[start+3]);
+		his->issend = atoi(res[start+4]);
+		unescape_sql(his->message);
+		pos = fx_list_new(his);
+		fx_list_prepend(hislist , pos);
 	}
-	fclose(file);
 	return hislist;
 }
 
 int fetion_history_export(Config *config , const char *myid
 		, const char *userid , const char *filename)
 {
-	FILE *f;
-        FILE *f1;
-	History his;
-	char path[1024];
+	sqlite3 *db;
+	char sql[4096];
 	char text[2048];
-	char time[64];
-	int n;
+	char path[256];
+	char *errMsg;
+	char **res;
+	int nrows, ncols, start, i;
+	FILE *f;
 
-	memset(path , 0 , sizeof(path));
-	sprintf(path , "%s/history.dat" , config->userPath);
-
-	f1 = fopen(path , "r");
-	if(f1 == NULL)
+	if(!(f = fopen(filename, "w+"))){
+		debug_error("export chat history FAILED");
 		return -1;
+	}
 
-	f = fopen(filename , "w+");
-	if(f == NULL)
+	sprintf(path, "%s/data.db",
+				   	config->userPath);
+
+	debug_info("Export chat history with %s",
+			userid);
+	if(sqlite3_open(path, &db)){
+		debug_error("open data.db:%s",
+					sqlite3_errmsg(db));
 		return -1;
+	}
 
-	while(!feof(f1)){
-		
-		n = fread(&his , 1 , sizeof(History) , f1);
-		if(n != sizeof(History))
-			break;
+	sprintf(sql, "select * from history"
+			" where userid='%s' order"
+			" by updatetime desc;",
+			userid);
 
-		strftime(time , sizeof(time) , "%m月%d日 %H:%M:%S" , &(his.sendtime));
-		memset(text , 0 , sizeof(text));
-		sprintf(text , "%s(%s) %s\n" , his.name
-				, his.issend ? myid : userid , time );
-		strcat(text , his.message);
+	if(sqlite3_get_table(db, sql, &res,
+				&nrows, &ncols, &errMsg)){
+		sqlite3_close(db);
+		return -1;
+	}
+
+	for(i = 0; i < nrows; i ++){
+		start = ncols * (i + 1);
+		sprintf(text, "%s(%s) %s\n",
+				res[start], 
+				atoi(res[start+4]) ? myid : res[start+1],
+				res[start+3]);
+		strcat(text , res[start+2]);
 		strcat(text , "\n");
 		fwrite(text , strlen(text) , 1 , f);
 		fflush(f);
-
 	}
 	
+	sqlite3_close(db);
 	fclose(f);
-	fclose(f1);
+	return 1;
+}
 
+int fetion_history_delete(Config *config,
+		const char *userid)
+{
+	sqlite3 *db;
+	char sql[4096];
+	char path[256];
+	char *errMsg;
+
+	sprintf(path, "%s/data.db",
+				   	config->userPath);
+
+	debug_info("Delete chat history with %s",
+			userid);
+	if(sqlite3_open(path, &db)){
+		debug_error("open data.db:%s",
+					sqlite3_errmsg(db));
+		return -1;
+	}
+	sprintf(sql, "delete from history where "
+			"userid = '%s'", userid);
+	if(sqlite3_exec(db, sql, 0, 0, &errMsg)){
+		debug_error("delete history with %s failed:%s",
+				userid, errMsg);
+		sqlite3_close(db);
+		return -1;
+	}
+	sqlite3_close(db);
 	return 1;
 }

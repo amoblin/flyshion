@@ -30,6 +30,7 @@ int window_pos_x;
 int window_pos_y;
 int window_pos_x_old = 0;
 int window_pos_y_old = 0;
+int start_popup_presence = 0;
 extern struct unacked_list *unackedlist;
 GStaticMutex mutex = G_STATIC_MUTEX_INIT;
 
@@ -310,15 +311,12 @@ void fx_main_process_presence(FxMain* fxmain , const char* xml)
 			fx_tree_move_to_the_first(model , &iter);
 
 #ifdef USE_LIBNOTIFY
-			if(strcmp(crc , "unlogin")){
+			if(strcmp(crc , "unlogin") && start_popup_presence){
 				char notifySummary[256];
 				char notifyText[1024];
 				char iconPath[256];
 				GdkPixbuf *pb;
-				bzero(iconPath , sizeof(iconPath));
 				sprintf(iconPath , "%s/%s.jpg" , config->iconPath , contact->sId);
-				bzero(notifyText , sizeof(notifyText));
-				bzero(notifySummary , sizeof(notifySummary));
 				sprintf(notifySummary , _("%s , now ONLINE") , contact->nickname);
 				sprintf(notifyText ,
 						_("Phone Number: %s\n"
@@ -328,9 +326,9 @@ void fx_main_process_presence(FxMain* fxmain , const char* xml)
 						, contact->sId
 						, contact->impression );
 				pb = gdk_pixbuf_new_from_file_at_size(iconPath , 48 , 48 , NULL);
-				if(pb == NULL){
+				if(pb == NULL)
 					pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" , 48 , 48 , NULL);
-				}
+				
 				notify_notification_update(fxmain->notify , notifySummary
 						, notifyText , NULL);
 				notify_notification_set_icon_from_pixbuf(fxmain->notify , pb);
@@ -339,9 +337,9 @@ void fx_main_process_presence(FxMain* fxmain , const char* xml)
 			}
 #endif
 		}
-		if(fxchat != NULL){
+		if(fxchat != NULL)
 			fxchat->state = contact->state;
-		}
+		
 		name = (contact->nickname == NULL || strlen(contact->localname) == 0) ? contact->nickname : contact->localname;
 		gtk_tree_store_set(GTK_TREE_STORE(model) , &iter
 						 , B_NAME_COL            , g_markup_escape_text(name , strlen(name))
@@ -1335,6 +1333,8 @@ gboolean fx_main_check_func(FxMain* fxmain)
 	char *msg;
 	time_t now_t , msg_time_t;
 	long seconds;
+
+	start_popup_presence = 1;
 
 	now = get_currenttime();
 	foreach_unacked_list(unackedlist , list){
