@@ -74,8 +74,8 @@ am__nobase_list = $(am__nobase_strip_setup); \
 am__base_list = \
   sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
   sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
-am__installdirs = "$(DESTDIR)$(skindir)"
-DATA = $(skin_DATA)
+am__installdirs = "$(DESTDIR)$(pixmapdir)" "$(DESTDIR)$(skindir)"
+DATA = $(pixmap_DATA) $(skin_DATA)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 AM_RECURSIVE_TARGETS = $(RECURSIVE_TARGETS:-recursive=) \
@@ -305,6 +305,8 @@ skin_DATA = bigimage.png \
 			invisible.svg \
 			proxy.png
 
+pixmapdir = $(prefix)/share/pixmaps
+pixmap_DATA = fetion.svg
 EXTRA_DIST = $(skin_DATA)
 all: all-recursive
 
@@ -345,6 +347,26 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
+install-pixmapDATA: $(pixmap_DATA)
+	@$(NORMAL_INSTALL)
+	test -z "$(pixmapdir)" || $(MKDIR_P) "$(DESTDIR)$(pixmapdir)"
+	@list='$(pixmap_DATA)'; test -n "$(pixmapdir)" || list=; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(pixmapdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(pixmapdir)" || exit $$?; \
+	done
+
+uninstall-pixmapDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(pixmap_DATA)'; test -n "$(pixmapdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	test -n "$$files" || exit 0; \
+	echo " ( cd '$(DESTDIR)$(pixmapdir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(pixmapdir)" && rm -f $$files
 install-skinDATA: $(skin_DATA)
 	@$(NORMAL_INSTALL)
 	test -z "$(skindir)" || $(MKDIR_P) "$(DESTDIR)$(skindir)"
@@ -564,7 +586,7 @@ check: check-recursive
 all-am: Makefile $(DATA)
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(skindir)"; do \
+	for dir in "$(DESTDIR)$(pixmapdir)" "$(DESTDIR)$(skindir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-recursive
@@ -612,7 +634,7 @@ info: info-recursive
 
 info-am:
 
-install-data-am: install-skinDATA
+install-data-am: install-pixmapDATA install-skinDATA
 
 install-dvi: install-dvi-recursive
 
@@ -656,7 +678,7 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-skinDATA
+uninstall-am: uninstall-pixmapDATA uninstall-skinDATA
 
 .MAKE: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) ctags-recursive \
 	install-am install-strip tags-recursive
@@ -669,11 +691,12 @@ uninstall-am: uninstall-skinDATA
 	install-data-am install-dvi install-dvi-am install-exec \
 	install-exec-am install-html install-html-am install-info \
 	install-info-am install-man install-pdf install-pdf-am \
-	install-ps install-ps-am install-skinDATA install-strip \
-	installcheck installcheck-am installdirs installdirs-am \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags tags-recursive uninstall uninstall-am uninstall-skinDATA
+	install-pixmapDATA install-ps install-ps-am install-skinDATA \
+	install-strip installcheck installcheck-am installdirs \
+	installdirs-am maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-generic mostlyclean-libtool pdf pdf-am \
+	ps ps-am tags tags-recursive uninstall uninstall-am \
+	uninstall-pixmapDATA uninstall-skinDATA
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

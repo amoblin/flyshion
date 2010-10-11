@@ -566,11 +566,13 @@ SipMsg* fetion_sip_listen(FetionSip* sip)
 					msglist = msg;
 				else
 					fetion_sip_message_append(msglist , msg);
+#if 0
 				if(tmp != NULL && strlen(tmp) != 0)
 				{
 					free(tmp);
 					tmp = NULL;
 				}
+#endif
 				return msglist;
 			}
 			else

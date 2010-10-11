@@ -20,6 +20,17 @@
 
 #include "fx_include.h"
 
+static GtkTreeModel* fx_history_create_count_model();
+static void fx_history_on_close_clicked(GtkWidget* UNUSED(widget) , gpointer data);
+static void fx_history_on_refresh_clicked(GtkWidget* UNUSED(widget) , gpointer data);
+static void fx_history_on_today_clicked(GtkWidget* UNUSED(widget) , gpointer data);
+static void fx_history_on_yestorday_clicked(GtkWidget* UNUSED(widget) , gpointer data);
+static void fx_history_on_month_clicked(GtkWidget* UNUSED(widget) , gpointer data);
+static void fx_history_on_all_clicked(GtkWidget* UNUSED(widget) , gpointer data);
+static void fx_history_on_export_clicked(GtkWidget* UNUSED(widget) , gpointer data);
+static void fx_history_on_cleanup_clicked(GtkWidget* UNUSED(widget) , gpointer data);
+
+
 FxHistory* fx_history_new(FxMain* fxmain , const char* userid , const char* name)
 {
 	FxHistory* fxhistory = (FxHistory*)malloc(sizeof(FxHistory));
@@ -85,7 +96,7 @@ void fx_history_initialize(FxHistory* fxhistory)
 	yest_icon = gtk_image_new_from_pixbuf(pb);
 	g_object_unref(pb);
 	gtk_toolbar_append_item(GTK_TOOLBAR(fxhistory->toolbar)
-						  , _("Yestorday") , NULL , NULL , yest_icon
+						  , _("This Week") , NULL , NULL , yest_icon
 						  , G_CALLBACK(fx_history_on_yestorday_clicked)
 						  , fxhistory);
 	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"login.png" , 16 , 16 , NULL);
@@ -110,6 +121,13 @@ void fx_history_initialize(FxHistory* fxhistory)
 						  , _("Export") , NULL , NULL , exp_icon
 						  , G_CALLBACK(fx_history_on_export_clicked)
 						  , fxhistory);
+	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"login.png" , 16 , 16 , NULL);
+	exp_icon = gtk_image_new_from_pixbuf(pb);
+	g_object_unref(pb);
+	gtk_toolbar_append_item(GTK_TOOLBAR(fxhistory->toolbar)
+						  , _("Cleanup") , NULL , NULL , exp_icon
+						  , G_CALLBACK(fx_history_on_cleanup_clicked)
+						  , fxhistory);
 	fxhistory->textview = gtk_text_view_new();
 	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(fxhistory->textview) , GTK_WRAP_CHAR);
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(fxhistory->textview) , FALSE);
@@ -128,8 +146,12 @@ void fx_history_initialize(FxHistory* fxhistory)
 	gtk_box_pack_start(vbox , scrollwindow , TRUE , TRUE , 5);
 	fxhistory->closebtn = gtk_button_new();
 	gtk_button_set_label(GTK_BUTTON(fxhistory->closebtn) , _("Close"));
-	g_signal_connect(fxhistory->closebtn , "clicked" , G_CALLBACK(fx_history_on_close_clicked) , fxhistory->dialog);
-	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxhistory->dialog)->action_area) , fxhistory->closebtn);
+	g_signal_connect(fxhistory->closebtn, "clicked",
+			G_CALLBACK(fx_history_on_close_clicked),
+			fxhistory->dialog);
+	gtk_box_pack_start_defaults(
+			GTK_BOX(GTK_DIALOG(fxhistory->dialog)->action_area),
+			fxhistory->closebtn);
 	list = fetion_history_get_list(config , fxhistory->userid , 20);
 	fx_history_bind(fxhistory , list);
 	gtk_widget_show_all(fxhistory->dialog);
@@ -137,14 +159,14 @@ void fx_history_initialize(FxHistory* fxhistory)
 void fx_history_bind(FxHistory* fxhistory , FxList *list)
 {
 	FxMain* fxmain = fxhistory->fxmain;
-	char text[100];
-	char time[30];
+	char text[2048];
 	FxList *cur;
 	History *history;
-	GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(fxhistory->textview));
+	GtkTextBuffer *buffer;
 	GtkTextIter begin , end;
 	
-
+	buffer = gtk_text_view_get_buffer(
+			GTK_TEXT_VIEW(fxhistory->textview));
 	gtk_text_buffer_get_start_iter(buffer , &begin);
 	gtk_text_buffer_get_end_iter(buffer , &end);
 	gtk_text_buffer_delete(buffer , &begin , &end);
@@ -152,27 +174,29 @@ void fx_history_bind(FxHistory* fxhistory , FxList *list)
 	if(!list)
 		return;
 
-	foreach_list(list , cur){
-		bzero(text , sizeof(text));
-		bzero(time , sizeof(time));
+	foreach_list_back(list , cur){
 		history = (History*)(cur->data);
-		strftime(time , sizeof(time) , _("%m-%d %H:%M:%S") , &(history->sendtime));
 		if(history->issend){
-			sprintf(text , "%s(%s) %s" , history->name , fxmain->user->sId , time );
+			snprintf(text, sizeof(text) -1,
+					"%s(%s) %s", history->name,
+					fxmain->user->sId , history->sendtime );
 			gtk_text_buffer_insert_with_tags_by_name(buffer
 							, &end , text , -1 , "blue" , NULL);
 		}else{
-			sprintf(text , "%s(%s) %s" , history->name , fxmain->user->sId , time );
+			snprintf(text, sizeof(text) -1,
+					"%s(%s) %s", history->name, 
+					fxmain->user->sId, history->sendtime );
 			gtk_text_buffer_insert_with_tags_by_name(buffer
 							, &end , text , -1 , "red" , NULL);
 		}
 		gtk_text_buffer_insert(buffer , &end , "\n" , -1);
 		gtk_text_buffer_insert_with_tags_by_name(buffer
-						, &end , history->message , -1 , "lm10" , NULL);
+						, &end , history->message
+						, -1 , "lm10" , NULL);
 		gtk_text_buffer_insert(buffer , &end , "\n" , -1);
 	}
 }
-GtkTreeModel* fx_history_create_count_model()
+static GtkTreeModel* fx_history_create_count_model()
 {
 	GtkTreeStore* store = gtk_tree_store_new(1 , G_TYPE_STRING);
 	char count[5];
@@ -186,12 +210,12 @@ GtkTreeModel* fx_history_create_count_model()
 	}
 	return GTK_TREE_MODEL(store);
 }
-void fx_history_on_close_clicked(GtkWidget* UNUSED(widget) , gpointer data)
+static void fx_history_on_close_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	GtkDialog* dialog = GTK_DIALOG(data);
 	gtk_dialog_response(dialog , GTK_RESPONSE_OK);
 }
-void fx_history_on_refresh_clicked(GtkWidget* UNUSED(widget) , gpointer data)
+static void fx_history_on_refresh_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	FxHistory *fxhistory = (FxHistory*)data;
 	FxList *list;
@@ -203,7 +227,7 @@ void fx_history_on_refresh_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 	fx_history_bind(fxhistory , list);
 }
 
-void fx_history_on_today_clicked(GtkWidget* UNUSED(widget) , gpointer data)
+static void fx_history_on_today_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	FxHistory *fxhistory = (FxHistory*)data;
 	Config* config = fxhistory->fxmain->user->config;
@@ -211,15 +235,16 @@ void fx_history_on_today_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 	fx_history_bind(fxhistory , list);
 }
 
-void fx_history_on_yestorday_clicked(GtkWidget* UNUSED(widget) , gpointer data)
+static void fx_history_on_yestorday_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	FxHistory *fxhistory = (FxHistory*)data;
 	Config* config = fxhistory->fxmain->user->config;
-	FxList *list = fetion_history_get_e_list(config , fxhistory->userid , HISTORY_YEST);
+	FxList *list = fetion_history_get_e_list(config,
+			fxhistory->userid , HISTORY_WEEK);
 	fx_history_bind(fxhistory , list);
 }
 
-void fx_history_on_month_clicked(GtkWidget* UNUSED(widget) , gpointer data)
+static void fx_history_on_month_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	FxHistory *fxhistory = (FxHistory*)data;
 	Config* config = fxhistory->fxmain->user->config;
@@ -227,7 +252,7 @@ void fx_history_on_month_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 	fx_history_bind(fxhistory , list);
 }
 
-void fx_history_on_all_clicked(GtkWidget* UNUSED(widget) , gpointer data)
+static void fx_history_on_all_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	FxHistory *fxhistory = (FxHistory*)data;
 	Config* config = fxhistory->fxmain->user->config;
@@ -235,7 +260,7 @@ void fx_history_on_all_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 	fx_history_bind(fxhistory , list);
 }
 
-void fx_history_on_export_clicked(GtkWidget* UNUSED(widget) , gpointer data)
+static void fx_history_on_export_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	FxHistory *fxhistory = (FxHistory*)data;
 	FxMain *fxmain = fxhistory->fxmain;
@@ -265,4 +290,34 @@ void fx_history_on_export_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 	}
 	gtk_widget_destroy (dialog);
 
+}
+
+static void fx_history_on_cleanup_clicked(GtkWidget* widget , gpointer data)
+{
+	FxHistory *fxhistory = (FxHistory*)data;
+	FxMain *fxmain = fxhistory->fxmain;
+	User *user = fxmain->user;
+	Config *config = user->config;
+	GtkWidget *dialog;
+	GtkTextBuffer *buffer;
+	GtkTextIter begin , end;
+	int ret;
+
+	dialog = gtk_message_dialog_new (GTK_WINDOW(fxhistory->dialog),
+                                 GTK_DIALOG_DESTROY_WITH_PARENT,
+                                 GTK_MESSAGE_WARNING,
+                                 GTK_BUTTONS_OK_CANCEL,
+                                 _("The action can not be restored\nwhether to continue?"));
+	ret = gtk_dialog_run (GTK_DIALOG (dialog));
+	if(ret == GTK_RESPONSE_OK){
+
+		fetion_history_delete(config, fxhistory->userid);
+	
+		buffer = gtk_text_view_get_buffer(
+				GTK_TEXT_VIEW(fxhistory->textview));
+		gtk_text_buffer_get_start_iter(buffer , &begin);
+		gtk_text_buffer_get_end_iter(buffer , &end);
+		gtk_text_buffer_delete(buffer , &begin , &end);
+	}
+	gtk_widget_destroy (dialog);
 }

@@ -74,4 +74,8 @@ extern void fetion_user_list_free(struct userlist *list);
 extern xmlNodePtr xml_goto_node(xmlNodePtr node , const char* xml);
 
 extern char* xml_convert(xmlChar* in);
+
+void escape_sql(char *in);
+
+void unescape_sql(char *in);
 #endif 

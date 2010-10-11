@@ -59,7 +59,6 @@ Contact* fetion_contact_list_find_by_userid(Contact* contactlist , const char* u
 {
 	Contact* cl_cur;
 	foreach_contactlist(contactlist , cl_cur){
-		//printf("-------- %s , %s\n" , cl_cur->userId , userid);
 		if(strcmp(cl_cur->userId , userid) == 0)
 			return cl_cur;
 	}
@@ -147,6 +146,8 @@ Contact* fetion_contact_get_contact_info(User* user , const char* userid)
 
 	pos = strstr(res , "\r\n\r\n") + 4;
 	doc = xmlParseMemory(pos , strlen(pos));
+	if(!doc)
+		return NULL;
 	node = xmlDocGetRootElement(doc);
 	node = node->xmlChildrenNode;
 	if(xmlHasProp(node , BAD_CAST "carrier-region")){
@@ -925,7 +926,7 @@ void fetion_contact_load(User *user)
 		return;
 	}
 
-	sprintf(sql, "select * from groups;");
+	sprintf(sql, "select * from groups order by groupid;");
 	if(sqlite3_get_table(db, sql, &sqlres,
 						&nrows, &ncols, &errMsg)){
 		sqlite3_close(db);
@@ -941,6 +942,7 @@ void fetion_contact_load(User *user)
 		}
 		fetion_group_list_append(user->groupList, gpos);
 	}
+	sqlite3_free_table(sqlres);
 
 	sprintf(sql, "select * from contacts;");
 	if(sqlite3_get_table(db, sql, &sqlres,
@@ -978,6 +980,7 @@ void fetion_contact_load(User *user)
 		fetion_contact_list_append(user->contactList, pos);
 	}
 	sqlite3_close(db);
+	sqlite3_free_table(sqlres);
 }
 
 void fetion_contact_save(User *user)
@@ -986,8 +989,6 @@ void fetion_contact_save(User *user)
 	char sql[4096];
 	sqlite3 *db;
 	char *errMsg = NULL;
-	char **sqlres;
-	int ncols, nrows;
 	Contact *pos;
 	Group *gpos;
 	Config *config = user->config;

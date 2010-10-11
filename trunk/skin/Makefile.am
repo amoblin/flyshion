@@ -31,4 +31,6 @@ skin_DATA = bigimage.png \
 			away.svg \
 			invisible.svg \
 			proxy.png
+pixmapdir = $(prefix)/share/pixmaps
+pixmap_DATA = fetion.svg
 EXTRA_DIST = $(skin_DATA)

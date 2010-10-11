@@ -785,3 +785,13 @@ static void save_phrase(xmlNodePtr node, User *user)
 		node = node->next;
 	}
 }
+
+void escape_sql(char *in)
+{
+	while((*in)&&((*in)=='\'' ? (*in++)=(char)255 : in++));
+}
+void unescape_sql(char *in)
+{
+	while((*in)&&((*in)==(char)255 ? (*in++)='\'' : in++));
+}
+
