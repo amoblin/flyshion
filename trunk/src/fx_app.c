@@ -92,7 +92,6 @@ void fx_app_initialize(FxApp* fxapp)
 	gtk_fixed_put(GTK_FIXED(fixed) , lnLabel , 40 , 85);
 	
 	fxapp->lnEntry = gtk_entry_new();
-	printf("%s , %d\n" , fxapp->desc , strlen(fxapp->desc) );
 	gtk_entry_set_text(GTK_ENTRY(fxapp->lnEntry) , fxapp->desc);
 	gtk_widget_set_usize(fxapp->lnEntry , 200 , 28);
 	gtk_fixed_put(GTK_FIXED(fixed) , fxapp->lnEntry , 120 , 80);

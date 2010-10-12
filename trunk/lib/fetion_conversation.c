@@ -152,12 +152,12 @@ int fetion_conversation_send_sms_to_phone_with_reply(Conversation* conversation
 	FetionSip* sip = user->sip;
 	char astr[256] , rep[1024];
 	char* sipuri = conversation->currentContact->sipuri;
+
 	fetion_sip_set_type(sip , SIP_MESSAGE);
 	toheader = fetion_sip_header_new("T" , sipuri);
 	eheader  = fetion_sip_event_header_new(SIP_EVENT_SENDCATMESSAGE);
 	fetion_sip_add_header(sip , toheader);
 	if(user->verification != NULL){
-		bzero(astr , sizeof(astr));
 		sprintf(astr , "Verify algorithm=\"picc\",chid=\"%s\",response=\"%s\""
 				, user->verification->guid
 				, user->verification->code);
@@ -178,7 +178,8 @@ int fetion_conversation_send_sms_to_phone_with_reply(Conversation* conversation
 		fetion_conversation_parse_send_sms(xml , daycount , monthcount);
 		return 1;
 	}else{
-		debug_error("Send a message to (%s)`s mobile phone failed");
+		debug_error("Send a message to (%s)`s mobile phone failed",
+				sipuri);
 		return -1;
 	}
 }

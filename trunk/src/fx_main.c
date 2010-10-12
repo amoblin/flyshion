@@ -26,16 +26,17 @@
 #include <sys/select.h>
 #include <locale.h>
 #include <glib.h>
-int window_pos_x;
-int window_pos_y;
-int window_pos_x_old = 0;
-int window_pos_y_old = 0;
-int start_popup_presence = 0;
+
+gint window_pos_x;
+gint window_pos_y;
+gint window_pos_x_old = 0;
+gint window_pos_y_old = 0;
+gint start_popup_presence = 0;
 extern struct unacked_list *unackedlist;
 GStaticMutex mutex = G_STATIC_MUTEX_INIT;
 
-static void fx_main_process_pggetgroupinfo(FxMain *fxmain , const char *sipmsg);
-static void fx_main_process_pgpresencechanged(FxMain *fxmain , const char *sipmsg);
+static void fx_main_process_pggetgroupinfo(FxMain *fxmain , const gchar *sipmsg);
+static void fx_main_process_pgpresencechanged(FxMain *fxmain , const gchar *sipmsg);
 static gboolean key_press_func(GtkWidget *widget , GdkEventKey *event
 		, gpointer data);
 
@@ -66,7 +67,6 @@ void fx_main_initialize(FxMain* fxmain)
 	int window_width , window_height;
 	GdkScreen *screen;
 
-	DEBUG_FOOTPRINT();
 	fxmain->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_widget_set_name(fxmain->window , "mainwindow");
 	gtk_window_set_title(GTK_WINDOW(fxmain->window) , "OpenFetion");
@@ -103,25 +103,30 @@ void fx_main_initialize(FxMain* fxmain)
 				  , NULL);
 #endif
 
-	gtk_window_set_default_size(GTK_WINDOW(fxmain->window) , WINDOW_WIDTH , WINDOW_HEIGHT);
-	GdkPixbuf* icon = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" , 48 , 48 , NULL);
+	gtk_window_set_default_size(
+			GTK_WINDOW(fxmain->window),
+			WINDOW_WIDTH , WINDOW_HEIGHT);
+	GdkPixbuf* icon = gdk_pixbuf_new_from_file_at_size(
+			SKIN_DIR"fetion.svg" , 48 , 48 , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxmain->window) , icon);
-	fxmain->trayIcon = gtk_status_icon_new_from_file(SKIN_DIR"offline.svg");
-	gtk_status_icon_set_tooltip(fxmain->trayIcon , "OpenFetion");
+	fxmain->trayIcon = gtk_status_icon_new_from_file(
+			SKIN_DIR"offline.svg");
+	gtk_status_icon_set_tooltip(fxmain->trayIcon, "OpenFetion");
 #ifdef USE_LIBNOTIFY
 	fxmain->notify = notify_notification_new_with_status_icon("welcome"
 			, "" , NULL , fxmain->trayIcon);
 	notify_notification_set_timeout(fxmain->notify , 2500);
 #endif
 
-	fxmain->iconConnectId = g_signal_connect(GTK_STATUS_ICON(fxmain->trayIcon)
-									, "activate"
-									, GTK_SIGNAL_FUNC(fx_main_tray_activate_func)
-									, fxmain);
-	g_signal_connect(GTK_STATUS_ICON(fxmain->trayIcon)
-				   , "popup-menu"
-				   , GTK_SIGNAL_FUNC(fx_main_tray_popmenu_func)
-				   , fxmain);
+	fxmain->iconConnectId = g_signal_connect(
+						GTK_STATUS_ICON(fxmain->trayIcon),
+						"activate",
+						GTK_SIGNAL_FUNC(fx_main_tray_activate_func),
+						fxmain);
+	g_signal_connect(GTK_STATUS_ICON(fxmain->trayIcon),
+				   	"popup-menu",
+				    GTK_SIGNAL_FUNC(fx_main_tray_popmenu_func),
+				    fxmain);
 
 	fxmain->mainbox = gtk_vbox_new(FALSE , 4);
 	gtk_container_add(GTK_CONTAINER(fxmain->window) , fxmain->mainbox);
@@ -136,16 +141,12 @@ void fx_main_initialize(FxMain* fxmain)
 }
 void fx_main_free(FxMain* fxmain)
 {
-	DEBUG_FOOTPRINT();
-
 	if(fxmain->user != NULL)
 		fetion_user_free(fxmain->user);
 	free(fxmain);
 }
 void fx_main_set_user(FxMain* fxmain , User* user)
 {
-	DEBUG_FOOTPRINT();
-
 	fxmain->user = user;
 }
 void update()
@@ -155,7 +156,7 @@ void update()
 		 gtk_main_iteration();         
 	}
 }
-TimeOutArgs* timeout_args_new(FxMain *fxmain , FetionSip *sip , const char *sipuri)
+TimeOutArgs* timeout_args_new(FxMain *fxmain , FetionSip *sip , const gchar *sipuri)
 {
 	TimeOutArgs *args = (TimeOutArgs*)malloc(sizeof(TimeOutArgs));
 	memset(args , 0 , sizeof(TimeOutArgs));
@@ -165,8 +166,8 @@ TimeOutArgs* timeout_args_new(FxMain *fxmain , FetionSip *sip , const char *sipu
 	strcpy(args->sipuri , sipuri);
 	return args;
 }
-GtkWidget* fx_main_create_menu(const char* name
-							 , const char* iconpath
+GtkWidget* fx_main_create_menu(const gchar* name
+							 , const gchar* iconpath
 							 , GtkWidget* parent
 							 , void (*func)(GtkWidget* item , gpointer data)
 							 , gpointer data
@@ -183,8 +184,8 @@ GtkWidget* fx_main_create_menu(const char* name
 	return item;
 }
 
-GtkWidget* fx_main_create_menu1(const char* name
-							 , const char *stockid
+GtkWidget* fx_main_create_menu1(const gchar* name
+							 , const gchar *stockid
 							 , GtkWidget* parent
 							 , void (*func)(GtkWidget* item , gpointer data)
 							 , gpointer data
@@ -201,10 +202,12 @@ GtkWidget* fx_main_create_menu1(const char* name
 	return item;
 }
 
-void fx_main_process_notification(FxMain* fxmain , const char* sipmsg)
+void fx_main_process_notification(FxMain* fxmain , const gchar* sipmsg)
 {
-	int event , notification_type;
-	char* xml = NULL;
+	gint   event;
+	gint   notification_type;
+	gchar  *xml;
+
 	fetion_sip_parse_notification(sipmsg , &notification_type , &event , &xml);
 	g_usleep(1);
 	switch(notification_type)
@@ -255,26 +258,27 @@ void fx_main_process_notification(FxMain* fxmain , const char* sipmsg)
 		default:
 			break;
 	}
-	free(xml);
+	g_free(xml);
 
 }
-void fx_main_process_presence(FxMain* fxmain , const char* xml)
+void fx_main_process_presence(FxMain* fxmain , const gchar* xml)
 {
-	char *crc = NULL;
-	char *name = NULL;
-	int oldstate , count;
-	Contact *contactlist = NULL;
-	Contact *contact;
-	User* user = fxmain->user;
-	Config *config = user->config;
-	GtkWidget* treeView = fxmain->mainPanel->treeView;
-	GtkTreeModel* model = NULL;
-	FxChat *fxchat = NULL;
-	GtkTreeIter iter;
-	GtkTreeIter parentIter;
-	contactlist = fetion_user_parse_presence_body(xml , user);
+	gchar        *crc;
+	gchar        *name;
+	gint          oldstate , count;
+	Contact      *contactlist;
+	Contact      *contact;
+	User         *user = fxmain->user;
+	Config       *config = user->config;
+	GtkWidget    *treeView = fxmain->mainPanel->treeView;
+	GtkTreeModel *model;
+	FxChat       *fxchat;
+	GtkTreeIter   iter;
+	GtkTreeIter   parentIter;
 
+	contactlist = fetion_user_parse_presence_body(xml , user);
 	contact = contactlist;
+
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeView));
 	foreach_contactlist(contactlist , contact){
 		if(fx_tree_get_buddy_iter_by_userid(model , contact->userId , &iter) == -1)
@@ -312,9 +316,9 @@ void fx_main_process_presence(FxMain* fxmain , const char* xml)
 
 #ifdef USE_LIBNOTIFY
 			if(strcmp(crc , "unlogin") && start_popup_presence){
-				char notifySummary[256];
-				char notifyText[1024];
-				char iconPath[256];
+				gchar notifySummary[256];
+				gchar notifyText[1024];
+				gchar iconPath[256];
 				GdkPixbuf *pb;
 				sprintf(iconPath , "%s/%s.jpg" , config->iconPath , contact->sId);
 				sprintf(notifySummary , _("%s , now ONLINE") , contact->nickname);
@@ -326,7 +330,7 @@ void fx_main_process_presence(FxMain* fxmain , const char* xml)
 						, contact->sId
 						, contact->impression );
 				pb = gdk_pixbuf_new_from_file_at_size(iconPath , 48 , 48 , NULL);
-				if(pb == NULL)
+				if(!pb)
 					pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" , 48 , 48 , NULL);
 				
 				notify_notification_update(fxmain->notify , notifySummary
@@ -337,10 +341,11 @@ void fx_main_process_presence(FxMain* fxmain , const char* xml)
 			}
 #endif
 		}
-		if(fxchat != NULL)
+		if(fxchat)
 			fxchat->state = contact->state;
 		
-		name = (contact->nickname == NULL || strlen(contact->localname) == 0) ? contact->nickname : contact->localname;
+		name = (contact->nickname == NULL || strlen(contact->localname) == 0)?
+				contact->nickname : contact->localname;
 		gtk_tree_store_set(GTK_TREE_STORE(model) , &iter
 						 , B_NAME_COL            , g_markup_escape_text(name , strlen(name))
 						 , B_SIPURI_COL			 , contact->sipuri
@@ -358,7 +363,7 @@ void fx_main_process_presence(FxMain* fxmain , const char* xml)
 						 , B_IMAGE_CHANGED_COL	 , crc == NULL ? IMAGE_CHANGED :
 						 (strcmp(crc , contact->portraitCrc) == 0 ? IMAGE_NOT_CHANGED : IMAGE_CHANGED)
 						 , -1);
-		free(crc);
+		g_free(crc);
 		gdk_threads_leave();
 	}
 }
@@ -366,42 +371,49 @@ void fx_main_process_presence(FxMain* fxmain , const char* xml)
 static void process_system_message(const char *sipmsg)
 {
 	
-	int showonce , type;
-	char *msg , *url;
+	gint     showonce;
+	gint     type;
+	gchar    *msg;
+	gchar    *url;
 	FxSysmsg *sysmsg;
+
 	fetion_sip_parse_sysmsg(sipmsg , &type , &showonce
 			, &msg , &url);
-	if(type == 0)
-	{
+
+	if(type == 0){
 		sysmsg = fx_sysmsg_new();
 		fx_sysmsg_initialize(sysmsg);
 		fx_sysmsg_bind(sysmsg , msg , url);
 		gtk_dialog_run(GTK_DIALOG(sysmsg->dialog));
 
 		gtk_widget_destroy(sysmsg->dialog);
-		free(sysmsg);
+		g_free(sysmsg);
 
 	}
 }
 
 static void process_group_message(FxMain *fxmain , Message *message)
 {
-	FxPGGroup *fxpgcur = NULL;
-	FxPGGroup *fxpg;
+	FxPGGroup     *fxpgcur;
+	FxPGGroup     *fxpg;
 	PGGroupMember *memcur;
-	FxList *pglist;
-	FxList *cur;
-	User *user = fxmain->user;
-	Config *config = user->config;
-	GdkPixbuf *pixbuf;
-	char path[1024];
-	char *sid;
+	FxList        *pglist;
+	FxList        *cur;
+	User          *user;
+	Config        *config;
+	GdkPixbuf     *pixbuf;
+	gchar         path[1024];
+	gchar         *sid;
+
+ 	user = fxmain->user;
+	config = user->config;
 
 	pglist = fxmain->pglist;
 
 	foreach_list(pglist , cur){
 		fxpgcur = (FxPGGroup*)(cur->data);
-		if(strcmp(fxpgcur->pggroup->pguri , message->pguri) == 0){
+		if(strcmp(fxpgcur->pggroup->pguri,
+					message->pguri) == 0){
 			fxpg = fxpgcur;
 		       	break;	
 		}
@@ -409,7 +421,7 @@ static void process_group_message(FxMain *fxmain , Message *message)
 
 	gdk_threads_enter();
 	if(fxpg == NULL || fxpg->hasFocus == CHAT_DIALOG_NOT_FOCUSED ){
-	    	if(fxpg == NULL){
+	    if(fxpg == NULL){
 		    if(config->autoPopup == AUTO_POPUP_ENABLE){
 			    fxpg = pg_create_window(fxmain , message->pguri);
 			    foreach_pg_member(fxpg->pggroup->member , memcur){
@@ -430,7 +442,7 @@ static void process_group_message(FxMain *fxmain , Message *message)
 		}
 		sid = fetion_sip_get_pgid_by_sipuri(message->pguri);
 		snprintf(path , 1023 , "%s/PG%s.jpg" , config->iconPath , sid);
-		free(sid);
+		g_free(sid);
 		pixbuf = gdk_pixbuf_new_from_file(path , NULL);
 		if(pixbuf == NULL)
 			pixbuf = gdk_pixbuf_new_from_file(SKIN_DIR"online.svg" , NULL);
@@ -453,47 +465,52 @@ static void process_group_message(FxMain *fxmain , Message *message)
 		fx_sound_play_file(RESOURCE_DIR"newmessage.wav");
 }
 
-void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const char* sipmsg)
+void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const gchar* sipmsg)
 {
-	Message* msg = NULL;
-	FxList* clist = fxmain->clist;
-	FxList* mitem = NULL;
-	FxChat* fxchat = NULL;
-	User *user = fxmain->user;
-	Config* config = user->config;
-	char path[256] , *sid = NULL;
-	GdkPixbuf *pb = NULL;
+	Message   *msg;
+	FxList    *clist;
+	FxList    *mitem;
+	FxChat    *fxchat;
+	User      *user;
+	Config    *config;
+	gchar      path[256];
+	gchar     *sid;
+	GdkPixbuf *pb;
 
-	DEBUG_FOOTPRINT();
+	clist = fxmain->clist;
+	user = fxmain->user;
+	config = user->config;
 
 	fetion_sip_parse_message(sip , sipmsg , &msg);
 
 	/* group message */
-	if(msg->pguri != NULL){
+	if(msg->pguri){
 	    process_group_message(fxmain , msg);
 	    return;
 	}
+
 	fxchat = fx_list_find_chat_by_sipuri(clist , msg->sipuri);
 
 	gdk_threads_enter();
 
-	if(fxchat == NULL || fxchat->hasFocus == CHAT_DIALOG_NOT_FOCUSED)
-	{
-		if(fxchat == NULL)
-		{
+	if(!fxchat || fxchat->hasFocus == CHAT_DIALOG_NOT_FOCUSED){
+		/* chat window does not exist */
+		if(!fxchat){
 			sid = fetion_sip_get_sid_by_sipuri(msg->sipuri);
+
 			/* system message */
 			if(strlen(sid) < 5 || strcmp(sid , "10000") == 0){
-				free(sid);
-				sid = NULL;
+				g_free(sid);
 				process_system_message(sipmsg);
 				fetion_message_free(msg);
 				gdk_threads_leave();
 				return;
 			}
+
+			/* auto popup enabled */
 			if(config->autoPopup == AUTO_POPUP_ENABLE){
 				fxchat = fx_main_create_chat_window(fxmain , msg->sipuri);
-				if(fxchat == NULL){
+				if(!fxchat){
 					fetion_message_free(msg);
 					gdk_threads_leave();
 					return;
@@ -503,47 +520,55 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const char* sipms
 				fetion_message_free(msg);
 				return;
 			}else{
+				/* chat window doesn`t exist and auto-pupup wasn`t enabled
+				 * just push message into message queue,wait for user action */
 				mitem = fx_list_new(msg);
 				fx_list_append(fxmain->mlist , mitem );
 
 #ifdef USE_LIBNOTIFY
-				char iconPath[256];
-				char notifySum[256];
-				char *senderSid;
+				gchar iconPath[256];
+				gchar notifySum[256];
+				gchar *senderSid;
 				GdkPixbuf *notifyIcon;
 				Contact *senderContact;
 				if(config->msgAlert == MSG_ALERT_ENABLE){	
-					senderContact = fetion_contact_list_find_by_sipuri(user->contactList , msg->sipuri);
-					if( senderContact){
-						memset(notifySum , 0 , sizeof(notifySum));
-						memset(iconPath , 0 , sizeof(iconPath));
-						sprintf(iconPath , "%s/%s.jpg" , config->iconPath , senderContact->sId);
+					senderContact = fetion_contact_list_find_by_sipuri(
+							user->contactList , msg->sipuri);
+					if(senderContact){
+						sprintf(iconPath, "%s/%s.jpg",
+								config->iconPath, senderContact->sId);
 						senderSid = fetion_sip_get_sid_by_sipuri(msg->sipuri);
-						sprintf(notifySum , _("%s(%s) said:") , senderContact->nickname , senderContact->sId);
-						free(senderSid);
-						notifyIcon = gdk_pixbuf_new_from_file_at_size(iconPath , 48 , 48 , NULL);
-						notify_notification_update(fxmain->notify , notifySum
-								, msg->message , NULL);
+						sprintf(notifySum, _("%s(%s) said:"),
+								senderContact->nickname , senderContact->sId);
+						g_free(senderSid);
+
+						notifyIcon = gdk_pixbuf_new_from_file_at_size(
+								iconPath , 48 , 48 , NULL);
+						notify_notification_update(fxmain->notify,
+								notifySum, msg->message , NULL);
+
 						if(notifyIcon)
-							notify_notification_set_icon_from_pixbuf(fxmain->notify , notifyIcon);
-						//g_signal_connect(fxmain->notify , "closed" , G_CALLBACK(fx_main_message_func) , fxmain);
+							notify_notification_set_icon_from_pixbuf(
+									fxmain->notify , notifyIcon);
+
 						notify_notification_show(fxmain->notify , NULL);
 						g_object_unref(notifyIcon);
 					}
 				}
 #endif
 			}
+		/* chat window exist,but not focused */
 		}else{
 			fx_chat_add_message(fxchat , msg->message,
 						 &(msg->sendtime) , 0 , msg->sysback);
+			fxchat->unreadMsgCount ++;
+			fx_chat_update_window(fxchat);
 		}
-		memset(path , 0 , sizeof(path));
 		sid = fetion_sip_get_sid_by_sipuri(msg->sipuri);
 		sprintf(path , "%s/%s.jpg" , config->iconPath , sid);
-		free(sid);
-		sid = NULL;
+		g_free(sid);
 		pb = gdk_pixbuf_new_from_file(path , NULL);
-		if(pb == NULL)
+		if(!pb)
 			pb = gdk_pixbuf_new_from_file(SKIN_DIR"online.svg" , NULL);
 		gtk_status_icon_set_from_pixbuf(GTK_STATUS_ICON(fxmain->trayIcon) , pb);
 		g_object_unref(pb);
@@ -554,14 +579,14 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const char* sipms
 							, "activate"
 							, GTK_SIGNAL_FUNC(fx_main_message_func)
 							, fxmain);
+
 		/* no message was pushed into the message queue,just free it */
 		if(fxchat && fxchat->hasFocus == CHAT_DIALOG_NOT_FOCUSED)
 			fetion_message_free(msg);
-	}
-	else
-	{
+	}else{
 		fx_chat_add_message(fxchat , msg->message,
 					   	&(msg->sendtime) , 0, msg->sysback);
+
 		/* message was showed in the chat dialog directly,just free it */
 		fetion_message_free(msg);
 	}
@@ -569,39 +594,35 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const char* sipms
 	if(config->isMute == MUTE_DISABLE)
 		fx_sound_play_file(RESOURCE_DIR"newmessage.wav");
 }
-void fx_main_process_user_left(FxMain* fxmain , const char* msg)
+void fx_main_process_user_left(FxMain* fxmain , const gchar* msg)
 {
-	char *sipuri = NULL;
-	FxList *clist = fxmain->clist;
-	FxChat *fxchat = NULL;
-	TimeOutArgs *timeout = NULL;
-	Conversation *conv = NULL;
+	gchar         *sipuri;
+	FxList       *clist;
+	FxChat       *fxchat;
+	TimeOutArgs  *timeout;
+	Conversation *conv;
+
+	clist = fxmain->clist;
 
 	DEBUG_FOOTPRINT();
 
 	fetion_sip_parse_userleft(msg , &sipuri);
-	/**
-	 * remove sip struct from stack
-	 */
+	/* remove sip struct from stack	 */
 	fx_list_remove_sip_by_sipuri(fxmain->slist , sipuri);
 
-	/**
-	 * mark timeout struct to TERMINATED
-	 * and the struct is to be remove from stack in timeout thread
-	 */
+	/* mark timeout struct to TERMINATED
+	 * and the struct is to be remove from stack in timeout thread */
 	timeout = fx_list_find_timeout_by_sipuri(fxmain->tlist , sipuri);
-	if(timeout != NULL)
+	if(!timeout)
 		timeout->terminated = TRUE;
 	
-	/**
-	 * if fxchat exist , set current sip struct to NULL , and exit thread
-	 * else just exit current thread
-	 */
+	/* if fxchat exist , set current sip struct to NULL ,
+	 * and exit thread, orelse just exit current thread	 */
 	fxchat = fx_list_find_chat_by_sipuri(clist , sipuri);
-	if(fxchat == NULL) {
+	if(!fxchat) {
 		debug_info("User %s left conversation" , sipuri);
 		debug_info("Thread exit");
-		free(sipuri);
+		g_free(sipuri);
 		g_thread_exit(0);
 	}
 	conv = fxchat->conv;
@@ -609,33 +630,33 @@ void fx_main_process_user_left(FxMain* fxmain , const char* msg)
 
 	debug_info("User %s left conversation" , sipuri);
 	debug_info("Thread exit");
-	free(sipuri);
+	g_free(sipuri);
 	g_thread_exit(0);
 
 }
-FxChat* fx_main_create_chat_window(FxMain* fxmain , const char* sipuri)
+FxChat* fx_main_create_chat_window(FxMain* fxmain , const gchar* sipuri)
 {
 	Conversation *conv;
-	FxChat *fxchat;
-	FxList *citem;
-	Contact *contact;
-	char *sid;
-
-	DEBUG_FOOTPRINT();
+	FxChat       *fxchat;
+	FxList       *citem;
+	Contact      *contact;
+	gchar        *sid;
 
 	if((fxchat = fx_list_find_chat_by_sipuri(fxmain->clist , sipuri)) != NULL)
 		return fxchat;
 	conv = fetion_conversation_new(fxmain->user , sipuri , NULL);
 	
 	/* this buddy is not in the friend list*/
-	if(conv == NULL) {
+	if(!conv) {
 		sid = fetion_sip_get_sid_by_sipuri(sipuri);
-		if(strlen(sid) < 8 || strcmp(sid , "10000") == 0)
+		if(strlen(sid) < 8 || strcmp(sid , "10000") == 0){
+			g_free(sid);
 			return NULL;
+		}
 
 		contact = fetion_contact_get_contact_info_by_no(fxmain->user , sid , FETION_NO);
 
-		if(contact == NULL)
+		if(!contact)
 			return NULL;
 		/* replace the sipuri*/
 		bzero(contact->sipuri , sizeof(contact->sipuri));
@@ -643,7 +664,7 @@ FxChat* fx_main_create_chat_window(FxMain* fxmain , const char* sipuri)
 		fetion_contact_list_append(fxmain->user->contactList , contact);
 		conv = fetion_conversation_new(fxmain->user , sipuri , NULL);
 	}
-	if(conv == NULL)
+	if(!conv)
 		return NULL;
 	fxchat = fx_chat_new(fxmain , conv);
 	fx_chat_initialize(fxchat);
@@ -652,37 +673,39 @@ FxChat* fx_main_create_chat_window(FxMain* fxmain , const char* sipuri)
 
 	return fxchat;
 }
-void fx_main_process_invitation(FxMain* fxmain , const char* sipmsg)
+void fx_main_process_invitation(FxMain* fxmain , const gchar* sipmsg)
 {
-	char* sipuri = NULL;
-	FetionSip* osip = NULL;
-	FetionSip* sip = fxmain->user->sip;
-	FxList *list = NULL;
-	TimeOutArgs *timeout = NULL;
-	char event[10];
-	ThreadArgs* args = (ThreadArgs*)malloc(sizeof(ThreadArgs));
+	gchar       *sipuri;
+	FetionSip   *osip;
+	FetionSip   *sip;
+	FxList      *list;
+	TimeOutArgs *timeout;
+	gchar        event[16];
+	ThreadArgs  *args;
+	
+	args = (ThreadArgs*)malloc(sizeof(ThreadArgs));
+	sip = fxmain->user->sip;
 
-	DEBUG_FOOTPRINT();
-	bzero(event , sizeof(event));
-	if(fetion_sip_get_attr(sipmsg , "N" , event) != -1){
+	memset(event, 0, sizeof(event));
+	if(fetion_sip_get_attr(sipmsg , "N" , event) != -1)
 		return;
-	}
 
-	fetion_sip_parse_invitation(sip , fxmain->user->config->proxy , sipmsg , &osip , &sipuri);
+	fetion_sip_parse_invitation(sip,
+			fxmain->user->config->proxy,
+			sipmsg , &osip , &sipuri);
 
 	list = fx_list_new(osip);
 	fx_list_append(fxmain->slist , list);
 
 	args->fxmain = fxmain;
 	args->sip = osip;
-	/**
-	 * create a thread to listen in this channel
-	 */
-	g_thread_create(fx_main_listen_thread_func , args , FALSE , NULL);
-	/**
-	 * start send keep alive message throuth chat chanel
-	 * and put the timeout information into stack
-	 */
+
+	/* create a thread to listen in this channel */
+	g_thread_create(fx_main_listen_thread_func,
+			args , FALSE , NULL);
+
+	/* start send keep alive message throuth chat chanel
+	 * and put the timeout information into stack */
 	debug_info("Start periodically sending keep alive request");
 	timeout = timeout_args_new(fxmain , osip , sipuri);
 	list = fx_list_new(timeout);
@@ -703,14 +726,12 @@ static void process_share_action_cancel(FxMain *fxmain
 }
 #endif
 void fx_main_process_incoming(FxMain* fxmain
-		, FetionSip* sip , const char* sipmsg)
+		, FetionSip* sip , const gchar* sipmsg)
 {
-	IncomingType type;
+	IncomingType       type;
 	IncomingActionType action;
-	char *sipuri = NULL;
-	FxChat *fxchat = NULL;
-
-	DEBUG_FOOTPRINT();
+	gchar              *sipuri;
+	FxChat             *fxchat;
 
 	fetion_sip_parse_incoming(sip , sipmsg , &sipuri , &type , &action);
 	switch(type) {
@@ -747,7 +768,7 @@ void fx_main_process_incoming(FxMain* fxmain
 	}
 }
 
-static void fx_main_process_group(FxMain *fxmain , const char *xml)
+static void fx_main_process_group(FxMain *fxmain , const gchar *xml)
 {
 	User *user = fxmain->user;
 	PGGroup *pgcur;
@@ -762,7 +783,7 @@ static void fx_main_process_group(FxMain *fxmain , const char *xml)
 	}
 }
 
-void fx_main_process_sipc(FxMain* fxmain , const char* sipmsg)
+void fx_main_process_sipc(FxMain* fxmain , const gchar* sipmsg)
 {
 	int callid;
 	int code;
@@ -827,26 +848,28 @@ void fx_main_process_sipc(FxMain* fxmain , const char* sipmsg)
 
 void fx_main_process_deregistration(FxMain* fxmain)
 {
-	DEBUG_FOOTPRINT();
 
 	gdk_threads_enter();
 	fx_util_popup_warning(fxmain , _("Your fetion login elsewhere. You are forced quit."));
 	gdk_threads_leave();
 	gtk_main_quit();
 }
-void fx_main_process_syncuserinfo(FxMain* fxmain , const char* xml)
+void fx_main_process_syncuserinfo(FxMain* fxmain , const gchar* xml)
 {
-	Contact* contact = NULL;
-	GtkTreeIter iter , cIter;
-	char *userid = NULL;
-	GtkTreeModel* model = gtk_tree_view_get_model(GTK_TREE_VIEW(fxmain->mainPanel->treeView));
-
-	DEBUG_FOOTPRINT();
+	Contact*      contact;
+	GtkTreeIter   iter;
+	GtkTreeIter   cIter;
+	gchar         *userid;
+	GtkTreeModel* model = gtk_tree_view_get_model(
+			GTK_TREE_VIEW(fxmain->mainPanel->treeView));
 
 	contact = fetion_user_parse_syncuserinfo_body(xml , fxmain->user);
-	if(contact == NULL)
+
+	if(!contact)
 		return;
+
 	gtk_tree_model_get_iter_root(model , &iter);
+
 	do {
 		if(gtk_tree_model_iter_children(model , &cIter , &iter)){
 			do{
@@ -859,10 +882,10 @@ void fx_main_process_syncuserinfo(FxMain* fxmain , const char* xml)
 									 , B_RELATIONSTATUS_COL	 , contact->relationStatus
 									 , -1);
 					gdk_threads_leave();
-					free(userid);
+					g_free(userid);
 					goto end;
 				}
-				free(userid);
+				g_free(userid);
 			}
 			while(gtk_tree_model_iter_next(model , &cIter));
 		}
@@ -873,26 +896,29 @@ end:
 }
 void* fx_main_process_addbuddyapplication_thread(void* data)
 {
-	struct Args{
-		FxMain* fxmain;
-		char sipmsg[2048];
+	struct Args {
+		FxMain *fxmain;
+		gchar   sipmsg[2048];
 	} *args = (struct Args*)data;
-	char *userid = NULL;
-	char *sipuri = NULL;
-	char *desc = NULL;
-	int phrase;
-	FxApp *fxapp = NULL;
+	gchar *userid;
+	gchar *sipuri;
+	gchar *desc;
+	gint   phrase;
+	FxApp *fxapp;
 
-	DEBUG_FOOTPRINT();
 
-	fetion_sip_parse_addbuddyapplication(args->sipmsg , &sipuri , &userid , &desc , &phrase);
+	fetion_sip_parse_addbuddyapplication(args->sipmsg,
+			&sipuri , &userid , &desc , &phrase);
 
-	fxapp = fx_app_new(args->fxmain , sipuri , userid , desc , phrase);
+	fxapp = fx_app_new(args->fxmain, sipuri,
+			userid , desc , phrase);
+
 	gdk_threads_enter();
 	fx_app_initialize(fxapp);
 	gtk_dialog_run(GTK_DIALOG(fxapp->dialog));
 	gtk_widget_destroy(fxapp->dialog);
 	gdk_threads_leave();
+
 	return NULL;
 }
 void fx_main_process_addbuddyapplication(FxMain* fxmain , const char* sipmsg)
@@ -901,8 +927,6 @@ void fx_main_process_addbuddyapplication(FxMain* fxmain , const char* sipmsg)
 		FxMain* fxmain;
 		char sipmsg[2048];
 	} *args = (struct Args*)malloc(sizeof(struct Args));
-
-	DEBUG_FOOTPRINT();
 
 	memset(args , 0 , sizeof(struct args));
 	args->fxmain = fxmain;
@@ -920,8 +944,6 @@ gboolean fx_main_delete(GtkWidget *widget , GdkEvent *UNUSED(event) , gpointer d
 	Config *config;;
 
 	int ret;
-
-	DEBUG_FOOTPRINT();
 
 	if(fxmain->user){
 		config = fxmain->user->config;
@@ -970,10 +992,11 @@ gboolean fx_main_delete(GtkWidget *widget , GdkEvent *UNUSED(event) , gpointer d
 gboolean fx_main_window_state_func(GtkWidget *widget
 		, GdkEventWindowState *event , gpointer data)
 {
-	FxMain *fxmain = (FxMain*)data;
-	Config *config = fxmain->user == NULL ? NULL : fxmain->user->config;
+	FxMain *fxmain;
+	Config *config;
 
-	DEBUG_FOOTPRINT();
+	fxmain = (FxMain*)data;
+	config = fxmain->user == NULL ? NULL: fxmain->user->config;
 
 	if(config){
 		if(event->new_window_state == GDK_WINDOW_STATE_ICONIFIED){
@@ -991,16 +1014,16 @@ gboolean fx_main_window_state_func(GtkWidget *widget
 }
 void fx_main_tray_activate_func(GtkWidget *UNUSED(widget) , gpointer data)
 {
-	FxMain *fxmain = (FxMain*)data;
+	FxMain *fxmain;
 	Config *config = NULL;
+
+	fxmain = (FxMain*)data;
+
 	if(fxmain->user && fxmain->user->config)
 		config = fxmain->user->config;
 
 	if(!config)
 		return;
-
-	DEBUG_FOOTPRINT();
-
 
 	gtk_window_deiconify(GTK_WINDOW(fxmain->window));
     if(GTK_WIDGET_VISIBLE(fxmain->window)){
@@ -1019,17 +1042,21 @@ void fx_main_tray_activate_func(GtkWidget *UNUSED(widget) , gpointer data)
 		window_pos_x_old = window_pos_x;
 		window_pos_y_old = window_pos_y;
 	}
-	gtk_window_move(GTK_WINDOW(fxmain->window) , window_pos_x_old , window_pos_y_old);
+	gtk_window_move(GTK_WINDOW(fxmain->window),
+			window_pos_x_old , window_pos_y_old);
 
 }
 
-static void fx_main_mute_clicked(GtkWidget *UNUSED(widget) , gpointer data)
+static void fx_main_mute_clicked(
+		GtkWidget *UNUSED(widget) , gpointer data)
 {
-	FxMain *fxmain = (FxMain*)data;
-	User *user = fxmain->user;
-	Config *config = user->config;
+	FxMain *fxmain;
+	User   *user;
+	Config *config;
 
-	DEBUG_FOOTPRINT();
+	fxmain = (FxMain*)data;
+	user = fxmain->user;
+	config = user->config;
 
 	if(config->isMute == MUTE_ENABLE)
 		config->isMute = MUTE_DISABLE;
@@ -1040,40 +1067,47 @@ static void fx_main_mute_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 
 }
 
-static void fx_main_direct_sms_clicked(GtkWidget *UNUSED(widget) , gpointer data)
+static void fx_main_direct_sms_clicked(
+		GtkWidget *UNUSED(widget) , gpointer data)
 {
-	FxMain *fxmain = (FxMain*)data;
-	FxDSMS *fxdsms = fx_dsms_new(fxmain);
+	FxMain *fxmain;
+	FxDSMS *fxdsms;
 
-	DEBUG_FOOTPRINT();
+	fxmain = (FxMain*)data;
+	fxdsms = fx_dsms_new(fxmain);
 
 	if(fxmain->user->carrierStatus == CARRIER_STATUS_DOWN){
-		fx_util_popup_warning(fxmain , SERVICE_DOWN_MESSAGE);
+		fx_util_popup_warning(fxmain,
+				SERVICE_DOWN_MESSAGE);
 		return;
 	}
 	fx_dsms_initialize(fxdsms);
 }
 
-void fx_main_tray_popmenu_func(GtkWidget* UNUSED(widget)
-		, guint button , guint activate_time , gpointer data)
+void fx_main_tray_popmenu_func(
+		GtkWidget* UNUSED(widget),
+		guint button , guint activate_time,
+		gpointer data)
 {
-	FxMain *fxmain = (FxMain*)data;
-	User *user = fxmain->user;
-	Config *config = NULL;
+	FxMain    *fxmain;
+	User      *user;
+	Config    *config;
 	GtkWidget *item;
-	char stateMenu[48];
-	int i;
-	typedef struct 
-	{
+	GtkWidget *menu;
+	GtkWidget *statemenu;
+	GtkWidget *submenu;
+	gchar     stateMenu[48];
+	gint      i;
+	typedef struct {
 		FxMain* fxmain;
 		StateType type;
 	} Args;
-	Args *args = NULL;
-	GtkWidget* menu = NULL;
-	GtkWidget* statemenu = NULL;
-	GtkWidget* submenu = NULL;
-	struct 
-	{
+	Args      *args;
+
+	fxmain = (FxMain*)data;
+	user = fxmain->user;
+
+	struct {
 		const gchar* name;
 		const gchar* icon;
 		int type;
@@ -1090,8 +1124,6 @@ void fx_main_tray_popmenu_func(GtkWidget* UNUSED(widget)
 		{ NULL		 , NULL 			   , -1}
 	};
 
-	DEBUG_FOOTPRINT();
-
 	menu = gtk_menu_new();
 	fx_main_create_menu1(_("About OpenFetion") , GTK_STOCK_ABOUT
 					 , menu , fx_main_about_fetion_clicked , NULL);
@@ -1099,46 +1131,57 @@ void fx_main_tray_popmenu_func(GtkWidget* UNUSED(widget)
 					 , menu , fx_main_about_author_clicked , NULL);
 	fx_main_create_menu1(_("Look for new version") , GTK_STOCK_HELP
 					 , menu , fx_main_check_update_clicked , NULL);
-	if(fxmain->user != NULL && fxmain->user->loginStatus != -1)
+
+	if(fxmain->user && fxmain->user->loginStatus != -1)
 	{
 		config = fxmain->user->config;
 
 		item = gtk_check_menu_item_new_with_label(_("Close sound"));
+
 		if(config->isMute == MUTE_ENABLE)
-			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item) , TRUE);
+			gtk_check_menu_item_set_active(
+					GTK_CHECK_MENU_ITEM(item) , TRUE);
 		else
-			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item) , FALSE);
-		g_signal_connect(item , "activate" , G_CALLBACK(fx_main_mute_clicked) , fxmain);
+			gtk_check_menu_item_set_active(
+					GTK_CHECK_MENU_ITEM(item) , FALSE);
+
+		g_signal_connect(item, "activate",
+				G_CALLBACK(fx_main_mute_clicked) , fxmain);
 		gtk_menu_shell_append(GTK_MENU_SHELL(menu) , item);
 
-
 		item = gtk_check_menu_item_new_with_label(_("Receive SMS"));
+
 		if(strcmp(user->smsOnLineStatus , "0.00:00:00") &&
 			strcmp(user->smsOnLineStatus , "0.0:0:0"))
 			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item) , FALSE);
 		else
 			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item) , TRUE);
+
 		gtk_menu_shell_append(GTK_MENU_SHELL(menu) , item);
-		g_signal_connect(item , "activate" , G_CALLBACK(fx_head_set_sms_clicked) , fxmain);
+		g_signal_connect(item, "activate",
+				G_CALLBACK(fx_head_set_sms_clicked) , fxmain);
 
 		fx_main_create_menu1(_("Information query") , GTK_STOCK_FIND
 						 , menu , fx_main_info_lookup_clicked , fxmain);
-		if(fxmain->user->boundToMobile == BOUND_MOBILE_ENABLE){
+
+		if(fxmain->user->boundToMobile == BOUND_MOBILE_ENABLE)
 			fx_main_create_menu1(_("SMS myself") , GTK_STOCK_FILE
 							 , menu , fx_main_send_to_myself_clicked , fxmain);
-		}
-		statemenu = fx_main_create_menu1(_("Edit statement") , GTK_STOCK_INFO , menu , NULL , NULL);
+		
+		statemenu = fx_main_create_menu1(_("Edit statement"),
+				GTK_STOCK_INFO , menu , NULL , NULL);
+
 		submenu = gtk_menu_new();
-		for(i = 0 ; presence[i].type != -1 ; i++)
-		{
+		for(i = 0 ; presence[i].type != -1 ; i++){
 			args = (Args*)malloc(sizeof(Args));
 			args->fxmain = fxmain;
 			args->type = presence[i].type;
-			memset(stateMenu , 0 , sizeof(stateMenu));
+
 			sprintf(stateMenu , "%s      " , _(presence[i].name));
 			fx_main_create_menu(stateMenu , presence[i].icon
 							 , submenu , fx_main_set_state_clicked , args);
 		}
+
 		gtk_menu_item_set_submenu(GTK_MENU_ITEM(statemenu) , submenu);
 		fx_main_create_menu1(_("SMS to many") , GTK_STOCK_DND_MULTIPLE
 						 , menu , fx_main_send_to_many_clicked , fxmain);
@@ -1180,34 +1223,35 @@ int main(int argc , char* argv[])
 	notify_init("Openfetion");
 #endif
 	gtk_init(&argc , &argv);
-
-
+	
 	DEBUG_FOOTPRINT();
 
 	fx_main_initialize(fxmain);
-
 
 	return 0;
 }
 void* fx_main_listen_thread_func(void* data)
 {
-	ThreadArgs* args = (ThreadArgs*)data;
-	FxMain* fxmain = args->fxmain;
-	FetionSip* sip = args->sip;
-	int type;
-	SipMsg *msg , *pos;
-	fd_set fd_read;
-	int ret;
+	ThreadArgs *args;
+	FxMain     *fxmain;
+	FetionSip  *sip;
+	SipMsg     *msg;
+	SipMsg     *pos;
+	fd_set      fd_read;
+	gint        type;
+	gint        ret;
 
-	DEBUG_FOOTPRINT();
+	args = (ThreadArgs*)data;
+	fxmain = args->fxmain;
+	sip = args->sip;
 
 	debug_info("A new thread entered");
 
 	sip = (sip == NULL ? fxmain->user->sip : sip);
 	for(;;){
 		
-		if(fxmain == NULL)
-			return NULL;
+		if(!fxmain)
+			g_thread_exit(0);
 
 		FD_ZERO(&fd_read);
 
@@ -1215,6 +1259,7 @@ void* fx_main_listen_thread_func(void* data)
 		FD_SET(sip->tcp->socketfd, &fd_read);
 		g_static_mutex_unlock(&mutex);
 		ret = select(sip->tcp->socketfd+1, &fd_read, NULL, NULL, NULL);
+
 		if (ret == -1 || ret == 0) {
 			debug_info ("Error.. to read socket");
 			g_thread_exit(0);
@@ -1228,15 +1273,17 @@ void* fx_main_listen_thread_func(void* data)
 		msg = fetion_sip_listen(sip);
 		if(!msg){
 			gdk_threads_enter();
-			fx_util_popup_warning(fxmain , _("Sorry,your network connection has been closed\n"
-				"Please check your network connection and then login again"));
+			fx_util_popup_warning(fxmain,
+					_("Sorry,your network connection"
+					" has been closed\nPlease check "
+					"your network connection and then login again"));
 			gdk_threads_leave();
 
 			gtk_main_quit();
-			return NULL;
+			g_thread_exit(0);
 		}
 		pos = msg;
-		while(pos != NULL){
+		while(pos){
 			type = fetion_sip_get_type(pos->message);
 			switch(type){
 				case SIP_NOTIFICATION :
@@ -1260,7 +1307,8 @@ void* fx_main_listen_thread_func(void* data)
 			}
 			pos = pos->next;
 		}
-		if(msg != NULL)
+
+		if(msg)
 			fetion_sip_message_free(msg);
 	}
 
@@ -1268,16 +1316,18 @@ void* fx_main_listen_thread_func(void* data)
 }
 void fx_main_message_func(GtkWidget *UNUSED(widget) , gpointer data)
 {
-	FxMain *fxmain = (FxMain*)data;
-	FxList *mlist = fxmain->mlist;
-	FxList *cur = mlist->pre;
-	FxList *tmp = NULL;
-	FxChat *fxchat = NULL;
-	FxPGGroup *fxpg = NULL;
-	PGGroupMember *memcur = NULL;
-	Message *msg = NULL;
+	FxMain        *fxmain;
+	FxList        *mlist;
+	FxList        *cur;
+	FxList        *tmp;
+	FxChat        *fxchat;
+	FxPGGroup     *fxpg;
+	PGGroupMember *memcur;
+	Message       *msg;
 
-	DEBUG_FOOTPRINT();
+	fxmain = (FxMain*)data;
+	mlist = fxmain->mlist;
+	cur = mlist->pre;
 
 #ifdef USE_LIBNOTIFY
 	notify_notification_close(fxmain->notify , NULL);
@@ -1285,22 +1335,27 @@ void fx_main_message_func(GtkWidget *UNUSED(widget) , gpointer data)
 
 	while(cur != fxmain->mlist){
 		msg = (Message*)(cur->data);
+
 		/* ordinary message */
-		if(msg->pguri == NULL){
+		if(!msg->pguri){
 		    fxchat = fx_main_create_chat_window(fxmain , msg->sipuri);
-		    if(fxchat == NULL){
-			    printf("Unknow Message\n");
-			    printf("%s:%s\n" , msg->sipuri ,  msg->message);
+
+		    if(!fxchat){
+			    g_print("Unknow Message\n");
+			    g_print("%s:%s\n" , msg->sipuri ,  msg->message);
 			    continue;
 		    }
+
 		    fx_chat_add_message(fxchat , msg->message,
 					&(msg->sendtime) , 0 , msg->sysback);
 		}else{
 			/*group message*/
 		    fxpg = pg_create_window(fxmain , msg->pguri);
+
 		    foreach_pg_member(fxpg->pggroup->member , memcur){
 				if(strcmp(memcur->sipuri , msg->sipuri) == 0){
-			    	pg_add_message(fxpg , msg->message , &(msg->sendtime) , memcur );
+			    	pg_add_message(fxpg, msg->message,
+							&(msg->sendtime) , memcur );
 					break;
 				}
 		    }
@@ -1312,9 +1367,12 @@ void fx_main_message_func(GtkWidget *UNUSED(widget) , gpointer data)
 		free(tmp);
 	}
 	fx_head_set_state_image(fxmain , fxmain->user->state);
-	gtk_status_icon_set_blinking(GTK_STATUS_ICON(fxmain->trayIcon) , FALSE);
-	g_signal_handler_disconnect(fxmain->trayIcon , fxmain->iconConnectId);
-	fxmain->iconConnectId = g_signal_connect(G_OBJECT(fxmain->trayIcon) 
+	gtk_status_icon_set_blinking(
+			GTK_STATUS_ICON(fxmain->trayIcon) , FALSE);
+	g_signal_handler_disconnect(fxmain->trayIcon,
+			fxmain->iconConnectId);
+	fxmain->iconConnectId = g_signal_connect(
+						G_OBJECT(fxmain->trayIcon) 
 						 , "activate"
 						 , GTK_SIGNAL_FUNC(fx_main_tray_activate_func)
 						 , fxmain);
@@ -1329,10 +1387,11 @@ gboolean fx_main_register_func(User* user)
 gboolean fx_main_check_func(FxMain* fxmain)
 {
 	struct unacked_list *list;
-	struct tm *now;
-	char *msg;
-	time_t now_t , msg_time_t;
-	long seconds;
+	struct tm           *now;
+	char                *msg;
+	time_t               now_t;
+	time_t               msg_time_t;
+	long                 seconds;
 
 	start_popup_presence = 1;
 
@@ -1435,59 +1494,57 @@ void fx_main_info_lookup_clicked(GtkWidget *widget , gpointer data)
 
 FetionSip* fx_list_find_sip_by_sipuri(FxList *fxlist , const char *sipuri)
 {
-	FxList *cur;
+	FxList    *cur;
 	FetionSip *sip;
-	char *sid , *sid1;
+	gchar     *sid;
+	gchar     *sid1;
 
 	foreach_list(fxlist , cur){
 		sip = (FetionSip*)(cur->data);
 		sid = fetion_sip_get_sid_by_sipuri(sip->sipuri);
 		sid1 = fetion_sip_get_sid_by_sipuri(sipuri);
 		if(strcmp(sid , sid1) == 0){
-			free(sid); sid = NULL;
-			free(sid1); sid1 = NULL;
+			g_free(sid); sid = NULL;
+			g_free(sid1); sid1 = NULL;
 			return sip;
 		}
-		free(sid); sid = NULL;
-		free(sid1); sid1 = NULL;
+		g_free(sid); sid = NULL;
+		g_free(sid1); sid1 = NULL;
 	}
 	return NULL;
 }
 void fx_list_remove_sip_by_sipuri(FxList *fxlist , const char *sipuri)
 {
-	FxList *cur;
+	FxList    *cur;
 	FetionSip *sip;
-	char *sid , *sid1;
-
-	DEBUG_FOOTPRINT();
+	gchar     *sid;
+	gchar     *sid1;
 
 	foreach_list(fxlist , cur){
 		sip = (FetionSip*)(cur->data);
 		sid = fetion_sip_get_sid_by_sipuri(sip->sipuri);
 		sid1 = fetion_sip_get_sid_by_sipuri(sipuri);
-		if(strcmp(sid , sid1) == 0)
-		{	
+		if(strcmp(sid , sid1) == 0)	{	
 			debug_info("Removing sip from sip list");
 			cur->next->pre = cur->pre;
 			cur->pre->next = cur->next;
-			free(sid);sid = NULL;
-			free(sid1);sid1 = NULL;
-			free(cur);
+			g_free(sid);sid = NULL;
+			g_free(sid1);sid1 = NULL;
+			g_free(cur);
 			break;
 		}	
-		free(sid);sid = NULL;
-		free(sid1);sid1 = NULL;
+		g_free(sid);sid = NULL;
+		g_free(sid1);sid1 = NULL;
 	}
 }
 
 FxChat* fx_list_find_chat_by_sipuri(FxList *fxlist , const char *sipuri)
 {
-	FxChat *fxchat;
-	FxList *cur;
+	FxChat  *fxchat;
+	FxList  *cur;
 	Contact *contact;
-	char *sid , *sid1;
-
-	DEBUG_FOOTPRINT();
+	gchar   *sid;
+	gchar   *sid1;
 
 	foreach_list(fxlist , cur){
 		fxchat = (FxChat*)(cur->data);
@@ -1495,23 +1552,22 @@ FxChat* fx_list_find_chat_by_sipuri(FxList *fxlist , const char *sipuri)
 		sid = fetion_sip_get_sid_by_sipuri(contact->sipuri);
 		sid1 = fetion_sip_get_sid_by_sipuri(sipuri);
 		if(strcmp(sid , sid1) == 0){
-			free(sid);
-			free(sid1);
+			g_free(sid);
+			g_free(sid1);
 			return fxchat;
 		}
-		free(sid);
-		free(sid1);
+		g_free(sid);
+		g_free(sid1);
 	}
 	return NULL;
 }
 void fx_list_remove_chat_by_sipuri(FxList *fxlist , const char *sipuri)
 {
-	FxList *cur;
+	FxList  *cur;
 	Contact *contact;
-	FxChat *fxchat;
-	char *sid , *sid1;
-
-	DEBUG_FOOTPRINT();
+	FxChat  *fxchat;
+	gchar   *sid;
+	gchar   *sid1;
 
 	foreach_list(fxlist , cur){
 		fxchat = (FxChat*)(cur->data);
@@ -1524,46 +1580,45 @@ void fx_list_remove_chat_by_sipuri(FxList *fxlist , const char *sipuri)
 		sid1 = fetion_sip_get_sid_by_sipuri(sipuri);
 		if(strcmp(sid , sid1) == 0){
 			debug_info("Removing chat struct from chat list");
-			free(sid);sid = NULL;
-			free(sid1);sid1 = NULL;
+			g_free(sid);sid = NULL;
+			g_free(sid1);sid1 = NULL;
 			cur->next->pre = cur->pre;
 			cur->pre->next = cur->next;
 			break;
 		}	
-		free(sid);sid = NULL;
-		free(sid1);sid1 = NULL;
+		g_free(sid);sid = NULL;
+		g_free(sid1);sid1 = NULL;
 	}
 }
 
 TimeOutArgs* fx_list_find_timeout_by_sipuri(FxList* fxlist , const char* sipuri)
 {
-	TimeOutArgs *args = NULL;
-	FxList *cur;
-	char *sid , *sid1;
+	TimeOutArgs *args;
+	FxList      *cur;
+	gchar       *sid;
+	gchar       *sid1;
 
-	DEBUG_FOOTPRINT();
 	foreach_list(fxlist , cur){
 		args = (TimeOutArgs*)(cur->data);
 		sid = fetion_sip_get_sid_by_sipuri(args->sipuri);
 		sid1 = fetion_sip_get_sid_by_sipuri(sipuri);
 		if(strcmp(sid , sid1) == 0){
-			free(sid);sid = NULL;
-			free(sid1);sid1 = NULL;
+			g_free(sid);sid = NULL;
+			g_free(sid1);sid1 = NULL;
 			return args;
 		}
-		free(sid);sid = NULL;
-		free(sid1);sid1 = NULL;
+		g_free(sid);sid = NULL;
+		g_free(sid1);sid1 = NULL;
 	}
 	return NULL;
 }
 
 void fx_list_remove_timeout_by_sipuri(FxList* fxlist , const char* sipuri)
 {
-	FxList *cur;
-	TimeOutArgs *args = NULL;
-	char *sid , *sid1;
-
-	DEBUG_FOOTPRINT();
+	FxList      *cur;
+	TimeOutArgs *args;
+	gchar       *sid;
+	gchar       *sid1;
 
 	foreach_list(fxlist , cur){
 		args = (TimeOutArgs*)(cur->data);
@@ -1572,20 +1627,20 @@ void fx_list_remove_timeout_by_sipuri(FxList* fxlist , const char* sipuri)
 		if(strcmp(sid , sid1) == 0){
 			cur->next->pre = cur->pre;
 			cur->pre->next = cur->next;
-			free(sid);sid = NULL;
-			free(sid1);sid1 = NULL;
-			free(cur);
+			g_free(sid);sid = NULL;
+			g_free(sid1);sid1 = NULL;
+			g_free(cur);
 			break;
 		}	
-		free(sid);sid = NULL;
-		free(sid1);sid1 = NULL;
+		g_free(sid);sid = NULL;
+		g_free(sid1);sid1 = NULL;
 	}
 
 }
 
 void fx_list_remove_pg_by_sipuri(FxList* fxlist , const char* sipuri)
 {
-	FxList *cur;
+	FxList    *cur;
 	FxPGGroup *fxpg;
 
 	DEBUG_FOOTPRINT();
@@ -1595,7 +1650,7 @@ void fx_list_remove_pg_by_sipuri(FxList* fxlist , const char* sipuri)
 		if(strcmp(fxpg->pggroup->pguri , sipuri) == 0){
 			cur->next->pre = cur->pre;
 			cur->pre->next = cur->next;
-			free(cur);
+			g_free(cur);
 			break;
 		}	
 	}

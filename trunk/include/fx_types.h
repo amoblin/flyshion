@@ -237,6 +237,7 @@ typedef struct
 	ChatDialogFocusedType hasFocus;
 	gboolean sendtophone;
 	StateType state;
+	int unreadMsgCount;
 	/* main widget begin */
 	GtkWidget* dialog;
 	GtkWidget* headbox;

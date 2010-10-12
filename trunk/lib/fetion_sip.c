@@ -344,6 +344,8 @@ int fetion_sip_get_code(const char* sip)
 {
 	char *pos , res[32];
 	int n;
+
+	memset(res, 0, sizeof(res));
 	if(strstr(sip , "4.0 ") == NULL)
 	    return 400;
 	pos = strstr(sip , "4.0 ") + 4;
@@ -357,6 +359,10 @@ int fetion_sip_get_type(const char* sip)
 {
 	char res[128];
 	int n;
+
+	if(!strstr(sip, " "))
+		return SIP_UNKNOWN;
+
 	n = strlen(sip) - strlen(strstr(sip , " "));
 	bzero(res , sizeof(res));
 	strncpy(res , sip , n);
