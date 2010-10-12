@@ -172,4 +172,8 @@ extern void fetion_contact_load(User *user);
 
 extern void fetion_contact_save(User *user);
 
+extern int fetion_contact_del_localbuddy(User *user, const char *userid);
+
+extern int fetion_contact_del_localgroup(User *user, const char *userid);
+
 #endif

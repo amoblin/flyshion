@@ -205,19 +205,19 @@ Contact* fetion_contact_get_contact_info_by_no(User* user , const char* no , Num
 	body = generate_contact_info_by_no_body(no , nt);
 	res = fetion_sip_to_string(sip , body);
 	free(body);
-	tcp_connection_send(sip->tcp , res , strlen(res));
+	ret = tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res); res = NULL; 
+	if(ret < 0)
+		return NULL;
+
 	res = fetion_sip_get_response(sip);
 	ret = fetion_sip_get_code(res);
-	if(ret == 200)
-	{
+	if(ret == 200){
 		contact = parse_contact_info_by_no_response(res);
 		free(res);
 		debug_info("Get user information by mobile number success");
 		return contact;
-	}
-	else
-	{
+	}else{
 		free(res);
 		debug_error("Get user information by mobile number failed , errno :" , ret);
 		return NULL;
@@ -235,19 +235,19 @@ int fetion_contact_set_mobileno_permission(User* user , const char* userid , int
 	body = generate_set_mobileno_perssion(userid , show);
 	res = fetion_sip_to_string(sip , body);
 	free(body);
-	tcp_connection_send(sip->tcp , res , strlen(res));
+	ret = tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res) ; 
+	if(ret < 0)
+		return -1;
+
 	res = fetion_sip_get_response(sip);
 	ret = fetion_sip_get_code(res);
-	if(ret == 200)
-	{
+	if(ret == 200){
 		parse_set_mobileno_permission_response(user , res);
 		free(res);
 		debug_info("Get user information by mobile number success");
 		return 1;
-	}
-	else
-	{
+	}else{
 		free(res);
 		debug_error("Get user information by mobile number failed , errno :" , ret);
 		return -1;
@@ -266,18 +266,18 @@ int fetion_contact_set_displayname(User* user , const char* userid , const char*
 	body = generate_set_displayname_body(userid , name);
 	res = fetion_sip_to_string(sip , body);
 	free(body);
-	tcp_connection_send(sip->tcp , res , strlen(res));
+	ret = tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
+	if(ret < 0)
+		return -1;
 	res = fetion_sip_get_response(sip);
 	ret = fetion_sip_get_code(res);
 	free(res);
-	if(ret == 200)
-	{
+
+	if(ret == 200){
 		debug_info("Set buddy(%s)`s localname to %s success" , userid , name);
 		return 1;
-	}
-	else
-	{
+	}else{
 		debug_info("Set buddy(%s)`s localname to %s failed" , userid , name);
 		return -1;
 	}
@@ -294,18 +294,20 @@ int fetion_contact_move_to_group(User* user , const char* userid , int buddylist
 	body = generate_move_to_group_body(userid , buddylist);
 	res = fetion_sip_to_string(sip , body);
 	free(body);
-	tcp_connection_send(sip->tcp , res , strlen(res));
+	ret = tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
+
+	if(ret < 0)
+		return -1;
+
 	res = fetion_sip_get_response(sip);
 	ret = fetion_sip_get_code(res);
 	free(res);
-	if(ret == 200)
-	{
+
+	if(ret == 200){
 		debug_info("Move buddy(%s) to group %d success" , userid , buddylist);
 		return 1;
-	}
-	else
-	{
+	}else{
 		debug_info("Move buddy(%s) to group %d failed" , userid , buddylist);
 		return -1;
 	}
@@ -322,19 +324,25 @@ int fetion_contact_delete_buddy(User* user , const char* userid)
 	body = generate_delete_buddy_body(userid);
 	res = fetion_sip_to_string(sip , body);
 	free(body);
-	tcp_connection_send(sip->tcp , res , strlen(res));
+
+	if(fetion_contact_del_localbuddy(user, userid) == -1)
+		return -1;
+
+	ret = tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
+
+	if(ret < 0)
+		return -1;
+
 	res = fetion_sip_get_response(sip);
 	ret = fetion_sip_get_code(res);
 	free(res);
-	if(ret == 200)
-	{
+
+	if(ret == 200){
 		fetion_contact_list_remove_by_userid(user->contactList , userid);
 		debug_info("Delete buddy(%s) success" , userid);
 		return 1;
-	}
-	else
-	{
+	}else{
 		debug_info("Delete buddy(%s) failed" , userid);
 		return -1;
 	}
@@ -466,7 +474,6 @@ char* generate_contact_info_by_no_body(const char* no , NumberType nt)
 	xmlNodePtr node;
 	char uri[32];
 	char body[] = "<args></args>";
-	bzero(uri , sizeof(uri));
 	if(nt == MOBILE_NO)
 		sprintf(uri , "tel:%s" , no);
 	else
@@ -486,7 +493,6 @@ char* generate_set_mobileno_perssion(const char* userid , int show)
 	xmlNodePtr node;
 	char permission[32];
 	char body[] = "<args></args>";
-	bzero(permission , sizeof(permission));
 	sprintf(permission , "identity=%d" , show);
 	doc = xmlParseMemory(body , strlen(body));
 	node = xmlDocGetRootElement(doc);
@@ -515,9 +521,7 @@ char* generate_handle_contact_request_body(const char* sipuri
 	node = xmlNewChild(node , NULL , BAD_CAST "buddy" , NULL);
 	xmlNewProp(node , BAD_CAST "user-id" , BAD_CAST userid);
 	xmlNewProp(node , BAD_CAST "uri" , BAD_CAST sipuri);
-	bzero(result_s , sizeof(result_s));
 	sprintf(result_s , "%d" , result);
-	bzero(buddylist_s , sizeof(buddylist_s));
 	sprintf(buddylist_s , "%d" , buddylist);
 	xmlNewProp(node , BAD_CAST "result" , BAD_CAST result_s);
 	xmlNewProp(node , BAD_CAST "buddy-lists" , BAD_CAST buddylist_s);
@@ -595,13 +599,12 @@ char* generate_add_buddy_body(const char* no
 	node = xmlNewChild(node , NULL , BAD_CAST "contacts" , NULL);
 	node = xmlNewChild(node , NULL , BAD_CAST "buddies" , NULL);
 	node = xmlNewChild(node , NULL , BAD_CAST "buddy" , NULL);
-	bzero(uri , sizeof(uri));
-	bzero(phrase , sizeof(phrase));
-	bzero(groupid , sizeof(groupid));
+
 	if(notype == FETION_NO)
 		sprintf(uri , "sip:%s" , no);
 	else
 		sprintf(uri , "tel:%s" , no);
+
 	sprintf(phrase , "%d" , phraseid);
 	sprintf(groupid , "%d" , buddylist);
 	xmlNewProp(node , BAD_CAST "uri" , BAD_CAST uri);
@@ -755,8 +758,6 @@ static Contact* parse_add_buddy_response(const char* sipmsg , int* statuscode)
 	node = xmlDocGetRootElement(doc);
 	node = xml_goto_node(node , "buddy");
 
-	printf("%s\n" , sipmsg);
-
 	if(node == NULL)
 	{
 		*statuscode = 400;
@@ -820,8 +821,6 @@ Contact* parse_handle_contact_request_response(const char* sipmsg)
 	xmlDocPtr doc;
 	xmlNodePtr node;
 	contact = fetion_contact_new();
-
-	printf("%s\n" , sipmsg);
 
 	pos = strstr(sipmsg , "\r\n\r\n") + 4;
 	doc = xmlParseMemory(pos , strlen(pos));
@@ -1128,6 +1127,54 @@ void fetion_contact_save(User *user)
 #endif
 	sqlite3_close(db);
 	debug_info("Save contact list successfully");
+}
+
+int fetion_contact_del_localbuddy(User *user, const char *userid)
+{
+	char path[256];
+	char sql[4096];
+	sqlite3 *db;
+	char *errMsg = NULL;
+	Config *config = user->config;
+
+	sprintf(path , "%s/data.db" , config->userPath);
+	if(sqlite3_open(path, &db)){
+		debug_error("failed to delete localbuddy");
+		return -1;
+	}
+
+	sprintf(sql, "delete from contacts where "
+			"userid='%s';", userid);
+	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+		debug_error("failed to delete localbuddy:%s",
+				errMsg);
+		return -1;
+	}
+	return 1;
+}
+
+int fetion_contact_del_localgroup(User *user, const char *userid)
+{
+	char path[256];
+	char sql[4096];
+	sqlite3 *db;
+	char *errMsg = NULL;
+	Config *config = user->config;
+
+	sprintf(path , "%s/data.db" , config->userPath);
+	if(sqlite3_open(path, &db)){
+		debug_error("failed to delete localgroup");
+		return -1;
+	}
+
+	sprintf(sql, "delete from groups where "
+			"id='%s';", userid);
+	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+		debug_error("failed to delete localgroup:%s",
+				errMsg);
+		return -1;
+	}
+	return 1;
 }
 
 static int has_special_word(const char *in)
