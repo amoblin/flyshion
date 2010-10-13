@@ -33,7 +33,9 @@ History* fetion_history_message_new(const char* name,
 	strftime(history->sendtime,
 			sizeof(history->sendtime),
 			"%Y-%m-%d %H:%M:%S" , &time);
-	snprintf(history->message , 549 , "%s" , msg);
+	snprintf(history->message,
+			sizeof(history->message) - 1,
+			"%s" , msg);
 	history->issend = issend;
 
 	return history;
@@ -54,7 +56,10 @@ FetionHistory* fetion_history_new(User* user)
 	fhistory->user = user;
 	sprintf(filepath, "%s/data.db",
 			config->userPath);
-	sqlite3_open(filepath, &(fhistory->db));
+	if(sqlite3_open(filepath, &(fhistory->db)))
+		debug_error("open data.db:%s",
+				sqlite3_errmsg(fhistory->db));
+	
 	return fhistory;
 }
 
@@ -80,19 +85,23 @@ void fetion_history_add(FetionHistory* fhistory , History* history)
 	}
 
 	escape_sql(history->message);
-
 	sprintf(sql, "insert into history values"
-			" ('%s','%s','%s',datetime('%s'),%d)",
+			" (NULL,'%s','%s','%s',datetime('%s'),%d);",
 			history->name, history->userid,
 			history->message, history->sendtime,
 			history->issend);
 
-	if(sqlite3_exec(db, sql, 0, 0, &errMsg)){
+	int ret;
+	if((ret = sqlite3_exec(db, sql, 0, 0, &errMsg))){
 		sprintf(sql1, "create table history ("
-				"name,userid,message,updatetime,issend);");
-		if(sqlite3_exec(db, sql1, 0, 0, &errMsg))
+				"id INTEGER PRIMARY KEY AUTOINCREMENT,"
+				"name TEXT,userid TEXT,message TEXT,"
+				"updatetime TEXT,issend INTEGER);");
+		if(sqlite3_exec(db, sql1, 0, 0, &errMsg)){
 			debug_error("create table history:%s",
 					errMsg);
+			return;
+		}
 		if(sqlite3_exec(db, sql, 0, 0, &errMsg))
 			debug_error("%s\n%s",errMsg, sql);
 	}
@@ -126,7 +135,7 @@ FxList* fetion_history_get_list(Config* config,
 
 	sprintf(sql, "select * from history"
 			" where userid='%s' order"
-			" by updatetime desc limit %d;",
+			" by id desc limit %d;",
 			userid, count);
 
 	if(sqlite3_get_table(db, sql, &res,
@@ -139,12 +148,12 @@ FxList* fetion_history_get_list(Config* config,
 		start = ncols + i * ncols;
 		his = (History*)malloc(sizeof(History));
 		memset(his , 0 , sizeof(History));
-		strcpy(his->name, res[start]);
-		strcpy(his->userid, res[start+1]);
-		strcpy(his->message, res[start+2]);
-		if(res[start+3])
-			strcpy(his->sendtime, res[start+3]);
-		his->issend = atoi(res[start+4]);
+		strcpy(his->name, res[start+1]);
+		strcpy(his->userid, res[start+2]);
+		strcpy(his->message, res[start+3]);
+		if(res[start+4])
+			strcpy(his->sendtime, res[start+4]);
+		his->issend = atoi(res[start+5]);
 		unescape_sql(his->message);
 		pos = fx_list_new(his);
 		fx_list_prepend(hislist , pos);
@@ -204,7 +213,7 @@ FxList* fetion_history_get_e_list(Config *config,
 
 	sprintf(sql, "select * from history"
 			" where userid='%s' and %s order"
-			" by updatetime desc;",
+			" by id desc;",
 			userid, condition);
 
 	if(sqlite3_get_table(db, sql, &res,
@@ -217,12 +226,12 @@ FxList* fetion_history_get_e_list(Config *config,
 		start = ncols + i * ncols;
 		his = (History*)malloc(sizeof(History));
 		memset(his , 0 , sizeof(History));
-		strcpy(his->name, res[start]);
-		strcpy(his->userid, res[start+1]);
-		strcpy(his->message, res[start+2]);
-		if(res[start+3])
-			strcpy(his->sendtime, res[start+3]);
-		his->issend = atoi(res[start+4]);
+		strcpy(his->name, res[start+1]);
+		strcpy(his->userid, res[start+2]);
+		strcpy(his->message, res[start+3]);
+		if(res[start+4])
+			strcpy(his->sendtime, res[start+4]);
+		his->issend = atoi(res[start+5]);
 		unescape_sql(his->message);
 		pos = fx_list_new(his);
 		fx_list_prepend(hislist , pos);
@@ -235,7 +244,7 @@ int fetion_history_export(Config *config , const char *myid
 {
 	sqlite3 *db;
 	char sql[4096];
-	char text[2048];
+	char text[4096];
 	char path[256];
 	char *errMsg;
 	char **res;
@@ -260,7 +269,7 @@ int fetion_history_export(Config *config , const char *myid
 
 	sprintf(sql, "select * from history"
 			" where userid='%s' order"
-			" by updatetime desc;",
+			" by id;",
 			userid);
 
 	if(sqlite3_get_table(db, sql, &res,
@@ -272,11 +281,13 @@ int fetion_history_export(Config *config , const char *myid
 	for(i = 0; i < nrows; i ++){
 		start = ncols * (i + 1);
 		sprintf(text, "%s(%s) %s\n",
-				res[start], 
-				atoi(res[start+4]) ? myid : res[start+1],
-				res[start+3]);
-		strcat(text , res[start+2]);
-		strcat(text , "\n");
+				res[start+1], 
+				atoi(res[start+5]) ? myid : res[start+2],
+				res[start+4]);
+		strcpy(sql, res[start+3]);
+		unescape_sql(sql);
+		strcat(text , sql);
+		strcat(text , "\n\n");
 		fwrite(text , strlen(text) , 1 , f);
 		fflush(f);
 	}

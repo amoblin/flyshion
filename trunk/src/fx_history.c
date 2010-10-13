@@ -178,14 +178,14 @@ void fx_history_bind(FxHistory* fxhistory , FxList *list)
 		history = (History*)(cur->data);
 		if(history->issend){
 			snprintf(text, sizeof(text) -1,
-					"%s(%s) %s", history->name,
-					fxmain->user->sId , history->sendtime );
+					"%s(%s) ：", history->name,
+					history->sendtime );
 			gtk_text_buffer_insert_with_tags_by_name(buffer
 							, &end , text , -1 , "blue" , NULL);
 		}else{
 			snprintf(text, sizeof(text) -1,
-					"%s(%s) %s", history->name, 
-					fxmain->user->sId, history->sendtime );
+					"%s(%s) :", history->name, 
+					history->sendtime );
 			gtk_text_buffer_insert_with_tags_by_name(buffer
 							, &end , text , -1 , "red" , NULL);
 		}
@@ -204,7 +204,6 @@ static GtkTreeModel* fx_history_create_count_model()
 	for(i = 10 ; i != 100 ; i += 10){
 		GtkTreeIter iter;
 		gtk_tree_store_append(store , &iter , NULL);
-		bzero(count , sizeof(count));
 		sprintf(count , "%d" , i);
 		gtk_tree_store_set(store , &iter , 0 , count , -1);
 	}
