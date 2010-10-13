@@ -39,7 +39,6 @@ FxChat* fx_chat_new(FxMain* fxmain , Conversation* conv)
 	memset(fxchat , 0 , sizeof(FxChat));
 	fxchat->fxmain = fxmain;
 	fxchat->conv = conv;
-	fxchat->fhistory = fetion_history_new(fxmain->user);
 	fxchat->sendtophone = FALSE;
 	return fxchat;
 }
@@ -53,10 +52,9 @@ void fx_chat_add_message(FxChat* fxchat , const char* msg
 	GtkTextBuffer      *buffer;
 	FxMain             *fxmain;
 	User               *user;
-	History            *history;
 	Contact            *contact;
 	gchar              *usid;
-	gchar              text[1024];
+	gchar              text[4096];
 	gchar              color[10];
 	gchar              time[30];
 	gchar              path[1024];
@@ -78,7 +76,7 @@ void fx_chat_add_message(FxChat* fxchat , const char* msg
 
 	/* timeout alert msg */
 	if(issysback) {
-		snprintf(text ,1023,
+		snprintf(text ,sizeof(text) - 1,
 				_("The message \"%s\" sent"
 				" at [%s] send failed,please resend it"),
 				time , msg);
@@ -86,23 +84,22 @@ void fx_chat_add_message(FxChat* fxchat , const char* msg
 		return;
 	}
 
-	now = get_currenttime();
 	usid = fetion_sip_get_sid_by_sipuri(contact->sipuri);
 
 	if(issendmsg == 0){
 		strftime(time, sizeof(time), "%H:%M:%S", datetime);
-		snprintf(text , 1023 , _("%s said: (%s):\n") , contact->nickname , time);
-		history = fetion_history_message_new(contact->nickname
-				, contact->userId , *now , msg , issendmsg);
+		snprintf(text, sizeof(text) - 1,
+				_("%s said: (%s):\n"), contact->nickname, time);
 	}else{
+		now = get_currenttime();
 		strftime(time, sizeof(time), "%H:%M:%S", now);
-		snprintf(text , 1023 , _("%s said: (%s):\n") , user->nickname , time);
-		history = fetion_history_message_new(user->nickname
-				, contact->userId , *now , msg , issendmsg);
+		snprintf(text, sizeof(text) - 1,
+				_("%s said: (%s):\n"), user->nickname, time);
+		fx_main_add_history(fxmain, user->nickname,	contact->userId,
+				msg, issendmsg);
 	}
+	g_free(usid);
 
-	fetion_history_add(fxchat->fhistory , history);
-	fetion_history_message_free(history);
 	gtk_text_buffer_get_end_iter(buffer , &iter );
 	gtk_text_buffer_insert_with_tags_by_name(buffer
 					, &iter , text , -1 , color , NULL);
@@ -120,7 +117,6 @@ void fx_chat_add_message(FxChat* fxchat , const char* msg
 					if(atoi(num) > 0 && atoi(num) < 53){
 						gtk_text_buffer_insert_with_tags_by_name(buffer
 										, &iter, msgE + p , i - p , "lm10" , NULL);
-						bzero(path , sizeof(path));
 						sprintf(path , SKIN_DIR"face_images/big_%s.gif" , num);
 						pb = gtk_image_new_from_file(path);
 						gtk_widget_show(pb);
@@ -602,10 +598,8 @@ void fx_chat_initialize(FxChat* fxchat)
 
 void fx_chat_free(FxChat* fxchat)
 {
-	if(fxchat){
-		fetion_history_free(fxchat->fhistory);
+	if(fxchat)
 		free(fxchat->conv);
-	}
 
 	free(fxchat);
 }

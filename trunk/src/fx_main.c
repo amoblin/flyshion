@@ -139,16 +139,24 @@ void fx_main_initialize(FxMain* fxmain)
 	gtk_main();
 	gdk_threads_leave();
 }
+
 void fx_main_free(FxMain* fxmain)
 {
 	if(fxmain->user != NULL)
 		fetion_user_free(fxmain->user);
 	free(fxmain);
 }
+
 void fx_main_set_user(FxMain* fxmain , User* user)
 {
 	fxmain->user = user;
 }
+
+void fx_main_history_init(FxMain *fxmain)
+{
+	fxmain->history = fetion_history_new(fxmain->user);
+}
+
 void update()
 {
 	g_usleep(1);
@@ -476,6 +484,7 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const gchar* sipm
 	gchar      path[256];
 	gchar     *sid;
 	GdkPixbuf *pb;
+	Contact *senderContact;
 
 	clist = fxmain->clist;
 	user = fxmain->user;
@@ -490,22 +499,31 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const gchar* sipm
 	}
 
 	fxchat = fx_list_find_chat_by_sipuri(clist , msg->sipuri);
+	sid = fetion_sip_get_sid_by_sipuri(msg->sipuri);
+
+	senderContact = fetion_contact_list_find_by_sipuri(
+						user->contactList , msg->sipuri);
+
+	/* system message */
+	if(strlen(sid) < 5 || strcmp(sid , "10000") == 0){
+		g_free(sid);
+		gdk_threads_enter();
+		process_system_message(sipmsg);
+		gdk_threads_leave();
+		fetion_message_free(msg);
+		return;
+	}
+
+	if(senderContact)
+		fx_main_add_history(fxmain, senderContact->nickname,
+				senderContact->userId, msg->message, 0);
+	
 
 	gdk_threads_enter();
 
 	if(!fxchat || fxchat->hasFocus == CHAT_DIALOG_NOT_FOCUSED){
 		/* chat window does not exist */
 		if(!fxchat){
-			sid = fetion_sip_get_sid_by_sipuri(msg->sipuri);
-
-			/* system message */
-			if(strlen(sid) < 5 || strcmp(sid , "10000") == 0){
-				g_free(sid);
-				process_system_message(sipmsg);
-				fetion_message_free(msg);
-				gdk_threads_leave();
-				return;
-			}
 
 			/* auto popup enabled */
 			if(config->autoPopup == AUTO_POPUP_ENABLE){
@@ -530,10 +548,7 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const gchar* sipm
 				gchar notifySum[256];
 				gchar *senderSid;
 				GdkPixbuf *notifyIcon;
-				Contact *senderContact;
 				if(config->msgAlert == MSG_ALERT_ENABLE){	
-					senderContact = fetion_contact_list_find_by_sipuri(
-							user->contactList , msg->sipuri);
 					if(senderContact){
 						sprintf(iconPath, "%s/%s.jpg",
 								config->iconPath, senderContact->sId);
@@ -564,7 +579,7 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const gchar* sipm
 			fxchat->unreadMsgCount ++;
 			fx_chat_update_window(fxchat);
 		}
-		sid = fetion_sip_get_sid_by_sipuri(msg->sipuri);
+
 		sprintf(path , "%s/%s.jpg" , config->iconPath , sid);
 		g_free(sid);
 		pb = gdk_pixbuf_new_from_file(path , NULL);
@@ -572,6 +587,7 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const gchar* sipm
 			pb = gdk_pixbuf_new_from_file(SKIN_DIR"online.svg" , NULL);
 		gtk_status_icon_set_from_pixbuf(GTK_STATUS_ICON(fxmain->trayIcon) , pb);
 		g_object_unref(pb);
+
 		gtk_status_icon_set_blinking(GTK_STATUS_ICON(fxmain->trayIcon) , TRUE);
 		g_signal_handler_disconnect(fxmain->trayIcon , fxmain->iconConnectId);
 		
@@ -1655,6 +1671,25 @@ void fx_list_remove_pg_by_sipuri(FxList* fxlist , const char* sipuri)
 		}	
 	}
 
+}
+
+void fx_main_add_history(FxMain *fxmain, const char *name,
+		const char *sid, const char *msg, int issend)
+{
+	History   *history;
+	struct tm *now;
+	User      *user;
+
+	user = fxmain->user;
+	now = get_currenttime();
+
+	history = fetion_history_message_new(name
+				, sid , *now , msg , issend);
+	
+	g_static_mutex_lock(&mutex);
+	fetion_history_add(fxmain->history , history);
+	fetion_history_message_free(history);
+	g_static_mutex_unlock(&mutex);
 }
 
 static void fx_main_process_pggetgroupinfo(FxMain *fxmain , const char *sipmsg)

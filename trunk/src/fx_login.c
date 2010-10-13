@@ -349,8 +349,6 @@ void* fx_login_thread_func(void* data)
 	FxCode* fxcode = NULL;
 	int ret;
 
-	DEBUG_FOOTPRINT();
-
 	/* get login state value */
 	gtk_combo_box_get_active_iter(
 					GTK_COMBO_BOX(fxlogin->statecombo),
@@ -441,6 +439,8 @@ login:
 				 _("Loading local user information"));
 
 	fetion_config_initialize(config , user->userId);
+	/* initialize history */
+	fx_main_history_init(fxmain);
 
 	/* set user list to be stored in local file	 */
 	ul = fetion_user_list_load(config);

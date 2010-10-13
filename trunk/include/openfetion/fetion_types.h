@@ -412,7 +412,7 @@ typedef struct
 	char name[48];						 /* name of message sender	   */
 	char userid[16];					 /* userid of message sender   */
 	char sendtime[32];					 /* message sent time		   */
-	char message[550];					 /* message content			   */
+	char message[4096];					 /* message content			   */
 	int issend;							 /* message is sent of received*/	
 } History;
 

@@ -35,6 +35,8 @@ extern void fx_main_free(FxMain* main);
 
 extern void fx_main_set_user(FxMain* fxmain , User* user);
 
+extern void fx_main_history_init(FxMain *fxmain);
+
 extern void update();
 
 /**
@@ -69,6 +71,10 @@ extern void fx_main_process_syncuserinfo(FxMain* fxmain , const char* xml);
 extern void fx_main_process_addbuddyapplication(FxMain* fxmain , const char* sipmsg);
 
 extern void fx_main_process_user_left(FxMain* fxmain , const char* sipmsg);
+
+extern void fx_main_add_history(FxMain *fxmain, const char *name,
+		const char *userid, const char *msg, int issend);
+
 
 /**
  * signal function

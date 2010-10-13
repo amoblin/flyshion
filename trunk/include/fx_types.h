@@ -99,6 +99,7 @@ typedef struct
 	FxList* tlist;				 /*  time out args list							 */
 	FxList* shlist;				 /*	 share content window list		   			 */
 	FxList* pglist;
+	FetionHistory* history;
 #ifdef HAVE_LIBNOTIFY
 	NotifyNotification *notify;
 #endif
@@ -232,7 +233,6 @@ typedef struct
 typedef struct
 {
 	FxMain* fxmain;
-	FetionHistory* fhistory;
 	Conversation* conv;
 	ChatDialogFocusedType hasFocus;
 	gboolean sendtophone;
