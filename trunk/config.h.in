@@ -174,7 +174,7 @@
 /* Use Gstreamer for playing sound */
 #undef USE_GSTREAMER
 
-/* Use LIBXML */
+/* Use GTHREAD-2.0 */
 #undef USE_GTHREAD
 
 /* Use GTK */
@@ -185,6 +185,12 @@
 
 /* Use LIBXML */
 #undef USE_LIBXML
+
+/* Use XScreenSaver for idleness */
+#undef USE_LIBXSS
+
+/* Use sqlite3 */
+#undef USE_SQLITE3
 
 /* Version number of package */
 #undef VERSION

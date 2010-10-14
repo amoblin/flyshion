@@ -1,14 +1,14 @@
 bin_PROGRAMS = openfetion
 
 openfetion_CPPFLAGS=$(LIBXML_CFLAGS) $(GTK_CFLAGS) $(GTHREAD_CFLAGS) \
-					$(GSTREAMER_CFLAGS) $(LIBNOTIFY_CFLAGS) -g -Wall\
+					$(GSTREAMER_CFLAGS) $(LIBNOTIFY_CFLAGS) $(LIBXSS_CFLAGS) -g -Wall\
 					-I../include -I../include/openfetion -I ../. \
 					-DSKIN_DIR=\"$(pkgdatadir)/skin/\" \
 					-DRESOURCE_DIR=\"$(pkgdatadir)/resource/\" \
 					-DLOCALE_DIR=\"$(datadir)/locale/\"
 
-openfetion_LDADD=   $(LIBXML_LIBS) $(GTK_LIBS) $(GTHREAD_LIBS) \
-				    $(GSTREAMER_LIBS) $(LIBNOTIFY_LIBS) \
+openfetion_LDADD=   $(LIBXML_LIBS) $(GTK_LIBS) $(GTHREAD_LIBS) $(SQLITE3_LIBS)\
+				    $(GSTREAMER_LIBS) $(LIBNOTIFY_LIBS) $(LIBXSS_LIBS)\
 					../lib/libofetion.la
 
 openfetion_SOURCES = fx_add_group.c \
@@ -40,4 +40,5 @@ openfetion_SOURCES = fx_add_group.c \
 					 fx_close.c \
 					 fx_pggroup.c \
 					 fx_pgprofile.c \
-					 fx_smsstat.c
+					 fx_smsstat.c \
+					 fx_idle.c

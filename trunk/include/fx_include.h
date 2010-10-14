@@ -61,4 +61,5 @@
 #include "fx_pggroup.h"
 #include "fx_pgprofile.h"
 #include "fx_smsstat.h"
+#include "fx_idle.h"
 #endif
