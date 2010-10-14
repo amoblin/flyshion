@@ -25,24 +25,18 @@ static void fx_set_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 	FxSet *fxset = (FxSet*)data;
 	User *user = fxset->fxmain->user;
 	Config *config = user->config;
-	/**
-	 * system setting varibles
-	 */
+	/* system setting varibles */
 	GtkTextView *textview = GTK_TEXT_VIEW(fxset->apEty);
 	GtkTextBuffer *buffer = gtk_text_view_get_buffer(textview);
 	GtkTextIter startIter , endIter;
 	const char *autoReplyMsg = NULL;
-	/**
-	 * personal setting varibles
-	 */
+	/* personal setting varibles */
 	const char *nickname = NULL;
 	const char *impression = NULL;
 	char nickname_text[1024];
 	int gender;
 	GtkTreeModel *genderModel = NULL;
 	GtkTreeIter genderIter;
-
-	DEBUG_FOOTPRINT();
 
 	if(gtk_notebook_get_current_page(GTK_NOTEBOOK(fxset->notebook)) == PAGE_SYSTEM)
 	{
@@ -76,6 +70,11 @@ static void fx_set_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 		else
 			config->canIconify = ICON_CANNOT;
 
+		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxset->autoAwayBtn)))
+			config->autoAway = AUTO_AWAY_ENABLE;
+		else
+			config->autoAway = AUTO_AWAY_DISABLE;
+
 		gtk_text_buffer_get_start_iter(buffer , &startIter);
 		gtk_text_buffer_get_end_iter(buffer , &endIter);
 		autoReplyMsg = gtk_text_buffer_get_text(buffer , &startIter , &endIter , TRUE);
@@ -108,8 +107,6 @@ static void fx_set_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 		if(fetion_user_update_info(user) > 0)
 		{
 			
-			bzero(nickname_text , sizeof(nickname_text));
-
 			sprintf(nickname_text , "<b>%s</b>"
 					, user->nickname == NULL ? user->sId : user->nickname );
 
@@ -129,8 +126,6 @@ static void fx_set_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 
 static void fx_set_on_cancel_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 {
-	DEBUG_FOOTPRINT();
-
 	gtk_dialog_response(GTK_DIALOG(data) , GTK_RESPONSE_CANCEL);
 }
 
@@ -138,23 +133,15 @@ static void fx_set_on_autoreply_toggled(GtkWidget *widget , gpointer data)
 {
 	FxSet *fxset = (FxSet*)data;
 
-	DEBUG_FOOTPRINT();
-
 	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)))
-	{
 		gtk_widget_set_sensitive(fxset->apEty , TRUE);
-	}
 	else
-	{
 		gtk_widget_set_sensitive(fxset->apEty , FALSE);
-	}
 }
 
 FxSet* fx_set_new(FxMain* fxmain)
 {
 	FxSet *fxset = (FxSet*)malloc(sizeof(FxSet));
-
-	DEBUG_FOOTPRINT();
 
 	memset(fxset , 0 , sizeof(FxSet));
 	fxset->fxmain = fxmain;
@@ -171,8 +158,6 @@ void fx_set_initialize(FxSet* fxset)
 
 	GdkPixbuf* pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"online.svg",
 				   22, 22, NULL);
-
-	DEBUG_FOOTPRINT();
 
 	fxset->dialog = gtk_dialog_new();
 	gtk_window_set_icon(GTK_WINDOW(fxset->dialog) , pb);
@@ -225,8 +210,6 @@ void fx_set_bind_system(FxSet* fxset)
 	GtkTextIter startIter , endIter;
 	char *autoReplyMsg = NULL;
 
-	DEBUG_FOOTPRINT();
-
 	if(config->sendMode == SEND_MODE_ENTER)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->etBtn) , TRUE);	
 	else
@@ -256,6 +239,11 @@ void fx_set_bind_system(FxSet* fxset)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->iconBtn) , TRUE);
 	else
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->iconBtn) , FALSE);
+
+	if(config->autoAway == AUTO_AWAY_ENABLE)
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->autoAwayBtn) , TRUE);
+	else
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->autoAwayBtn) , FALSE);
 
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(fxset->apEty));
 	gtk_text_buffer_get_start_iter(buffer , &startIter);
@@ -288,8 +276,6 @@ void fx_set_initialize_personal(FxSet* fxset)
 	int id;
 	char *cityName = NULL;
 	char *provinceName = NULL;
-
-	DEBUG_FOOTPRINT();
 
 	box = gtk_fixed_new();
 	gtk_box_pack_start_defaults(GTK_BOX(fxset->psetting) , box);
@@ -380,24 +366,26 @@ void fx_set_initialize_personal(FxSet* fxset)
 
 
 	gtk_entry_set_text(GTK_ENTRY(fxset->sid_entry) , user->sId);
-	if(user->mobileno != NULL)
+	if(user->mobileno)
 		gtk_entry_set_text(GTK_ENTRY(fxset->mno_entry) , user->mobileno);
-	if(user->nickname != NULL)
+
+	if(user->nickname)
 		gtk_entry_set_text(GTK_ENTRY(fxset->nick_entry) , user->nickname);
-	if(user->impression != NULL)
+
+	if(user->impression)
 		gtk_entry_set_text(GTK_ENTRY(fxset->impre_entry) , user->impression);
-	if(user->province != NULL)
-	{
-		provinceName = fetion_config_get_province_name(user->province);
+
+	provinceName = fetion_config_get_province_name(user->province);
+
+	if(provinceName)
 		gtk_entry_set_text(GTK_ENTRY(fxset->province_entry) , provinceName);
-		free(provinceName);
-	}
-	if(user->city != NULL)
-	{
-		cityName = fetion_config_get_city_name(user->province , user->city);
+	free(provinceName);
+
+	cityName = fetion_config_get_city_name(user->province , user->city);
+
+	if(cityName)
 		gtk_entry_set_text(GTK_ENTRY(fxset->city_entry) , cityName);
-		free(cityName);
-	}
+	free(cityName);
 
 	gtk_entry_set_text(GTK_ENTRY(fxset->job_entry) , _("Secrecy"));
 	gtk_entry_set_text(GTK_ENTRY(fxset->email_entry) , _("Secrecy"));
@@ -432,8 +420,6 @@ void fx_set_initialize_system(FxSet* fxset)
 	GtkWidget *apScr = NULL;
 	GSList	  *gl = NULL;
 	
-	DEBUG_FOOTPRINT();
-
 	fixed = gtk_fixed_new();
 
 	label1 = gtk_label_new("");
@@ -454,6 +440,9 @@ void fx_set_initialize_system(FxSet* fxset)
 
 	fxset->muteBtn = gtk_check_button_new_with_label(_("Mute"));
 	gtk_fixed_put(GTK_FIXED(fixed) , fxset->muteBtn , 40 , 92);
+
+	fxset->autoAwayBtn = gtk_check_button_new_with_label(_("Auto away when idle"));
+	gtk_fixed_put(GTK_FIXED(fixed) , fxset->autoAwayBtn , 230 , 92);
 
 	label2 = gtk_label_new("");
 	gtk_label_set_markup(GTK_LABEL(label2) , _("<b>Auto Reply</b>"));
@@ -508,8 +497,6 @@ GtkTreeModel* fx_set_create_gender_model()
 										, G_TYPE_INT);
 	GtkTreeIter iter;
 	int i;
-
-	DEBUG_FOOTPRINT();
 
 	for(i = 0; genders[i].name != NULL ; i++)
 	{

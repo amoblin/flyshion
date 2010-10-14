@@ -158,7 +158,6 @@ void fx_history_initialize(FxHistory* fxhistory)
 }
 void fx_history_bind(FxHistory* fxhistory , FxList *list)
 {
-	FxMain* fxmain = fxhistory->fxmain;
 	char text[2048];
 	FxList *cur;
 	History *history;

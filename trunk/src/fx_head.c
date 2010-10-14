@@ -20,12 +20,11 @@
 
 #include "fx_include.h"
 
+extern int old_state;
 
 FxHead* fx_head_new()
 {
 	FxHead* fxhead = (FxHead*)malloc(sizeof(FxHead));
-
-	DEBUG_FOOTPRINT();
 
 	memset(fxhead , 0 , sizeof(FxHead));
 	return fxhead;
@@ -33,8 +32,6 @@ FxHead* fx_head_new()
 
 void fx_head_free(FxHead* fxhead)
 {
-	DEBUG_FOOTPRINT();
-
 	if(fxhead != NULL)
 		free(fxhead);
 }
@@ -50,8 +47,6 @@ void fx_head_initialize(FxMain* fxmain)
 	halign = gtk_alignment_new(0, 0 , 0 , 0);
 	gtk_container_add(GTK_CONTAINER(halign) , hbox);
 	
-	DEBUG_FOOTPRINT();
-
 	pb = gdk_pixbuf_new_from_file_at_scale(SKIN_DIR"fetion.svg" , 50 , 50 , TRUE , NULL);
 	fxhead->portrait = gtk_image_new_from_pixbuf(pb);
 	g_object_unref(pb);
@@ -181,9 +176,6 @@ void fx_head_bind(FxMain* fxmain)
 	char* statename = NULL;
 	GdkPixbuf* portrait_pix = NULL;
 
-	DEBUG_FOOTPRINT();
-
-	bzero(name , sizeof(name));
 	bzero(fxhead->oldimpression , sizeof(fxhead->oldimpression));
 
 	sprintf(name , "<b>%s</b>"
@@ -226,8 +218,6 @@ void fx_head_set_state_image(FxMain* fxmain , StateType type)
 	GdkPixbuf *pixbuf;
 	char* statename = fx_util_get_state_name(type);
 
-	DEBUG_FOOTPRINT();
-
 	gtk_label_set_markup(GTK_LABEL(fxhead->state_label) , statename);
 	switch(type)
 	{
@@ -266,8 +256,6 @@ void fx_head_popup_statemenu_func(GtkWidget* widget
 	GtkWidget *separator;
 	GdkCursor *cursor;
 	GtkWidget *presence_menu = gtk_menu_new();
-
-	DEBUG_FOOTPRINT();
 
 	if(event->type == GDK_ENTER_NOTIFY) {
 		cursor = gdk_cursor_new (GDK_HAND2);
@@ -367,8 +355,6 @@ void fx_head_impre_event_func(GtkWidget* widget , GdkEventButton* event , gpoint
 	GdkCursor* cursor = NULL;
 	const char* text = NULL;
 
-	DEBUG_FOOTPRINT();
-
 	switch(event->type)
 	{
 		case GDK_BUTTON_PRESS :
@@ -399,8 +385,6 @@ gboolean fx_head_impre_focus_out_func(GtkWidget* UNUSED(widget)
 	FxMain* fxmain = (FxMain*)data;
 	FxHead* fxhead = fxmain->headPanel;
 
-	DEBUG_FOOTPRINT();
-
 	gtk_widget_show(fxhead->impre_box);
 	gtk_widget_hide(fxhead->impre_entry);
 	return FALSE;
@@ -414,8 +398,6 @@ gboolean fx_head_impre_activate_func(GtkWidget* widget , gpointer data)
 	char tooltip[1024];
 	const char* impression = gtk_entry_get_text(GTK_ENTRY(widget));
 	
-	DEBUG_FOOTPRINT();
-
 	gtk_widget_show(fxhead->impre_box);
 	gtk_widget_hide(widget);
 	if(strcmp(impression , fxhead->oldimpression) == 0)
@@ -433,21 +415,21 @@ gboolean fx_head_impre_activate_func(GtkWidget* widget , gpointer data)
 }
 void fx_head_change_state_func(GtkWidget* UNUSED(widget) , gpointer data)
 {
-	typedef struct 
-	{
+	typedef struct {
 		FxMain* fxmain;
 		StateType type;
 	} Args;
-	Args *args = (Args*)data;
-	FxMain* fxmain = args->fxmain;
-	User* user = fxmain->user;
+	Args   *args = (Args*)data;
+	FxMain *fxmain = args->fxmain;
+	User   *user = fxmain->user;
 
-	DEBUG_FOOTPRINT();
-
-	if(fetion_user_set_state(user , args->type) > 0)
-	{
+	if(fetion_user_set_state(user , args->type) > 0){
 		fx_head_set_state_image(fxmain , args->type);
+		old_state = args->type;
 	}
+
+	g_free(args);
+
 }
 void fx_head_change_portrait_func(GtkWidget* widget , GdkEventButton* event , gpointer data)
 {
@@ -461,8 +443,6 @@ void fx_head_change_portrait_func(GtkWidget* widget , GdkEventButton* event , gp
 		char filename[1024];
 	} *args = (struct Args*)malloc(sizeof(struct Args));
 	int response;
-
-	DEBUG_FOOTPRINT();
 
 	if(event->type == GDK_ENTER_NOTIFY)
 	{
@@ -512,9 +492,6 @@ void* fx_head_change_portrait_thread(void* data)
 	GtkWidget *dialog = NULL;
 	GdkPixbuf* pb = NULL;
 	
-	DEBUG_FOOTPRINT();
-
-	bzero(filepath , sizeof(filepath));
 	if(fetion_user_upload_portrait(fxmain->user , args->filename) > 0)
 	{
 		

@@ -754,10 +754,14 @@ GLIB2_LIBS
 GLIB2_CFLAGS
 LIBSSL_LIBS
 LIBSSL_CFLAGS
-LIBNOTIFY_LIBS
-LIBNOTIFY_CFLAGS
 GSTREAMER_LIBS
 GSTREAMER_CFLAGS
+LIBNOTIFY_LIBS
+LIBNOTIFY_CFLAGS
+LIBXSS_LIBS
+LIBXSS_CFLAGS
+SQLITE3_LIBS
+SQLITE3_CFLAGS
 LIBXML_LIBS
 LIBXML_CFLAGS
 GTHREAD_LIBS
@@ -936,6 +940,9 @@ enable_nls
 enable_rpath
 with_libiconv_prefix
 with_libintl_prefix
+enable_screensaver
+enable_notify
+enable_gstreamer
 enable_debug
 '
       ac_precious_vars='build_alias
@@ -954,10 +961,14 @@ GTHREAD_CFLAGS
 GTHREAD_LIBS
 LIBXML_CFLAGS
 LIBXML_LIBS
-GSTREAMER_CFLAGS
-GSTREAMER_LIBS
+SQLITE3_CFLAGS
+SQLITE3_LIBS
+LIBXSS_CFLAGS
+LIBXSS_LIBS
 LIBNOTIFY_CFLAGS
 LIBNOTIFY_LIBS
+GSTREAMER_CFLAGS
+GSTREAMER_LIBS
 LIBSSL_CFLAGS
 LIBSSL_LIBS
 GLIB2_CFLAGS
@@ -1592,6 +1603,9 @@ Optional Features:
   --disable-libtool-lock  avoid locking (might break parallel builds)
   --disable-nls           do not use Native Language Support
   --disable-rpath         do not hardcode runtime library paths
+  --disable-screensaver   compile without X screensaver extension (used to detect idleness)
+  --disable-notify        compile without libnotify (used to show message notification)
+  --disable-gstreamer     compile without gstreamer (used to play alert sound)
  --enable-debug turn on debug
 
 Optional Packages:
@@ -1625,14 +1639,21 @@ Some influential environment variables:
   LIBXML_CFLAGS
               C compiler flags for LIBXML, overriding pkg-config
   LIBXML_LIBS linker flags for LIBXML, overriding pkg-config
-  GSTREAMER_CFLAGS
-              C compiler flags for GSTREAMER, overriding pkg-config
-  GSTREAMER_LIBS
-              linker flags for GSTREAMER, overriding pkg-config
+  SQLITE3_CFLAGS
+              C compiler flags for SQLITE3, overriding pkg-config
+  SQLITE3_LIBS
+              linker flags for SQLITE3, overriding pkg-config
+  LIBXSS_CFLAGS
+              C compiler flags for LIBXSS, overriding pkg-config
+  LIBXSS_LIBS linker flags for LIBXSS, overriding pkg-config
   LIBNOTIFY_CFLAGS
               C compiler flags for LIBNOTIFY, overriding pkg-config
   LIBNOTIFY_LIBS
               linker flags for LIBNOTIFY, overriding pkg-config
+  GSTREAMER_CFLAGS
+              C compiler flags for GSTREAMER, overriding pkg-config
+  GSTREAMER_LIBS
+              linker flags for GSTREAMER, overriding pkg-config
   LIBSSL_CFLAGS
               C compiler flags for LIBSSL, overriding pkg-config
   LIBSSL_LIBS linker flags for LIBSSL, overriding pkg-config
@@ -4871,13 +4892,13 @@ if test "${lt_cv_nm_interface+set}" = set; then :
 else
   lt_cv_nm_interface="BSD nm"
   echo "int some_variable = 0;" > conftest.$ac_ext
-  (eval echo "\"\$as_me:4874: $ac_compile\"" >&5)
+  (eval echo "\"\$as_me:4895: $ac_compile\"" >&5)
   (eval "$ac_compile" 2>conftest.err)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:4877: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
+  (eval echo "\"\$as_me:4898: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
   (eval "$NM \"conftest.$ac_objext\"" 2>conftest.err > conftest.out)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:4880: output\"" >&5)
+  (eval echo "\"\$as_me:4901: output\"" >&5)
   cat conftest.out >&5
   if $GREP 'External.*some_variable' conftest.out > /dev/null; then
     lt_cv_nm_interface="MS dumpbin"
@@ -5343,11 +5364,11 @@ irix5* | irix6* | nonstopux*)
   ;;
 
 # This must be Linux ELF.
-linux* | k*bsd*-gnu)
+linux* | k*bsd*-gnu | kopensolaris*-gnu)
   lt_cv_deplibs_check_method=pass_all
   ;;
 
-netbsd*)
+netbsd* | netbsdelf*-gnu)
   if echo __ELF__ | $CC -E - | $GREP __ELF__ > /dev/null; then
     lt_cv_deplibs_check_method='match_pattern /lib[^/]+(\.so\.[0-9]+\.[0-9]+|_pic\.a)$'
   else
@@ -6083,7 +6104,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 6086 "configure"' > conftest.$ac_ext
+  echo '#line 6107 "configure"' > conftest.$ac_ext
   if { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_compile\""; } >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -7609,11 +7630,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7612: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7633: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7616: \$? = $ac_status" >&5
+   echo "$as_me:7637: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7778,7 +7799,7 @@ $as_echo_n "checking for $compiler option to produce PIC... " >&6; }
       lt_prog_compiler_static='-non_shared'
       ;;
 
-    linux* | k*bsd*-gnu)
+    linux* | k*bsd*-gnu | kopensolaris*-gnu)
       case $cc_basename in
       # old Intel for x86_64 which still supported -KPIC.
       ecc*)
@@ -7948,11 +7969,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7951: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7972: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7955: \$? = $ac_status" >&5
+   echo "$as_me:7976: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -8053,11 +8074,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8056: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8077: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:8060: \$? = $ac_status" >&5
+   echo "$as_me:8081: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -8108,11 +8129,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8111: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8132: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:8115: \$? = $ac_status" >&5
+   echo "$as_me:8136: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -8227,6 +8248,9 @@ $as_echo_n "checking whether the $compiler linker ($LD) supports shared librarie
   openbsd*)
     with_gnu_ld=no
     ;;
+  linux* | k*bsd*-gnu)
+    link_all_deplibs=no
+    ;;
   esac
 
   ld_shlibs=yes
@@ -8248,6 +8272,7 @@ $as_echo_n "checking whether the $compiler linker ($LD) supports shared librarie
     fi
     supports_anon_versioning=no
     case `$LD -v 2>&1` in
+      *GNU\ gold*) supports_anon_versioning=yes ;;
       *\ [01].* | *\ 2.[0-9].* | *\ 2.10.*) ;; # catch versions < 2.11
       *\ 2.11.93.0.2\ *) supports_anon_versioning=yes ;; # RH7.3 ...
       *\ 2.11.92.0.12\ *) supports_anon_versioning=yes ;; # Mandrake 8.2 ...
@@ -8339,7 +8364,7 @@ _LT_EOF
       archive_expsym_cmds='sed "s,^,_," $export_symbols >$output_objdir/$soname.expsym~$CC -shared $pic_flag $libobjs $deplibs $compiler_flags ${wl}-h,$soname ${wl}--retain-symbols-file,$output_objdir/$soname.expsym ${wl}--image-base,`expr ${RANDOM-$$} % 4096 / 2 \* 262144 + 1342177280` -o $lib'
       ;;
 
-    gnu* | linux* | tpf* | k*bsd*-gnu)
+    gnu* | linux* | tpf* | k*bsd*-gnu | kopensolaris*-gnu)
       tmp_diet=no
       if test "$host_os" = linux-dietlibc; then
 	case $cc_basename in
@@ -8409,7 +8434,7 @@ _LT_EOF
       fi
       ;;
 
-    netbsd*)
+    netbsd* | netbsdelf*-gnu)
       if echo __ELF__ | $CC -E - | $GREP __ELF__ >/dev/null; then
 	archive_cmds='$LD -Bshareable $libobjs $deplibs $linker_flags -o $lib'
 	wlarc=
@@ -8584,6 +8609,7 @@ _LT_EOF
 	if test "$aix_use_runtimelinking" = yes; then
 	  shared_flag="$shared_flag "'${wl}-G'
 	fi
+	link_all_deplibs=no
       else
 	# not using gcc
 	if test "$host_cpu" = ia64; then
@@ -8910,7 +8936,7 @@ rm -f core conftest.err conftest.$ac_objext \
       link_all_deplibs=yes
       ;;
 
-    netbsd*)
+    netbsd* | netbsdelf*-gnu)
       if echo __ELF__ | $CC -E - | $GREP __ELF__ >/dev/null; then
 	archive_cmds='$LD -Bshareable -o $lib $libobjs $deplibs $linker_flags'  # a.out
       else
@@ -9800,7 +9826,7 @@ linux*oldld* | linux*aout* | linux*coff*)
   ;;
 
 # This must be Linux ELF.
-linux* | k*bsd*-gnu)
+linux* | k*bsd*-gnu | kopensolaris*-gnu)
   version_type=linux
   need_lib_prefix=no
   need_version=no
@@ -9853,6 +9879,18 @@ rm -f core conftest.err conftest.$ac_objext \
   # people can always --disable-shared, the test was removed, and we
   # assume the GNU/Linux dynamic linker is in use.
   dynamic_linker='GNU/Linux ld.so'
+  ;;
+
+netbsdelf*-gnu)
+  version_type=linux
+  need_lib_prefix=no
+  need_version=no
+  library_names_spec='${libname}${release}${shared_ext}$versuffix ${libname}${release}${shared_ext}$major ${libname}${shared_ext}'
+  soname_spec='${libname}${release}${shared_ext}$major'
+  shlibpath_var=LD_LIBRARY_PATH
+  shlibpath_overrides_runpath=no
+  hardcode_into_libs=yes
+  dynamic_linker='NetBSD ld.elf_so'
   ;;
 
 netbsd*)
@@ -10475,7 +10513,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 10478 "configure"
+#line 10516 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -10571,7 +10609,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 10574 "configure"
+#line 10612 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -14158,6 +14196,30 @@ fi
 done
 
 
+# Check whether --enable-screensaver was given.
+if test "${enable_screensaver+set}" = set; then :
+  enableval=$enable_screensaver;  enable_screensaver="no"
+else
+   enable_screensaver="yes"
+fi
+
+
+# Check whether --enable-notify was given.
+if test "${enable_notify+set}" = set; then :
+  enableval=$enable_notify;  enable_notify="no"
+else
+   enable_notify="yes"
+fi
+
+
+# Check whether --enable-gstreamer was given.
+if test "${enable_gstreamer+set}" = set; then :
+  enableval=$enable_gstreamer;  enable_gst="no"
+else
+   enable_gst="yes"
+fi
+
+
 # checks for gtk+2.0
 
 
@@ -14280,10 +14342,11 @@ pkg_failed=no
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for GTK" >&5
 $as_echo_n "checking for GTK... " >&6; }
 
-if test -n "$GTK_CFLAGS"; then
-    pkg_cv_GTK_CFLAGS="$GTK_CFLAGS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
+if test -n "$PKG_CONFIG"; then
+    if test -n "$GTK_CFLAGS"; then
+        pkg_cv_GTK_CFLAGS="$GTK_CFLAGS"
+    else
+        if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"gtk+-2.0 >= 2.16\""; } >&5
   ($PKG_CONFIG --exists --print-errors "gtk+-2.0 >= 2.16") 2>&5
   ac_status=$?
@@ -14293,13 +14356,15 @@ if test -n "$GTK_CFLAGS"; then
 else
   pkg_failed=yes
 fi
- else
-    pkg_failed=untried
+    fi
+else
+	pkg_failed=untried
 fi
-if test -n "$GTK_LIBS"; then
-    pkg_cv_GTK_LIBS="$GTK_LIBS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
+if test -n "$PKG_CONFIG"; then
+    if test -n "$GTK_LIBS"; then
+        pkg_cv_GTK_LIBS="$GTK_LIBS"
+    else
+        if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"gtk+-2.0 >= 2.16\""; } >&5
   ($PKG_CONFIG --exists --print-errors "gtk+-2.0 >= 2.16") 2>&5
   ac_status=$?
@@ -14309,8 +14374,9 @@ if test -n "$GTK_LIBS"; then
 else
   pkg_failed=yes
 fi
- else
-    pkg_failed=untried
+    fi
+else
+	pkg_failed=untried
 fi
 
 
@@ -14323,9 +14389,9 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        GTK_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors "gtk+-2.0 >= 2.16" 2>&1`
+	        GTK_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "gtk+-2.0 >= 2.16"`
         else
-	        GTK_PKG_ERRORS=`$PKG_CONFIG --print-errors "gtk+-2.0 >= 2.16" 2>&1`
+	        GTK_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "gtk+-2.0 >= 2.16"`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$GTK_PKG_ERRORS" >&5
@@ -14373,10 +14439,11 @@ pkg_failed=no
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for GTHREAD" >&5
 $as_echo_n "checking for GTHREAD... " >&6; }
 
-if test -n "$GTHREAD_CFLAGS"; then
-    pkg_cv_GTHREAD_CFLAGS="$GTHREAD_CFLAGS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
+if test -n "$PKG_CONFIG"; then
+    if test -n "$GTHREAD_CFLAGS"; then
+        pkg_cv_GTHREAD_CFLAGS="$GTHREAD_CFLAGS"
+    else
+        if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"gthread-2.0\""; } >&5
   ($PKG_CONFIG --exists --print-errors "gthread-2.0") 2>&5
   ac_status=$?
@@ -14386,13 +14453,15 @@ if test -n "$GTHREAD_CFLAGS"; then
 else
   pkg_failed=yes
 fi
- else
-    pkg_failed=untried
+    fi
+else
+	pkg_failed=untried
 fi
-if test -n "$GTHREAD_LIBS"; then
-    pkg_cv_GTHREAD_LIBS="$GTHREAD_LIBS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
+if test -n "$PKG_CONFIG"; then
+    if test -n "$GTHREAD_LIBS"; then
+        pkg_cv_GTHREAD_LIBS="$GTHREAD_LIBS"
+    else
+        if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"gthread-2.0\""; } >&5
   ($PKG_CONFIG --exists --print-errors "gthread-2.0") 2>&5
   ac_status=$?
@@ -14402,8 +14471,9 @@ if test -n "$GTHREAD_LIBS"; then
 else
   pkg_failed=yes
 fi
- else
-    pkg_failed=untried
+    fi
+else
+	pkg_failed=untried
 fi
 
 
@@ -14416,9 +14486,9 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        GTHREAD_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors "gthread-2.0" 2>&1`
+	        GTHREAD_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "gthread-2.0"`
         else
-	        GTHREAD_PKG_ERRORS=`$PKG_CONFIG --print-errors "gthread-2.0" 2>&1`
+	        GTHREAD_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "gthread-2.0"`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$GTHREAD_PKG_ERRORS" >&5
@@ -14467,10 +14537,11 @@ pkg_failed=no
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for LIBXML" >&5
 $as_echo_n "checking for LIBXML... " >&6; }
 
-if test -n "$LIBXML_CFLAGS"; then
-    pkg_cv_LIBXML_CFLAGS="$LIBXML_CFLAGS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
+if test -n "$PKG_CONFIG"; then
+    if test -n "$LIBXML_CFLAGS"; then
+        pkg_cv_LIBXML_CFLAGS="$LIBXML_CFLAGS"
+    else
+        if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libxml-2.0\""; } >&5
   ($PKG_CONFIG --exists --print-errors "libxml-2.0") 2>&5
   ac_status=$?
@@ -14480,13 +14551,15 @@ if test -n "$LIBXML_CFLAGS"; then
 else
   pkg_failed=yes
 fi
- else
-    pkg_failed=untried
+    fi
+else
+	pkg_failed=untried
 fi
-if test -n "$LIBXML_LIBS"; then
-    pkg_cv_LIBXML_LIBS="$LIBXML_LIBS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
+if test -n "$PKG_CONFIG"; then
+    if test -n "$LIBXML_LIBS"; then
+        pkg_cv_LIBXML_LIBS="$LIBXML_LIBS"
+    else
+        if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libxml-2.0\""; } >&5
   ($PKG_CONFIG --exists --print-errors "libxml-2.0") 2>&5
   ac_status=$?
@@ -14496,8 +14569,9 @@ if test -n "$LIBXML_LIBS"; then
 else
   pkg_failed=yes
 fi
- else
-    pkg_failed=untried
+    fi
+else
+	pkg_failed=untried
 fi
 
 
@@ -14510,9 +14584,9 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        LIBXML_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors "libxml-2.0" 2>&1`
+	        LIBXML_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "libxml-2.0"`
         else
-	        LIBXML_PKG_ERRORS=`$PKG_CONFIG --print-errors "libxml-2.0" 2>&1`
+	        LIBXML_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "libxml-2.0"`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$LIBXML_PKG_ERRORS" >&5
@@ -14555,43 +14629,47 @@ $as_echo "#define USE_LIBXML 1" >>confdefs.h
 
 fi
 
-# checks for gstreamer-0.10
+# checks for libsqlite3
 
 pkg_failed=no
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for GSTREAMER" >&5
-$as_echo_n "checking for GSTREAMER... " >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for SQLITE3" >&5
+$as_echo_n "checking for SQLITE3... " >&6; }
 
-if test -n "$GSTREAMER_CFLAGS"; then
-    pkg_cv_GSTREAMER_CFLAGS="$GSTREAMER_CFLAGS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"gstreamer-0.10\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "gstreamer-0.10") 2>&5
+if test -n "$PKG_CONFIG"; then
+    if test -n "$SQLITE3_CFLAGS"; then
+        pkg_cv_SQLITE3_CFLAGS="$SQLITE3_CFLAGS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"sqlite3 > 3.3\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "sqlite3 > 3.3") 2>&5
   ac_status=$?
   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
-  pkg_cv_GSTREAMER_CFLAGS=`$PKG_CONFIG --cflags "gstreamer-0.10" 2>/dev/null`
+  pkg_cv_SQLITE3_CFLAGS=`$PKG_CONFIG --cflags "sqlite3 > 3.3" 2>/dev/null`
 else
   pkg_failed=yes
 fi
- else
-    pkg_failed=untried
+    fi
+else
+	pkg_failed=untried
 fi
-if test -n "$GSTREAMER_LIBS"; then
-    pkg_cv_GSTREAMER_LIBS="$GSTREAMER_LIBS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"gstreamer-0.10\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "gstreamer-0.10") 2>&5
+if test -n "$PKG_CONFIG"; then
+    if test -n "$SQLITE3_LIBS"; then
+        pkg_cv_SQLITE3_LIBS="$SQLITE3_LIBS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"sqlite3 > 3.3\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "sqlite3 > 3.3") 2>&5
   ac_status=$?
   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
-  pkg_cv_GSTREAMER_LIBS=`$PKG_CONFIG --libs "gstreamer-0.10" 2>/dev/null`
+  pkg_cv_SQLITE3_LIBS=`$PKG_CONFIG --libs "sqlite3 > 3.3" 2>/dev/null`
 else
   pkg_failed=yes
 fi
- else
-    pkg_failed=untried
+    fi
+else
+	pkg_failed=untried
 fi
 
 
@@ -14604,42 +14682,159 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        GSTREAMER_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors "gstreamer-0.10" 2>&1`
+	        SQLITE3_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "sqlite3 > 3.3"`
         else
-	        GSTREAMER_PKG_ERRORS=`$PKG_CONFIG --print-errors "gstreamer-0.10" 2>&1`
+	        SQLITE3_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "sqlite3 > 3.3"`
         fi
 	# Put the nasty error message in config.log where it belongs
-	echo "$GSTREAMER_PKG_ERRORS" >&5
+	echo "$SQLITE3_PKG_ERRORS" >&5
 
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
-                enable_gst="no"
+
+			echo ""
+			echo "configure: error: "
+			echo "libsqlite3 development headers not found."
+			echo "If you're using debian or ubuntu,install it by"
+			echo "\"sudo apt-get install libsqlite3-dev\""
+			echo ""
+			exit -1
+
 elif test $pkg_failed = untried; then
-	enable_gst="no"
+
+			echo ""
+			echo "configure: error: "
+			echo "libsqlite3 development headers not found."
+			echo "If you're using debian or ubuntu,install it by"
+			echo "\"sudo apt-get install libsqlite3-dev\""
+			echo ""
+			exit -1
+
 else
-	GSTREAMER_CFLAGS=$pkg_cv_GSTREAMER_CFLAGS
-	GSTREAMER_LIBS=$pkg_cv_GSTREAMER_LIBS
+	SQLITE3_CFLAGS=$pkg_cv_SQLITE3_CFLAGS
+	SQLITE3_LIBS=$pkg_cv_SQLITE3_LIBS
         { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 
 
-$as_echo "#define USE_GSTREAMER 1" >>confdefs.h
+$as_echo "#define USE_SQLITE3 1" >>confdefs.h
 
 
 
 
 fi
 
+# checks for libxss
+if test "x$enable_screensaver" = "xyes" ;then
+
+pkg_failed=no
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for LIBXSS" >&5
+$as_echo_n "checking for LIBXSS... " >&6; }
+
+if test -n "$PKG_CONFIG"; then
+    if test -n "$LIBXSS_CFLAGS"; then
+        pkg_cv_LIBXSS_CFLAGS="$LIBXSS_CFLAGS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"xscrnsaver\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "xscrnsaver") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_LIBXSS_CFLAGS=`$PKG_CONFIG --cflags "xscrnsaver" 2>/dev/null`
+else
+  pkg_failed=yes
+fi
+    fi
+else
+	pkg_failed=untried
+fi
+if test -n "$PKG_CONFIG"; then
+    if test -n "$LIBXSS_LIBS"; then
+        pkg_cv_LIBXSS_LIBS="$LIBXSS_LIBS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"xscrnsaver\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "xscrnsaver") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_LIBXSS_LIBS=`$PKG_CONFIG --libs "xscrnsaver" 2>/dev/null`
+else
+  pkg_failed=yes
+fi
+    fi
+else
+	pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        LIBXSS_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "xscrnsaver"`
+        else
+	        LIBXSS_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "xscrnsaver"`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$LIBXSS_PKG_ERRORS" >&5
+
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+
+			echo ""
+			echo "configure: error: "
+			echo "XScreenSaver development headers not found."
+			echo "Use --disable-screensaver if you do not need it."
+			echo "If you're using debian or ubuntu,install it by"
+			echo "\"sudo apt-get install libxss-dev\""
+			echo ""
+			exit -1
+
+elif test $pkg_failed = untried; then
+
+			echo ""
+			echo "configure: error: "
+			echo "XScreenSaver development headers not found."
+			echo "Use --disable-screensaver if you do not need it."
+			echo "If you're using debian or ubuntu,install it by"
+			echo "\"sudo apt-get install libxss-dev\""
+			echo ""
+			exit -1
+
+else
+	LIBXSS_CFLAGS=$pkg_cv_LIBXSS_CFLAGS
+	LIBXSS_LIBS=$pkg_cv_LIBXSS_LIBS
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+
+
+$as_echo "#define USE_LIBXSS 1" >>confdefs.h
+
+
+
+
+fi
+fi
+
 # checks for libnotify
+if test "x$enable_notify" = "xyes"; then
 
 pkg_failed=no
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for LIBNOTIFY" >&5
 $as_echo_n "checking for LIBNOTIFY... " >&6; }
 
-if test -n "$LIBNOTIFY_CFLAGS"; then
-    pkg_cv_LIBNOTIFY_CFLAGS="$LIBNOTIFY_CFLAGS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
+if test -n "$PKG_CONFIG"; then
+    if test -n "$LIBNOTIFY_CFLAGS"; then
+        pkg_cv_LIBNOTIFY_CFLAGS="$LIBNOTIFY_CFLAGS"
+    else
+        if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libnotify\""; } >&5
   ($PKG_CONFIG --exists --print-errors "libnotify") 2>&5
   ac_status=$?
@@ -14649,13 +14844,15 @@ if test -n "$LIBNOTIFY_CFLAGS"; then
 else
   pkg_failed=yes
 fi
- else
-    pkg_failed=untried
+    fi
+else
+	pkg_failed=untried
 fi
-if test -n "$LIBNOTIFY_LIBS"; then
-    pkg_cv_LIBNOTIFY_LIBS="$LIBNOTIFY_LIBS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
+if test -n "$PKG_CONFIG"; then
+    if test -n "$LIBNOTIFY_LIBS"; then
+        pkg_cv_LIBNOTIFY_LIBS="$LIBNOTIFY_LIBS"
+    else
+        if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libnotify\""; } >&5
   ($PKG_CONFIG --exists --print-errors "libnotify") 2>&5
   ac_status=$?
@@ -14665,8 +14862,9 @@ if test -n "$LIBNOTIFY_LIBS"; then
 else
   pkg_failed=yes
 fi
- else
-    pkg_failed=untried
+    fi
+else
+	pkg_failed=untried
 fi
 
 
@@ -14679,18 +14877,36 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        LIBNOTIFY_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors "libnotify" 2>&1`
+	        LIBNOTIFY_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "libnotify"`
         else
-	        LIBNOTIFY_PKG_ERRORS=`$PKG_CONFIG --print-errors "libnotify" 2>&1`
+	        LIBNOTIFY_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "libnotify"`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$LIBNOTIFY_PKG_ERRORS" >&5
 
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
-                enable_libnotify="no"
+
+			echo ""
+			echo "configure: error: "
+			echo "libnotify development headers not found."
+			echo "Use --disable-notify if you do not need it."
+			echo "If you're using debian or ubuntu,install it by "
+			echo "\"sudo apt-get install libnotify-dev\""
+			echo ""
+			exit -1
+
 elif test $pkg_failed = untried; then
-	enable_libnotify="no"
+
+			echo ""
+			echo "configure: error: "
+			echo "libnotify development headers not found."
+			echo "Use --disable-notify if you do not need it."
+			echo "If you're using debian or ubuntu,install it by "
+			echo "\"sudo apt-get install libnotify-dev\""
+			echo ""
+			exit -1
+
 else
 	LIBNOTIFY_CFLAGS=$pkg_cv_LIBNOTIFY_CFLAGS
 	LIBNOTIFY_LIBS=$pkg_cv_LIBNOTIFY_LIBS
@@ -14704,16 +14920,117 @@ $as_echo "#define USE_LIBNOTIFY 1" >>confdefs.h
 
 
 fi
+fi
+
+# checks for gstreamer-0.10
+if test "x$enable_gst" = "xyes"; then
+
+pkg_failed=no
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for GSTREAMER" >&5
+$as_echo_n "checking for GSTREAMER... " >&6; }
+
+if test -n "$PKG_CONFIG"; then
+    if test -n "$GSTREAMER_CFLAGS"; then
+        pkg_cv_GSTREAMER_CFLAGS="$GSTREAMER_CFLAGS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"gstreamer-0.10\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "gstreamer-0.10") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_GSTREAMER_CFLAGS=`$PKG_CONFIG --cflags "gstreamer-0.10" 2>/dev/null`
+else
+  pkg_failed=yes
+fi
+    fi
+else
+	pkg_failed=untried
+fi
+if test -n "$PKG_CONFIG"; then
+    if test -n "$GSTREAMER_LIBS"; then
+        pkg_cv_GSTREAMER_LIBS="$GSTREAMER_LIBS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"gstreamer-0.10\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "gstreamer-0.10") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_GSTREAMER_LIBS=`$PKG_CONFIG --libs "gstreamer-0.10" 2>/dev/null`
+else
+  pkg_failed=yes
+fi
+    fi
+else
+	pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        GSTREAMER_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "gstreamer-0.10"`
+        else
+	        GSTREAMER_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "gstreamer-0.10"`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$GSTREAMER_PKG_ERRORS" >&5
+
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+
+			echo ""
+			echo "configure: error: "
+			echo "libnotify development headers not found."
+			echo "Use --disable-gstreamer if you do not need it."
+			echo "If you're using debian or ubuntu,install it by "
+			echo "\"sudo apt-get install libgstreamer0.10-dev\""
+			echo ""
+			exit -1
+
+elif test $pkg_failed = untried; then
+
+			echo ""
+			echo "configure: error: "
+			echo "libnotify development headers not found."
+			echo "Use --disable-gstreamer if you do not need it."
+			echo "If you're using debian or ubuntu,install it by "
+			echo "\"sudo apt-get install libgstreamer0.10-dev\""
+			echo ""
+			exit -1
+
+else
+	GSTREAMER_CFLAGS=$pkg_cv_GSTREAMER_CFLAGS
+	GSTREAMER_LIBS=$pkg_cv_GSTREAMER_LIBS
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+
+
+$as_echo "#define USE_GSTREAMER 1" >>confdefs.h
+
+
+
+
+fi
+fi
 
 
 pkg_failed=no
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for LIBSSL" >&5
 $as_echo_n "checking for LIBSSL... " >&6; }
 
-if test -n "$LIBSSL_CFLAGS"; then
-    pkg_cv_LIBSSL_CFLAGS="$LIBSSL_CFLAGS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
+if test -n "$PKG_CONFIG"; then
+    if test -n "$LIBSSL_CFLAGS"; then
+        pkg_cv_LIBSSL_CFLAGS="$LIBSSL_CFLAGS"
+    else
+        if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"
 		openssl
 \""; } >&5
@@ -14729,13 +15046,15 @@ if test -n "$LIBSSL_CFLAGS"; then
 else
   pkg_failed=yes
 fi
- else
-    pkg_failed=untried
+    fi
+else
+	pkg_failed=untried
 fi
-if test -n "$LIBSSL_LIBS"; then
-    pkg_cv_LIBSSL_LIBS="$LIBSSL_LIBS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
+if test -n "$PKG_CONFIG"; then
+    if test -n "$LIBSSL_LIBS"; then
+        pkg_cv_LIBSSL_LIBS="$LIBSSL_LIBS"
+    else
+        if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"
 		openssl
 \""; } >&5
@@ -14751,8 +15070,9 @@ if test -n "$LIBSSL_LIBS"; then
 else
   pkg_failed=yes
 fi
- else
-    pkg_failed=untried
+    fi
+else
+	pkg_failed=untried
 fi
 
 
@@ -14765,13 +15085,13 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        LIBSSL_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors "
+	        LIBSSL_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "
 		openssl
-" 2>&1`
+"`
         else
-	        LIBSSL_PKG_ERRORS=`$PKG_CONFIG --print-errors "
+	        LIBSSL_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "
 		openssl
-" 2>&1`
+"`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$LIBSSL_PKG_ERRORS" >&5
@@ -14815,10 +15135,11 @@ pkg_failed=no
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for GLIB2" >&5
 $as_echo_n "checking for GLIB2... " >&6; }
 
-if test -n "$GLIB2_CFLAGS"; then
-    pkg_cv_GLIB2_CFLAGS="$GLIB2_CFLAGS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
+if test -n "$PKG_CONFIG"; then
+    if test -n "$GLIB2_CFLAGS"; then
+        pkg_cv_GLIB2_CFLAGS="$GLIB2_CFLAGS"
+    else
+        if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"
         glib-2.0 >= 2.14
 \""; } >&5
@@ -14834,13 +15155,15 @@ if test -n "$GLIB2_CFLAGS"; then
 else
   pkg_failed=yes
 fi
- else
-    pkg_failed=untried
+    fi
+else
+	pkg_failed=untried
 fi
-if test -n "$GLIB2_LIBS"; then
-    pkg_cv_GLIB2_LIBS="$GLIB2_LIBS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
+if test -n "$PKG_CONFIG"; then
+    if test -n "$GLIB2_LIBS"; then
+        pkg_cv_GLIB2_LIBS="$GLIB2_LIBS"
+    else
+        if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"
         glib-2.0 >= 2.14
 \""; } >&5
@@ -14856,8 +15179,9 @@ if test -n "$GLIB2_LIBS"; then
 else
   pkg_failed=yes
 fi
- else
-    pkg_failed=untried
+    fi
+else
+	pkg_failed=untried
 fi
 
 
@@ -14870,13 +15194,13 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        GLIB2_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors "
+	        GLIB2_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "
         glib-2.0 >= 2.14
-" 2>&1`
+"`
         else
-	        GLIB2_PKG_ERRORS=`$PKG_CONFIG --print-errors "
+	        GLIB2_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "
         glib-2.0 >= 2.14
-" 2>&1`
+"`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$GLIB2_PKG_ERRORS" >&5
@@ -14920,10 +15244,11 @@ pkg_failed=no
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for GOBJECT2" >&5
 $as_echo_n "checking for GOBJECT2... " >&6; }
 
-if test -n "$GOBJECT2_CFLAGS"; then
-    pkg_cv_GOBJECT2_CFLAGS="$GOBJECT2_CFLAGS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
+if test -n "$PKG_CONFIG"; then
+    if test -n "$GOBJECT2_CFLAGS"; then
+        pkg_cv_GOBJECT2_CFLAGS="$GOBJECT2_CFLAGS"
+    else
+        if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"
         gobject-2.0 >= 2.14
 \""; } >&5
@@ -14939,13 +15264,15 @@ if test -n "$GOBJECT2_CFLAGS"; then
 else
   pkg_failed=yes
 fi
- else
-    pkg_failed=untried
+    fi
+else
+	pkg_failed=untried
 fi
-if test -n "$GOBJECT2_LIBS"; then
-    pkg_cv_GOBJECT2_LIBS="$GOBJECT2_LIBS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
+if test -n "$PKG_CONFIG"; then
+    if test -n "$GOBJECT2_LIBS"; then
+        pkg_cv_GOBJECT2_LIBS="$GOBJECT2_LIBS"
+    else
+        if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"
         gobject-2.0 >= 2.14
 \""; } >&5
@@ -14961,8 +15288,9 @@ if test -n "$GOBJECT2_LIBS"; then
 else
   pkg_failed=yes
 fi
- else
-    pkg_failed=untried
+    fi
+else
+	pkg_failed=untried
 fi
 
 
@@ -14975,13 +15303,13 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        GOBJECT2_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors "
+	        GOBJECT2_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "
         gobject-2.0 >= 2.14
-" 2>&1`
+"`
         else
-	        GOBJECT2_PKG_ERRORS=`$PKG_CONFIG --print-errors "
+	        GOBJECT2_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "
         gobject-2.0 >= 2.14
-" 2>&1`
+"`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$GOBJECT2_PKG_ERRORS" >&5
@@ -17830,17 +18158,8 @@ $as_echo "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2;}
 fi
 
 
-if test "x$enable_gst" == "xno"; then
-	echo "-----------------------------------------------------------"
-	echo "|                                                         |"
-	echo "|            Welcome To OpenFetion v1.9                   |"
-	echo "|                                                         |"
-	echo "| You have not installed gstreamer-0.10 on your system    |"
-	echo "| for which you can not use the sound reminder function   |"
-	echo "| if you want to use this function,just install gstreamer |"
-	echo "| and recompile openfetion                                |"
-	echo "| NOTE:this message does not mean that you have failed    |"
-	echo "|     just type \"make and\" \"make install\" to install      |"
-	echo "|     openfetion without sound reminder                   |"
-	echo "-----------------------------------------------------------"
-fi
+echo
+echo Use XScreenSaver Extension.... : $enable_screensaver
+echo Use libnotify................. : $enable_notify
+echo Use gstreamer0.10............. : $enable_gst
+echo

@@ -37,6 +37,21 @@ AC_CHECK_LIB([pthread], [pthread_create])
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h netinet/in.h stdint.h stdlib.h string.h sys/ioctl.h sys/socket.h unistd.h])
 
+AC_ARG_ENABLE(screensaver,
+	[  --disable-screensaver   compile without X screensaver extension (used to detect idleness)],
+	[ enable_screensaver="no"],
+	[ enable_screensaver="yes"])
+
+AC_ARG_ENABLE(notify,
+	[  --disable-notify        compile without libnotify (used to show message notification)],
+	[ enable_notify="no"],
+	[ enable_notify="yes"])
+
+AC_ARG_ENABLE(gstreamer,
+	[  --disable-gstreamer     compile without gstreamer (used to play alert sound)],
+	[ enable_gst="no"],
+	[ enable_gst="yes"])
+
 # checks for gtk+2.0
 PKG_CHECK_MODULES(GTK, [gtk+-2.0 >= 2.16], [
 			AC_DEFINE(USE_GTK, 1, [Use GTK])
@@ -46,7 +61,7 @@ PKG_CHECK_MODULES(GTK, [gtk+-2.0 >= 2.16], [
 			)
 # checks for gthread-2.0
 PKG_CHECK_MODULES(GTHREAD, [gthread-2.0], [
-			AC_DEFINE(USE_GTHREAD, 1, [Use LIBXML])
+			AC_DEFINE(USE_GTHREAD, 1, [Use GTHREAD-2.0])
 			AC_SUBST(GTHREAD_CFLAGS)
 			AC_SUBST(GTHREAD_LIBS)
 		] , )
@@ -58,19 +73,74 @@ PKG_CHECK_MODULES(LIBXML, [libxml-2.0], [
 			AC_SUBST(LIBXML_LIBS)
 		] , )
 
-# checks for gstreamer-0.10
-PKG_CHECK_MODULES(GSTREAMER, [gstreamer-0.10], [
-			AC_DEFINE(USE_GSTREAMER, 1, [Use Gstreamer for playing sound])
-			AC_SUBST(GSTREAMER_CFLAGS)
-			AC_SUBST(GSTREAMER_LIBS)
-		] , [enable_gst="no"])
+# checks for libsqlite3
+PKG_CHECK_MODULES(SQLITE3, [sqlite3 > 3.3], [
+			AC_DEFINE(USE_SQLITE3, 1, [Use sqlite3])
+			AC_SUBST(SQLITE3_CFLAGS)
+			AC_SUBST(SQLITE3_LIBS)
+		] , [
+			echo ""
+			echo "configure: error: "
+			echo "libsqlite3 development headers not found."
+			echo "If you're using debian or ubuntu,install it by"
+			echo "\"sudo apt-get install libsqlite3-dev\""
+			echo ""
+			exit -1
+			 ])
+
+# checks for libxss
+if test "x$enable_screensaver" = "xyes" ;then
+PKG_CHECK_MODULES(LIBXSS, [xscrnsaver], [
+			AC_DEFINE(USE_LIBXSS, 1, [Use XScreenSaver for idleness])
+			AC_SUBST(LIBXSS_CFLAGS)
+			AC_SUBST(LIBXSS_LIBS)
+		] , [
+			echo ""
+			echo "configure: error: "
+			echo "XScreenSaver development headers not found."
+			echo "Use --disable-screensaver if you do not need it."
+			echo "If you're using debian or ubuntu,install it by"
+			echo "\"sudo apt-get install libxss-dev\""
+			echo ""
+			exit -1
+			 ])
+fi
 
 # checks for libnotify
+if test "x$enable_notify" = "xyes"; then
 PKG_CHECK_MODULES(LIBNOTIFY, [libnotify], [
 			AC_DEFINE(USE_LIBNOTIFY, 1, [Use libnotify for notification])
 			AC_SUBST(LIBNOTIFY_CFLAGS)
 			AC_SUBST(LIBNOTIFY_LIBS)
-		] , [enable_libnotify="no"])
+		] , [
+			echo ""
+			echo "configure: error: "
+			echo "libnotify development headers not found."
+			echo "Use --disable-notify if you do not need it."
+			echo "If you're using debian or ubuntu,install it by "
+			echo "\"sudo apt-get install libnotify-dev\""
+			echo ""
+			exit -1
+			])
+fi
+
+# checks for gstreamer-0.10
+if test "x$enable_gst" = "xyes"; then
+PKG_CHECK_MODULES(GSTREAMER, [gstreamer-0.10], [
+			AC_DEFINE(USE_GSTREAMER, 1, [Use Gstreamer for playing sound])
+			AC_SUBST(GSTREAMER_CFLAGS)
+			AC_SUBST(GSTREAMER_LIBS)
+		] , [
+			echo ""
+			echo "configure: error: "
+			echo "libnotify development headers not found."
+			echo "Use --disable-gstreamer if you do not need it."
+			echo "If you're using debian or ubuntu,install it by "
+			echo "\"sudo apt-get install libgstreamer0.10-dev\""
+			echo ""
+			exit -1
+			])
+fi
 
 PKG_CHECK_MODULES(LIBSSL, [
 		openssl
@@ -109,17 +179,8 @@ AC_CONFIG_FILES( po/Makefile.in
 				)
 AC_OUTPUT
 
-if test "x$enable_gst" == "xno"; then
-	echo "-----------------------------------------------------------"
-	echo "|                                                         |"
-	echo "|            Welcome To OpenFetion v1.9                   |"
-	echo "|                                                         |"
-	echo "| You have not installed gstreamer-0.10 on your system    |"
-	echo "| for which you can not use the sound reminder function   |"
-	echo "| if you want to use this function,just install gstreamer |"
-	echo "| and recompile openfetion                                |"
-	echo "| NOTE:this message does not mean that you have failed    |"
-	echo "|     just type \"make and\" \"make install\" to install      |"
-	echo "|     openfetion without sound reminder                   |"
-	echo "-----------------------------------------------------------"
-fi
+echo
+echo Use XScreenSaver Extension.... : $enable_screensaver
+echo Use libnotify................. : $enable_notify
+echo Use gstreamer0.10............. : $enable_gst
+echo

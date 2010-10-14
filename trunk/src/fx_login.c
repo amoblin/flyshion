@@ -20,6 +20,8 @@
 
 #include "fx_include.h"
 
+int old_state;
+
 static void* localization_thread(void *data);
 static void fx_login_show_msg(FxLogin *fxlogin , const char *msg);
 static void fx_login_show_err(FxLogin *fxlogin , const char *msg);
@@ -357,6 +359,7 @@ void* fx_login_thread_func(void* data)
 					GTK_COMBO_BOX(fxlogin->statecombo));
 	gtk_tree_model_get(stateModel, &stateIter,
 				   	2 , &state , -1);
+	old_state = state;
 
 	/* get login number and password */
 	no = gtk_combo_box_get_active_text(
@@ -678,7 +681,7 @@ auth:
 
 	/* start sending keep alive request periodically */
 	g_timeout_add_seconds(180 , (GSourceFunc)fx_main_register_func , user);
-	g_timeout_add_seconds(10 , (GSourceFunc)fx_main_check_func , fxmain);
+	g_timeout_add_seconds(3 , (GSourceFunc)fx_main_check_func , fxmain);
 
 	/*localization*/
 	g_thread_create(localization_thread, user, FALSE, NULL);

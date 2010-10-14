@@ -17,65 +17,74 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+#include <fx_include.h>
 
-#ifndef FX_SET_H
-#define FX_SET_H
-
-enum{
-	COMBO_NAME_COL = 0 ,
-	COMBO_ID_COL ,
-	COMBO_COLS_NUM
-};
-typedef enum{
-	SEND_MODE_ENTER ,
-	SEND_MODE_CTRL_ENTER
-} SendModeType;
-
-typedef enum{
-	AUTO_POPUP_DISABLE ,
-	AUTO_POPUP_ENABLE
-} AutoPopupType;
-
-typedef enum{
-	AUTO_REPLY_DISABLE ,
-	AUTO_REPLY_ENABLE
-} AutoReplyType;
-
-typedef enum{
-	CLOSE_DESTROY_MODE ,
-	CLOSE_ICON_MODE 
-} CloseType;
-
-typedef enum{
-	MUTE_DISABLE ,
-	MUTE_ENABLE
-} MuteType;
-
-typedef enum{
-	PAGE_PERSONAL ,
-	PAGE_SYSTEM
-} NotebookPageType;
-
-typedef enum{
-	ICON_CAN ,
-	ICON_CANNOT 
-} IconType;
-
-typedef enum {
-	AUTO_AWAY_ENABLE,
-	AUTO_AWAY_DISABLE
-} AutoAway;
-
-extern FxSet* fx_set_new(FxMain* fxmain);
-
-extern void fx_set_initialize(FxSet* fxset);
-
-extern void fx_set_bind_system(FxSet* fxset);
-
-extern void fx_set_initialize_personal(FxSet* fxset);
-
-extern void fx_set_initialize_system(FxSet* fxset);
-
-extern GtkTreeModel* fx_set_create_gender_model();
-
+#ifdef USE_LIBXSS
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/extensions/scrnsaver.h>
+#include <gdk/gdkx.h>
 #endif
+
+#define IDLE_TIMEOUT_SEC 90
+
+extern int old_state;
+
+gint idle_timesec(void)
+{
+
+#ifdef USE_LIBXSS
+	static XScreenSaverInfo *mit_info = NULL;
+	static gint has_extension = -1;
+	gint event_base, error_base;
+
+	if (has_extension == -1)
+		has_extension = XScreenSaverQueryExtension(
+				GDK_DISPLAY(), &event_base, &error_base);
+
+	if(has_extension){
+		if (mit_info == NULL)
+			mit_info = XScreenSaverAllocInfo();
+
+		XScreenSaverQueryInfo(GDK_DISPLAY(), GDK_ROOT_WINDOW(), mit_info);
+		return (mit_info->idle)/1000;
+	}
+#endif
+
+	return 0;
+}
+
+void idle_autoaway(FxMain *fxmain)
+{
+	typedef struct {
+		FxMain* fxmain;
+		StateType type;
+	} Args;
+	User   *user = fxmain->user;
+	Config *config = user->config;
+	Args   *args;
+	gint    os;
+
+	if(config->autoAway){
+ 		args = (Args*)malloc(sizeof(Args));
+		args->fxmain = fxmain;
+
+		if(user->state > 0 && user->state != P_AWAY &&
+				idle_timesec() > IDLE_TIMEOUT_SEC){
+			os = user->state;
+			args->type = P_AWAY;
+			fx_head_change_state_func(NULL, args);
+			old_state = os;
+			return;
+		}
+
+		if(user->state != old_state &&
+				idle_timesec() < IDLE_TIMEOUT_SEC){
+			args->type = old_state;
+			fx_head_change_state_func(NULL, args);
+			return;
+		}
+
+		g_free(args);
+	}
+}

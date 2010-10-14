@@ -1425,6 +1425,9 @@ gboolean fx_main_check_func(FxMain* fxmain)
 			free(list);
 		}
 	}
+
+	idle_autoaway(fxmain);
+
 	return TRUE;
 }
 

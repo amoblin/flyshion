@@ -386,6 +386,13 @@ int fetion_config_load(User *user)
 		return -1;
 	}
 
+	sprintf(sql, "select autoAway from config");
+	if(sqlite3_get_table(db, sql, &sqlres
+						, &nrows, &ncols, &errMsg)){
+		sqlite3_close(db);
+		return -1;
+	}
+
 	sprintf(sql, "select * from config;");
 	if(sqlite3_get_table(db, sql, &sqlres
 						, &nrows, &ncols, &errMsg)){
@@ -411,7 +418,8 @@ int fetion_config_load(User *user)
 	strcpy(config->configServersVersion, sqlres[ncols+15]);
 	strcpy(config->configParametersVersion, sqlres[ncols+16]);
 	strcpy(config->configHintsVersion, sqlres[ncols+17]);
-
+	config->autoAway = atoi(sqlres[ncols+18]);
+	config->autoAwayTimeout = atoi(sqlres[ncols+19]);
 
 	sqlite3_close(db);
 	return 1;
@@ -422,8 +430,10 @@ int fetion_config_save(User *user)
 {
 	char path[256];
 	char sql[4096];
+	char sql1[4096];
 	sqlite3 *db;
 	char *errMsg = NULL;
+	int count = 0;
 	Config *config = user->config;
 
 	sprintf(path , "%s/data.db" , config->userPath);
@@ -437,24 +447,29 @@ int fetion_config_save(User *user)
 
 	sprintf(sql, "delete from config;");
 	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+recreate:
 		sprintf(sql, "create table config ("
 				"sipcProxyIP,sipcProxyPort,"
 				"portraitServerName,portraitServerPath,"
 				"iconSize,closeAlert,autoReply,isMute,"
 				"autoReplyMessage,msgAlert,autoPopup,"
 				"sendMode,closeMode,canIconify,allHighlight,"
-				"serversVersion,paremetersVersion,hintsVersion);");
+				"serversVersion,paremetersVersion,"
+				"hintsVersion,autoAway,autoAwayTimeout);");
+		count ++;
 		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
 			debug_error("create table config:%s",
 							sqlite3_errmsg(db));
-			sqlite3_close(db);
-			return -1;
+			if(count == 2){
+				sqlite3_close(db);
+				return -1;
+			}
 		}
 	}
 
 	sprintf(sql, "insert into config values ("
 				"'%s',%d,'%s','%s',%d,%d,%d,"
-				"%d,'%s',%d,%d,%d,%d,%d,%d,'%s','%s','%s');",
+				"%d,'%s',%d,%d,%d,%d,%d,%d,'%s','%s','%s',%d,%d);",
 				config->sipcProxyIP,
 				config->sipcProxyPort,
 				config->portraitServerName,
@@ -472,12 +487,19 @@ int fetion_config_save(User *user)
 				config->allHighlight,
 				config->configServersVersion,
 				config->configParametersVersion,
-				config->configHintsVersion);
+				config->configHintsVersion,
+				config->autoAway,
+				config->autoAwayTimeout);
 	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
 		debug_error("save config:%s",
 					sqlite3_errmsg(db));
-		sqlite3_close(db);
-		return -1;
+
+		sprintf(sql1, "drop table config;");
+		if(sqlite3_exec(db, sql1, NULL, NULL, &errMsg)){
+			debug_error("drop table config:%s",
+						sqlite3_errmsg(db));
+		}
+		goto recreate;
 	}
 	sqlite3_close(db);
 	return 1;

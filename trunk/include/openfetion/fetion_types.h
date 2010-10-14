@@ -320,6 +320,8 @@ typedef struct
 	int closeMode;						/* close button clicked to close window or iconize it	  */
 	int canIconify;
 	int allHighlight;
+	int autoAway;
+	int autoAwayTimeout;
 
 	char configServersVersion[16];		/* the version of some related servers such as sipc server	*/
 	char configParametersVersion[16];
