@@ -348,6 +348,9 @@ void* fx_login_thread_func(void* data)
 	int state;
 	gboolean remember;
 
+	gint local_buddy_count;
+	gint local_group_count;
+
 	FxCode* fxcode = NULL;
 	int ret;
 
@@ -488,7 +491,9 @@ login:
 
 	/*load local data*/
 	fetion_user_load(user);
-	fetion_contact_load(user);
+	fetion_contact_load(user, &local_group_count, &local_buddy_count);
+
+	printf("%d , %d\n" , local_group_count, local_buddy_count);
 
 	/* start a new tcp connection for registering to sipc server */
 	conn = tcp_connection_new();
@@ -584,6 +589,11 @@ auth:
 		}
 		debug_info("Input verfication code:%s" , code);
 	}
+
+	/* update buddy count */
+	if(user->contactCount == 0)
+		user->contactCount = local_buddy_count;
+
 	fx_login_show_msg(fxlogin , _("Initializing main panel"));
 	
 	pg_group_get_list(user);
@@ -648,6 +658,10 @@ auth:
 	}
 	fx_login_show_msg(fxlogin , _("Initializing main panel"));
 
+	/*localization*/
+	fetion_user_save((User*)data);
+	fetion_contact_save((User*)data);
+
 	/* initialize head panel */
 	gdk_threads_enter();
 	fx_head_initialize(fxmain);
@@ -687,9 +701,6 @@ auth:
 	/* start sending keep alive request periodically */
 	g_timeout_add_seconds(180 , (GSourceFunc)fx_main_register_func , user);
 	g_timeout_add_seconds(3 , (GSourceFunc)fx_main_check_func , fxmain);
-
-	/*localization*/
-	g_thread_create(localization_thread, user, FALSE, NULL);
 
 	g_thread_exit(0);
 failed:

@@ -168,9 +168,11 @@ extern Contact* parse_contact_info_by_no_response(const char* sipmsg);
 
 extern void parse_add_buddy_verification(User* user , const char* str);
 
-extern void fetion_contact_load(User *user);
+extern void fetion_contact_load(User *user, int *gcount, int *bcount);
 
 extern void fetion_contact_save(User *user);
+
+extern void fetion_contact_update(User *user, Contact *contact);
 
 extern int fetion_contact_del_localbuddy(User *user, const char *userid);
 
