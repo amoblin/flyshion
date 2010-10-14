@@ -905,7 +905,7 @@ void parse_add_buddy_verification(User* user , const char* str)
 	user->verification = ver;
 }
 
-void fetion_contact_load(User *user)
+void fetion_contact_load(User *user, int *gcount, int *bcount)
 {
 	char path[256];
 	char sql[4096];
@@ -919,6 +919,9 @@ void fetion_contact_load(User *user)
 
 	debug_info("Load contact list");
 
+	*gcount = 0;
+	*bcount = 0;
+
 	sprintf(path , "%s/data.db" , config->userPath);
 	if(sqlite3_open(path, &db)){
 		debug_error("failed to load contact list");
@@ -931,6 +934,8 @@ void fetion_contact_load(User *user)
 		sqlite3_close(db);
 		return;
 	}
+
+	*gcount = nrows;
 
 	for(i = 0; i < nrows; i++){
 		gpos = fetion_group_new();
@@ -949,6 +954,8 @@ void fetion_contact_load(User *user)
 		sqlite3_close(db);
 		return;
 	}
+
+	*bcount = nrows;
 	
 	for(i = 0; i < nrows; i++){
 		pos = fetion_contact_new();
@@ -1127,6 +1134,84 @@ void fetion_contact_save(User *user)
 #endif
 	sqlite3_close(db);
 	debug_info("Save contact list successfully");
+}
+
+void fetion_contact_update(User *user, Contact *contact)
+{
+	char path[256];
+	char sql[4096];
+	sqlite3 *db;
+	char *errMsg = NULL;
+	Config *config = user->config;
+
+	debug_info("Update contact information");
+
+	sprintf(path , "%s/data.db" , config->userPath);
+	if(sqlite3_open(path, &db)){
+		debug_error("failed to load user list");
+		return;
+	}
+
+	snprintf(sql, sizeof(sql)-1, "update contacts set "
+			"userId='%s',sId='%s',sipuri='%s',"
+			"localname='%s',nickname='%s',"
+			"impression='%s',mobileno='%s',"
+			"devicetype='%s',portraitCrc='%s',"
+			"birthday='%s',country='%s',"
+			"province='%s',city='%s',"
+			"identity=%d,scoreLevel=%d,"
+			"serviceStatus=%d,carrierStatus=%d,"
+			"relationStatus=%d,carrier='%s',"
+			"groupid=%d,gender=%d where userId='%s'",
+			contact->userId, contact->sId, contact->sipuri,
+			contact->localname, contact->nickname,
+			contact->impression, contact->mobileno,
+			contact->devicetype, contact->portraitCrc,
+			contact->birthday, contact->country, contact->province,
+			contact->city, contact->identity, contact->scoreLevel,
+			contact->serviceStatus, contact->carrierStatus,
+			contact->relationStatus, contact->carrier,
+			contact->groupid, contact->gender, contact->userId);
+
+	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+		debug_error("update contact %s:%s",
+					contact->userId, errMsg ? errMsg : "");
+		sprintf(sql, "create table contacts (userId,"
+					"sId,sipuri,localname,nickname,"
+					"impression,mobileno,devicetype,"
+					"portraitCrc,birthday,country,"
+					"province,city,identity,scoreLevel,"
+					"serviceStatus,carrierStatus,"
+					"relationStatus,carrier,groupid,gender);");
+		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+			debug_error("create table contacts:%s",
+						sqlite3_errmsg(db));
+			sqlite3_close(db);
+			return;
+		}
+
+		snprintf(sql, sizeof(sql)-1, "insert into contacts "
+					"values ('%s','%s','%s','%s','%s','%s',"
+					"'%s','%s','%s','%s','%s','%s','%s','%d',%d,"
+					"%d,%d,%d,'%s',%d,%d);",
+					contact->userId, contact->sId, contact->sipuri,
+					contact->localname, contact->nickname,
+					contact->impression, contact->mobileno,
+					contact->devicetype, contact->portraitCrc,
+					contact->birthday, contact->country, contact->province,
+					contact->city, contact->identity, contact->scoreLevel,
+					contact->serviceStatus, contact->carrierStatus,
+					contact->relationStatus, contact->carrier,
+					contact->groupid, contact->gender);
+
+		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+			debug_error("insert contacts:%s",
+							sqlite3_errmsg(db));
+			sqlite3_close(db);
+			return;
+		}
+	}
+	sqlite3_close(db);
 }
 
 int fetion_contact_del_localbuddy(User *user, const char *userid)

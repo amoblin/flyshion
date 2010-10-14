@@ -27,7 +27,8 @@
 #include <locale.h>
 #include <glib.h>
 
-fd_set      fd_read;
+fd_set  fd_read;
+gint presence_count = 0;
 gint window_pos_x;
 gint window_pos_y;
 gint window_pos_x_old = 0;
@@ -271,6 +272,15 @@ void fx_main_process_notification(FxMain* fxmain , const gchar* sipmsg)
 
 }
 
+static void *update_data(void *data)
+{
+	FxMain *fxmain = (FxMain*)data;
+	User *user = fxmain->user;
+	fetion_contact_save(user);
+
+	return NULL;
+}
+
 void fx_main_process_presence(FxMain* fxmain , const gchar* xml)
 {
 	gchar        *crc;
@@ -294,6 +304,11 @@ void fx_main_process_presence(FxMain* fxmain , const gchar* xml)
 
 		if(fx_tree_get_buddy_iter_by_userid(model , contact->userId , &iter) == -1)
 				continue;
+
+		presence_count ++;
+
+		if(presence_count == user->contactCount)
+			g_thread_create(update_data, fxmain, FALSE, NULL);
 
 		gtk_tree_model_get(model , &iter
 						 , B_CRC_COL    , &crc

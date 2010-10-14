@@ -576,8 +576,6 @@ static void parse_contact_list(xmlNodePtr node , User* user)
 	Contact* contact = NULL;
 	int hasGroup = 1 , hasBuddy = 1;
 
-	DEBUG_FOOTPRINT();
-
 	buf = xmlGetProp(node , BAD_CAST "version");
 	debug_info("Start reading contact list ");
 	if(strcmp(user->contactVersion , (char*) buf) == 0){
@@ -609,11 +607,13 @@ static void parse_contact_list(xmlNodePtr node , User* user)
 	}
 	node1 = xml_goto_node(node , "buddies");
 	node1 = node1->xmlChildrenNode;
+	user->contactCount = 0;
 	while(node1 != NULL){
 		if(! xmlHasProp(node1 , BAD_CAST "i")){
 			node1 = node1->next;
 			continue;
 		}
+		user->contactCount ++;
 		buf = xmlGetProp(node1 , BAD_CAST "i");
 		contact = fetion_contact_list_find_by_userid(user->contactList , (char*)buf);
 		if(contact == NULL){
@@ -677,6 +677,7 @@ static void parse_stranger_list(xmlNodePtr node , User* user)
 	int hasBuddy = 1;
 	while(node1 != NULL)
 	{
+		user->contactCount ++;
 		buf = xmlGetProp(node1 , BAD_CAST "u");
 		contact = fetion_contact_list_find_by_userid(user->contactList , (char*)buf);
 		if(contact == NULL){

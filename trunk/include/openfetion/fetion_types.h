@@ -372,6 +372,7 @@ typedef struct
 	int carrierStatus;
 	int boundToMobile;					/* whether this number is bound to a mobile number  */
 	long loginTimes;
+	int contactCount;
 	char* ssic;						    /* cookie string read from reply message after ssi login 	*/
 	char* customConfig;					/* custom config string used to set personal information	*/
 	Verification* verification;			/* a struct used to generate picture code					*/	 
