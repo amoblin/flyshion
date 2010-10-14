@@ -40,6 +40,8 @@ extern int tcp_connection_send(FetionConnection* connetion , const void* buf , i
 
 extern int tcp_connection_recv(FetionConnection* connection , void* recv , int len);
 
+extern void tcp_connection_close(FetionConnection *connection);
+
 extern int tcp_connection_select_read(FetionConnection* connection);
 
 extern int tcp_connection_recv_dont_wait(FetionConnection* connection

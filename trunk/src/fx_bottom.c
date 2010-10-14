@@ -25,8 +25,6 @@ FxBottom* fx_bottom_new()
 {
 	FxBottom* fxbottom = (FxBottom*)malloc(sizeof(FxBottom));
 
-	DEBUG_FOOTPRINT();
-
 	memset(fxbottom , 0 , sizeof(FxBottom));
 	return fxbottom;
 }
@@ -37,13 +35,13 @@ fx_bottom_on_directsms_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 	FxMain *fxmain = (FxMain*)data;
 	FxDSMS *fxdsms = fx_dsms_new(fxmain);
 
-	DEBUG_FOOTPRINT();
-
 	if(fxmain->user->carrierStatus == CARRIER_STATUS_DOWN){
 		fx_util_popup_warning(fxmain , SERVICE_DOWN_MESSAGE);
 		return;
 	}
-	fx_dsms_initialize(fxdsms);
+
+	if(fx_conn_check_action(fxmain))
+		fx_dsms_initialize(fxdsms);
 }
 
 static void
@@ -81,8 +79,6 @@ void fx_bottom_initialize(FxMain* fxmain)
 	fxmain->bottomPanel = fxbottom;
 	User *user = fxmain->user;
 	GtkWidget *mainbox = fxmain->mainbox;
-
-	DEBUG_FOOTPRINT();
 
 	fxbottom->toolbar = gtk_toolbar_new();
 	gtk_box_pack_start(GTK_BOX(mainbox) , fxbottom->toolbar , FALSE , FALSE , 0);
@@ -151,7 +147,6 @@ void fx_bottom_show(FxMain *fxmain)
 
 void fx_bottom_free(FxBottom* fxbottom)
 {
-	DEBUG_FOOTPRINT();
 	free(fxbottom);
 }
 void fx_bottom_on_setting_clicked(GtkWidget* UNUSED(widget) , gpointer data)
@@ -159,8 +154,6 @@ void fx_bottom_on_setting_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 	FxMain *fxmain = (FxMain*)data;
 	FxSet *fxset = fx_set_new(fxmain);
 	fx_set_initialize(fxset);
-
-	DEBUG_FOOTPRINT();
 
 	gtk_dialog_run(GTK_DIALOG(fxset->dialog));
 	gtk_widget_destroy(fxset->dialog);
@@ -178,9 +171,11 @@ void fx_bottom_on_sendtome_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 		return;
 	}
 
-	fx_myself_initialize(fxmyself);
-	gtk_dialog_run(GTK_DIALOG(fxmyself->dialog));
-	gtk_widget_destroy(fxmyself->dialog);
+	if(fx_conn_check_action(fxmain)){
+		fx_myself_initialize(fxmyself);
+		gtk_dialog_run(GTK_DIALOG(fxmyself->dialog));
+		gtk_widget_destroy(fxmyself->dialog);
+	}
 }
 
 void fx_bottom_on_sendtomany_clicked(GtkWidget* UNUSED(widget) , gpointer data)
@@ -188,17 +183,17 @@ void fx_bottom_on_sendtomany_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 	FxMain* fxmain = (FxMain*)data;
 	FxMany* fxmany = fx_many_new(fxmain);
 
-	DEBUG_FOOTPRINT();
-
 	if(fxmain->user->carrierStatus == CARRIER_STATUS_DOWN){
 		fx_util_popup_warning(fxmain , SERVICE_DOWN_MESSAGE);
 		return;
 	}
 
-	fx_many_initialize(fxmany);
-	gtk_dialog_run(GTK_DIALOG(fxmany->dialog));
-	gtk_widget_destroy(fxmany->dialog);
-	free(fxmany);
+	if(fx_conn_check_action(fxmain)){
+		fx_many_initialize(fxmany);
+		gtk_dialog_run(GTK_DIALOG(fxmany->dialog));
+		gtk_widget_destroy(fxmany->dialog);
+		free(fxmany);
+	}
 }
 
 void fx_bottom_on_addfriend_clicked(GtkWidget* UNUSED(widget) , gpointer data)
@@ -206,22 +201,22 @@ void fx_bottom_on_addfriend_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 	FxMain* fxmain = (FxMain*)data;
 	FxAddbuddy *fxaddbuddy = fx_addbuddy_new(fxmain);
 
-	DEBUG_FOOTPRINT();
-
-	fx_addbuddy_initialize(fxaddbuddy);
-	gtk_dialog_run(GTK_DIALOG(fxaddbuddy->dialog));
-	gtk_widget_destroy(fxaddbuddy->dialog);
-	free(fxaddbuddy);
+	if(fx_conn_check_action(fxmain)){
+		fx_addbuddy_initialize(fxaddbuddy);
+		gtk_dialog_run(GTK_DIALOG(fxaddbuddy->dialog));
+		gtk_widget_destroy(fxaddbuddy->dialog);
+		free(fxaddbuddy);
+	}
 }
 void fx_bottom_on_lookup_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	FxMain* fxmain = (FxMain*)data;
 	FxLookup* fxlookup = fx_lookup_new(fxmain);
 
-	DEBUG_FOOTPRINT();
-
-	fx_lookup_initialize(fxlookup);
-	gtk_dialog_run(GTK_DIALOG(fxlookup->dialog));
-	gtk_widget_destroy(fxlookup->dialog);
-	free(fxlookup);
+	if(fx_conn_check_action(fxmain)){
+		fx_lookup_initialize(fxlookup);
+		gtk_dialog_run(GTK_DIALOG(fxlookup->dialog));
+		gtk_widget_destroy(fxlookup->dialog);
+		free(fxlookup);
+	}
 }

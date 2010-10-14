@@ -27,6 +27,7 @@
 #include <locale.h>
 #include <glib.h>
 
+fd_set      fd_read;
 gint window_pos_x;
 gint window_pos_y;
 gint window_pos_x_old = 0;
@@ -269,6 +270,7 @@ void fx_main_process_notification(FxMain* fxmain , const gchar* sipmsg)
 	g_free(xml);
 
 }
+
 void fx_main_process_presence(FxMain* fxmain , const gchar* xml)
 {
 	gchar        *crc;
@@ -289,8 +291,10 @@ void fx_main_process_presence(FxMain* fxmain , const gchar* xml)
 
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeView));
 	foreach_contactlist(contactlist , contact){
+
 		if(fx_tree_get_buddy_iter_by_userid(model , contact->userId , &iter) == -1)
 				continue;
+
 		gtk_tree_model_get(model , &iter
 						 , B_CRC_COL    , &crc
 						 , B_STATE_COL  , &oldstate
@@ -1240,7 +1244,7 @@ int main(int argc , char* argv[])
 #endif
 	gtk_init(&argc , &argv);
 	
-	DEBUG_FOOTPRINT();
+	fx_conn_init();
 
 	fx_main_initialize(fxmain);
 
@@ -1253,13 +1257,14 @@ void* fx_main_listen_thread_func(void* data)
 	FetionSip  *sip;
 	SipMsg     *msg;
 	SipMsg     *pos;
-	fd_set      fd_read;
 	gint        type;
 	gint        ret;
 
 	args = (ThreadArgs*)data;
 	fxmain = args->fxmain;
 	sip = args->sip;
+
+	struct timeval tv;
 
 	debug_info("A new thread entered");
 
@@ -1274,10 +1279,18 @@ void* fx_main_listen_thread_func(void* data)
 		g_static_mutex_lock(&mutex);
 		FD_SET(sip->tcp->socketfd, &fd_read);
 		g_static_mutex_unlock(&mutex);
-		ret = select(sip->tcp->socketfd+1, &fd_read, NULL, NULL, NULL);
+		
+		tv.tv_sec = 13;
+		tv.tv_usec = 0;
 
-		if (ret == -1 || ret == 0) {
-			debug_info ("Error.. to read socket");
+		ret = select(sip->tcp->socketfd+1, &fd_read, NULL, NULL, &tv);
+
+		if(ret == 0)
+			continue;
+
+		if (ret == -1) {
+			debug_info ("Error.. to read socket %d,exit thread",
+					sip->tcp->socketfd);
 			g_thread_exit(0);
 		}
 
@@ -1395,8 +1408,10 @@ void fx_main_message_func(GtkWidget *UNUSED(widget) , gpointer data)
 }
 gboolean fx_main_register_func(User* user)
 {
-	if(fetion_user_keep_alive(user) < 0)
-		debug_info("network connection terminated,retrying...");
+	if(fetion_user_keep_alive(user) < 0){
+		debug_info("keep alive terminated");
+		return FALSE;
+	}
 	return TRUE;
 }
 

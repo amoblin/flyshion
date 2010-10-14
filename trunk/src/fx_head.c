@@ -188,18 +188,15 @@ void fx_head_bind(FxMain* fxmain)
 		, (strlen(user->impression) == 0 || user->impression == NULL)
 		? "Click here to input signature" : user->impression);
 
-	memset(tooltip , 0 , sizeof(tooltip));
 	sprintf(tooltip , "<b>%s</b>" , user->impression);
 	gtk_widget_set_tooltip_markup(fxhead->impre_label
 			, tooltip);
 	escape_impression(fxhead->oldimpression);
 	gtk_label_set_text(GTK_LABEL(fxhead->impre_label) , fxhead->oldimpression);
 
-	bzero(name , sizeof(name));
-
 	sprintf(name , "%s/%s.jpg" , config->iconPath , user->sId);
 
-	fetion_user_download_portrait(user , user->sipuri);
+//	fetion_user_download_portrait(user , user->sipuri);
 	portrait_pix = gdk_pixbuf_new_from_file_at_size(name , 50 , 50 , NULL);
 	if(! portrait_pix)
 		portrait_pix = gdk_pixbuf_new_from_file_at_size(name , 50 , 50 , NULL);
@@ -235,6 +232,12 @@ void fx_head_set_state_image(FxMain* fxmain , StateType type)
 			pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"invisible.svg" , 20 , 20 , NULL);
 			gtk_status_icon_set_from_file(fxmain->trayIcon
 										, SKIN_DIR"invisible.svg");
+			break;
+		case P_OFFLINE :
+			pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"offline.svg" , 20 , 20 , NULL);
+			gtk_status_icon_set_from_file(fxmain->trayIcon
+										, SKIN_DIR"offline.svg");
+			gtk_widget_set_sensitive(fxhead->portrait, FALSE);
 			break;
 		default :
 			pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"away.svg" , 20 , 20 , NULL);
@@ -273,6 +276,7 @@ void fx_head_popup_statemenu_func(GtkWidget* widget
 	fx_head_create_presence_item(P_AWAY   , _("Leave") , presence_menu , fxmain);
 	fx_head_create_presence_item(P_BUSY   , _("Busy") , presence_menu , fxmain);
 	fx_head_create_presence_item(P_HIDDEN , _("Hide") , presence_menu , fxmain);
+	fx_head_create_presence_item(P_OFFLINE , _("Offline") , presence_menu , fxmain);
 
 	separator = gtk_separator_menu_item_new();
 	gtk_menu_shell_append(GTK_MENU_SHELL(presence_menu) , separator);
@@ -358,12 +362,14 @@ void fx_head_impre_event_func(GtkWidget* widget , GdkEventButton* event , gpoint
 	switch(event->type)
 	{
 		case GDK_BUTTON_PRESS :
-			gtk_widget_show(fxhead->impre_entry);
-			text = gtk_label_get_text(GTK_LABEL(fxhead->impre_label));
-			gtk_entry_set_text(GTK_ENTRY(fxhead->impre_entry) , text);
-			gtk_entry_select_region(GTK_ENTRY(fxhead->impre_entry) , 0 , strlen(text));
-			gtk_widget_grab_focus(fxhead->impre_entry);
-			gtk_widget_hide(widget);
+			if(fx_conn_check_action(fxmain)){
+				gtk_widget_show(fxhead->impre_entry);
+				text = gtk_label_get_text(GTK_LABEL(fxhead->impre_label));
+				gtk_entry_set_text(GTK_ENTRY(fxhead->impre_entry) , text);
+				gtk_entry_select_region(GTK_ENTRY(fxhead->impre_entry) , 0 , strlen(text));
+				gtk_widget_grab_focus(fxhead->impre_entry);
+				gtk_widget_hide(widget);
+			}
 			break;
 		case GDK_ENTER_NOTIFY :
 			gtk_widget_modify_bg(fxhead->impre_box, GTK_STATE_NORMAL, &color);
@@ -423,6 +429,11 @@ void fx_head_change_state_func(GtkWidget* UNUSED(widget) , gpointer data)
 	FxMain *fxmain = args->fxmain;
 	User   *user = fxmain->user;
 
+	if(args->type == P_OFFLINE){
+		fx_conn_offline(fxmain);
+		return;
+	}
+
 	if(fetion_user_set_state(user , args->type) > 0){
 		fx_head_set_state_image(fxmain , args->type);
 		old_state = args->type;
@@ -458,6 +469,9 @@ void fx_head_change_portrait_func(GtkWidget* widget , GdkEventButton* event , gp
 		return;
 	}
 
+	if(!fx_conn_check_action(fxmain))
+		return;
+
 	filechooser = gtk_file_chooser_dialog_new(_("Choose the avatar file to upload")
 							   , NULL , GTK_FILE_CHOOSER_ACTION_OPEN
 							   , _("Upload") , 1 , _("Cancel") , 2 , NULL);
@@ -485,28 +499,28 @@ void* fx_head_change_portrait_thread(void* data)
 		FxMain* fxmain;
 		char filename[1024];
 	} *args = (struct Args*)data;
-	FxMain* fxmain = args->fxmain;
-	FxHead* fxhead = fxmain->headPanel;
-	Config* config = fxmain->user->config;
-	char filepath[128];
-	GtkWidget *dialog = NULL;
-	GdkPixbuf* pb = NULL;
+	FxMain     *fxmain;
+	FxHead     *fxhead;
+	Config     *config;
+	gchar       filepath[128];
+	GtkWidget  *dialog;
+	GdkPixbuf  *pb;
+
+	fxmain = args->fxmain;
+	fxhead = fxmain->headPanel;
+	config = fxmain->user->config;
 	
-	if(fetion_user_upload_portrait(fxmain->user , args->filename) > 0)
-	{
-		
-		gdk_threads_enter();
+	if(fetion_user_upload_portrait(fxmain->user , args->filename) > 0){
 		fetion_user_download_portrait(fxmain->user , fxmain->user->sipuri);
 		sprintf(filepath , "%s/%s.jpg" , config->iconPath , fxmain->user->sId);
 		pb = gdk_pixbuf_new_from_file_at_size(filepath , 50 , 50 , NULL);
 		if(pb == NULL)
 			pb = gdk_pixbuf_new_from_file_at_size(filepath , 50 , 50 , NULL);
+		gdk_threads_enter();
 		gtk_image_set_from_pixbuf(GTK_IMAGE(fxhead->portrait) , pb);
 		g_object_unref(pb);
 		gdk_threads_leave();
-	}
-	else
-	{
+	}else{
 		gdk_threads_enter();
 		dialog = gtk_message_dialog_new(GTK_WINDOW(fxmain->window),
 										GTK_DIALOG_DESTROY_WITH_PARENT,
@@ -520,7 +534,6 @@ void* fx_head_change_portrait_thread(void* data)
 		gdk_threads_leave();
 
 		gdk_threads_enter();
-		bzero(filepath , sizeof(filepath));
 		sprintf(filepath , "%s/%s.jpg" , config->iconPath , fxmain->user->sId);
 		pb = gdk_pixbuf_new_from_file_at_size(filepath , 50 , 50 , NULL);
 		if(pb == NULL)

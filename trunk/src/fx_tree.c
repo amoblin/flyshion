@@ -612,7 +612,7 @@ static void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* UNUSED(tree)
 		fx_tree_create_menu(_("Send IM mesages") , SKIN_DIR"myselfsms.png" , menu
 						  , ((serviceStatus == BASIC_SERVICE_ABNORMAL
 								  && (carrierStatus == CARRIER_STATUS_CLOSED || (strlen(carrier)!= 0 && strlen(mobileno) == 0)))
-						  || relationStatus == RELATION_STATUS_UNAUTHENTICATED)
+						  || relationStatus == RELATION_STATUS_UNAUTHENTICATED || user->state == P_OFFLINE) 
 						  ? FALSE : TRUE
 						  , fx_tree_on_chatmenu_clicked , chatargs);
 
@@ -628,10 +628,12 @@ static void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* UNUSED(tree)
 		fx_tree_create_menu(_("View chat logs") , SKIN_DIR"history.png"
 						, menu , TRUE ,  fx_tree_on_historymenu_clicked , profileargs);
 
-		fx_tree_create_menu(_("Refresh information") , SKIN_DIR"refresh.png"
+		if(user->state != P_OFFLINE)
+			fx_tree_create_menu(_("Refresh information") , SKIN_DIR"refresh.png"
 						, menu , TRUE ,  fx_tree_on_reload_clicked , profileargs);
 
-		fx_tree_create_menu(_("Edit note name") , SKIN_DIR"edit.png"
+		if(user->state != P_OFFLINE)
+			fx_tree_create_menu(_("Edit note name") , SKIN_DIR"edit.png"
 						, menu , TRUE , fx_tree_on_editmenu_clicked , profileargs);
 
 		fx_tree_create_menu( config->allHighlight ? _("Hightlight online contacts") : _("Hightlight all contacts") , SKIN_DIR"hilight.png"
@@ -640,15 +642,15 @@ static void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* UNUSED(tree)
 		fx_tree_create_menu(iconsize > 30 ? _("Use small icon") : _("Use big icon")
 						, SKIN_DIR"bigimage.png" , menu , TRUE , fx_tree_on_iconchange_clicked , fxmain);
 
-		fx_tree_create_menu(_("Remove this contact") , SKIN_DIR"delete.png"
+		if(user->state != P_OFFLINE)
+			fx_tree_create_menu(_("Remove this contact") , SKIN_DIR"delete.png"
 						, menu , TRUE , fx_tree_on_deletemenu_clicked , profileargs);
 
 		gtk_tree_model_iter_parent(model , &groupiter , &iter);
 		gtk_tree_model_get(model , &groupiter , G_ID_COL , &groupid , -1);
 
-		if(groupid != BUDDY_LIST_STRANGER)
+		if(groupid != BUDDY_LIST_STRANGER && user->state != P_OFFLINE)
 		{
-
 			moveItem = fx_tree_create_menu(_("Move this contact to") , SKIN_DIR"move.png"
 							, menu , TRUE , NULL , NULL);
 			/*add group child menu*/
@@ -973,9 +975,6 @@ static void* fx_tree_update_portrait_thread_func(void* data)
 	int size;
 	char portraitPath[256] , *sipuri , *sid;
 
-	DEBUG_FOOTPRINT();
-	sleep(1);
-
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(fxmain->mainPanel->treeView));
 	gtk_tree_model_get_iter_root(model , &iter);
 	do{
@@ -983,7 +982,6 @@ static void* fx_tree_update_portrait_thread_func(void* data)
 		{
 			do
 			{
-				bzero(portraitPath , sizeof(portraitPath));
 				gtk_tree_model_get(model , &pos
 								 , B_SIPURI_COL , &sipuri
 								 , B_SIZE_COL   , &size  ,-1);
@@ -1065,18 +1063,17 @@ static void* fx_tree_update_portrait_thread_func(void* data)
 static void fx_tree_on_double_click(GtkTreeView *treeview
 		, GtkTreePath *path , GtkTreeViewColumn  *UNUSED(col) , gpointer data)
 {
-	FxMain* fxmain = (FxMain*)data;
-	GtkTreeModel* model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
-	GtkTreeIter iter;
+	FxMain        *fxmain = (FxMain*)data;
+	GtkTreeModel  *model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
+	GtkTreeIter    iter;
 	gtk_tree_model_get_iter(model , &iter , path);
-	int depth = gtk_tree_path_get_depth(path);
-	char *sipuri , *mobileno , *carrier;
-	int serviceStatus , relationStatus , carrierStatus;
+	gint depth = gtk_tree_path_get_depth(path);
+	gchar *sipuri , *mobileno , *carrier;
+	gint serviceStatus , relationStatus , carrierStatus;
 
-	DEBUG_FOOTPRINT();
-
-	if(depth > 1)
-	{
+	if(depth > 1){
+		if(!fx_conn_check_action(fxmain))
+			return;
 		gtk_tree_model_get(model      , &iter
 						 , B_SIPURI_COL , &sipuri
 						 , B_PHONENUM_COL	 , &mobileno
@@ -1098,12 +1095,10 @@ static void fx_tree_on_double_click(GtkTreeView *treeview
 			return;
 		}
 		fx_main_create_chat_window(fxmain , sipuri);
-		free(sipuri);
-		free(mobileno);
-		free(carrier);
-	}
-	else
-	{
+		g_free(sipuri);
+		g_free(mobileno);
+		g_free(carrier);
+	}else{
 		if(gtk_tree_view_row_expanded(treeview , path))
 			gtk_tree_view_collapse_row(treeview , path);
 		else
@@ -1113,11 +1108,11 @@ static void fx_tree_on_double_click(GtkTreeView *treeview
 static gboolean fx_tree_on_rightbutton_click(GtkWidget* UNUSED(tree)
 		, GdkEventButton* event , gpointer data)
 {
-	GtkTreeIter iter;
-	GtkTreePath* path = NULL;
-	GtkTreeModel* model = NULL;
-	FxMain* fxmain = NULL;
-	FxTree* fxtree = NULL;
+	GtkTreeIter   iter;
+	GtkTreePath  *path = NULL;
+	GtkTreeModel *model = NULL;
+	FxMain       *fxmain = NULL;
+	FxTree       *fxtree = NULL;
 	int depth;
 
 	if(event->type == GDK_BUTTON_PRESS && event->button == 3)
@@ -1147,11 +1142,9 @@ static gboolean fx_tree_on_rightbutton_click(GtkWidget* UNUSED(tree)
 }
 static void fx_tree_on_chatmenu_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
-	Args* args = (Args*)data;
-	FxMain* fxmain = args->fxmain;
-	char* sipuri = args->s;
-
-	DEBUG_FOOTPRINT();
+	Args    *args = (Args*)data;
+	FxMain  *fxmain = args->fxmain;
+	gchar   *sipuri = args->s;
 
 	fx_main_create_chat_window(fxmain , sipuri);
 	free(args);
@@ -1159,13 +1152,11 @@ static void fx_tree_on_chatmenu_clicked(GtkWidget* UNUSED(widget) , gpointer dat
 
 static void* on_profile_thread(void *data)
 {
-	Args* args = (Args*)data;
-	FxMain* fxmain = args->fxmain;
-	Contact *contact;
-	char* userid = args->s;
-	FxProfile* fxprofile = fx_profile_new(fxmain , userid);
-
-	DEBUG_FOOTPRINT();
+	Args        *args = (Args*)data;
+	FxMain      *fxmain = args->fxmain;
+	Contact     *contact;
+	gchar       *userid = args->s;
+	FxProfile   *fxprofile = fx_profile_new(fxmain , userid);
 
 	gdk_threads_enter();
 	fx_profile_initialize(fxprofile);
@@ -1180,8 +1171,8 @@ static void* on_profile_thread(void *data)
 	gtk_widget_destroy(fxprofile->dialog);
 	gdk_threads_leave();
 
-	free(fxprofile);
-	free(args);
+	g_free(fxprofile);
+	g_free(args);
 	return NULL;
 }
 
@@ -1192,17 +1183,15 @@ static void fx_tree_on_profilemenu_clicked(GtkWidget* UNUSED(widget) , gpointer 
 
 static void fx_tree_on_historymenu_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
-	Args* args = (Args*)data;
-	FxMain* fxmain = args->fxmain;
-	char* userid = args->s;
-	GtkTreeIter iter = args->iter;
-	char* name = NULL;
-	FxHistory* fxhistory = NULL;
+	Args         *args = (Args*)data;
+	FxMain      *fxmain = args->fxmain;
+	GtkTreeIter  iter = args->iter;
+	gchar        *name = NULL;
+	gchar        *userid = args->s;
+	FxHistory    *fxhistory = NULL;
 
 	GtkWidget* tree = fxmain->mainPanel->treeView;
 	GtkTreeModel* model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
-
-	DEBUG_FOOTPRINT();
 
 	gtk_tree_model_get(model , &iter
 					 , B_NAME_COL , &name , -1);
@@ -1210,37 +1199,43 @@ static void fx_tree_on_historymenu_clicked(GtkWidget* UNUSED(widget) , gpointer 
 	fx_history_initialize(fxhistory);
 	gtk_dialog_run(GTK_DIALOG(fxhistory->dialog));
 	gtk_widget_destroy(fxhistory->dialog);
-	free(fxhistory);
-	free(args);
+	g_free(fxhistory);
+	g_free(args);
 }
 
 static void fx_tree_on_editmenu_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
-	Args* args = (Args*)data;
-	FxMain* fxmain = args->fxmain;
-	char* userid = args->s;
-	int ret;
-	FxEdit* fxedit = fx_edit_new(fxmain , args->iter , userid);
+	Args    *args = (Args*)data;
+	FxMain  *fxmain = args->fxmain;
+	gchar   *userid = args->s;
+	gint     ret;
+	FxEdit  *fxedit;
 
-	DEBUG_FOOTPRINT();
+	if(!fx_conn_check_action(fxmain))
+		return;
+	
+	fxedit = fx_edit_new(fxmain , args->iter , userid);
 
 	fx_edit_initialize(fxedit);
 	ret = gtk_dialog_run(GTK_DIALOG(fxedit->dialog));
 	gtk_widget_destroy(fxedit->dialog);
-	free(fxedit);
-	free(args);
+	g_free(fxedit);
+	g_free(args);
 }
 
 static void fx_tree_on_deletemenu_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
-	Args* args = (Args*)data;
-	FxMain* fxmain = args->fxmain;
-	char* userid = args->s;
-	GtkTreeIter iter = args->iter;
-	GtkWidget *dialog;
-	GtkTreeModel* model = gtk_tree_view_get_model(GTK_TREE_VIEW(fxmain->mainPanel->treeView));
+	Args         *args = (Args*)data;
+	FxMain       *fxmain = args->fxmain;
+	gchar        *userid = args->s;
+	GtkTreeIter   iter = args->iter;
+	GtkWidget    *dialog;
+	GtkTreeModel *model;
 
-	DEBUG_FOOTPRINT();
+	if(!fx_conn_check_action(fxmain))
+		return;
+
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(fxmain->mainPanel->treeView)); 
 
 	dialog = gtk_message_dialog_new(GTK_WINDOW(fxmain->window),
 									GTK_DIALOG_DESTROY_WITH_PARENT,
@@ -1248,34 +1243,33 @@ static void fx_tree_on_deletemenu_clicked(GtkWidget* UNUSED(widget) , gpointer d
 									GTK_BUTTONS_YES_NO,
 									_("Remove this contact?"));
 	gtk_window_set_title(GTK_WINDOW(dialog), _("Remove contact"));
-	int result = gtk_dialog_run(GTK_DIALOG(dialog));
-	if(result == GTK_RESPONSE_YES)
-	{
+	gint result = gtk_dialog_run(GTK_DIALOG(dialog));
+
+	if(result == GTK_RESPONSE_YES){
 		fetion_contact_delete_buddy(fxmain->user , userid);
 		gtk_tree_store_remove(GTK_TREE_STORE(model) , &iter);
 	}
-	free(args);
+
+	g_free(args);
 	gtk_widget_destroy(dialog);
 
 }
 
 static void* fx_tree_reload_thread(void* data)
 {
-	Args *args = (Args*)data;
-	FxMain *fxmain = args->fxmain;
-	GtkTreeIter iter = args->iter;
-	GtkTreeView *tree = GTK_TREE_VIEW(fxmain->mainPanel->treeView);
+	Args         *args = (Args*)data;
+	FxMain       *fxmain = args->fxmain;
+	GtkTreeIter   iter = args->iter;
+	GtkTreeView  *tree = GTK_TREE_VIEW(fxmain->mainPanel->treeView);
 	GtkTreeModel *model = gtk_tree_view_get_model(tree);
-	char *userid = NULL;
-	char *sipuri = NULL;
-	char *sid = NULL;
-	char *name = NULL;
-	char portraitPath[1024];
-	GdkPixbuf *pb = NULL;
-	Contact *contact = NULL;
-	Config *config = fxmain->user->config;
-
-	DEBUG_FOOTPRINT();
+	gchar        *userid = NULL;
+	gchar        *sipuri = NULL;
+	gchar        *sid = NULL;
+	gchar        *name = NULL;
+	gchar         portraitPath[1024];
+	GdkPixbuf    *pb = NULL;
+	Contact      *contact = NULL;
+	Config       *config = fxmain->user->config;
 
 	gtk_tree_model_get(model 		, &iter
 					 , B_USERID_COL , &userid
@@ -1285,13 +1279,12 @@ static void* fx_tree_reload_thread(void* data)
 	contact = fetion_contact_get_contact_info(fxmain->user , userid);
 	
 	debug_info("Updating information of user %s" , userid);
-	free(userid);
+	g_free(userid);
 
 	fetion_user_download_portrait(fxmain->user , sipuri);
 	sid = fetion_sip_get_sid_by_sipuri(sipuri);
-	free(sipuri);
+	g_free(sipuri);
 
-	bzero(portraitPath , sizeof(portraitPath));
 	snprintf(portraitPath , 1023 , "%s/%s.jpg" , config->iconPath , sid);
 	pb = gdk_pixbuf_new_from_file_at_size(portraitPath , 25 , 25 , NULL);
 	if(pb == NULL)
@@ -1317,7 +1310,9 @@ static void* fx_tree_reload_thread(void* data)
 
 static void fx_tree_on_reload_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
-	DEBUG_FOOTPRINT();
+	FxMain *fxmain = ((Args*)data)->fxmain;
+	if(!fx_conn_check_action(fxmain))
+		return;
 
 	g_thread_create(fx_tree_reload_thread , data , FALSE , NULL);
 }
@@ -1335,8 +1330,6 @@ static void fx_tree_on_iconchange_clicked(GtkWidget* UNUSED(widget) , gpointer d
 	char *sipuri = NULL;
 	char *sid = NULL;
 	char path[128];
-
-	DEBUG_FOOTPRINT();
 
 	gtk_tree_model_get_iter_root(model , &iter);
 	if(config->iconSize > 30)
@@ -1368,7 +1361,6 @@ static void fx_tree_on_iconchange_clicked(GtkWidget* UNUSED(widget) , gpointer d
 					gtk_tree_model_get(model		 , &pointer
 									 , B_SIPURI_COL  , &sipuri
 									 , -1);
-					bzero(path , sizeof(path));
 					sid = fetion_sip_get_sid_by_sipuri(sipuri);
 					snprintf(path , 127 , "%s/%s.jpg" , config->iconPath , sid);
 					free(sid);
@@ -1393,8 +1385,6 @@ static void fx_tree_on_gaddmenu_clicked(GtkWidget* UNUSED(widget) , gpointer dat
 	FxMain* fxmain = (FxMain*)data;
 	FxAddGroup* fxaddgroup = fx_add_group_new(fxmain);
 
-	DEBUG_FOOTPRINT();
-
 	fx_add_group_initialize(fxaddgroup);
 	gtk_dialog_run(GTK_DIALOG(fxaddgroup->dialog));
 	gtk_widget_destroy(fxaddgroup->dialog);
@@ -1409,8 +1399,6 @@ static void fx_tree_on_gdeletemenu_clicked(GtkWidget* UNUSED(widget) , gpointer 
 	GtkTreeModel* model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
 	int groupid;
 	GtkWidget *dialog = NULL;
-
-	DEBUG_FOOTPRINT();
 
 	gtk_tree_model_get(model , &(args->iter) , G_ID_COL , &groupid , -1);
 	dialog = gtk_message_dialog_new(GTK_WINDOW(fxmain->window),
@@ -1440,8 +1428,6 @@ static void fx_tree_on_geditmenu_clicked(GtkWidget* UNUSED(widget) , gpointer da
 	int groupid;
 	FxGEdit* fxgedit = NULL;
 
-	DEBUG_FOOTPRINT();
-
 	gtk_tree_model_get(model , &(args->iter) , G_ID_COL , &groupid , -1);
 
 	fxgedit = fx_gedit_new(fxmain , args->iter , groupid);
@@ -1452,21 +1438,21 @@ static void fx_tree_on_geditmenu_clicked(GtkWidget* UNUSED(widget) , gpointer da
 }
 static void fx_tree_on_movemenu_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
-	Args *args = (Args*)data;
-	int groupid = args->i;
-	char* userid = args->s;
-	GtkTreeIter iter = args->iter;
-	GtkTreeIter newIter , parentIter , oldParentIter;
-	FxMain* fxmain = args->fxmain;
-	GtkWidget* tree = fxmain->mainPanel->treeView;
-	GtkTreeModel* model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
-	char *name , *sipuri , *impression , *mobileno , *device , *crc , *carrier;
-	int state , identity , size , imageChanged ;
-	int serviceStatus , carrierStatus , relationStatus;
-	int gid , oldOnlineCount , oldAllCount , newOnlineCount , newAllCount;
-	GdkPixbuf* pb = NULL;
-
-	DEBUG_FOOTPRINT();
+	Args          *args = (Args*)data;
+	int            groupid = args->i;
+	char          *userid = args->s;
+	GtkTreeIter    iter = args->iter;
+	GtkTreeIter    newIter;
+	GtkTreeIter    parentIter;
+	GtkTreeIter    oldParentIter;
+	FxMain        *fxmain = args->fxmain;
+	GtkWidget     *tree = fxmain->mainPanel->treeView;
+	GtkTreeModel  *model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
+	gchar         *name , *sipuri , *impression , *mobileno , *device , *crc , *carrier;
+	gint           state , identity , size , imageChanged ;
+	gint           serviceStatus , carrierStatus , relationStatus;
+	gint           gid , oldOnlineCount , oldAllCount , newOnlineCount , newAllCount;
+	GdkPixbuf     *pb = NULL;
 
 	if(fetion_contact_move_to_group(fxmain->user , userid , groupid) > 0)
 	{
@@ -1570,29 +1556,36 @@ static gboolean fx_tree_on_show_tooltip(GtkWidget* widget
 				  , GtkTooltip* tip
 				, gpointer data)
 {
-	FxMain* fxmain = (FxMain*)data;
-	Config* config = fxmain->user->config;
-	GtkTreePath *path;
-	GtkTreeIter iter;
-	GtkTreeView *tree;
+	FxMain       *fxmain = (FxMain*)data;
+	Config       *config = fxmain->user->config;
+	GtkTreePath  *path;
+	GtkTreeIter   iter;
+	GtkTreeView  *tree;
 	GtkTreeModel *model;
-	GdkPixbuf *pb;
-	char *sipuri , *name , *impression , *sid , *mobileno , *carrier;
-	int serviceStatus , carrierStatus , relationStatus;
-	char text[2048];
-	char phonetext[128];
-	char iconpath[128];
+	GdkPixbuf    *pb;
+	gchar        *sipuri;
+	gchar        *name;
+	gchar        *impression;
+	gchar        *sid;
+	gchar        *mobileno;
+	gchar        *carrier;
+	gchar         text[2048];
+	gchar         phonetext[128];
+	gchar         iconpath[128];
+	gint          serviceStatus;
+	gint          carrierStatus;
+	gint          relationStatus;
 
 	tree = GTK_TREE_VIEW(widget);
 	model = gtk_tree_view_get_model(tree);
 
 	if(!gtk_tree_view_get_tooltip_context(tree , &x , &y , keybord_mode 
-						, &model , &path , &iter)){
+						, &model , &path , &iter))
 		return FALSE;
-	}
-	if(gtk_tree_path_get_depth(path) == 1){
+	
+	if(gtk_tree_path_get_depth(path) == 1)
 		return FALSE;
-	}
+	
 
 	gtk_tree_model_get(model          , &iter 
 			         , B_SIPURI_COL     , &sipuri
@@ -1607,18 +1600,21 @@ static gboolean fx_tree_on_show_tooltip(GtkWidget* widget
 	sid = fetion_sip_get_sid_by_sipuri(sipuri);
 	bzero(phonetext , sizeof(phonetext));
 	if(carrierStatus == CARRIER_STATUS_DOWN){
-		if(strlen(carrier) == 0){
-			snprintf(phonetext , 127 , _("<span color='#0088bf'>Not bind to a phone number.</span>"));
-		}else{
-			snprintf(phonetext , 127 , _("<span color='#0088bf'>%s</span>(<b>Out of service</b>)")
+
+		if(strlen(carrier) == 0)
+			snprintf(phonetext, sizeof(phonetext) - 1,
+					_("<span color='#0088bf'>Not bind to a phone number.</span>"));
+		else
+			snprintf(phonetext, sizeof(phonetext) - 1,
+					_("<span color='#0088bf'>%s</span>(<b>Out of service</b>)")
 					, strlen(mobileno) == 0 ? _("Phone number not be published.") : mobileno);
-		}
+		
 	}else if (carrierStatus == CARRIER_STATUS_NORMAL){
-		snprintf(phonetext , 127 , "<span color='#0088bf'>%s</span>"
+		snprintf(phonetext, sizeof(phonetext) - 1,
+				"<span color='#0088bf'>%s</span>"
 				, (carrier == NULL || strlen(carrier) == 0) ? _("Not bind to a phone number.")
 				: (mobileno == NULL || strlen(mobileno) == 0 ? _("Phone number not be published.") : mobileno));
 	}
-	bzero(text , sizeof(text));
 	snprintf(text , 2047 , _(" <span color='#808080'>Nickname:</span>  <b>%s</b>\n"
 				   " <span color='#808080'>Phone Number:</span>  %s\n"
 				   " <span color='#808080'>Fetion Number:</span>  %s\n"
@@ -1626,14 +1622,14 @@ static gboolean fx_tree_on_show_tooltip(GtkWidget* widget
 		  		  , name == NULL ? "" : g_markup_escape_text(name , strlen(name))
 				  ,  phonetext , sid
 				  , impression == NULL ? "" : g_markup_escape_text(impression , strlen(impression)));
-	free(name);
-	free(impression);
-	free(mobileno);
-	free(sipuri);
-	free(carrier);
-	bzero(iconpath , sizeof(iconpath));
-	snprintf(iconpath , 127 , "%s/%s.jpg" , config->iconPath , sid);
-	free(sid);
+	g_free(name);
+	g_free(impression);
+	g_free(mobileno);
+	g_free(sipuri);
+	g_free(carrier);
+
+	snprintf(iconpath , sizeof(iconpath) - 1 , "%s/%s.jpg" , config->iconPath , sid);
+	g_free(sid);
 	pb = gdk_pixbuf_new_from_file_at_size(iconpath , 80 , 80 , NULL);
 	if(pb == NULL)
 		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" , 80 , 80 , NULL);
@@ -1686,20 +1682,20 @@ static void pg_on_double_click(GtkTreeView *treeview
 static gboolean pg_on_rightbutton_click(GtkWidget* UNUSED(tree)
 		, GdkEventButton* event , gpointer data)
 {
-    	FxMain *fxmain = (FxMain*)data;
-	FxTree *fxtree = fxmain->mainPanel;
-    	GtkTreeModel *model;
-	GtkTreePath *path;
-	GtkWidget *menu;
-	GtkWidget *seperator;
-	GtkTreeIter iter;
-	char *sipuri;
-	int identity;
-	Args *arg;
+   	FxMain       *fxmain = (FxMain*)data;
+	FxTree       *fxtree = fxmain->mainPanel;
+    GtkTreeModel *model;
+	GtkTreePath  *path;
+	GtkWidget    *menu;
+	GtkWidget    *seperator;
+	GtkTreeIter   iter;
+	gchar        *sipuri;
+	gint         identity;
+	Args         *arg;
 
 	if(event->type == GDK_BUTTON_PRESS && event->button == 3)
 	{
-	    	menu = gtk_menu_new();
+	    menu = gtk_menu_new();
 		model = gtk_tree_view_get_model(GTK_TREE_VIEW(fxtree->pgTreeView));
 		gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(fxtree->pgTreeView) 
 				, (gint)event->x , (gint)event->y , &path , NULL , NULL , NULL);
@@ -1712,7 +1708,7 @@ static gboolean pg_on_rightbutton_click(GtkWidget* UNUSED(tree)
 		       	, PG_IDENTITY_COL , &identity , -1);
 
 		arg = fx_args_new(fxmain , iter , sipuri , 0);
-		free(sipuri);
+		g_free(sipuri);
 		fx_tree_create_menu(_("Send group message") , SKIN_DIR"groupsend.png"
 						, menu , TRUE , on_send_message_clicked , arg);
 		fx_tree_create_menu(_("Send group sms") , SKIN_DIR"myselfsms.png"
@@ -1723,10 +1719,7 @@ static gboolean pg_on_rightbutton_click(GtkWidget* UNUSED(tree)
 
 		fx_tree_create_menu(_("View group details") , SKIN_DIR"groupsend.png"
 						, menu , TRUE , on_view_pgdetail_clicked , arg);
-		/*
-		fx_tree_create_menu(_("Exit group") , SKIN_DIR"groupsend.png"
-						, menu , TRUE , NULL , NULL);
-						*/
+
 		gtk_widget_show_all(menu);
 		gtk_menu_popup(GTK_MENU(menu) , NULL , NULL , NULL , NULL 
 			, (event != NULL) ? event->button : 0 , gdk_event_get_time((GdkEvent*)event));

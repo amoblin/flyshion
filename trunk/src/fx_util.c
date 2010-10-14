@@ -53,6 +53,9 @@ char* fx_util_get_state_name(StateType type)
 		case P_ONTHEPHONE:
 			strcpy(name , _("[Calling]"));
 			break;
+		case P_OFFLINE:
+			strcpy(name, _("[Offline]"));
+			break;
 		default:
 			if(type > 400 && type < 500)
 				strcpy(name , _("[Online]"));
