@@ -652,9 +652,16 @@ Contact* fetion_user_parse_presence_body(const char* body , User* user)
 		if(xmlHasProp(cnode , BAD_CAST "p"))
 		{
 			pos = xmlGetProp(cnode , BAD_CAST "p");
+			if(strcmp(currentContact->portraitCrc, (char*)pos) == 0)
+				currentContact->imageChanged = 0;
+			else
+				currentContact->imageChanged = 1;
 			strcpy(currentContact->portraitCrc ,  (char*)pos);
 			xmlFree(pos);
+		}else{
+			currentContact->imageChanged = 0;
 		}
+
 		if(xmlHasProp(cnode , BAD_CAST "c"))
 		{
 			pos = xmlGetProp(cnode , BAD_CAST "c");

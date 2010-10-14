@@ -30,3 +30,5 @@ src/fx_tree.c
 src/fx_pggroup.c
 src/fx_pgprofile.c
 src/fx_smsstat.c
+src/fx_idle.c
+src/fx_conn.c

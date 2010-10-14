@@ -63,7 +63,8 @@ am_openfetion_OBJECTS = openfetion-fx_add_group.$(OBJEXT) \
 	openfetion-fx_util.$(OBJEXT) openfetion-fx_search.$(OBJEXT) \
 	openfetion-fx_close.$(OBJEXT) openfetion-fx_pggroup.$(OBJEXT) \
 	openfetion-fx_pgprofile.$(OBJEXT) \
-	openfetion-fx_smsstat.$(OBJEXT) openfetion-fx_idle.$(OBJEXT)
+	openfetion-fx_smsstat.$(OBJEXT) openfetion-fx_idle.$(OBJEXT) \
+	openfetion-fx_conn.$(OBJEXT)
 openfetion_OBJECTS = $(am_openfetion_OBJECTS)
 am__DEPENDENCIES_1 =
 openfetion_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
@@ -294,7 +295,8 @@ openfetion_SOURCES = fx_add_group.c \
 					 fx_pggroup.c \
 					 fx_pgprofile.c \
 					 fx_smsstat.c \
-					 fx_idle.c
+					 fx_idle.c \
+					 fx_conn.c
 
 all: all-am
 
@@ -390,6 +392,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_chat.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_close.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_code.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_conn.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_dsms.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_edit.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_emotion.Po@am__quote@
@@ -869,6 +872,20 @@ openfetion-fx_idle.obj: fx_idle.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='fx_idle.c' object='openfetion-fx_idle.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o openfetion-fx_idle.obj `if test -f 'fx_idle.c'; then $(CYGPATH_W) 'fx_idle.c'; else $(CYGPATH_W) '$(srcdir)/fx_idle.c'; fi`
+
+openfetion-fx_conn.o: fx_conn.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT openfetion-fx_conn.o -MD -MP -MF $(DEPDIR)/openfetion-fx_conn.Tpo -c -o openfetion-fx_conn.o `test -f 'fx_conn.c' || echo '$(srcdir)/'`fx_conn.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/openfetion-fx_conn.Tpo $(DEPDIR)/openfetion-fx_conn.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='fx_conn.c' object='openfetion-fx_conn.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o openfetion-fx_conn.o `test -f 'fx_conn.c' || echo '$(srcdir)/'`fx_conn.c
+
+openfetion-fx_conn.obj: fx_conn.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT openfetion-fx_conn.obj -MD -MP -MF $(DEPDIR)/openfetion-fx_conn.Tpo -c -o openfetion-fx_conn.obj `if test -f 'fx_conn.c'; then $(CYGPATH_W) 'fx_conn.c'; else $(CYGPATH_W) '$(srcdir)/fx_conn.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/openfetion-fx_conn.Tpo $(DEPDIR)/openfetion-fx_conn.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='fx_conn.c' object='openfetion-fx_conn.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o openfetion-fx_conn.obj `if test -f 'fx_conn.c'; then $(CYGPATH_W) 'fx_conn.c'; else $(CYGPATH_W) '$(srcdir)/fx_conn.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

@@ -237,6 +237,15 @@ int tcp_connection_getname(FetionConnection* connection , char **ip , int *port)
 
 	return ret;
 }
+
+void tcp_connection_close(FetionConnection *connection)
+{
+	close(connection->socketfd);
+	debug_info("Close connection with %s:%d",
+			connection->remote_ipaddress,
+			connection->remote_port);
+}
+
 int ssl_connection_start(FetionConnection* conn)
 {
 	int ret;

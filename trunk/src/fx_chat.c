@@ -181,8 +181,6 @@ gboolean fx_chat_focus_in_func(GtkWidget *UNUSED(widget)
 	ctlist = fxmain->mlist;
 	config = fxmain->user->config;
 
-	DEBUG_FOOTPRINT();
-
 	fxchat->hasFocus = CHAT_DIALOG_FOCUSED;
 
 	if(fxchat->unreadMsgCount > 0){
@@ -193,7 +191,8 @@ gboolean fx_chat_focus_in_func(GtkWidget *UNUSED(widget)
 	if(list_empty(ctlist)){
 		/* if the message queue is empty,and the status icon is not blinking 
 		 * and there`s no unread mesasge for the current chat window,do nothing */
-		if(!gtk_status_icon_get_blinking(GTK_STATUS_ICON(fxmain->trayIcon))
+		if(!gtk_status_icon_get_blinking(
+				GTK_STATUS_ICON(fxmain->trayIcon))
 			 && fxchat->unreadMsgCount == 0)
 			return FALSE;
 
@@ -204,7 +203,8 @@ gboolean fx_chat_focus_in_func(GtkWidget *UNUSED(widget)
 		g_signal_handler_disconnect(fxmain->trayIcon,
 				fxmain->iconConnectId);
 
-		fxmain->iconConnectId = g_signal_connect(G_OBJECT(fxmain->trayIcon) 
+		fxmain->iconConnectId = g_signal_connect(
+							G_OBJECT(fxmain->trayIcon) 
 							 , "activate"
 							 , GTK_SIGNAL_FUNC(fx_main_tray_activate_func)
 							 , fxmain);
@@ -227,7 +227,8 @@ gboolean fx_chat_focus_in_func(GtkWidget *UNUSED(widget)
 		g_signal_handler_disconnect(fxmain->trayIcon,
 				fxmain->iconConnectId);
 
-		fxmain->iconConnectId = g_signal_connect(G_OBJECT(fxmain->trayIcon) 
+		fxmain->iconConnectId = g_signal_connect(
+							G_OBJECT(fxmain->trayIcon) 
 							 , "activate"
 							 , GTK_SIGNAL_FUNC(fx_main_message_func)
 							, fxmain);
@@ -241,8 +242,6 @@ gboolean fx_chat_focus_out_func(GtkWidget *UNUSED(widget)
 		, GdkEventFocus *UNUSED(event) , gpointer data)  
 {
 	FxChat* fxchat = (FxChat*)data;
-
-	DEBUG_FOOTPRINT();
 
 	fxchat->hasFocus = CHAT_DIALOG_NOT_FOCUSED;
 	return FALSE;
@@ -649,6 +648,9 @@ void* fx_chat_send_message_thread(void *data)
 
 	g_static_mutex_lock(&mutex);
 	if(fetion_conversation_invite_friend(conv) > 0){
+
+		fx_conn_append(conv->currentSip->tcp);
+
 		args = (ThreadArgs*)malloc(sizeof(ThreadArgs));
 		args->fxmain = fxchat->fxmain;
 		args->sip = conv->currentSip;
@@ -680,6 +682,10 @@ void fx_chat_send_message(FxChat* fxchat)
 	gint             ret;
 	gint             daycount;
 	gint             monthcount;
+
+
+	if(!fx_conn_check_action(fxchat->fxmain))
+		return;
 
 	conv = fxchat->conv;
 	contact = conv->currentContact;
@@ -808,6 +814,8 @@ void* fx_chat_send_nudge_thread(void* data)
 	g_static_mutex_lock(&mutex);
 	if(fetion_conversation_invite_friend(conv) > 0){
 
+		fx_conn_append(conv->currentSip->tcp);
+
 		args = (ThreadArgs*)malloc(sizeof(ThreadArgs));
 		args->fxmain = fxchat->fxmain;
 		args->sip = conv->currentSip;
@@ -834,6 +842,9 @@ static void fx_chat_on_nudge_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 	fxchat = (FxChat*)data;
 	conv = fxchat->conv;
 	contact = conv->currentContact;
+
+	if(!fx_conn_check_action(fxchat->fxmain))
+		return;
 
 	if(contact->state <= 0){
 		fx_chat_add_information(fxchat,
@@ -915,12 +926,16 @@ static void fx_chat_on_tophone_clicked(GtkWidget* widget , gpointer data)
 			bzero(text , sizeof(text));
 			if(user->smsDayLimit == user->smsDayCount 
 			|| user->smsMonthLimit == user->smsMonthCount){
-				strcpy(text , _("Run out of your quota, you can still send IM mesages. If want to send "
- 						"more free SMS, bind you cell phone number."));
+				strcpy(text , _("Run out of your quota,"
+							" you can still send IM mesages."
+							" If want to send more free SMS,"
+							" bind you cell phone number."));
 				gtk_widget_set_sensitive(fxchat->send_text , FALSE);
 			}else{
-				sprintf(text , _("Mesage will be sent to contact's cell phone. You have %d free SMS left. "
-						"If want to send more free SMS, bind your cell phone,please.") 
+				sprintf(text , _("Mesage will be sent to "
+							"contact's cell phone. You have"
+							" %d free SMS left. If want to send"
+							" more free SMS, bind your cell phone,please.") 
 						, user->smsDayLimit - user->smsDayCount);
 			}
 			fx_chat_add_information(fxchat , text);

@@ -507,7 +507,12 @@ login:
 						config->sipcProxyPort);
 	}
 
+	/* add the connection object into the connection list */
+	fx_conn_append(conn);
+
+	/* initialize a sip object */
 	FetionSip* sip = fetion_sip_new(conn , user->sId);
+
 	fetion_user_set_sip(user , sip);
 
 	fx_login_show_msg(fxlogin,
