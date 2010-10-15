@@ -22,7 +22,6 @@
 
 int old_state;
 
-static void* localization_thread(void *data);
 static void fx_login_show_msg(FxLogin *fxlogin , const char *msg);
 static void fx_login_show_err(FxLogin *fxlogin , const char *msg);
 
@@ -331,28 +330,39 @@ static void fx_login_show_err(FxLogin *fxlogin , const char *msg)
 }
 void* fx_login_thread_func(void* data)
 {
-	FxMain* fxmain = (FxMain*)data;
-	FxLogin* fxlogin = fxmain->loginPanel;
-	FetionConnection* conn = NULL;					 /* connection for sipc 		   */
-	const char *no , *password;
-	char *pos , *nonce , *key , *aeskey , *response; /* string used for authentication */
-	Config* config = NULL;							 /* global user config 			   */
-	Group* group = NULL;							 /* buddy list		  			   */
-	User* user = NULL;								 /* global user information 	   */
-	char code[20];									 /* store reply code   			   */
-	char statusTooltip[128];
-	struct userlist *ul , *newul , *ul_cur;
+	FxMain           *fxmain = (FxMain*)data;
+	FxLogin          *fxlogin = fxmain->loginPanel;
+	FetionConnection *conn = NULL;					 /* connection for sipc 		   */
+	const gchar      *no;
+	const gchar      *password;
+	gchar            *pos;
+	gchar            *nonce;
+	gchar            *key;
+	gchar            *aeskey;
+	gchar            *response;                      /* string used for authentication */
+	Config           *config = NULL;				 /* global user config 			   */
+	Group            *group = NULL;					 /* buddy list		  			   */
+	User             *user = NULL;					 /* global user information 	   */
+	gchar             code[20];						 /* store reply code   			   */
+	gchar             statusTooltip[128];
+	struct userlist  *ul;
+	struct userlist  *newul;
+	struct userlist  *ul_cur;
 
-	GtkTreeIter stateIter;
-	GtkTreeModel* stateModel = NULL;
-	int state;
-	gboolean remember;
+	GtkTreeIter       stateIter;
+	GtkTreeModel     *stateModel = NULL;
+	gint              state;
+	gboolean          remember;
 
-	gint local_buddy_count;
-	gint local_group_count;
-
-	FxCode* fxcode = NULL;
-	int ret;
+	gint              local_buddy_count;
+	gint              local_group_count;
+#ifdef USE_LIBNOTIFY
+	gchar             notifyText[1024];
+	gchar             iconPath[256];
+	GdkPixbuf        *pb;
+#endif
+	FxCode           *fxcode = NULL;
+	gint              ret;
 
 	/* get login state value */
 	gtk_combo_box_get_active_iter(
@@ -402,7 +412,7 @@ login:
 		goto failed;
 	}
 	parse_ssi_auth_response(pos , user);
-	free(pos);
+	g_free(pos);
 	if(user->loginStatus == 421 || user->loginStatus == 420){
 		debug_info(user->verification->text);
 		debug_info(user->verification->tips);
@@ -421,11 +431,11 @@ login:
 							GTK_ENTRY(fxcode->codeentry)));
 			fetion_user_set_verification_code(user , code);
 			gtk_widget_destroy(fxcode->dialog);
-			free(fxcode);
+			g_free(fxcode);
 			gdk_threads_leave();
 		}else{
 			gtk_widget_destroy(fxcode->dialog);
-			free(fxcode);
+			g_free(fxcode);
 			gdk_threads_leave();
 			g_thread_exit(0);
 		}
@@ -530,14 +540,14 @@ login:
 	}
 
 	parse_sipc_reg_response(pos , &nonce , &key);
-	free(pos);
+	g_free(pos);
 
 	aeskey = generate_aes_key();
 	response = generate_response(nonce, user->userId,
 				   	user->password, key, aeskey);
-	free(nonce);
-	free(key);
-	free(aeskey);
+	g_free(nonce);
+	g_free(key);
+	g_free(aeskey);
 
 	/* start sipc authentication using the response created just now */
 	fx_login_show_msg(fxlogin , _("SIPC Indentify"));
@@ -553,7 +563,7 @@ auth:
 		fx_login_show_err(fxlogin , _("Authenticate failed."));
 		goto failed;
 	}
-	free(pos); pos = NULL;
+	g_free(pos); pos = NULL;
 
 	if(user->loginStatus == 401 || user->loginStatus == 400){
 		debug_info("Password error , login failed!!!");
@@ -590,38 +600,43 @@ auth:
 		debug_info("Input verfication code:%s" , code);
 	}
 
+	Contact *c_cur;
+
 	/* update buddy count */
 	if(user->contactCount == 0)
 		user->contactCount = local_buddy_count;
+	else if(user->contactCount != local_buddy_count){
+		foreach_contactlist(user->contactList, c_cur){
+			printf("%s, %d\n", c_cur->nickname, c_cur->dirty);
+		}
+	}
 
 	fx_login_show_msg(fxlogin , _("Initializing main panel"));
 	
 	pg_group_get_list(user);
 
 #ifdef USE_LIBNOTIFY
-	char notifyText[1024];
-	char iconPath[256];
-	GdkPixbuf *pb;
 	sprintf(iconPath, "%s/%s.jpg",
 				  config->iconPath, user->sId);
 	sprintf(notifyText ,
 			_("Public IP: %s\n"
-			"IP of last login: %s\n"
-			"Time of last login: %s\n"),
+			  "IP of last login: %s\n"
+			  "Time of last login: %s\n"),
 		   	user->publicIp , user->lastLoginIp,
 		   	user->lastLoginTime);
 	pb = gdk_pixbuf_new_from_file_at_size(iconPath,
-				   	48 , 48 , NULL);
+				   	NOTIFY_IMAGE_SIZE, NOTIFY_IMAGE_SIZE, NULL);
 	if(!pb){
 		fx_login_show_msg(fxlogin, _("Getting portrait..."));
 		fetion_user_download_portrait(user , user->sipuri);
 		pb = gdk_pixbuf_new_from_file_at_size(iconPath,
-					   	48 , 48 , NULL);
+					   	NOTIFY_IMAGE_SIZE, NOTIFY_IMAGE_SIZE, NULL);
 		if(!pb)
 			pb = gdk_pixbuf_new_from_file_at_size(
 						SKIN_DIR"fetion.svg",
-						48, 48, NULL);
+						NOTIFY_IMAGE_SIZE, NOTIFY_IMAGE_SIZE, NULL);
 	}
+
 	gdk_threads_enter();
 	notify_notification_update(fxmain->notify,
 				   	_("Login successful")// notifySummary
@@ -659,8 +674,9 @@ auth:
 	fx_login_show_msg(fxlogin , _("Initializing main panel"));
 
 	/*localization*/
-	fetion_user_save((User*)data);
-	fetion_contact_save((User*)data);
+	printf("%d\n", user->contactCount);
+	fetion_contact_save(user);
+	fetion_user_save(user);
 
 	/* initialize head panel */
 	gdk_threads_enter();
@@ -815,11 +831,4 @@ void fx_login_user_change_func(GtkWidget* widget , gpointer data)
 							   , strlen(pwd) == 0 ? FALSE : TRUE);
 
 	free(pwd);
-}
-
-static void* localization_thread(void *data)
-{
-	fetion_user_save((User*)data);
-	fetion_contact_save((User*)data);
-	return NULL;
 }

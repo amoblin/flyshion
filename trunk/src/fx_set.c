@@ -444,17 +444,20 @@ void fx_set_initialize_system(FxSet* fxset)
 	fxset->autoAwayBtn = gtk_check_button_new_with_label(_("Auto away when idle"));
 	gtk_fixed_put(GTK_FIXED(fixed) , fxset->autoAwayBtn , 230 , 92);
 
+	fxset->onlineNotifyBtn = gtk_check_button_new_with_label(_("Online notification enabled"));
+	gtk_fixed_put(GTK_FIXED(fixed) , fxset->onlineNotifyBtn , 40 , 117);
+
 	label2 = gtk_label_new("");
 	gtk_label_set_markup(GTK_LABEL(label2) , _("<b>Auto Reply</b>"));
-	gtk_fixed_put(GTK_FIXED(fixed) , label2 , 20 , 127);
+	gtk_fixed_put(GTK_FIXED(fixed) , label2 , 20 , 142);
 
 	fxset->apBtn = gtk_check_button_new_with_label(_("Enable"));
 	g_signal_connect(fxset->apBtn , "toggled" , G_CALLBACK(fx_set_on_autoreply_toggled) , fxset);
-	gtk_fixed_put(GTK_FIXED(fixed) , fxset->apBtn , 140 , 124);
+	gtk_fixed_put(GTK_FIXED(fixed) , fxset->apBtn , 140 , 142);
 
 	fxset->apEty = gtk_text_view_new();
 	gtk_widget_set_sensitive(fxset->apEty , FALSE);
-	gtk_widget_set_usize(fxset->apEty , 380 , 50);
+	gtk_widget_set_usize(fxset->apEty , 380 , 40);
 	apScr = gtk_scrolled_window_new(NULL , NULL);
 	gtk_container_add(GTK_CONTAINER(apScr) , fxset->apEty);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(apScr)
@@ -462,7 +465,7 @@ void fx_set_initialize_system(FxSet* fxset)
 								 , GTK_POLICY_NEVER);
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(apScr)
 									  , GTK_SHADOW_ETCHED_IN);
-	gtk_fixed_put(GTK_FIXED(fixed) , apScr , 40 , 150);
+	gtk_fixed_put(GTK_FIXED(fixed) , apScr , 40 , 165);
 
 	label3 = gtk_label_new("");
 	gtk_label_set_markup(GTK_LABEL(label3) , _("<b>Send Message</b>"));

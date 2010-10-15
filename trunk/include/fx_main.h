@@ -21,12 +21,13 @@
 #ifndef FX_MAIN_H
 #define FX_MAIN_H
 
-typedef struct
-{
-	FxMain *fxmain;
-	gboolean terminated;
+#define NOTIFY_IMAGE_SIZE 48
+
+typedef struct{
+	FxMain    *fxmain;
 	FetionSip *sip;
-	char sipuri[50];
+	gboolean   terminated;
+	gchar      sipuri[50];
 } TimeOutArgs;
 
 extern FxMain* fx_main_new();

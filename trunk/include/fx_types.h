@@ -397,6 +397,7 @@ typedef struct
 	GtkWidget *alertBtn;
 	GtkWidget *iconBtn;
 	GtkWidget *autoAwayBtn;
+	GtkWidget *onlineNotifyBtn;
 	/* personal setting */
 	GtkWidget* image ;
 	GtkWidget* sid_label ;
