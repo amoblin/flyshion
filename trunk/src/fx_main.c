@@ -275,8 +275,10 @@ void fx_main_process_notification(FxMain* fxmain , const gchar* sipmsg)
 static void *update_data(void *data)
 {
 	FxMain *fxmain = (FxMain*)data;
-	User *user = fxmain->user;
+	User   *user = fxmain->user;
+
 	fetion_contact_save(user);
+	fx_tree_update_portrait(data);
 
 	return NULL;
 }
@@ -307,6 +309,8 @@ void fx_main_process_presence(FxMain* fxmain , const gchar* xml)
 
 		presence_count ++;
 
+		/* all presence information has been pushed 
+		 * then start update local data and buddy portrait */
 		if(presence_count == user->contactCount)
 			g_thread_create(update_data, fxmain, FALSE, NULL);
 
@@ -342,23 +346,30 @@ void fx_main_process_presence(FxMain* fxmain , const gchar* xml)
 			fx_tree_move_to_the_first(model , &iter);
 
 #ifdef USE_LIBNOTIFY
-			if(strcmp(crc , "unlogin") && start_popup_presence){
-				gchar notifySummary[256];
-				gchar notifyText[1024];
-				gchar iconPath[256];
+			if(start_popup_presence){
+				gchar      notifySummary[256];
+				gchar      notifyText[1024];
+				gchar      iconPath[256];
 				GdkPixbuf *pb;
-				sprintf(iconPath , "%s/%s.jpg" , config->iconPath , contact->sId);
-				sprintf(notifySummary , _("%s , now ONLINE") , contact->nickname);
+
+				sprintf(iconPath , "%s/%s.jpg",
+						config->iconPath , contact->sId);
+				sprintf(notifySummary,
+						_("%s , now ONLINE") , contact->nickname);
 				sprintf(notifyText ,
 						_("Phone Number: %s\n"
-						"Fetion Number: %s\n"
-						"Signature: %s")
-						, contact->mobileno == NULL || strlen(contact->mobileno) == 0 ? "未知" : contact->mobileno
+						  "Fetion Number: %s\n"
+						  "Signature: %s")
+						, contact->mobileno == NULL ||
+							strlen(contact->mobileno) == 0 ?
+							"未知" : contact->mobileno
 						, contact->sId
 						, contact->impression );
-				pb = gdk_pixbuf_new_from_file_at_size(iconPath , 48 , 48 , NULL);
+				pb = gdk_pixbuf_new_from_file_at_size(iconPath,
+						NOTIFY_IMAGE_SIZE , NOTIFY_IMAGE_SIZE , NULL);
 				if(!pb)
-					pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" , 48 , 48 , NULL);
+					pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg",
+							NOTIFY_IMAGE_SIZE , NOTIFY_IMAGE_SIZE , NULL);
 				
 				notify_notification_update(fxmain->notify , notifySummary
 						, notifyText , NULL);
@@ -1440,6 +1451,11 @@ gboolean fx_main_check_func(FxMain* fxmain)
 	long                 seconds;
 
 	start_popup_presence = 1;
+
+	if(fxmain->user->state == P_OFFLINE){
+		debug_info("Error.. check function exited");
+		return FALSE;
+	}
 
 	now = get_currenttime();
 	foreach_unacked_list(unackedlist , list){

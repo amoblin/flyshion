@@ -92,7 +92,8 @@ typedef enum
 {
 	IMAGE_NOT_INITIALIZED = -1 ,		/* portrait has not been initialized */
 	IMAGE_NOT_CHANGED ,					/* portrait does not change 		 */
-	IMAGE_CHANGED						/* portrait has been changed 		 */
+	IMAGE_CHANGED ,						/* portrait has been changed 		 */
+	IMAGE_ALLREADY_SET
 } ImageChangedType;
 
 /**
@@ -195,6 +196,8 @@ typedef struct contact
 	int groupid;						/* buddylist id										*/
 	int gender;							/* gender 1 for male 2 for female,0 for private		*/
 	int imageChanged;					/* whether user`s portrait has changed				*/
+	int dirty;                          /* whether the contact just read from the server is 
+										   newer than that int the local disk */
 	struct contact* next;
 	struct contact* pre;
 } Contact;
@@ -322,6 +325,7 @@ typedef struct
 	int allHighlight;
 	int autoAway;
 	int autoAwayTimeout;
+	int onlineNotify;
 
 	char configServersVersion[16];		/* the version of some related servers such as sipc server	*/
 	char configParametersVersion[16];

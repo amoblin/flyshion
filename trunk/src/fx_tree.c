@@ -36,7 +36,6 @@ static GtkWidget* fx_tree_create_menu(const char* name
 		, gpointer data);
 //static void fx_tree_add_new_buddy(FxMain* fxmain , Contact* contact);
 /*signal function*/
-static void* fx_tree_update_portrait_thread_func(void* data);
 static gboolean fx_tree_on_rightbutton_click(GtkWidget* UNUSED(tree)
 		, GdkEventButton* event , gpointer data);
 static gboolean pg_on_rightbutton_click(GtkWidget* UNUSED(tree)
@@ -304,8 +303,6 @@ void fx_tree_initilize(FxMain* fxmain)
 	args->sip = NULL;
 	GValue value = { 0, };
 
-	DEBUG_FOOTPRINT();
-
 	all_light = fxmain->user->config->allHighlight;
 	fxtree = fxmain->mainPanel;
 
@@ -394,7 +391,6 @@ void fx_tree_initilize(FxMain* fxmain)
 
 
 	fetion_contact_subscribe_only(fxmain->user);
-	g_thread_create(fx_tree_update_portrait_thread_func , fxmain , FALSE , NULL);
 	g_thread_create(fx_main_listen_thread_func , args , FALSE , NULL);
 }
 
@@ -428,17 +424,18 @@ void fx_tree_move_to_the_last(GtkTreeModel* model , GtkTreeIter* iter)
 }
 static GtkTreeModel* create_model(User* user)
 {
-	Group *group = NULL;
-	Contact *contact;
-	Config *config = NULL;
-	GdkPixbuf* pb = NULL;
-	GtkTreeStore* store = NULL;
-	GtkTreeIter iter;
-	GtkTreeIter iter1;
-	char *name;
-	int count , count1;
-
-	DEBUG_FOOTPRINT();
+	Group         *group = NULL;
+	Contact       *contact;
+	Config        *config = NULL;
+	GdkPixbuf     *pb = NULL;
+	GtkTreeStore  *store = NULL;
+	GtkTreeIter    iter;
+	GtkTreeIter    iter1;
+	gchar         *name;
+	gchar          path[1024];
+	gint           count;
+	gint           count1;
+	gint           imageset = 0;
 
 	group = user->groupList;
 	config = user->config;	
@@ -460,6 +457,7 @@ static GtkTreeModel* create_model(User* user)
 							 , G_TYPE_INT
 							 , G_TYPE_INT
 							 , G_TYPE_INT
+							 , G_TYPE_INT
 							 , G_TYPE_INT);
 	
 	foreach_grouplist(user->groupList , group){
@@ -471,9 +469,18 @@ static GtkTreeModel* create_model(User* user)
 						 , G_ONLINE_COUNT_COL , 0 , -1);
 	}
 	foreach_contactlist(user->contactList , contact){
-		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg"
+		sprintf(path, "%s/%s.jpg", config->iconPath, contact->sId);
+		pb = gdk_pixbuf_new_from_file_at_size(path
 				, config->iconSize , config->iconSize , NULL);
-		if(fx_tree_get_group_iter_by_id(GTK_TREE_MODEL(store) , contact->groupid , &iter ) < 0){
+		if(!pb){
+			pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg"
+					, config->iconSize , config->iconSize , NULL);
+			imageset = 0;
+		}else
+			imageset = 1;
+
+		if(fx_tree_get_group_iter_by_id(GTK_TREE_MODEL(store),
+					contact->groupid , &iter ) < 0){
 			//debug_info("Error when a group iter not found , groupId :%d\n" , contact->groupid);
 			continue;
 		}
@@ -481,7 +488,8 @@ static GtkTreeModel* create_model(User* user)
 			gtk_tree_store_prepend(store , &iter1 , &iter);
 		else
 			gtk_tree_store_append(store , &iter1 , &iter);
-		name = (contact->localname == NULL || strlen(contact->localname) == 0) ? contact->nickname : contact->localname;
+		name = (contact->localname == NULL || strlen(contact->localname) == 0) ?
+					contact->nickname : contact->localname;
 
 		gtk_tree_store_set(store , &iter1
 						 , B_PIXBUF_COL 	, pb
@@ -500,6 +508,8 @@ static GtkTreeModel* create_model(User* user)
 						 , B_RELATIONSTATUS_COL , contact->relationStatus
 						 , B_CARRIERSTATUS_COL  , contact->carrier
 						 , B_SIZE_COL		, config->iconSize
+						 , B_IMAGE_SET_COL  , imageset
+						 , B_IMAGE_CHANGED_COL, contact->imageChanged
 						 , -1);
 		g_object_unref(pb);
 		gtk_tree_model_get(GTK_TREE_MODEL(store) , &iter
@@ -571,21 +581,29 @@ static void fx_tree_on_hightlight_clicked(GtkWidget *UNUSED(widget) , gpointer d
 static void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* UNUSED(tree)
 		, GtkTreePath* path , GdkEventButton* event , GtkTreeIter iter)
 {
-	char *sipuri , *groupname , *userid , *mobileno , *carrier;
-	int groupid , iconsize;
-	int serviceStatus , relationStatus , carrierStatus;
-	GtkWidget* menu = NULL;
-	GtkWidget* groupSubmenu = NULL;
-	GtkWidget* moveItem = NULL;
-	GtkTreeSelection* selection = NULL;
-	GtkTreeModel* model = NULL;
-	GtkTreeIter groupiter;
-	Args *profileargs , *moveargs , *chatargs;
-	FxTree* fxtree = fxmain->mainPanel;
-	User *user = fxmain->user;
-	Config *config = user->config;
+	gchar             *sipuri;
+	gchar             *groupname;
+	gchar             *userid;
+	gchar             *mobileno;
+	gchar             *carrier;
+	GtkWidget         *menu = NULL;
+	GtkWidget         *groupSubmenu = NULL;
+	GtkWidget         *moveItem = NULL;
+	GtkTreeSelection  *selection = NULL;
+	GtkTreeModel      *model = NULL;
+	GtkTreeIter        groupiter;
+	Args              *profileargs;
+	Args              *moveargs;
+	Args              *chatargs;
+	gint               groupid;
+	gint               iconsize;
+	gint               serviceStatus;
+	gint               relationStatus;
+	gint               carrierStatus;
+	FxTree            *fxtree = fxmain->mainPanel;
+	User              *user = fxmain->user;
+	Config            *config = user->config;
 
-	DEBUG_FOOTPRINT();
 
 	menu = gtk_menu_new();
 	groupSubmenu = gtk_menu_new();
@@ -964,66 +982,107 @@ static void fx_tree_create_column(GtkWidget* tree , FxMain* fxmain)
 	gtk_tree_view_append_column(GTK_TREE_VIEW(tree), col0);
 
 }
-static void* fx_tree_update_portrait_thread_func(void* data)
+void fx_tree_update_portrait(FxMain *fxmain)
 {
-	FxMain* fxmain = (FxMain*)data;
-	GtkTreeModel* model = NULL;
-	GtkTreeIter iter , pos;
-	GdkPixbuf* pb;
-	User* user = fxmain->user;
-	Config* config = user->config;
-	int size;
-	char portraitPath[256] , *sipuri , *sid;
+	GtkTreeModel  *model;
+	GtkTreeIter    iter;
+	GtkTreeIter    pos;
+	GdkPixbuf     *pb;
+	User          *user = fxmain->user;
+	Config        *config = user->config;
+	gchar         *sipuri;
+	gchar         *crc;
+	gchar         *sid;
+	gchar          portraitPath[1024];
+	gint           size;
+	gint           imageChanged;
+	gint           imageset;
+	gint           nr = 0;
 
-	model = gtk_tree_view_get_model(GTK_TREE_VIEW(fxmain->mainPanel->treeView));
+	debug_info("updating portrait...");
+
+	model = gtk_tree_view_get_model(
+			GTK_TREE_VIEW(fxmain->mainPanel->treeView));
 	gtk_tree_model_get_iter_root(model , &iter);
+
 	do{
-		if(gtk_tree_model_iter_children(model , &pos , &iter))
-		{
-			do
-			{
-				gtk_tree_model_get(model , &pos
-								 , B_SIPURI_COL , &sipuri
-								 , B_SIZE_COL   , &size  ,-1);
-				sid = fetion_sip_get_sid_by_sipuri(sipuri);
-				snprintf(portraitPath , 255 , "%s/%s.jpg" , config->iconPath , sid);
-				pb = gdk_pixbuf_new_from_file_at_size(portraitPath , size , size , NULL);
-				if(pb == NULL){
-					fetion_user_download_portrait(user , sipuri);
-					pb = gdk_pixbuf_new_from_file_at_size(portraitPath , size , size , NULL);
+		if(gtk_tree_model_iter_children(model , &pos , &iter)){
+			do{
+				gtk_tree_model_get(model , &pos,
+								 B_SIPURI_COL, &sipuri,
+								 B_CRC_COL, &crc,
+								 B_SIZE_COL, &size,
+								 B_IMAGE_CHANGED_COL, &imageChanged,
+								 B_IMAGE_SET_COL, &imageset,
+								 -1);	
+
+				/* if image has been set and no changes,then do nothing */
+				if(imageset && !imageChanged){
+					g_free(sipuri);
+					g_free(crc);
+					continue;
 				}
-				if(pb != NULL){
+
+				/* if image has not been set,but this buddy has no imaeg,
+				 * then also do nothing */
+				if(!imageset && strcmp(crc, "0") == 0){
+					g_free(sipuri);
+					g_free(crc);
+					continue;
+				}
+
+				sid = fetion_sip_get_sid_by_sipuri(sipuri);
+				snprintf(portraitPath, sizeof(portraitPath) - 1,
+						"%s/%s.jpg" , config->iconPath , sid);
+				/* download portrait */
+				fetion_user_download_portrait(user , sipuri);
+				pb = gdk_pixbuf_new_from_file_at_size(portraitPath,
+						size , size , NULL);
+
+				if(pb){
+					nr ++;
 					gdk_threads_enter();
-					gtk_tree_store_set(GTK_TREE_STORE(model) , &pos , B_PIXBUF_COL , pb , -1);
+					gtk_tree_store_set(GTK_TREE_STORE(model),
+							&pos , B_PIXBUF_COL , pb , -1);
 					g_object_unref(pb);
 					gdk_threads_leave();
 				}
+
 				gdk_threads_enter();
-				gtk_tree_store_set(GTK_TREE_STORE(model) , &pos , B_IMAGE_CHANGED_COL , IMAGE_NOT_CHANGED , -1);
+				gtk_tree_store_set(GTK_TREE_STORE(model), &pos,
+						B_IMAGE_CHANGED_COL , IMAGE_NOT_CHANGED,
+						B_IMAGE_SET_COL, 1,-1);
 				gdk_threads_leave();
-				free(sipuri);
-				free(sid);
+				g_free(sipuri);
+				g_free(sid);
 			}
 			while(gtk_tree_model_iter_next(model , &pos));
 		}
 	}
 	while(gtk_tree_model_iter_next(model , &iter));
 	
-	char pgPortraitServer[1024];
-	char pgPortraitPath[1024];
-	char *strcur;
-	char *pgsid;
+	/* update pggroup portrait */
+	gchar    pgPortraitServer[1024];
+	gchar    pgPortraitPath[1024];
+	gchar   *strcur;
+	gchar   *pgsid;
 	PGGroup *pgcur;
-	int n;
-	model = gtk_tree_view_get_model(GTK_TREE_VIEW(fxmain->mainPanel->pgTreeView));
+	gint     n;
+
+	model = gtk_tree_view_get_model(
+			GTK_TREE_VIEW(fxmain->mainPanel->pgTreeView));
 	if(gtk_tree_model_get_iter_root(model , &iter)){
 		do{
 			gtk_tree_model_get(model , &iter
 				, PG_URI_COL , &sipuri , -1);
+
 			pgsid = fetion_sip_get_pgid_by_sipuri(sipuri);
-			snprintf(portraitPath , 255 , "%s/PG%s.jpg" , config->iconPath , pgsid);
-			pb = gdk_pixbuf_new_from_file_at_size(portraitPath
-			       	, PG_PORTRAIT_SIZE , PG_PORTRAIT_SIZE , NULL);
+			snprintf(portraitPath, sizeof(portraitPath) - 1,
+					"%s/PG%s.jpg", config->iconPath , pgsid);
+
+			pb = gdk_pixbuf_new_from_file_at_size(portraitPath,
+					PG_PORTRAIT_SIZE , PG_PORTRAIT_SIZE , NULL);
+
 			if(pb == NULL){
 				foreach_pg_group(user->pggroup , pgcur){
 					if(strcmp(pgcur->pguri , sipuri) == 0)
@@ -1038,7 +1097,10 @@ static void* fx_tree_update_portrait_thread_func(void* data)
 				strncpy(pgPortraitServer , strcur , n);
 				strcur = strstr(strcur , "/");
 				strcpy(pgPortraitPath , strcur);
-				fetion_user_download_portrait_with_uri(user , sipuri , pgPortraitServer , pgPortraitPath);
+				/* download portrait */
+				fetion_user_download_portrait_with_uri(user,
+						sipuri , pgPortraitServer , pgPortraitPath);
+				
 				pb = gdk_pixbuf_new_from_file_at_size(portraitPath
 				       	, PG_PORTRAIT_SIZE , PG_PORTRAIT_SIZE , NULL);
 				if(pb != NULL){
@@ -1052,12 +1114,12 @@ static void* fx_tree_update_portrait_thread_func(void* data)
 				g_object_unref(pb);
 			}
 
-			free(sipuri);
-			free(pgsid);
+			g_free(sipuri);
+			g_free(pgsid);
 		}while(gtk_tree_model_iter_next(model , &iter));
 	}
 
-	return NULL;
+	debug_info("%d portrait was successfully updated", nr);
 }
 
 static void fx_tree_on_double_click(GtkTreeView *treeview
@@ -1150,35 +1212,28 @@ static void fx_tree_on_chatmenu_clicked(GtkWidget* UNUSED(widget) , gpointer dat
 	free(args);
 }
 
-static void* on_profile_thread(void *data)
+static void fx_tree_on_profilemenu_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	Args        *args = (Args*)data;
 	FxMain      *fxmain = args->fxmain;
 	Contact     *contact;
 	gchar       *userid = args->s;
-	FxProfile   *fxprofile = fx_profile_new(fxmain , userid);
+	FxProfile   *fxprofile;
+	
+	fxprofile = fx_profile_new(fxmain , userid);
 
-	gdk_threads_enter();
 	fx_profile_initialize(fxprofile);
-	gdk_threads_leave();
 
 	contact = fx_profile_fetch(fxprofile);
 
-	gdk_threads_enter();
 	if(contact)
 		fx_profile_bind(fxprofile , contact);
+
 	gtk_dialog_run(GTK_DIALOG(fxprofile->dialog));
 	gtk_widget_destroy(fxprofile->dialog);
-	gdk_threads_leave();
 
 	g_free(fxprofile);
 	g_free(args);
-	return NULL;
-}
-
-static void fx_tree_on_profilemenu_clicked(GtkWidget* UNUSED(widget) , gpointer data)
-{
-	g_thread_create(on_profile_thread , data , FALSE , NULL);
 }
 
 static void fx_tree_on_historymenu_clicked(GtkWidget* UNUSED(widget) , gpointer data)

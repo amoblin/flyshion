@@ -14,6 +14,7 @@ skin_DATA = bigimage.png \
 			move.png \
 			LoadingImage.gif \
 			logining.gif \
+			reconnecting.gif \
 			login.png \
 			myselfsms.png \
 			nudge.png \

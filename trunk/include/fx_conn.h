@@ -40,4 +40,5 @@ extern void fx_conn_offline(FxMain *fxmain);
 
 extern int fx_conn_check_action(FxMain *fxmain);
 
+extern int fx_conn_reconnect(FxMain *fxmain, int state);
 #endif

@@ -47,7 +47,8 @@ void fx_head_initialize(FxMain* fxmain)
 	halign = gtk_alignment_new(0, 0 , 0 , 0);
 	gtk_container_add(GTK_CONTAINER(halign) , hbox);
 	
-	pb = gdk_pixbuf_new_from_file_at_scale(SKIN_DIR"fetion.svg" , 50 , 50 , TRUE , NULL);
+	pb = gdk_pixbuf_new_from_file_at_scale(SKIN_DIR"fetion.svg",
+			USER_PORTRAIT_SIZE, USER_PORTRAIT_SIZE, TRUE, NULL);
 	fxhead->portrait = gtk_image_new_from_pixbuf(pb);
 	g_object_unref(pb);
 
@@ -196,10 +197,11 @@ void fx_head_bind(FxMain* fxmain)
 
 	sprintf(name , "%s/%s.jpg" , config->iconPath , user->sId);
 
-//	fetion_user_download_portrait(user , user->sipuri);
-	portrait_pix = gdk_pixbuf_new_from_file_at_size(name , 50 , 50 , NULL);
+	portrait_pix = gdk_pixbuf_new_from_file_at_size(name,
+			USER_PORTRAIT_SIZE, USER_PORTRAIT_SIZE, NULL);
 	if(! portrait_pix)
-		portrait_pix = gdk_pixbuf_new_from_file_at_size(name , 50 , 50 , NULL);
+		portrait_pix = gdk_pixbuf_new_from_file_at_size(name,
+				USER_PORTRAIT_SIZE, USER_PORTRAIT_SIZE, NULL);
 	if(portrait_pix)
 		gtk_image_set_from_pixbuf(GTK_IMAGE(fxhead->portrait) , portrait_pix);
 
@@ -419,11 +421,31 @@ gboolean fx_head_impre_activate_func(GtkWidget* widget , gpointer data)
 	}
 	return TRUE;
 }
+
+static void* reconnection_func(void *data)
+{
+	typedef struct {
+		FxMain    *fxmain;
+		StateType  type;
+	} Args;
+	Args     *args = (Args*)data;
+	FxMain   *fxmain = args->fxmain;
+	FxHead   *fxhead = fxmain->headPanel;
+	GtkImage *img;
+
+	gdk_threads_enter();
+	gtk_image_set_from_file(fxhead->portrait,
+			SKIN_DIR"reconnecting.gif");
+	gdk_threads_leave();
+
+	fx_conn_reconnect(fxmain, args->type);
+}
+
 void fx_head_change_state_func(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	typedef struct {
-		FxMain* fxmain;
-		StateType type;
+		FxMain    *fxmain;
+		StateType  type;
 	} Args;
 	Args   *args = (Args*)data;
 	FxMain *fxmain = args->fxmain;
@@ -431,6 +453,13 @@ void fx_head_change_state_func(GtkWidget* UNUSED(widget) , gpointer data)
 
 	if(args->type == P_OFFLINE){
 		fx_conn_offline(fxmain);
+		g_free(args);
+		return;
+	}
+
+	if(user->state == P_OFFLINE){
+		g_thread_create(reconnection_func,
+				args, FALSE, NULL);
 		return;
 	}
 
@@ -513,9 +542,13 @@ void* fx_head_change_portrait_thread(void* data)
 	if(fetion_user_upload_portrait(fxmain->user , args->filename) > 0){
 		fetion_user_download_portrait(fxmain->user , fxmain->user->sipuri);
 		sprintf(filepath , "%s/%s.jpg" , config->iconPath , fxmain->user->sId);
-		pb = gdk_pixbuf_new_from_file_at_size(filepath , 50 , 50 , NULL);
+		pb = gdk_pixbuf_new_from_file_at_size(filepath,
+				USER_PORTRAIT_SIZE , USER_PORTRAIT_SIZE , NULL);
+
 		if(pb == NULL)
-			pb = gdk_pixbuf_new_from_file_at_size(filepath , 50 , 50 , NULL);
+			pb = gdk_pixbuf_new_from_file_at_size(filepath,
+					USER_PORTRAIT_SIZE, USER_PORTRAIT_SIZE, NULL);
+
 		gdk_threads_enter();
 		gtk_image_set_from_pixbuf(GTK_IMAGE(fxhead->portrait) , pb);
 		g_object_unref(pb);
@@ -535,9 +568,13 @@ void* fx_head_change_portrait_thread(void* data)
 
 		gdk_threads_enter();
 		sprintf(filepath , "%s/%s.jpg" , config->iconPath , fxmain->user->sId);
-		pb = gdk_pixbuf_new_from_file_at_size(filepath , 50 , 50 , NULL);
+		pb = gdk_pixbuf_new_from_file_at_size(filepath ,
+				USER_PORTRAIT_SIZE , USER_PORTRAIT_SIZE , NULL);
+
 		if(pb == NULL)
-			pb = gdk_pixbuf_new_from_file_at_size(filepath , 50 , 50 , NULL);
+			pb = gdk_pixbuf_new_from_file_at_size(filepath,
+					USER_PORTRAIT_SIZE , USER_PORTRAIT_SIZE , NULL);
+
 		gtk_image_set_from_pixbuf(GTK_IMAGE(fxhead->portrait) , pb);
 		g_object_unref(pb);
 		gdk_threads_leave();

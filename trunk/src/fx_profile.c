@@ -153,18 +153,22 @@ void fx_profile_initialize(FxProfile* fxprofile)
 
 Contact *fx_profile_fetch(FxProfile *fxprofile)
 {
-	return fetion_contact_get_contact_info(fxprofile->fxmain->user , fxprofile->userid);
+	Contact *cur;
+	foreach_contactlist(fxprofile->fxmain->user->contactList, cur){
+		if(strcmp(cur->userId, fxprofile->userid) == 0)	
+			return cur;
+	}
+	return NULL;
 }
 
 void fx_profile_bind(FxProfile* fxprofile , Contact *contact)
 {
-	GdkPixbuf* pb;
-	char* res;
-	User* user = fxprofile->fxmain->user;
-	Config* config = user->config;
+	GdkPixbuf  *pb;
+	User       *user = fxprofile->fxmain->user;
+	Config     *config = user->config;
+	gchar      *res;
+	gchar       portrait[1024];
 
-	DEBUG_FOOTPRINT();
-		
 
 	if(contact->nickname != NULL)
 		gtk_entry_set_text(GTK_ENTRY(fxprofile->nick_entry) , contact->nickname);
@@ -197,9 +201,7 @@ void fx_profile_bind(FxProfile* fxprofile , Contact *contact)
 		gtk_entry_set_text(GTK_ENTRY(fxprofile->city_entry) , res == NULL ? _("Unknown") : res);
 		free(res);
 	}
-	char portrait[100];
 
-	bzero(portrait , sizeof(portrait));
 	sprintf(portrait , "%s/%s.jpg" , config->iconPath , contact->sId);
 
 	if(contact->localname != NULL)
@@ -214,13 +216,9 @@ void fx_profile_bind(FxProfile* fxprofile , Contact *contact)
 }
 void fx_profile_free(FxProfile* fxprofile)
 {
-	DEBUG_FOOTPRINT();
-
 	free(fxprofile);
 }
 void fx_profile_on_button_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
-	DEBUG_FOOTPRINT();
-
 	gtk_dialog_response(GTK_DIALOG(data) , GTK_RESPONSE_OK);
 }

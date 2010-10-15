@@ -43,6 +43,7 @@ enum buddycols
 	B_SERVICESTATUS_COL ,
 	B_SIZE_COL ,
 	B_IMAGE_CHANGED_COL ,
+	B_IMAGE_SET_COL ,
 	COL_NUM
 } BuddyCols;
 
@@ -64,7 +65,8 @@ enum groupcols
 	G_NULL10_COL ,
 	G_ALL_COUNT_COL , 
 	G_ONLINE_COUNT_COL ,
-	G_ID_COL 
+	G_ID_COL ,
+	G_NULL11_COL
 } GroupCols;
 
 typedef enum
@@ -115,6 +117,8 @@ extern int fx_tree_get_buddy_iter_by_userid(GtkTreeModel* model
 		, const char* userid , GtkTreeIter* iter);
 
 extern FxPGGroup *pg_create_window(FxMain *fxmain , const char *pguri);
+
+extern void fx_tree_update_portrait(FxMain *fxmain);
 /*private*/
 
 #endif

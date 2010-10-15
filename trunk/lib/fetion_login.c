@@ -622,6 +622,9 @@ static void parse_contact_list(xmlNodePtr node , User* user)
 		}
 		strcpy(contact->userId , (char*)buf);
 		xmlFree(buf);
+		/* set the dirty flags */
+		contact->dirty = 1;
+
 		if(xmlHasProp(node1 , BAD_CAST "n")){
 			buf = xmlGetProp(node1 , BAD_CAST "n");
 			strcpy(contact->localname , (char*)buf);
@@ -657,7 +660,7 @@ static void parse_contact_list(xmlNodePtr node , User* user)
 			xmlFree(buf);
 		}
 
-		strcpy(contact->portraitCrc , "unlogin");
+		strcpy(contact->portraitCrc , "0");
 
 		if(hasBuddy == 0){
 			fetion_contact_list_append(user->contactList , contact);
