@@ -69,7 +69,7 @@ typedef enum {
 typedef enum {
 	ONLINE_NOTIFY_ENABLE,
 	ONLINE_NOTIFY_DISABLE
-} AutoAway;
+} OnlineNotify;
 
 extern FxSet* fx_set_new(FxMain* fxmain);
 

@@ -25,7 +25,7 @@
 /*private method*/
 static char* generate_auth_body(User* user);
 static void parse_personal_info(xmlNodePtr node , User* user);
-static void parse_contact_list(xmlNodePtr node , User* user);
+static void parse_contact_list(xmlNodePtr node , User* user, int *group_count, int *buddy_count);
 static void parse_stranger_list(xmlNodePtr node , User* user);
 static void parse_ssi_auth_success(xmlNodePtr node , User* user);
 static void parse_ssi_auth_failed(xmlNodePtr node , User* user);
@@ -370,7 +370,7 @@ static void parse_sms_frequency(xmlNodePtr node , User *user)
 	}
 }
 
-int parse_sipc_auth_response(const char* auth_response , User* user)
+int parse_sipc_auth_response(const char* auth_response , User* user, int *group_count, int *buddy_count)
 {
 	char *pos;
 	xmlChar* buf = NULL;
@@ -424,7 +424,7 @@ int parse_sipc_auth_response(const char* auth_response , User* user)
 	}
 	xmlFree(buf);
 	node1 = xml_goto_node(node , "contact-list");
-	parse_contact_list(node1 , user);
+	parse_contact_list(node1 , user, group_count, buddy_count);
 	node1 = xml_goto_node(node , "chat-friends");
 	if(node1)
 		parse_stranger_list(node1 , user);
@@ -462,8 +462,6 @@ static char* generate_auth_body(User* user)
 	xmlNodePtr rootnode = NULL;
 	xmlNodePtr node = NULL;
 	xmlNodePtr node1 = NULL;
-
-	DEBUG_FOOTPRINT();
 
 	doc = xmlParseMemory( basexml , strlen(basexml));
 	rootnode = xmlDocGetRootElement(doc); 
@@ -568,13 +566,18 @@ static void parse_personal_info(xmlNodePtr node , User* user)
 		xmlFree(buf);
 	}
 }
-static void parse_contact_list(xmlNodePtr node , User* user)
+static void parse_contact_list(xmlNodePtr node, User* user,
+				int *group_count, int *buddy_count)
 {
 	xmlChar* buf = NULL;
 	xmlNodePtr node1 , node2;
 	Group* group = NULL;
 	Contact* contact = NULL;
 	int hasGroup = 1 , hasBuddy = 1;
+	int nr = 0;
+
+	*group_count = 0;
+	*buddy_count = 0;
 
 	buf = xmlGetProp(node , BAD_CAST "version");
 	debug_info("Start reading contact list ");
@@ -587,6 +590,8 @@ static void parse_contact_list(xmlNodePtr node , User* user)
 	node1 = xml_goto_node(node , "buddy-lists");
 	node2 = node1->xmlChildrenNode;
 	while(node2 != NULL){
+		hasGroup = 1;
+
 		buf = xmlGetProp(node2 , BAD_CAST "id");
 		group = fetion_group_list_find_by_id(user->groupList , atoi((char*)buf));
 		if(group == NULL){
@@ -598,6 +603,8 @@ static void parse_contact_list(xmlNodePtr node , User* user)
 		buf = xmlGetProp(node2 , BAD_CAST "name");
 		strcpy(group->groupname , (char*)buf);
 		xmlFree(buf);
+
+		nr ++;
 		
 		if(hasGroup == 0){
 			fetion_group_list_append(user->groupList , group);
@@ -605,15 +612,20 @@ static void parse_contact_list(xmlNodePtr node , User* user)
 		}
 		node2 = node2->next;
 	}
+
+	*group_count = nr;
+	nr = 0;
+
 	node1 = xml_goto_node(node , "buddies");
 	node1 = node1->xmlChildrenNode;
 	user->contactCount = 0;
 	while(node1 != NULL){
+		hasBuddy = 1;
+
 		if(! xmlHasProp(node1 , BAD_CAST "i")){
 			node1 = node1->next;
 			continue;
 		}
-		user->contactCount ++;
 		buf = xmlGetProp(node1 , BAD_CAST "i");
 		contact = fetion_contact_list_find_by_userid(user->contactList , (char*)buf);
 		if(contact == NULL){
@@ -622,8 +634,17 @@ static void parse_contact_list(xmlNodePtr node , User* user)
 		}
 		strcpy(contact->userId , (char*)buf);
 		xmlFree(buf);
+
+		/* maybe a buddy belongs to two groups */
+		if(contact->dirty == 1){
+			node = node->next;
+			continue;
+		}
+
+		user->contactCount ++;
 		/* set the dirty flags */
 		contact->dirty = 1;
+		nr ++;
 
 		if(xmlHasProp(node1 , BAD_CAST "n")){
 			buf = xmlGetProp(node1 , BAD_CAST "n");
@@ -668,6 +689,8 @@ static void parse_contact_list(xmlNodePtr node , User* user)
 		}
 		node1 = node1->next;
 	}
+
+	*buddy_count = nr;
 	debug_info("Read contact list complete");
 }
 
@@ -677,24 +700,27 @@ static void parse_stranger_list(xmlNodePtr node , User* user)
 	xmlNodePtr node1 = node->xmlChildrenNode;
 	xmlChar *buf = NULL;
 	Contact *contact = NULL;
-	int hasBuddy = 1;
+	int hasBuddy;
 	while(node1 != NULL)
 	{
+		hasBuddy = 1;
 		user->contactCount ++;
-		buf = xmlGetProp(node1 , BAD_CAST "u");
+		buf = xmlGetProp(node1 , BAD_CAST "i");
 		contact = fetion_contact_list_find_by_userid(user->contactList , (char*)buf);
 		if(contact == NULL){
 			hasBuddy = 0;
 			contact = fetion_contact_new();
 		}
-		strcpy(contact->sipuri , (char*)buf);
-		xmlFree(buf);
-		buf = xmlGetProp(node1 , BAD_CAST "i");
 		strcpy(contact->userId , (char*)buf);
+		xmlFree(buf);
+		buf = xmlGetProp(node1 , BAD_CAST "u");
+		strcpy(contact->sipuri , (char*)buf);
 		contact->groupid = BUDDY_LIST_STRANGER;
-		if(hasBuddy == 0){
+		contact->dirty = 1;
+
+		if(hasBuddy == 0)
 			fetion_contact_list_append(user->contactList , contact);
-		}
+		
 		node1 = node1->next;
 	}
 }

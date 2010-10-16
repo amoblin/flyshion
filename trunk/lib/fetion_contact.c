@@ -93,6 +93,12 @@ void fetion_contact_list_remove_by_userid(Contact* contactlist , const char* use
 		}
 	}
 }
+
+void fetion_contact_list_remove(Contact *contact)
+{
+	contact->next->pre = contact->pre;
+	contact->pre->next = contact->next;
+}
 void fetion_contact_list_free(Contact* contact)
 {
 	Contact *cl_cur , *del_cur;
@@ -324,9 +330,10 @@ int fetion_contact_delete_buddy(User* user , const char* userid)
 	body = generate_delete_buddy_body(userid);
 	res = fetion_sip_to_string(sip , body);
 	free(body);
-
+#if 0
 	if(fetion_contact_del_localbuddy(user, userid) == -1)
 		return -1;
+#endif
 
 	ret = tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
@@ -560,7 +567,6 @@ char* generate_move_to_group_body(const char* userid , int buddylist)
 	node = xmlNewChild(node , NULL , BAD_CAST "contacts" , NULL);
 	node = xmlNewChild(node , NULL , BAD_CAST "contact" , NULL);
 	xmlNewProp(node , BAD_CAST "user-id" , BAD_CAST userid);
-	bzero(bl , sizeof(bl));
 	sprintf(bl , "%d" , buddylist);
 	xmlNewProp(node , BAD_CAST "buddy-lists" , BAD_CAST bl);
 	xmlDocDumpMemory(doc , &res , NULL);
@@ -1003,7 +1009,7 @@ void fetion_contact_save(User *user)
 
 	sprintf(path , "%s/data.db" , config->userPath);
 	if(sqlite3_open(path, &db)){
-		debug_error("failed to load user list");
+		debug_error("failed to save user list");
 		return;
 	}
 

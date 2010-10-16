@@ -14,8 +14,8 @@
    height="800"
    id="svg2"
    version="1.1"
-   inkscape:version="0.47 r22583"
-   sodipodi:docname="fetion_alt.svg"
+   inkscape:version="0.48.0 r9654"
+   sodipodi:docname="offline.svg"
    inkscape:export-filename="/home/xhacker/桌面/ofetion.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
@@ -425,6 +425,51 @@
        y2="343.88327"
        gradientUnits="userSpaceOnUse"
        gradientTransform="matrix(1.1451613,0,0,1.1451613,-69.557602,-157.25861)" />
+    <filter
+       id="filter3701"
+       inkscape:label="Desaturate"
+       x="0"
+       y="0"
+       width="1"
+       height="1"
+       inkscape:menu="Color"
+       inkscape:menu-tooltip="Render in shades of gray by reducing saturation to zero"
+       color-interpolation-filters="sRGB">
+      <feColorMatrix
+         id="feColorMatrix3703"
+         type="saturate"
+         values="0" />
+    </filter>
+    <filter
+       id="filter3705"
+       inkscape:label="Desaturate"
+       x="0"
+       y="0"
+       width="1"
+       height="1"
+       inkscape:menu="Color"
+       inkscape:menu-tooltip="Render in shades of gray by reducing saturation to zero"
+       color-interpolation-filters="sRGB">
+      <feColorMatrix
+         id="feColorMatrix3707"
+         type="saturate"
+         values="0" />
+    </filter>
+    <filter
+       id="filter3709"
+       inkscape:label="Desaturate"
+       x="0"
+       y="0"
+       width="1"
+       height="1"
+       inkscape:menu="Color"
+       inkscape:menu-tooltip="Render in shades of gray by reducing saturation to zero"
+       color-interpolation-filters="sRGB">
+      <feColorMatrix
+         id="feColorMatrix3711"
+         type="saturate"
+         values="0" />
+    </filter>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -435,14 +480,14 @@
      inkscape:pageshadow="2"
      inkscape:zoom="0.24748737"
      inkscape:cx="-64.053879"
-     inkscape:cy="1211.2961"
+     inkscape:cy="564.79846"
      inkscape:document-units="px"
      inkscape:current-layer="layer2"
      showgrid="false"
      inkscape:window-width="1280"
-     inkscape:window-height="946"
+     inkscape:window-height="726"
      inkscape:window-x="0"
-     inkscape:window-y="24"
+     inkscape:window-y="26"
      inkscape:window-maximized="1"
      showguides="true"
      inkscape:guide-bbox="true">
@@ -473,7 +518,7 @@
      id="layer2"
      inkscape:label="层">
     <rect
-       style="fill:url(#linearGradient3698);fill-opacity:1;stroke:#3465a4;stroke-width:0;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       style="fill:url(#linearGradient3698);fill-opacity:1;stroke:#3465a4;stroke-width:0;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;filter:url(#filter3709)"
        id="rect2910"
        width="420"
        height="420"
@@ -482,12 +527,12 @@
        rx="66.670067"
        ry="66.670067" />
     <path
-       style="fill:url(#linearGradient3714);fill-opacity:1;stroke:#f57900;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       style="fill:url(#linearGradient3714);fill-opacity:1;stroke:#f57900;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;filter:url(#filter3705)"
        d="m 346,174 410,0 -60,150 -200,0 0,80 170,0 -60,150 -110,0 0,72.42857 c 0,0 -1.35132,22.73023 -17.14286,39 C 459.81508,685.04731 437.14286,684 437.14286,684 L 346,684 346,174 z"
        id="path3706"
        sodipodi:nodetypes="cccccccccsccc" />
     <rect
-       style="fill:#ffffff;fill-opacity:1;stroke:#3465a4;stroke-width:0;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       style="fill:#ffffff;fill-opacity:1;stroke:#3465a4;stroke-width:0;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;filter:url(#filter3701)"
        id="rect3700"
        width="192.12244"
        height="203.07497"

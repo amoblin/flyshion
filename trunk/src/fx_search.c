@@ -263,6 +263,7 @@ static GtkTreeModel* create_model(GtkTreeModel *model , const char *str)
 							 , G_TYPE_INT
 							 , G_TYPE_INT
 							 , G_TYPE_INT
+							 , G_TYPE_INT
 							 , G_TYPE_INT);
 
 	if(str == NULL || strlen(str) == 0)

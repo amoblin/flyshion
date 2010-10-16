@@ -217,7 +217,8 @@ static gboolean pg_on_show_tooltip(GtkWidget* widget
 	strftime(time , sizeof(time) , _("%Y-%m-%d") , &date);
 	free(createTime);
 
-	snprintf(text , 1023 , _("\n<span color='#808080'>Group Name：</span><b>%s</b>\t\n"
+	snprintf(text , sizeof(text) - 1
+		, _("\n<span color='#808080'>Group Name：</span><b>%s</b>\t\n"
 		"<span color='#808080'>Current Member Count:</span> %d\t\n"
 		"<span color='#808080'>Limit Member Count:</span> %d\t\n"
 		"<span color='#808080'>Group Rank:</span> %d/%d\t\n"
@@ -265,7 +266,8 @@ void fx_tree_bind_pg_data(FxMain *fxmain)
 		if(!hasGroup){
 			gtk_tree_store_append(store , &iter , NULL);
 			pgsid = fetion_sip_get_pgid_by_sipuri(pgcur->pguri);
-			snprintf(portraitPath , 1023 , "%s/PG%s.jpg" , config->iconPath , pgsid);	
+			snprintf(portraitPath , sizeof(portraitPath) - 1,
+						  "%s/PG%s.jpg" , config->iconPath , pgsid);	
 			free(pgsid);
 			pixbuf = gdk_pixbuf_new_from_file_at_size(portraitPath , PG_PORTRAIT_SIZE , PG_PORTRAIT_SIZE , NULL);
 			if(pixbuf == NULL){
@@ -431,6 +433,7 @@ static GtkTreeModel* create_model(User* user)
 	GtkTreeStore  *store = NULL;
 	GtkTreeIter    iter;
 	GtkTreeIter    iter1;
+	gchar         *sid;
 	gchar         *name;
 	gchar          path[1024];
 	gint           count;
@@ -469,7 +472,14 @@ static GtkTreeModel* create_model(User* user)
 						 , G_ONLINE_COUNT_COL , 0 , -1);
 	}
 	foreach_contactlist(user->contactList , contact){
-		sprintf(path, "%s/%s.jpg", config->iconPath, contact->sId);
+		if(strlen(contact->sId) == 0)
+			sid = fetion_sip_get_sid_by_sipuri(contact->sipuri);
+		sprintf(path, "%s/%s.jpg", config->iconPath,
+					 strlen(contact->sId) == 0 ? sid : contact->sId);
+		if(sid){
+			g_free(sid);
+			sid = NULL;
+		}
 		pb = gdk_pixbuf_new_from_file_at_size(path
 				, config->iconSize , config->iconSize , NULL);
 		if(!pb){
@@ -816,11 +826,11 @@ static void fx_tree_text_cell_data_func(GtkTreeViewColumn *UNUSED(col),
 								 gpointer           UNUSED(user_data))
 {
 	GtkTreePath* path = gtk_tree_model_get_path(model , iter);
-	char text[1024];
+	char text[2048];
 	/*contact data*/
 	char *name , *impression , *sipuri , *sid , *stateStr , *mobileno , *device , *carrier;
-	char stateStr1[256];
-	char statusStr[256];
+	char stateStr1[1024];
+	char statusStr[1024];
 	int presence , size;
 	int carrierStatus , relationStatus , serviceStatus;
 	/*buddylist data*/
@@ -846,25 +856,31 @@ static void fx_tree_text_cell_data_func(GtkTreeViewColumn *UNUSED(col),
 						, -1);
 
 		stateStr = fx_util_get_state_name(presence);
-		bzero(statusStr , sizeof(statusStr));
+		memset(statusStr, 0, sizeof(statusStr));
 		if(relationStatus == RELATION_STATUS_UNAUTHENTICATED){
-			snprintf(statusStr , 255 , _("<span color='#d4b4b4'>[Unverified]</span>"));
+			snprintf(statusStr , sizeof(statusStr) - 1
+						   	, _("<span color='#d4b4b4'>[Unverified]</span>"));
 		}else if(serviceStatus == BASIC_SERVICE_ABNORMAL){
 			if(carrierStatus == CARRIER_STATUS_CLOSED){
-				snprintf(statusStr , 255 , _("<span color='#d4b4b4'>[Has shut fetion service]</span>"));
+				snprintf(statusStr , sizeof(statusStr) - 1,
+							 _("<span color='#d4b4b4'>[Has shut fetion service]</span>"));
 			}else{
 				if(carrier != NULL || strlen(carrier) != 0){
-					snprintf(statusStr , 255 , _("<span color='#d4b4b4'>[Online with SMS]</span>"));
+					snprintf(statusStr , sizeof(statusStr) - 1,
+								 _("<span color='#d4b4b4'>[Online with SMS]</span>"));
 					if(mobileno == NULL || strlen(mobileno) == 0){
-						snprintf(statusStr , 255 , _("<span color='#d4b4b4'>[Has shut fetion service]</span>"));
+						snprintf(statusStr , sizeof(statusStr) - 1,
+									 _("<span color='#d4b4b4'>[Has shut fetion service]</span>"));
 					}
 				}else{
-					snprintf(statusStr , 255 , _("<span color='#d4b4b4'>[Has shut fetion service]</span>"));
+					snprintf(statusStr , sizeof(statusStr) - 1,
+								 	_("<span color='#d4b4b4'>[Has shut fetion service]</span>"));
 				}
 			}
 		}else if(carrierStatus == CARRIER_STATUS_DOWN){
 			if(strlen(carrier) != 0){
-				snprintf(statusStr , 255 , _("<span color='#d4b4b4'>[Out of service]</span>"));
+				snprintf(statusStr , sizeof(statusStr) - 1,
+							   	_("<span color='#d4b4b4'>[Out of service]</span>"));
 			}
 		}
 		if(sipuri == NULL){
@@ -872,12 +888,12 @@ static void fx_tree_text_cell_data_func(GtkTreeViewColumn *UNUSED(col),
 			return;
 		}
 		sid = fetion_sip_get_sid_by_sipuri(sipuri);
-		bzero(stateStr1 , sizeof(stateStr1));
-		snprintf(stateStr1 , 255 , "<span color='#0099FF'>%s</span>" , stateStr);
+		snprintf(stateStr1 , sizeof(stateStr1) - 1,
+					   	"<span color='#0099FF'>%s</span>" , stateStr);
 		escape_impression(impression);
 		if( size < 30)
 		{
-			snprintf(text , 1023 , "<b>%s</b>%s%s"
+			snprintf(text , sizeof(text) - 1 , "<b>%s</b>%s%s"
 						   "(%s)  <span color='#838383'>%s</span>"
 						   , name == NULL ? "" : g_markup_escape_text(name , strlen(name))
 						   , (strlen(statusStr) == 0 ? (presence == 0 ? "" : stateStr1) : statusStr)
@@ -886,7 +902,7 @@ static void fx_tree_text_cell_data_func(GtkTreeViewColumn *UNUSED(col),
 		}
 		else
 		{
-			snprintf(text , 1023 , "<b>%s</b>%s%s"
+			snprintf(text , sizeof(text) - 1 , "<b>%s</b>%s%s"
 						   "(%s) \n <span color='#838383'>%s</span>"
 						   , name == NULL ? "" : g_markup_escape_text(name , strlen(name))
 						   , (strlen(statusStr) == 0 ? (presence == 0 ? "" : stateStr1) : statusStr)
@@ -913,7 +929,7 @@ static void fx_tree_text_cell_data_func(GtkTreeViewColumn *UNUSED(col),
 						 , G_NAME_COL         , &buddylistName
 						 , G_ALL_COUNT_COL    , &allCount
 						 , G_ONLINE_COUNT_COL , &onlineCount ,-1);
-		snprintf(text , 1023 , "%s [%d/%d]" , buddylistName , onlineCount , allCount );
+		snprintf(text , sizeof(text) - 1 , "%s [%d/%d]" , buddylistName , onlineCount , allCount );
 		g_object_set(renderer , "text" , text , NULL);
 		free(buddylistName);
 	}
@@ -944,7 +960,8 @@ static void pg_text_cell_data_func(GtkTreeViewColumn *UNUSED(col),
 	if(createTime != NULL && strlen(createTime) != 0){
 	    date = convert_date(createTime);
 	    strftime(time , sizeof(time) , _("%Y-%m-%d") , &date);
-	    snprintf(text , 1023 , _("%s\n<span color='#808080'>Create Time: %s</span>")
+	    snprintf(text , sizeof(text) - 1,
+					   	_("%s\n<span color='#808080'>Create Time: %s</span>")
 		    , g_markup_escape_text(name , strlen(name)) , time);
 	    g_object_set(renderer , "markup" , text , NULL);
 	    free(createTime);
@@ -1340,7 +1357,8 @@ static void* fx_tree_reload_thread(void* data)
 	sid = fetion_sip_get_sid_by_sipuri(sipuri);
 	g_free(sipuri);
 
-	snprintf(portraitPath , 1023 , "%s/%s.jpg" , config->iconPath , sid);
+	snprintf(portraitPath , sizeof(portraitPath) - 1,
+				   	"%s/%s.jpg" , config->iconPath , sid);
 	pb = gdk_pixbuf_new_from_file_at_size(portraitPath , 25 , 25 , NULL);
 	if(pb == NULL)
 		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" , 25 , 25 , NULL);
@@ -1417,7 +1435,8 @@ static void fx_tree_on_iconchange_clicked(GtkWidget* UNUSED(widget) , gpointer d
 									 , B_SIPURI_COL  , &sipuri
 									 , -1);
 					sid = fetion_sip_get_sid_by_sipuri(sipuri);
-					snprintf(path , 127 , "%s/%s.jpg" , config->iconPath , sid);
+					snprintf(path , sizeof(path) - 1,
+								   	"%s/%s.jpg" , config->iconPath , sid);
 					free(sid);
 					pb = gdk_pixbuf_new_from_file(path , NULL);
 					if(pb == NULL)
@@ -1625,8 +1644,8 @@ static gboolean fx_tree_on_show_tooltip(GtkWidget* widget
 	gchar        *mobileno;
 	gchar        *carrier;
 	gchar         text[2048];
-	gchar         phonetext[128];
-	gchar         iconpath[128];
+	gchar         phonetext[1024];
+	gchar         iconpath[1024];
 	gint          serviceStatus;
 	gint          carrierStatus;
 	gint          relationStatus;
@@ -1670,20 +1689,22 @@ static gboolean fx_tree_on_show_tooltip(GtkWidget* widget
 				, (carrier == NULL || strlen(carrier) == 0) ? _("Not bind to a phone number.")
 				: (mobileno == NULL || strlen(mobileno) == 0 ? _("Phone number not be published.") : mobileno));
 	}
-	snprintf(text , 2047 , _(" <span color='#808080'>Nickname:</span>  <b>%s</b>\n"
+	snprintf(text , sizeof(text) - 1 ,
+				   	_(" <span color='#808080'>Nickname:</span>  <b>%s</b>\n"
 				   " <span color='#808080'>Phone Number:</span>  %s\n"
 				   " <span color='#808080'>Fetion Number:</span>  %s\n"
 				   " <span color='#808080'>Signature:</span>  %s")
-		  		  , name == NULL ? "" : g_markup_escape_text(name , strlen(name))
+		  		  , name == NULL ? "" : name //g_markup_escape_text(name , strlen(name))
 				  ,  phonetext , sid
-				  , impression == NULL ? "" : g_markup_escape_text(impression , strlen(impression)));
+				  , impression == NULL ? "" : impression );//g_markup_escape_text(impression , strlen(impression)));
 	g_free(name);
 	g_free(impression);
 	g_free(mobileno);
 	g_free(sipuri);
 	g_free(carrier);
 
-	snprintf(iconpath , sizeof(iconpath) - 1 , "%s/%s.jpg" , config->iconPath , sid);
+	snprintf(iconpath , sizeof(iconpath) - 1,
+				   	"%s/%s.jpg" , config->iconPath , sid);
 	g_free(sid);
 	pb = gdk_pixbuf_new_from_file_at_size(iconpath , 80 , 80 , NULL);
 	if(pb == NULL)

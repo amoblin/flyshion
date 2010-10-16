@@ -431,14 +431,15 @@ static void* reconnection_func(void *data)
 	Args     *args = (Args*)data;
 	FxMain   *fxmain = args->fxmain;
 	FxHead   *fxhead = fxmain->headPanel;
-	GtkImage *img;
 
 	gdk_threads_enter();
-	gtk_image_set_from_file(fxhead->portrait,
+	gtk_image_set_from_file(GTK_IMAGE(fxhead->portrait),
 			SKIN_DIR"reconnecting.gif");
 	gdk_threads_leave();
 
 	fx_conn_reconnect(fxmain, args->type);
+
+	return NULL;
 }
 
 void fx_head_change_state_func(GtkWidget* UNUSED(widget) , gpointer data)

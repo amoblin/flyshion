@@ -28,6 +28,8 @@
 #include <sys/socket.h>
 #include <netdb.h>
 
+extern gint presence_count;
+
 void fx_conn_init(void)
 {
 	connlst = (struct conn_list*)malloc(sizeof(struct conn_list));
@@ -145,6 +147,8 @@ int fx_conn_reconnect(FxMain *fxmain, int state)
 	gchar             code[16];
 	gchar             path[1024];
 	gint              ret;
+	gint              group_count;
+	gint              buddy_count;
 
 	user   = fxmain->user;
 	sip    = user->sip;
@@ -156,6 +160,9 @@ int fx_conn_reconnect(FxMain *fxmain, int state)
 
 	/* create a new connection to the sip server */
 	tcp = tcp_connection_new();
+
+	/* add connection to connlist */
+	fx_conn_append(tcp);
 
 	debug_info("Connecting to sipc server");
 	if(config->proxy && config->proxy->proxyEnabled)
@@ -204,7 +211,8 @@ auth:
 		return -1;
 	}
 
-	if(parse_sipc_auth_response(res_str, user) < 0){
+	if(parse_sipc_auth_response(res_str, user,
+			&group_count, &buddy_count) < 0){
 		fx_util_popup_warning(fxmain,
 				_("Authenticate failed."));
 		g_free(res_str);
@@ -257,6 +265,7 @@ auth:
 
 	/* start listening thread */
 	fetion_contact_subscribe_only(user);
+	presence_count = 0;
 	g_thread_create(fx_main_listen_thread_func,
 			args, FALSE, NULL);
 
@@ -272,15 +281,124 @@ auth:
 					USER_PORTRAIT_SIZE, 
 					USER_PORTRAIT_SIZE, NULL);
 
+	gdk_threads_enter();
 	gtk_image_set_from_pixbuf(
 			GTK_IMAGE(fxhead->portrait), pixbuf);
 	gtk_widget_set_sensitive(fxhead->portrait, TRUE);
+	gdk_threads_leave();
 	g_object_unref(pixbuf);
 
 	/* set state image */
+	gdk_threads_enter();
 	fx_head_set_state_image(fxmain, state);
+	gdk_threads_leave();
 
 	return 1;
+}
+
+int fx_conn_offline_login(FxMain *fxmain)
+{
+	FxLogin          *fxlogin;
+	FetionConnection *conn;
+	FetionSip        *sip;
+	User             *user;
+	Config           *config;
+	const gchar      *no;
+	const gchar      *password;
+	gint              local_group_count;
+	gint              local_buddy_count;
+
+	fxlogin = fxmain->loginPanel;
+
+	/* get login number and password */
+	no = gtk_combo_box_get_active_text(
+					GTK_COMBO_BOX(fxlogin->username));
+	password = gtk_entry_get_text(
+					GTK_ENTRY(fxlogin->password));
+
+	user = fetion_user_new(no , password);
+	fx_main_set_user(fxmain , user);
+
+	gdk_threads_enter();
+	fx_login_hide(fxlogin);
+	fx_logining_show(fxmain);
+	gdk_threads_leave();
+
+	fx_login_show_msg(fxlogin , _("Preparing for login"));	
+
+	config = fetion_config_new();
+	if(!user){
+		fx_login_show_err(fxlogin , _("Login failed"));
+		return -1;
+	}
+
+	/* set the proxy structure to config */
+	config->proxy = fxlogin->proxy;
+	/* set the config structure to user */
+	fetion_user_set_config(user , config);
+
+	fetion_config_initialize(config , user->userId);
+	/* initialize history */
+	fx_main_history_init(fxmain);
+
+	fetion_config_load(user);
+	if(config->sipcProxyPort == 0)
+		return -1;
+
+	fetion_user_set_st(user , P_OFFLINE);
+
+	/*load local data*/
+	fetion_user_load(user);
+	fetion_contact_load(user, &local_group_count, &local_buddy_count);
+
+	/* add the connection object into the connection list */
+	conn = tcp_connection_new();
+	fx_conn_append(conn);
+
+	/* initialize a sip object */
+	sip = fetion_sip_new(conn , user->sId);
+	fetion_user_set_sip(user , sip);
+
+	/* initialize head panel */
+	gdk_threads_enter();
+	fx_head_initialize(fxmain);
+	gdk_threads_leave();
+
+	/* initialize main panel which in fact only contains a treeview*/
+	gdk_threads_enter();
+	fxmain->mainPanel = fx_tree_new();
+	fx_tree_initilize(fxmain);
+	gdk_threads_leave();
+
+	/* initialize bottom panel */
+	gdk_threads_enter();
+	fx_bottom_initialize(fxmain);
+	gdk_threads_leave();
+
+	gdk_threads_enter();
+	/* set title of main window*/
+	gtk_window_set_title(GTK_WINDOW(fxmain->window),
+				   	user->nickname );
+	gdk_threads_leave();
+
+	gdk_threads_enter();
+	fx_login_free(fxlogin);
+	fx_head_show(fxmain);
+	fx_tree_show(fxmain);
+	fx_bottom_show(fxmain);
+	gdk_threads_leave();
+
+
+	g_thread_exit(0);
+failed:
+	gdk_threads_enter();
+	gtk_widget_destroy(fxlogin->fixed1);
+	gtk_widget_show(fxlogin->fixed);
+	gtk_widget_grab_focus(fxlogin->loginbutton);
+	gdk_threads_leave();
+	g_thread_exit(0);
+	return 1;
+
 }
 
 int fx_conn_check_action(FxMain *fxmain)

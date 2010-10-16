@@ -40,6 +40,7 @@ typedef struct
 	Proxy *proxy;
 	/* login widget start */
 	GtkWidget* fixed;
+	GtkWidget* portrait;
 	GtkWidget* username;
 	GtkWidget* password;
 	GtkWidget* loginbutton;

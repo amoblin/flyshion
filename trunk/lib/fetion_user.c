@@ -290,7 +290,6 @@ int fetion_user_upload_portrait(User* user , const char* filename)
 	filelength = ftell(f);
 	rewind(f);
 	debug_info("uploading portrait....");
-	bzero(http , sizeof(http));
 	sprintf(http , "POST /%s/setportrait.aspx HTTP/1.1\r\n"
 		    	   "Cookie: ssic=%s\r\n"
 				   "Accept: */*\r\n"
@@ -399,7 +398,6 @@ int fetion_user_download_portrait_with_uri(User *user , const char *sipuri
 	if(friendSid == NULL)
 		return -1;
 /*	open a file to write ,if not exist then create one*/
-	bzero(filename , sizeof(filename));
 	sprintf(filename , "%s/%s.jpg" , config->iconPath ,  friendSid);
 	free(friendSid);
 	encodedSipuri = http_connection_encode_url(sipuri);
@@ -779,6 +777,8 @@ void fetion_user_save(User *user)
 	sprintf(path, "%s/data.db",
 				   	config->userPath);
 
+	printf("%s\n", path);
+
 	debug_info("Save user information");
 	if(sqlite3_open(path, &db)){
 		debug_error("open data.db:%s",
@@ -928,7 +928,6 @@ static char* generate_update_information_body(User* user)
 	cnode = xmlNewChild(node , NULL , BAD_CAST "personal" , NULL);
 	xmlNewProp(cnode , BAD_CAST "impresa" , BAD_CAST user->impression);
 	xmlNewProp(cnode , BAD_CAST "nickname" , BAD_CAST user->nickname);
-	bzero(gender , sizeof(gender));
 	sprintf(gender , "%d" , user->gender);
 	xmlNewProp(cnode , BAD_CAST "gender" , BAD_CAST gender);
 	xmlNewProp(cnode , BAD_CAST "version" , BAD_CAST "0");
@@ -997,7 +996,6 @@ static char* generate_set_sms_status_body(int days)
 	node = xmlDocGetRootElement(doc);
 	node = xmlNewChild(node , NULL , BAD_CAST "userinfo" , NULL);
 	node = xmlNewChild(node , NULL , BAD_CAST "personal" , NULL);
-	memset(status , 0 , sizeof(status));
 	sprintf(status , "%d.00:00:00" , days);
 	xmlNewProp(node , BAD_CAST "sms-online-status" , BAD_CAST status);
 	xmlDocDumpMemory(doc , &res , NULL);
