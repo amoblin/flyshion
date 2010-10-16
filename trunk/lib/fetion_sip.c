@@ -20,7 +20,6 @@
 
 #include <openfetion.h>
 
-char buffer[1025];
 int callid = 1;
 
 FetionSip* fetion_sip_new(FetionConnection* tcp , const char* sid)
@@ -237,16 +236,12 @@ char* fetion_sip_to_string(FetionSip* sip , const char* body)
 	};
 	if(strlen(type) == 0)
 		return NULL;
-	bzero(buf , sizeof(buf));
 	sprintf(buf , "%s fetion.com.cn SIP-C/4.0\r\n" , type);
 	strcpy(res , buf);
-	bzero(buf , sizeof(buf));
 	sprintf(buf , "F: %s\r\n" , sip->from);
 	strcat(res , buf);
-	bzero(buf , sizeof(buf));
 	sprintf(buf , "I: %d\r\n" , sip->callid);
 	strcat(res , buf);
-	bzero(buf , sizeof(buf));
 	sprintf(buf , "Q: 2 %s\r\n" , type);
 	strcat(res , buf);
 
@@ -423,10 +418,126 @@ void fetion_sip_set_connection(FetionSip* sip , FetionConnection* conn)
 {
 	sip->tcp = conn;
 }
-SipMsg* fetion_sip_listen(FetionSip* sip)
+
+static SipMsg *sipmsg_new(void)
+{
+	SipMsg *msg = (SipMsg*)malloc(sizeof(SipMsg));
+	memset(msg, 0, sizeof(SipMsg));
+	msg->next = NULL;
+	return msg;
+}
+
+static void sipmsg_set_msg(SipMsg *sipmsg, const char *msg, int n)
+{
+	sipmsg->message = (char*)malloc(n + 1);
+	memset(sipmsg->message, 0, n + 1);
+	strncpy(sipmsg->message, msg, n);
+}
+
+#define BUFFER_SIZE (1024 * 20)
+
+/* the following code is hard to read,forgive me! */
+SipMsg *fetion_sip_listen(FetionSip *sip)
+{
+	int     n;
+	int     body_len;
+	char    buffer[BUFFER_SIZE];
+	char    holder[BUFFER_SIZE];
+	char   *cur;
+	char   *pos;
+	SipMsg *list = NULL;
+	SipMsg *msg;
+
+	memset(buffer, 0, sizeof(buffer));
+	n = tcp_connection_recv_dont_wait(sip->tcp,
+				buffer, sizeof(buffer) - 1);
+	cur = buffer;
+	for(;;){
+		pos = strstr(cur, "\r\n\r\n");
+		body_len = 0;
+		if(pos){
+			n = strlen(cur) - strlen(pos);
+			memset(holder, 0, sizeof(holder));
+			strncpy(holder, cur, n);
+			body_len = fetion_sip_get_length(holder);
+		}
+
+		if(cur == NULL || strlen(cur) == 0)
+			return list;
+
+		if(body_len == 0 && pos){
+			msg = sipmsg_new();
+			n = strlen(cur) - strlen(pos) + 4;
+			sipmsg_set_msg(msg, cur, n);
+			if(list)
+				fetion_sip_message_append(list, msg);
+			else
+				list = msg;
+			cur += n;
+			continue;
+		}
+
+		if((body_len == 0 && !pos) ||
+				(body_len != 0 && !pos)){
+			memset(holder, 0 , sizeof(holder));
+			strcpy(holder, cur);
+			tcp_connection_recv(sip->tcp,
+					holder + strlen(cur),
+					BUFFER_SIZE - strlen(cur) - 1);
+			memset(buffer, 0 , sizeof(buffer));
+			strcpy(buffer, holder);
+			cur = buffer;
+			continue;
+		}else{
+			/* now body_len != 0 */
+			pos += 4;
+			memset(holder, 0 , sizeof(holder));
+			if(strlen(pos) < body_len){
+				strcpy(holder, cur);
+				tcp_connection_recv(sip->tcp,
+					holder + strlen(cur),
+					BUFFER_SIZE - strlen(cur) - 1);
+				memset(buffer, 0, sizeof(buffer));
+				strcpy(buffer, holder);
+				cur = buffer;
+				continue;
+			}else if(strlen(pos) == body_len){
+				msg = sipmsg_new();
+				sipmsg_set_msg(msg, cur, strlen(cur));
+				if(list)
+					fetion_sip_message_append(list, msg);
+				else
+					list = msg;
+				return list;
+			}else{
+				msg = sipmsg_new();
+				n = strlen(cur) - strlen(pos) + body_len;
+				sipmsg_set_msg(msg, cur, n);
+				if(list)
+					fetion_sip_message_append(list, msg);
+				else
+					list = msg;
+
+				memset(holder, 0 , sizeof(holder));
+				strcpy(holder, cur + n);
+				memset(buffer, 0, sizeof(buffer));
+				strcpy(buffer, holder);
+				cur = buffer;
+				continue;
+			}
+		}
+
+
+	}
+
+	sleep(1);
+}
+
+SipMsg* fetion_sip_listen1(FetionSip* sip)
 {
 	char *buf , *pos , *missingStr = NULL , *tmp = NULL;
 	char *strBeforeSpt = NULL;
+	char buffer[1025];
 	unsigned int strBeforeSptLen = 0;
 	unsigned int len , msglen , missingLen , rereceiveLen , msgCurrentLen;
 	int bodyLen;
@@ -444,10 +555,8 @@ SipMsg* fetion_sip_listen(FetionSip* sip)
 		msg->next = NULL;
 		bodyLen = fetion_sip_get_length(buf);
 		pos = strstr(buf , "\r\n\r\n");
-		/**
-		 * ensure the bodyLength is read from 
-		 * the first chunk before '\r\n\r\n'
-		 */
+		/* ensure the bodyLength is read from 
+		 * the first chunk before '\r\n\r\n' */
 		if(pos != NULL)
 		{
 			strBeforeSptLen = strlen(buf) - strlen(pos) + 1;
@@ -472,10 +581,10 @@ SipMsg* fetion_sip_listen(FetionSip* sip)
 		 */
 		if(bodyLen == 0 && pos != NULL)
 		{
-			len = strlen(buf) - strlen(pos);
-			msg->message = (char*)malloc(len + 5);
-			bzero(msg->message , len + 5);
-			strncpy(msg->message , buf , len + 4);
+			len = strlen(buf) - strlen(pos) + 4;
+			msg->message = (char*)malloc(len + 1);
+			memset(msg->message, 0 , len + 1);
+			strncpy(msg->message , buf , len);
 			if(msglist == NULL)
 				msglist = msg;
 			else
@@ -493,8 +602,7 @@ SipMsg* fetion_sip_listen(FetionSip* sip)
 		 */
 		if(bodyLen == 0 && pos == NULL)
 		{
-			if(tmp != NULL && strlen(tmp) != 0)
-			{
+			if(tmp != NULL){
 				free(tmp);
 				tmp = NULL;
 			}
@@ -502,7 +610,7 @@ SipMsg* fetion_sip_listen(FetionSip* sip)
 			memset(tmp , 0 , strlen(buf) + sizeof(buffer));
 			strcpy(tmp , buf);
 			memset(buffer , 0 , sizeof(buffer));
-			tcp_connection_recv(sip->tcp , buffer , 1024);
+			tcp_connection_recv(sip->tcp , buffer , sizeof(buffer) - 1);
 			strcat(tmp , buffer);
 			buf = tmp;
 			continue;
@@ -522,7 +630,7 @@ SipMsg* fetion_sip_listen(FetionSip* sip)
 			memset(tmp , 0 , strlen(buf) + sizeof(buffer));
 			strcpy(tmp , buf);
 			memset(buffer , 0 , sizeof(buffer));
-			tcp_connection_recv(sip->tcp , buffer , 1024);
+			tcp_connection_recv(sip->tcp , buffer , sizeof(buffer) - 1);
 			strcat(tmp , buffer);
 			buf = tmp;
 			continue;

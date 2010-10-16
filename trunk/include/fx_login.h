@@ -41,9 +41,18 @@ extern GtkTreeModel* fx_login_create_user_model(Config* config);
 extern void fx_login_set_last_login_user(FxLogin* fxlogin);
 
 extern void fx_login_set_last_login_state(FxLogin* fxlogin , StateType state);
-/* signal function */
 
-extern void* fx_login_thread_func(void* data);
+extern void fx_login_show_msg(FxLogin *fxlogin , const char *msg);
+
+extern void fx_login_show_err(FxLogin *fxlogin , const char *msg);
+
+extern void fx_login_hide(FxLogin *fxlogin);
+
+extern void fx_login_free(FxLogin* fxlogin);
+
+extern void fx_logining_show(FxMain *fxmain);
+
+/* signal function */
 
 extern void fx_login_action_func(GtkWidget* UNUSED(widget) , gpointer data);
 

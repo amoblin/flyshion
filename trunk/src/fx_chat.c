@@ -375,9 +375,9 @@ void fx_chat_initialize(FxChat* fxchat)
 	Contact   *contact;
 	
 	contact = fxchat->conv->currentContact;
-	FxMain *fxmain = fxchat->fxmain;
-	User *user = fxmain->user;
-	Config *config = user->config;
+	FxMain    *fxmain = fxchat->fxmain;
+	User      *user = fxmain->user;
+	Config    *config = user->config;
 
 	fxchat->dialog = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_modal(GTK_WINDOW(fxchat->dialog) , FALSE);
@@ -607,12 +607,9 @@ void fx_chat_destroy(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	FxChat* fxchat = (FxChat*)data;
 
-	g_static_mutex_lock(&mutex);
 	fx_list_remove_chat_by_sipuri(fxchat->fxmain->clist
 				, fxchat->conv->currentContact->sipuri);
 	fx_chat_free(fxchat);
-	g_static_mutex_unlock(&mutex);
-
 }
 
 void* fx_chat_send_message_thread(void *data)
@@ -646,7 +643,6 @@ void* fx_chat_send_message_thread(void *data)
 	gtk_text_buffer_delete(fxchat->send_buffer , &begin , &end);
 	gdk_threads_leave();
 
-	g_static_mutex_lock(&mutex);
 	if(fetion_conversation_invite_friend(conv) > 0){
 
 		fx_conn_append(conv->currentSip->tcp);
@@ -662,7 +658,6 @@ void* fx_chat_send_message_thread(void *data)
 
 		fetion_conversation_send_sms(conv , text);
 	}
-	g_static_mutex_unlock(&mutex);
 
 	return NULL;
 }

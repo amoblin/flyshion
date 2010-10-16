@@ -297,6 +297,12 @@ void fx_main_process_presence(FxMain* fxmain , const gchar* xml)
 	FxChat       *fxchat;
 	GtkTreeIter   iter;
 	GtkTreeIter   parentIter;
+#ifdef USE_LIBNOTIFY
+	gchar         notifySummary[256];
+	gchar         notifyText[1024];
+	gchar         iconPath[256];
+	GdkPixbuf    *pb;
+#endif
 
 	contactlist = fetion_user_parse_presence_body(xml , user);
 	contact = contactlist;
@@ -346,11 +352,8 @@ void fx_main_process_presence(FxMain* fxmain , const gchar* xml)
 			fx_tree_move_to_the_first(model , &iter);
 
 #ifdef USE_LIBNOTIFY
-			if(start_popup_presence){
-				gchar      notifySummary[256];
-				gchar      notifyText[1024];
-				gchar      iconPath[256];
-				GdkPixbuf *pb;
+			if(start_popup_presence && 
+				config->onlineNotify == ONLINE_NOTIFY_ENABLE){
 
 				sprintf(iconPath , "%s/%s.jpg",
 						config->iconPath , contact->sId);
@@ -1311,6 +1314,7 @@ void* fx_main_listen_thread_func(void* data)
 
 		ret = select(sip->tcp->socketfd+1, &fd_read, NULL, NULL, &tv);
 
+
 		if(ret == 0)
 			continue;
 
@@ -1326,19 +1330,13 @@ void* fx_main_listen_thread_func(void* data)
 		}
 
 		msg = fetion_sip_listen(sip);
-		if(!msg){
-			gdk_threads_enter();
-			fx_util_popup_warning(fxmain,
-					_("Sorry,your network connection"
-					" has been closed\nPlease check "
-					"your network connection and then login again"));
-			gdk_threads_leave();
 
-			gtk_main_quit();
-			g_thread_exit(0);
-		}
+		if(!msg)
+			continue;
+		
 		pos = msg;
 		while(pos){
+
 			type = fetion_sip_get_type(pos->message);
 			switch(type){
 				case SIP_NOTIFICATION :

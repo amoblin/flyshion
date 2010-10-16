@@ -89,7 +89,7 @@ extern char* sipc_aut_action(User* user , const char* response);
  *  	user`s personal information and user`s contact list information if success,
  *  	orelse the member variable "loginStatus" will be filled with errno.
  */
-extern int parse_sipc_auth_response(const char* auth_response , User* user);
+extern int parse_sipc_auth_response(const char* auth_response , User* user, int *group_count, int *buddy_count);
 
 /**
  * generate comfirm code picture.

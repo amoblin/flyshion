@@ -102,8 +102,9 @@ void fetion_config_free(Config *config)
 	    free(config);
 	}
 }
-struct userlist* fetion_user_list_new(const char* no,
-	    	const char* password, int laststate , int islastuser)
+struct userlist* fetion_user_list_new(const char *no,
+	    	const char *password, const char *userid,
+			const char *sid, int laststate , int islastuser)
 {
 	struct userlist* ul;
 
@@ -113,6 +114,10 @@ struct userlist* fetion_user_list_new(const char* no,
 		strcpy(ul->no , no);
 	if(password)
 		strcpy(ul->password , password);
+	if(userid)
+		strcpy(ul->userid, userid);
+	if(sid)
+		strcpy(ul->sid, sid);
 	ul->laststate = laststate;
 	ul->islastuser = islastuser;
 	ul->next = ul->pre = ul;
@@ -150,9 +155,11 @@ void fetion_user_list_save(Config* config , struct userlist* ul)
 
 	foreach_userlist(ul, pos){
 		sprintf(sql, "insert into userlist values"
-					"('%s','%s',%d,%d)",
+					"('%s','%s',%d,%d,'%s','%s')",
 					pos->no, pos->password,
-					pos->laststate, pos->islastuser);
+					pos->laststate, pos->islastuser,
+				   	pos->userid, pos->sid);
+		printf("%s\n", sql);
 		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
 			debug_error("insert no : %s failed: %s",
 						pos->no, errMsg ? errMsg : "");
@@ -182,6 +189,20 @@ struct userlist* fetion_user_list_find_by_no(struct userlist* list , const char*
 	return NULL;
 }
 
+static int create_userlist_table(sqlite3 *db)
+{
+	char sql[1024];
+	char *errMsg;
+	sprintf(sql, "create table userlist (no, password"
+					", laststate, islastuser,userid,sid);");
+	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+		debug_error("create table userlist failed:%s",
+						sqlite3_errmsg(db));
+		return 0;
+	}
+	return 1;
+}
+
 struct userlist* fetion_user_list_load(Config* config)
 {
 	char path[256];
@@ -192,25 +213,36 @@ struct userlist* fetion_user_list_load(Config* config)
 	struct userlist *res = NULL , *pos;
 	int ncols, nrows, i, start;
 
-	res = fetion_user_list_new(NULL , NULL , 0 , 0);
+	res = fetion_user_list_new(NULL, NULL, NULL, NULL, 0, 0);
 
-	memset(path , 0 , sizeof(path));
 	sprintf(path , "%s/data.db" , config->globalPath);
+	printf("%s\n", path);
 	if(sqlite3_open(path, &db)){
 		debug_error("failed to load user list");
 		return res;
 	}
 
+	sprintf(sql, "select sid from userlist;");
+	if(sqlite3_get_table(db, sql, &sqlres,
+						&nrows, &ncols, &errMsg)){
+create_ul_table:
+		if(!create_userlist_table(db)){
+			sprintf(sql, "drop table userlist;");
+			if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+				sqlite3_close(db);
+				return res;
+			}
+			goto create_ul_table;
+		}
+	}
+
 	sprintf(sql, "select * from userlist order by islastuser desc;");
 	if(sqlite3_get_table(db, sql, &sqlres,
 						&nrows, &ncols, &errMsg)){
-		sprintf(sql, "create table userlist (no, password"
-						", laststate, islastuser);");
-		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg))
-			debug_error("create table userlist failed:%s",
-							sqlite3_errmsg(db));
-		sqlite3_close(db);
-		return res;
+		if(!create_userlist_table(db)){
+			sqlite3_close(db);
+			return res;
+		}
 	}
 
 	debug_info("Loading user list store in local data file");
@@ -218,12 +250,38 @@ struct userlist* fetion_user_list_load(Config* config)
 		start = ncols + i * ncols;
 		pos = fetion_user_list_new(sqlres[start],
 					sqlres[start + 1],
+					sqlres[start + 4],
+					sqlres[start + 5],
 				   	atoi(sqlres[start + 2]),
 					atoi(sqlres[start + 3]));
 		fetion_user_list_append(res , pos);
 	}
 	sqlite3_close(db);
 	return res;
+}
+
+void fetion_user_list_update_userid(Config *config,
+				const char *no, const char *userid)
+{
+	char path[256];
+	char sql[1024];
+	sqlite3 *db;
+	char *errMsg = NULL;
+
+	sprintf(path , "%s/data.db" , config->globalPath);
+	if(sqlite3_open(path, &db)){
+		debug_error("failed to load user list");
+		return;
+	}
+
+	sprintf(sql, "update userlist set userid='%s' "
+			"where no='%s';",userid, no);
+	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+		debug_error("update userlist:%s",
+						errMsg);
+	}
+	sqlite3_close(db);
+	return;
 }
 
 void fetion_user_list_free(struct userlist *list)
@@ -378,6 +436,8 @@ int fetion_config_load(User *user)
 
 	sprintf(path, "%s/data.db",
 				   	config->userPath);
+
+	printf("%s\n", path);
 
 	debug_info("Load configuration");
 	if(sqlite3_open(path, &db)){

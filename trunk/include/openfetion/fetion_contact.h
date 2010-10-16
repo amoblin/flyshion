@@ -63,6 +63,8 @@ extern Contact* fetion_contact_list_find_by_sipuri(Contact* contactlist , const 
  */
 extern void fetion_contact_list_remove_by_userid(Contact* contactlist , const char* userid);
 
+extern void fetion_contact_list_remove(Contact *contact);
+
 /**
  * free the resource of the while contact list
  * @param contactlist the head of the contact list

@@ -22,21 +22,22 @@
 
 static void fx_set_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 {
-	FxSet *fxset = (FxSet*)data;
-	User *user = fxset->fxmain->user;
-	Config *config = user->config;
+	FxSet         *fxset = (FxSet*)data;
+	User          *user = fxset->fxmain->user;
+	Config        *config = user->config;
 	/* system setting varibles */
-	GtkTextView *textview = GTK_TEXT_VIEW(fxset->apEty);
+	GtkTextView   *textview = GTK_TEXT_VIEW(fxset->apEty);
 	GtkTextBuffer *buffer = gtk_text_view_get_buffer(textview);
-	GtkTextIter startIter , endIter;
-	const char *autoReplyMsg = NULL;
+	GtkTextIter    startIter;
+   	GtkTextIter    endIter;
+	const gchar   *autoReplyMsg = NULL;
 	/* personal setting varibles */
-	const char *nickname = NULL;
-	const char *impression = NULL;
-	char nickname_text[1024];
-	int gender;
-	GtkTreeModel *genderModel = NULL;
-	GtkTreeIter genderIter;
+	const gchar   *nickname = NULL;
+	const gchar   *impression = NULL;
+	gchar          nickname_text[1024];
+	gint           gender;
+	GtkTreeModel  *genderModel = NULL;
+	GtkTreeIter    genderIter;
 
 	if(gtk_notebook_get_current_page(GTK_NOTEBOOK(fxset->notebook)) == PAGE_SYSTEM)
 	{
@@ -74,6 +75,11 @@ static void fx_set_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 			config->autoAway = AUTO_AWAY_ENABLE;
 		else
 			config->autoAway = AUTO_AWAY_DISABLE;
+
+		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxset->onlineNotifyBtn)))
+			config->onlineNotify = ONLINE_NOTIFY_ENABLE;
+		else
+			config->onlineNotify = ONLINE_NOTIFY_DISABLE;
 
 		gtk_text_buffer_get_start_iter(buffer , &startIter);
 		gtk_text_buffer_get_end_iter(buffer , &endIter);
@@ -244,6 +250,11 @@ void fx_set_bind_system(FxSet* fxset)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->autoAwayBtn) , TRUE);
 	else
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->autoAwayBtn) , FALSE);
+
+	if(config->onlineNotify == ONLINE_NOTIFY_ENABLE)
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->onlineNotifyBtn), TRUE);
+	else
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->onlineNotifyBtn), FALSE);
 
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(fxset->apEty));
 	gtk_text_buffer_get_start_iter(buffer , &startIter);
