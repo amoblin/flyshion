@@ -20,10 +20,9 @@
 
 #include "fx_include.h"
 
-int old_state;
 struct userlist  *ul;
 
-#define PORTRAIT_SIZE        120
+#define PORTRAIT_SIZE      120
 #define LOADING_IMAGE_SIZE 128
 
 FxLogin* fx_login_new()
@@ -50,9 +49,9 @@ gboolean fx_login_proxy_button_func(GtkWidget *UNUSED(widget)
 		, GdkEventButton *event , gpointer data)
 {
 	FxLogin *fxlogin = (FxLogin*)data;
-	Proxy *proxy = fxlogin->proxy;
+	Proxy   *proxy = fxlogin->proxy;
 	FxProxy *fxproxy = NULL;
-	char text[1024];
+	gchar    text[1024];
 
 	bzero(text , sizeof(text));
 
@@ -149,7 +148,7 @@ void fx_login_initialize(FxMain *fxmain)
 	GtkWidget        *proxyHbox = NULL;
 	GdkPixbuf        *pixbuf;
 	Proxy            *proxy = NULL;
-	gchar text[1024];
+	gchar             text[1024];
 
 	config = fetion_config_new();
 	/* load proxy information */
@@ -278,10 +277,10 @@ void fx_login_initialize(FxMain *fxmain)
 }
 GtkTreeModel* fx_login_create_state_model()
 {
-	GtkListStore* store = NULL;
-	GtkTreeIter iter;
-	GdkPixbuf* pb = NULL;
-	int i;
+	GtkListStore *store = NULL;
+	GtkTreeIter   iter;
+	GdkPixbuf    *pb = NULL;
+	gint i;
 
 	struct {
 		const gchar* name;
@@ -346,413 +345,10 @@ static void *fx_offline_login_thread_func(void *data)
 
 static void *fx_login_thread_func(void *data)
 {
-	FxMain           *fxmain = (FxMain*)data;
-	FxLogin          *fxlogin = fxmain->loginPanel;
-	FetionConnection *conn = NULL;					 /* connection for sipc 		   */
-	const gchar      *no;
-	const gchar      *password;
-	gchar            *pos;
-	gchar            *nonce;
-	gchar            *key;
-	gchar            *aeskey;
-	gchar            *response;                      /* string used for authentication */
-	Config           *config = NULL;				 /* global user config 			   */
-	Group            *group = NULL;					 /* buddy list		  			   */
-	User             *user = NULL;					 /* global user information 	   */
-	gchar             code[20];						 /* store reply code   			   */
-	gchar             statusTooltip[128];
-	struct userlist  *newul;
-	struct userlist  *ul_cur;
-
-	GtkTreeIter       stateIter;
-	GtkTreeModel     *stateModel = NULL;
-	gint              state;
-	gboolean          remember;
-
-	gint              local_buddy_count;
-	gint              local_group_count;
-	gint              new_buddy_count;
-	gint              new_group_count;
-#ifdef USE_LIBNOTIFY
-	gchar             notifyText[1024];
-	gchar             iconPath[256];
-	GdkPixbuf        *pb;
-#endif
-	FxCode           *fxcode = NULL;
-	gint              ret;
-
-	/* get login state value */
-	gtk_combo_box_get_active_iter(
-					GTK_COMBO_BOX(fxlogin->statecombo),
-				   	&stateIter);
-	stateModel = gtk_combo_box_get_model(
-					GTK_COMBO_BOX(fxlogin->statecombo));
-	gtk_tree_model_get(stateModel, &stateIter,
-				   	2 , &state , -1);
-	old_state = state;
-
-	/* get login number and password */
-	no = gtk_combo_box_get_active_text(
-					GTK_COMBO_BOX(fxlogin->username));
-	password = gtk_entry_get_text(
-					GTK_ENTRY(fxlogin->password));
-
-	/* get whether to remember password */
-	remember = gtk_toggle_button_get_active(
-					GTK_TOGGLE_BUTTON(fxlogin->remember));
-
-	user = fetion_user_new(no , password);
-	fx_main_set_user(fxmain , user);
-
-	gdk_threads_enter();
-	fx_login_hide(fxlogin);
-	fx_logining_show(fxmain);
-	gdk_threads_leave();
-
-	fx_login_show_msg(fxlogin , _("Preparing for login"));	
-
-	config = fetion_config_new();
-	if(!user){
-		fx_login_show_err(fxlogin , _("Login failed"));
-		goto failed;
-	}
-
-	/* set the proxy structure to config */
-	config->proxy = fxlogin->proxy;
-	/* set the config structure to user */
-	fetion_user_set_config(user , config);
-
-login:
-	pos = ssi_auth_action(user);
-	if(!pos){
-		fx_login_show_err(fxlogin , _("Login failed"));
-		goto failed;
-	}
-	parse_ssi_auth_response(pos , user);
-	g_free(pos);
-	if(user->loginStatus == 421 || user->loginStatus == 420){
-		debug_info(user->verification->text);
-		debug_info(user->verification->tips);
-		fx_login_show_msg(fxlogin,
-				_("Getting code picture，please wait..."));
-		generate_pic_code(user);
-		gdk_threads_enter();
-		fxcode = fx_code_new(fxmain,
-					 user->verification->text,
-					 user->verification->tips,
-					 CODE_NOT_ERROR);
-		fx_code_initialize(fxcode);
-		ret = gtk_dialog_run(GTK_DIALOG(fxcode->dialog));
-		if(ret == GTK_RESPONSE_OK){
-			strcpy(code , gtk_entry_get_text(
-							GTK_ENTRY(fxcode->codeentry)));
-			fetion_user_set_verification_code(user , code);
-			gtk_widget_destroy(fxcode->dialog);
-			g_free(fxcode);
-			gdk_threads_leave();
-		}else{
-			gtk_widget_destroy(fxcode->dialog);
-			g_free(fxcode);
-			gdk_threads_leave();
-			g_thread_exit(0);
-		}
-		debug_info("Input verfication code:%s" , code);
-		goto login;
-	}
-	if(user->loginStatus == 401 ||
-	  	user->loginStatus == 400 ||
-	   	user->loginStatus == 404){
-		debug_info("password ERROR!!!");
-		fx_login_show_err(fxlogin,
-			_("Login failed. Incorrect cell phone number or password"));
-		goto failed;
-	}
-	
-	fx_login_show_err(fxlogin,
-				 _("Loading local user information"));
-
-	fetion_config_initialize(config , user->userId);
-
-	/* initialize history */
-	fx_main_history_init(fxmain);
-
-	/* set user list to be stored in local file	 */
-	newul = fetion_user_list_find_by_no(ul , no);
-	if(!newul){
-		if(remember)
-			newul = fetion_user_list_new(no,
-						  password , user->userId,
-						  user->sId, state , 1);
-		else
-			newul = fetion_user_list_new(no,
-						  NULL, user->userId,
-						  user->sId, state , 1);
-		foreach_userlist(ul , ul_cur)
-			ul_cur->islastuser = 0;
-		fetion_user_list_append(ul , newul);
-	}else{
-		memset(newul->password,
-				 0, sizeof(newul->password));
-		if(remember)
-			strcpy(newul->password , password);
-		newul->laststate = state;
-		foreach_userlist(ul , ul_cur)
-			ul_cur->islastuser = 0;
-		newul->islastuser = 1;
-	}
-	fetion_user_list_save(config , ul);
-	fetion_user_list_free(ul);
-
-	/* download xml configuration file from the server */
-	fetion_config_load(user);
-	if(config->sipcProxyPort == 0)
-		fx_login_show_msg(fxlogin,
-					_("It detected that this`s"
-					" this first time you login\n"
-					"downloading configuration file..."));
-	else
-		fx_login_show_msg(fxlogin,
-					_("Downloading configuration files"));
-	fetion_config_download_configuration(user);
-	fetion_config_save(user);
-
-	fetion_user_set_st(user , state);
-
-	/*load local data*/
-	fetion_user_load(user);
-	fetion_contact_load(user, &local_group_count, &local_buddy_count);
-
-	/* start a new tcp connection for registering to sipc server */
-	conn = tcp_connection_new();
-	if(config->proxy != NULL && config->proxy->proxyEnabled){
-		fx_login_show_msg(fxlogin,
-					 _("Connecting to proxy server"));
-		tcp_connection_connect_with_proxy(conn,
-					   	config->sipcProxyIP,
-					   	config->sipcProxyPort,
-					   	config->proxy);
-	}else{
-		fx_login_show_msg(fxlogin,
-					  _("Connecting to registration server"));
-		tcp_connection_connect(conn,
-					  	config->sipcProxyIP, 
-						config->sipcProxyPort);
-	}
-
-	/* add the connection object into the connection list */
-	fx_conn_append(conn);
-
-	/* initialize a sip object */
-	FetionSip* sip = fetion_sip_new(conn , user->sId);
-
-	fetion_user_set_sip(user , sip);
-
-	fx_login_show_msg(fxlogin,
-				   	_("Registering to SIPC Server"));
-	pos = sipc_reg_action(user);
-
-	if(!pos){
-		fx_login_show_err(fxlogin , _("Login failed"));
-		goto failed;
-	}
-
-	parse_sipc_reg_response(pos , &nonce , &key);
-	g_free(pos);
-
-	aeskey = generate_aes_key();
-	response = generate_response(nonce, user->userId,
-				   	user->password, key, aeskey);
-	g_free(nonce);
-	g_free(key);
-	g_free(aeskey);
-
-	/* start sipc authentication using the response created just now */
-	fx_login_show_msg(fxlogin , _("SIPC Indentify"));
-auth:
-	pos = sipc_aut_action(user , response);
-	if(pos == NULL){
-		fx_login_show_err(fxlogin , _("Login failed"));
-		goto failed;
-	}
-
-	if(parse_sipc_auth_response(pos , user,
-			&new_group_count, &new_buddy_count) < 0){
-		debug_info("Password error , login failed!!!");
-		fx_login_show_err(fxlogin , _("Authenticate failed."));
-		goto failed;
-	}
-	g_free(pos); pos = NULL;
-
-	if(user->loginStatus == 401 || user->loginStatus == 400){
-		debug_info("Password error , login failed!!!");
-		fx_login_show_err(fxlogin , _("Authenticate failed."));
-		goto failed;
-	}
-
-	if(user->loginStatus == 421 || user->loginStatus == 420){
-		debug_info(user->verification->text);
-		debug_info(user->verification->tips);
-		fx_login_show_msg(fxlogin,
-				_("Getting code picture，please wait..."));
-		generate_pic_code(user);
-		gdk_threads_enter();
-		fxcode = fx_code_new(fxmain,
-					   	user->verification->text,
-					  	user->verification->tips,
-					   	CODE_NOT_ERROR);
-		fx_code_initialize(fxcode);
-
-		ret = gtk_dialog_run(GTK_DIALOG(fxcode->dialog));
-		if(ret == GTK_RESPONSE_OK){
-			strcpy(code , gtk_entry_get_text(
-							GTK_ENTRY(fxcode->codeentry)));
-			fetion_user_set_verification_code(user , code);
-			gtk_widget_destroy(fxcode->dialog);
-			gdk_threads_leave();
-			goto auth;
-		}else{
-			gtk_widget_destroy(fxcode->dialog);
-			gdk_threads_leave();
-			goto failed;
-		}
-		debug_info("Input verfication code:%s" , code);
-	}
-
-	Contact *c_cur;
-	Contact *c_tmp;
-
-	/* update buddy count */
-	if(user->contactCount == 0)
-		user->contactCount = local_buddy_count;
-	else if(user->contactCount != local_buddy_count){
-		/* do some clean on the local buddy data */
-		for(c_cur = user->contactList->next;
-				c_cur !=  user->contactList;){
-			c_tmp = c_cur;
-			c_cur = c_cur->next;
-			if(!c_tmp->dirty){
-				fetion_contact_list_remove(c_tmp);
-				g_free(c_tmp);
-			}
-		}
-	}
-
-	fx_login_show_msg(fxlogin , _("Initializing main panel"));
-	
-	pg_group_get_list(user);
-
-#ifdef USE_LIBNOTIFY
-	sprintf(iconPath, "%s/%s.jpg",
-				  config->iconPath, user->sId);
-	sprintf(notifyText ,
-			_("Public IP: %s\n"
-			  "IP of last login: %s\n"
-			  "Time of last login: %s\n"),
-		   	user->publicIp , user->lastLoginIp,
-		   	user->lastLoginTime);
-	pb = gdk_pixbuf_new_from_file_at_size(iconPath,
-				   	NOTIFY_IMAGE_SIZE, NOTIFY_IMAGE_SIZE, NULL);
-	if(!pb){
-		fx_login_show_msg(fxlogin, _("Getting portrait..."));
-		fetion_user_download_portrait(user , user->sipuri);
-		pb = gdk_pixbuf_new_from_file_at_size(iconPath,
-					   	NOTIFY_IMAGE_SIZE, NOTIFY_IMAGE_SIZE, NULL);
-		if(!pb)
-			pb = gdk_pixbuf_new_from_file_at_size(
-						SKIN_DIR"fetion.svg",
-						NOTIFY_IMAGE_SIZE, NOTIFY_IMAGE_SIZE, NULL);
-	}
-
-	gdk_threads_enter();
-	notify_notification_update(fxmain->notify,
-				   	_("Login successful")// notifySummary
-			, notifyText , NULL);
-	notify_notification_set_icon_from_pixbuf(fxmain->notify , pb);
-	notify_notification_show(fxmain->notify , NULL);
-	gdk_threads_leave();
-	g_object_unref(pb);
-#endif
-	fx_login_show_msg(fxlogin , _("Login sucessful"));
-
-	gdk_threads_enter();
-	gtk_window_set_resizable(GTK_WINDOW(fxmain->window) , TRUE);
-	gdk_threads_leave();
-
-	/**
-	 *  if there is not a buddylist name "Ungrouped" or "Strangers", create one
-	 */
-	if(fetion_group_list_find_by_id(user->groupList,
-			BUDDY_LIST_NOT_GROUPED) == NULL &&
-		    fetion_contact_has_ungrouped(user->contactList)){
-		group = fetion_group_new();
-		group->groupid = BUDDY_LIST_NOT_GROUPED;
-		strcpy(group->groupname , N_("Ungrouped"));
-		fetion_group_list_append(user->groupList , group);
-	}
-	if(fetion_group_list_find_by_id(user->groupList,
-			BUDDY_LIST_STRANGER) == NULL &&
-			fetion_contact_has_strangers(user->contactList)){
-		group = fetion_group_new();
-		group->groupid = BUDDY_LIST_STRANGER;
-		strcpy(group->groupname , N_("Strangers"));
-		fetion_group_list_prepend(user->groupList , group);
-	}
-	fx_login_show_msg(fxlogin , _("Initializing main panel"));
-
-	/*localization*/
-	fetion_contact_save(user);
-	fetion_user_save(user);
-
-	/* initialize head panel */
-	gdk_threads_enter();
-	fx_head_initialize(fxmain);
-	gdk_threads_leave();
-
-	/* initialize main panel which in fact only contains a treeview*/
-	gdk_threads_enter();
-	fxmain->mainPanel = fx_tree_new();
-	fx_tree_initilize(fxmain);
-	gdk_threads_leave();
-
-	/* initialize bottom panel */
-	gdk_threads_enter();
-	fx_bottom_initialize(fxmain);
-	gdk_threads_leave();
-
-	/* set tooltip of status icon */
-	sprintf(statusTooltip, "%s\n%s",
-			 user->nickname , user->mobileno);
-
-	gdk_threads_enter();
-	gtk_status_icon_set_tooltip(GTK_STATUS_ICON(fxmain->trayIcon),
-				   	statusTooltip);
-	/* set title of main window*/
-	gtk_window_set_title(GTK_WINDOW(fxmain->window),
-				   	user->nickname );
-	gdk_threads_leave();
-
-	gdk_threads_enter();
-	fx_login_free(fxlogin);
-	fx_head_show(fxmain);
-	fx_tree_show(fxmain);
-	fx_bottom_show(fxmain);
-	gdk_threads_leave();
-
-
-	/* start sending keep alive request periodically */
-	g_timeout_add_seconds(180 , (GSourceFunc)fx_main_register_func , user);
-	g_timeout_add_seconds(3 , (GSourceFunc)fx_main_check_func , fxmain);
-
-	g_thread_exit(0);
-failed:
-	gdk_threads_enter();
-	gtk_widget_destroy(fxlogin->fixed1);
-	gtk_widget_show(fxlogin->fixed);
-	gtk_widget_grab_focus(fxlogin->loginbutton);
-	gdk_threads_leave();
-	g_thread_exit(0);
+	fx_conn_connect((FxMain*)data);
 	return NULL;
 }
+
 void fx_login_action_func(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	FxMain       *fxmain = (FxMain*)data;
@@ -776,6 +372,7 @@ void fx_login_action_func(GtkWidget* UNUSED(widget) , gpointer data)
 		g_thread_create(fx_login_thread_func,
 				fxmain , FALSE , NULL);
 }
+
 GtkTreeModel* fx_login_create_user_model(Config* config)
 {
 	GtkTreeStore* model = gtk_tree_store_new(USER_COLS_NUM
@@ -784,7 +381,7 @@ GtkTreeModel* fx_login_create_user_model(Config* config)
 										   , G_TYPE_INT
 										   , G_TYPE_INT);
 	struct userlist *ul_cur;
-	GtkTreeIter iter;
+	GtkTreeIter      iter;
 	
 	foreach_userlist(ul , ul_cur){
 		gtk_tree_store_append(model , &iter , NULL);
@@ -799,11 +396,13 @@ GtkTreeModel* fx_login_create_user_model(Config* config)
 }
 void fx_login_set_last_login_user(FxLogin* fxlogin)
 {
-	GtkComboBox* combo = GTK_COMBO_BOX(fxlogin->username);
-	GtkTreeModel* model = gtk_combo_box_get_model(combo);
-	GtkTreeIter iter;
-	char *no , *pwd;
-	int state , last;
+	GtkComboBox   *combo = GTK_COMBO_BOX(fxlogin->username);
+	GtkTreeModel  *model = gtk_combo_box_get_model(combo);
+	GtkTreeIter    iter;
+	gchar         *no;
+	gchar         *pwd;
+	gint           state;
+	gint           last;
 
 	if(!gtk_tree_model_get_iter_root(model , &iter))
 		return;
@@ -821,8 +420,8 @@ void fx_login_set_last_login_user(FxLogin* fxlogin)
 			if(strlen(pwd) != 0)
 				gtk_toggle_button_set_active(
 						GTK_TOGGLE_BUTTON(fxlogin->remember) , TRUE);
-			free(no);
-			free(pwd);
+			g_free(no);
+			g_free(pwd);
 			break;
 		}
 	}

@@ -451,6 +451,8 @@ SipMsg *fetion_sip_listen(FetionSip *sip)
 	memset(buffer, 0, sizeof(buffer));
 	n = tcp_connection_recv_dont_wait(sip->tcp,
 				buffer, sizeof(buffer) - 1);
+	if(n == -1)
+		return NULL;
 	cur = buffer;
 	for(;;){
 		pos = strstr(cur, "\r\n\r\n");
@@ -795,7 +797,7 @@ void fetion_sip_parse_message(FetionSip* sip , const char* sipmsg , Message** ms
 {
 	char len[16] , callid[16] , sequence[16] ;
 	char sendtime[32] , from[64] , rep[256];
-	char memsipuri[64] , sysback[256];
+	char memsipuri[64];
 
 	char *pos = NULL;
 	xmlDocPtr doc;
@@ -810,12 +812,13 @@ void fetion_sip_parse_message(FetionSip* sip , const char* sipmsg , Message** ms
 	fetion_sip_get_attr(sipmsg , "I" , callid);
 	fetion_sip_get_attr(sipmsg , "Q" , sequence);
 	fetion_sip_get_attr(sipmsg , "D" , sendtime);	
-	fetion_sip_get_attr(sipmsg , "BK" , sysback);
 
 	*msg = fetion_message_new();
 
-	if(strlen(sysback))
-		(*msg)->sysback = atoi(sysback);
+	(*msg)->sysback = 0;
+	if(strstr(sipmsg, "SIP-C/3.0") &&
+		!strstr(sipmsg, "SIP-C/4.0"))
+		(*msg)->sysback = 1;
 
 	/* group message */
 	if(strstr(from , "PG") != NULL){
@@ -841,7 +844,7 @@ void fetion_sip_parse_message(FetionSip* sip , const char* sipmsg , Message** ms
 		fetion_message_set_message(*msg , pos);
 	}
 
-	bzero(rep , sizeof(rep));
+	memset(rep, 0, sizeof(rep));
 	if(strstr(from , "PG") == NULL)
 	    sprintf(rep ,"SIP-C/4.0 200 OK\r\nF: %s\r\nI: %s\r\nQ: %s\r\n\r\n"
 				    , from , callid , sequence );

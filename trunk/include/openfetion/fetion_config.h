@@ -29,7 +29,7 @@ typedef struct
 
 extern Config* fetion_config_new();
 
-extern void fetion_config_download_configuration(User* user);
+extern int fetion_config_download_configuration(User* user);
 
 extern int fetion_config_initialize(Config* config , const char* userid);
 

@@ -76,6 +76,7 @@ void fx_chat_add_message(FxChat* fxchat , const char* msg
 
 	/* timeout alert msg */
 	if(issysback) {
+		strftime(time, sizeof(time), "%H:%M:%S", datetime);
 		snprintf(text ,sizeof(text) - 1,
 				_("The message \"%s\" sent"
 				" at [%s] send failed,please resend it"),

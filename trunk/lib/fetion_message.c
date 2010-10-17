@@ -137,14 +137,14 @@ char* contruct_message_sip(const char *sid, Message *msg)
 	strftime(time , sizeof(time),
 			", %d Sep %Y %T GMT" , &st);	
 
-	snprintf(buffer , 2047 , "M %s SIP-C/4.0\r\n"
+	snprintf(buffer , sizeof(buffer) - 1
+	  , "M %s SIP-C/3.0\r\n"
 		"I: 15\r\n"
 		"Q: 5 M\r\n"
 		"F: %s\r\n"
 		"C: text/html-fragment\r\n"
 		"K: SaveHistory\r\n"
 		"D: %s\r\n"
-		"BK: 1\r\n"
 		"XI: BB6EE2B50BB01CA526C194D0C99B99FE\r\n\r\n%s",
 		sid , msg->sipuri , time,
 	   	msg->message);

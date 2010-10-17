@@ -386,6 +386,8 @@ int fetion_user_download_portrait_with_uri(User *user , const char *sipuri
 	Config *config = user->config;
 	FetionConnection* tcp = NULL;
 	int i = 0 , isFirstChunk = 0 , chunkLength = 0 , imageLength = 0 , receivedLength = 0;
+	int ret;
+
 	ip = get_ip_by_name(server);
 	if(ip == NULL)
 	{
@@ -412,17 +414,25 @@ int fetion_user_download_portrait_with_uri(User *user , const char *sipuri
 
 	tcp = tcp_connection_new();
 	if(config->proxy != NULL && config->proxy->proxyEnabled)
-		tcp_connection_connect_with_proxy(tcp , ip , 80 , config->proxy);
+		ret = tcp_connection_connect_with_proxy(tcp , ip , 80 , config->proxy);
 	else
-		tcp_connection_connect(tcp , ip , 80);
+		ret = tcp_connection_connect(tcp , ip , 80);
+	if(ret < 0){
+		debug_error("connect to portrait server:%s",
+				strerror(errno));
+		return -1;
+	}
 	free(ip);
-	tcp_connection_send(tcp , buf , strlen(buf));	
+	ret = tcp_connection_send(tcp , buf , strlen(buf));	
+	if(ret < 0)
+		return -1;
+
 	//read reply
 
 	/* 200 OK begin to download protrait ,
 	 * 302 need to redirect ,404 not found */
 	for(;;){
-		bzero(buf , sizeof(buf));
+		memset(buf, 0, sizeof(buf));
 		chunkLength = tcp_connection_recv(tcp , buf , sizeof(buf) -1);
 		if(chunkLength < 0)
 			break;
@@ -486,13 +496,15 @@ int fetion_user_download_portrait_with_uri(User *user , const char *sipuri
 	}
 redirect:
 	if(strcmp(replyCode , "302") == 0)
-		fetion_user_download_portrait_again(filename , buf , config->proxy);
+		ret = fetion_user_download_portrait_again(filename , buf , config->proxy);
 end:
 	if(f != NULL)
 		fclose(f);
 	tcp_connection_free(tcp);
 	tcp = NULL;
-	return 0;
+	if(ret < 0)
+		return -1;
+	return 1;
 }
 
 static int fetion_user_download_portrait_again(const char* filepath , const char* buf , Proxy* proxy)
@@ -508,6 +520,7 @@ static int fetion_user_download_portrait_again(const char* filepath , const char
 	char* pos = strstr(buf , "Location: ") ;
 	int chunkLength = 0 , imageLength = 0 , receivedLength = 0;
 	int i , n = 0;
+	int ret;
 	
 	int isFirstChunk = 0;
 	unsigned char img[2048] = { 0 };
@@ -524,7 +537,8 @@ static int fetion_user_download_portrait_again(const char* filepath , const char
 	strcpy(httpPath , pos);
 	sprintf(http , "GET %s HTTP/1.1\r\n"
 				   "User-Agent: IIC2.0/PC 3.3.0370\r\n"
-			 	   "Accept: image/pjpeg;image/jpeg;image/bmp;image/x-windows-bmp;image/png;image/gif\r\n"
+			 	   "Accept: image/pjpeg;image/jpeg;image/bmp;"
+				   "image/x-windows-bmp;image/png;image/gif\r\n"
 				   "Cache-Control: private\r\n"
 				   "Host: %s\r\n"
 				   "Connection: Keep-Alive\r\n\r\n" , httpPath , httpHost);
@@ -536,16 +550,21 @@ static int fetion_user_download_portrait_again(const char* filepath , const char
 	tcp = tcp_connection_new();
 
 	if(proxy != NULL && proxy->proxyEnabled)
-		tcp_connection_connect_with_proxy(tcp , ip , 80 , proxy);
+		ret = tcp_connection_connect_with_proxy(tcp , ip , 80 , proxy);
 	else
-		tcp_connection_connect(tcp , ip , 80);
+		ret = tcp_connection_connect(tcp , ip , 80);
+
+	if(ret < 0)
+		return -1;
 
 	free(ip);
-	tcp_connection_send(tcp , http , strlen(http));
+	ret = tcp_connection_send(tcp , http , strlen(http));
+	if(ret < 0)
+		return -1;
 	//read portrait data
 	f = fopen(filepath , "wb+");
 	for(;;){
-		bzero(img , sizeof(img));
+		memset(img, 0 , sizeof(img));
 		chunkLength = tcp_connection_recv(tcp , img , sizeof(img)-1);
 		if(chunkLength <= 0)
 			break;
@@ -776,8 +795,6 @@ void fetion_user_save(User *user)
 
 	sprintf(path, "%s/data.db",
 				   	config->userPath);
-
-	printf("%s\n", path);
 
 	debug_info("Save user information");
 	if(sqlite3_open(path, &db)){

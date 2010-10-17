@@ -52,6 +52,11 @@ AC_ARG_ENABLE(gstreamer,
 	[ enable_gst="no"],
 	[ enable_gst="yes"])
 
+AC_ARG_ENABLE(nm,
+	[  --disable-nm            compile without NetworkManager (used to check network state)],
+	[ enable_nm="no"],
+	[ enable_nm="yes"])
+
 # checks for gtk+2.0
 PKG_CHECK_MODULES(GTK, [gtk+-2.0 >= 2.16], [
 			AC_DEFINE(USE_GTK, 1, [Use GTK])
@@ -142,6 +147,24 @@ PKG_CHECK_MODULES(GSTREAMER, [gstreamer-0.10], [
 			])
 fi
 
+# checks for networkmanager
+if test "x$enable_nm" = "xyes"; then
+PKG_CHECK_MODULES(NETWORKMANAGER, [NetworkManager >= 0.5.0], [
+			AC_DEFINE(USE_NETWORKMANAGER, 1, [Use NetworkManager for checking network state])
+			AC_SUBST(NETWORKMANAGER_CFLAGS)
+			AC_SUBST(NETWORKMANAGER_LIBS)
+		] , [
+			echo ""
+			echo "configure: error: "
+			echo "libnotify development headers not found."
+			echo "Use --disable-nm if you do not need it."
+			echo "If you're using debian or ubuntu,install it by "
+			echo "\"sudo apt-get install networkmanager\""
+			echo ""
+			exit -1
+			])
+fi
+
 PKG_CHECK_MODULES(LIBSSL, [
 		openssl
 ])
@@ -183,4 +206,5 @@ echo
 echo Use XScreenSaver Extension.... : $enable_screensaver
 echo Use libnotify................. : $enable_notify
 echo Use gstreamer0.10............. : $enable_gst
+echo Use NetworkManager............ : $enable_nm
 echo

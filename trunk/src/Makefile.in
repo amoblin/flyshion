@@ -70,7 +70,8 @@ am__DEPENDENCIES_1 =
 openfetion_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) ../lib/libofetion.la
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	../lib/libofetion.la
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -171,6 +172,8 @@ MSGFMT = @MSGFMT@
 MSGFMT_015 = @MSGFMT_015@
 MSGFMT_OPTS = @MSGFMT_OPTS@
 MSGMERGE = @MSGMERGE@
+NETWORKMANAGER_CFLAGS = @NETWORKMANAGER_CFLAGS@
+NETWORKMANAGER_LIBS = @NETWORKMANAGER_LIBS@
 NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
@@ -255,7 +258,8 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 openfetion_CPPFLAGS = $(LIBXML_CFLAGS) $(GTK_CFLAGS) $(GTHREAD_CFLAGS) \
-					$(GSTREAMER_CFLAGS) $(LIBNOTIFY_CFLAGS) $(LIBXSS_CFLAGS) -g -Wall\
+					$(GSTREAMER_CFLAGS) $(LIBNOTIFY_CFLAGS) $(LIBXSS_CFLAGS) \
+					$(NETWORKMANAGER_CFLAGS) -g -Wall\
 					-I../include -I../include/openfetion -I ../. \
 					-DSKIN_DIR=\"$(pkgdatadir)/skin/\" \
 					-DRESOURCE_DIR=\"$(pkgdatadir)/resource/\" \
@@ -263,7 +267,7 @@ openfetion_CPPFLAGS = $(LIBXML_CFLAGS) $(GTK_CFLAGS) $(GTHREAD_CFLAGS) \
 
 openfetion_LDADD = $(LIBXML_LIBS) $(GTK_LIBS) $(GTHREAD_LIBS) $(SQLITE3_LIBS)\
 				    $(GSTREAMER_LIBS) $(LIBNOTIFY_LIBS) $(LIBXSS_LIBS)\
-					../lib/libofetion.la
+					$(NETWORKMANAGER_LIBS) ../lib/libofetion.la
 
 openfetion_SOURCES = fx_add_group.c \
 					 fx_addbuddy.c \

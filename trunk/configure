@@ -754,6 +754,8 @@ GLIB2_LIBS
 GLIB2_CFLAGS
 LIBSSL_LIBS
 LIBSSL_CFLAGS
+NETWORKMANAGER_LIBS
+NETWORKMANAGER_CFLAGS
 GSTREAMER_LIBS
 GSTREAMER_CFLAGS
 LIBNOTIFY_LIBS
@@ -943,6 +945,7 @@ with_libintl_prefix
 enable_screensaver
 enable_notify
 enable_gstreamer
+enable_nm
 enable_debug
 '
       ac_precious_vars='build_alias
@@ -969,6 +972,8 @@ LIBNOTIFY_CFLAGS
 LIBNOTIFY_LIBS
 GSTREAMER_CFLAGS
 GSTREAMER_LIBS
+NETWORKMANAGER_CFLAGS
+NETWORKMANAGER_LIBS
 LIBSSL_CFLAGS
 LIBSSL_LIBS
 GLIB2_CFLAGS
@@ -1606,6 +1611,7 @@ Optional Features:
   --disable-screensaver   compile without X screensaver extension (used to detect idleness)
   --disable-notify        compile without libnotify (used to show message notification)
   --disable-gstreamer     compile without gstreamer (used to play alert sound)
+  --disable-nm            compile without NetworkManager (used to check network state)
  --enable-debug turn on debug
 
 Optional Packages:
@@ -1654,6 +1660,10 @@ Some influential environment variables:
               C compiler flags for GSTREAMER, overriding pkg-config
   GSTREAMER_LIBS
               linker flags for GSTREAMER, overriding pkg-config
+  NETWORKMANAGER_CFLAGS
+              C compiler flags for NETWORKMANAGER, overriding pkg-config
+  NETWORKMANAGER_LIBS
+              linker flags for NETWORKMANAGER, overriding pkg-config
   LIBSSL_CFLAGS
               C compiler flags for LIBSSL, overriding pkg-config
   LIBSSL_LIBS linker flags for LIBSSL, overriding pkg-config
@@ -4892,13 +4902,13 @@ if test "${lt_cv_nm_interface+set}" = set; then :
 else
   lt_cv_nm_interface="BSD nm"
   echo "int some_variable = 0;" > conftest.$ac_ext
-  (eval echo "\"\$as_me:4895: $ac_compile\"" >&5)
+  (eval echo "\"\$as_me:4905: $ac_compile\"" >&5)
   (eval "$ac_compile" 2>conftest.err)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:4898: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
+  (eval echo "\"\$as_me:4908: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
   (eval "$NM \"conftest.$ac_objext\"" 2>conftest.err > conftest.out)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:4901: output\"" >&5)
+  (eval echo "\"\$as_me:4911: output\"" >&5)
   cat conftest.out >&5
   if $GREP 'External.*some_variable' conftest.out > /dev/null; then
     lt_cv_nm_interface="MS dumpbin"
@@ -6104,7 +6114,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 6107 "configure"' > conftest.$ac_ext
+  echo '#line 6117 "configure"' > conftest.$ac_ext
   if { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_compile\""; } >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -7630,11 +7640,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7633: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7643: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7637: \$? = $ac_status" >&5
+   echo "$as_me:7647: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7969,11 +7979,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7972: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7982: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7976: \$? = $ac_status" >&5
+   echo "$as_me:7986: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -8074,11 +8084,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8077: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8087: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:8081: \$? = $ac_status" >&5
+   echo "$as_me:8091: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -8129,11 +8139,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8132: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8142: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:8136: \$? = $ac_status" >&5
+   echo "$as_me:8146: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -10513,7 +10523,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 10516 "configure"
+#line 10526 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -10609,7 +10619,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 10612 "configure"
+#line 10622 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -14220,6 +14230,14 @@ else
 fi
 
 
+# Check whether --enable-nm was given.
+if test "${enable_nm+set}" = set; then :
+  enableval=$enable_nm;  enable_nm="no"
+else
+   enable_nm="yes"
+fi
+
+
 # checks for gtk+2.0
 
 
@@ -15014,6 +15032,105 @@ $as_echo "yes" >&6; }
 
 
 $as_echo "#define USE_GSTREAMER 1" >>confdefs.h
+
+
+
+
+fi
+fi
+
+# checks for networkmanager
+if test "x$enable_nm" = "xyes"; then
+
+pkg_failed=no
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for NETWORKMANAGER" >&5
+$as_echo_n "checking for NETWORKMANAGER... " >&6; }
+
+if test -n "$PKG_CONFIG"; then
+    if test -n "$NETWORKMANAGER_CFLAGS"; then
+        pkg_cv_NETWORKMANAGER_CFLAGS="$NETWORKMANAGER_CFLAGS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"NetworkManager >= 0.5.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "NetworkManager >= 0.5.0") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_NETWORKMANAGER_CFLAGS=`$PKG_CONFIG --cflags "NetworkManager >= 0.5.0" 2>/dev/null`
+else
+  pkg_failed=yes
+fi
+    fi
+else
+	pkg_failed=untried
+fi
+if test -n "$PKG_CONFIG"; then
+    if test -n "$NETWORKMANAGER_LIBS"; then
+        pkg_cv_NETWORKMANAGER_LIBS="$NETWORKMANAGER_LIBS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"NetworkManager >= 0.5.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "NetworkManager >= 0.5.0") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_NETWORKMANAGER_LIBS=`$PKG_CONFIG --libs "NetworkManager >= 0.5.0" 2>/dev/null`
+else
+  pkg_failed=yes
+fi
+    fi
+else
+	pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        NETWORKMANAGER_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "NetworkManager >= 0.5.0"`
+        else
+	        NETWORKMANAGER_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "NetworkManager >= 0.5.0"`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$NETWORKMANAGER_PKG_ERRORS" >&5
+
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+
+			echo ""
+			echo "configure: error: "
+			echo "libnotify development headers not found."
+			echo "Use --disable-nm if you do not need it."
+			echo "If you're using debian or ubuntu,install it by "
+			echo "\"sudo apt-get install networkmanager\""
+			echo ""
+			exit -1
+
+elif test $pkg_failed = untried; then
+
+			echo ""
+			echo "configure: error: "
+			echo "libnotify development headers not found."
+			echo "Use --disable-nm if you do not need it."
+			echo "If you're using debian or ubuntu,install it by "
+			echo "\"sudo apt-get install networkmanager\""
+			echo ""
+			exit -1
+
+else
+	NETWORKMANAGER_CFLAGS=$pkg_cv_NETWORKMANAGER_CFLAGS
+	NETWORKMANAGER_LIBS=$pkg_cv_NETWORKMANAGER_LIBS
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+
+
+$as_echo "#define USE_NETWORKMANAGER 1" >>confdefs.h
 
 
 
@@ -18162,4 +18279,5 @@ echo
 echo Use XScreenSaver Extension.... : $enable_screensaver
 echo Use libnotify................. : $enable_notify
 echo Use gstreamer0.10............. : $enable_gst
+echo Use NetworkManager............ : $enable_nm
 echo
