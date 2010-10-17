@@ -159,7 +159,6 @@ void fetion_user_list_save(Config* config , struct userlist* ul)
 					pos->no, pos->password,
 					pos->laststate, pos->islastuser,
 				   	pos->userid, pos->sid);
-		printf("%s\n", sql);
 		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
 			debug_error("insert no : %s failed: %s",
 						pos->no, errMsg ? errMsg : "");
@@ -216,7 +215,6 @@ struct userlist* fetion_user_list_load(Config* config)
 	res = fetion_user_list_new(NULL, NULL, NULL, NULL, 0, 0);
 
 	sprintf(path , "%s/data.db" , config->globalPath);
-	printf("%s\n", path);
 	if(sqlite3_open(path, &db)){
 		debug_error("failed to load user list");
 		return res;
@@ -301,11 +299,12 @@ void fetion_user_list_free(struct userlist *list)
 	}
 }
 
-void fetion_config_download_configuration(User* user)
+int fetion_config_download_configuration(User* user)
 {
 	char http[1025] , *body , *res;
 	FetionConnection* conn = NULL;
 	Config *config = user->config;
+	int ret;
 	char uri[] = "nav.fetion.com.cn";
 	char* ip;
 
@@ -316,9 +315,13 @@ void fetion_config_download_configuration(User* user)
 	}
 	conn = tcp_connection_new();
 	if(config->proxy != NULL && config->proxy->proxyEnabled)
-		tcp_connection_connect_with_proxy(conn , ip , 80 , config->proxy);
+		ret = tcp_connection_connect_with_proxy(conn , ip , 80 , config->proxy);
 	else
-		tcp_connection_connect(conn , ip , 80);
+		ret = tcp_connection_connect(conn , ip , 80);
+
+	if(ret < 0)
+		return -1;
+
 	body = generate_configuration_body(user);
 	sprintf(http , "POST /nav/getsystemconfig.aspx HTTP/1.1\r\n"
 				   "User-Agent: IIC2.0/PC "PROTO_VERSION"\r\n"
@@ -326,10 +329,14 @@ void fetion_config_download_configuration(User* user)
 				   "Connection: Close\r\n"
 				   "Content-Length: %d\r\n\r\n%s"
 				 , uri , strlen(body) , body);
-	tcp_connection_send(conn , http , strlen(http));
+	ret = tcp_connection_send(conn , http , strlen(http));
+	if(ret < 0)
+		return -1;
+
 	res = http_connection_get_response(conn);
 	parse_configuration_xml(user, res);
 	free(res);
+	return 1;
 }
 int fetion_config_initialize(Config* config , const char* userid)
 {
@@ -436,8 +443,6 @@ int fetion_config_load(User *user)
 
 	sprintf(path, "%s/data.db",
 				   	config->userPath);
-
-	printf("%s\n", path);
 
 	debug_info("Load configuration");
 	if(sqlite3_open(path, &db)){

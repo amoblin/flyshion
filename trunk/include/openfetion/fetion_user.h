@@ -151,5 +151,4 @@ fetion_user_set_st(User *user, int state){
 	user->state = state;
 }
 
-
 #endif

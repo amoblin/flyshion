@@ -238,9 +238,9 @@ char* sipc_reg_action(User* user)
 	tcp_connection_send(sip->tcp , sipmsg , strlen(sipmsg));
 	free(sipmsg);
 	sipmsg = (char*)malloc(1024);
-	bzero(sipmsg , 1024);
-	if(tcp_connection_recv(sip->tcp , sipmsg , 1024) <= 0){
-		debug_info("Net work error occured here");
+	memset(sipmsg, 0 , 1024);
+	if(tcp_connection_recv(sip->tcp , sipmsg , 1023) <= 0){
+		debug_info("Network error occured here");
 		return NULL;
 	}
 	return sipmsg;
@@ -396,8 +396,15 @@ int parse_sipc_auth_response(const char* auth_response , User* user, int *group_
 		debug_error("Sipc authentication failed");
 		return -1;
 	}
+	if(!strstr(auth_response, "\r\n\r\n"))
+		return -1;
+
 	pos = strstr(auth_response , "\r\n\r\n") + 4;
-	doc = xmlReadMemory( pos , strlen(pos) , NULL , "UTF-8" , XML_PARSE_RECOVER);
+	if(!pos)
+		return -1;
+	doc = xmlParseMemory(pos , strlen(pos));
+	if(!doc)
+		return -1;
 	rootnode = xmlDocGetRootElement(doc); 
 	node = rootnode->xmlChildrenNode;
 	buf = xmlGetProp(node , BAD_CAST "public-ip");

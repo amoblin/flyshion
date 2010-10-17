@@ -391,9 +391,11 @@ void fx_tree_initilize(FxMain* fxmain)
 	gtk_box_pack_start(GTK_BOX(mainbox) , fxtree->noLabelScrollWindow , TRUE , TRUE , 0);
 	gtk_widget_set_name(fxtree->noLabelScrollWindow , "mainwindow");
 
-
-	fetion_contact_subscribe_only(fxmain->user);
-	g_thread_create(fx_main_listen_thread_func , args , FALSE , NULL);
+	
+	if(fxmain->user->state != P_OFFLINE){
+		fetion_contact_subscribe_only(fxmain->user);
+		g_thread_create(fx_main_listen_thread_func , args , FALSE , NULL);
+	}
 }
 
 void fx_tree_show(FxMain *fxmain)

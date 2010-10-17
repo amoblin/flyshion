@@ -35,8 +35,8 @@ int tcp_keep_alive(int socketfd)
 {
 	int keepAlive = 1;
 	int keepIdle = 10;
-	int keepInterval = 5;
-	int keepCount = 5;
+	int keepInterval = 10;
+	int keepCount = 10;
 
 	if(setsockopt(socketfd , SOL_SOCKET , SO_KEEPALIVE 
 				,(void*)&keepAlive,sizeof(keepAlive)) == -1){
@@ -159,7 +159,7 @@ int tcp_connection_connect_with_proxy(FetionConnection* connection
 	setsockopt(connection->socketfd , SOL_SOCKET , SO_RCVBUF , (const char*)&n , sizeof(n));
 	connect(connection->socketfd , (struct sockaddr*)&addr , sizeof(struct sockaddr));
 
-	bzero(authorization , sizeof(authorization));
+	memset(authorization, 0, sizeof(authorization));
 	if(strlen(proxy->proxyUser) != 0 && strlen(proxy->proxyPass) != 0)
 	{
 		bzero(authen , sizeof(authen));
@@ -181,7 +181,7 @@ int tcp_connection_connect_with_proxy(FetionConnection* connection
 
 	tcp_connection_send(connection , http , strlen(http));
 
-	bzero(http , sizeof(http));
+	memset(http, 0, sizeof(http));
 
 	tcp_connection_recv(connection , http , sizeof(http));
 

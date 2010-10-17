@@ -283,6 +283,52 @@ static void *update_data(void *data)
 	return NULL;
 }
 
+static void popup_online_notify(FxMain *fxmain, Contact *contact)
+{
+#ifdef USE_LIBNOTIFY
+	gchar         notifySummary[256];
+	gchar         notifyText[1024];
+	gchar         iconPath[256];
+	GdkPixbuf    *pixbuf;
+	Config       *config;
+
+	config = fxmain->user->config;
+
+	if(start_popup_presence && 
+		config->onlineNotify == ONLINE_NOTIFY_ENABLE){
+
+		sprintf(iconPath , "%s/%s.jpg",
+				config->iconPath , contact->sId);
+		sprintf(notifySummary,
+				_("%s , now ONLINE") , contact->nickname);
+		sprintf(notifyText ,
+				_("Phone Number: %s\n"
+				  "Fetion Number: %s\n"
+				  "Signature: %s")
+				, contact->mobileno == NULL ||
+					strlen(contact->mobileno) == 0 ?
+					"未知" : contact->mobileno
+				, contact->sId
+				, contact->impression );
+		pixbuf = gdk_pixbuf_new_from_file_at_size(
+				iconPath,
+				NOTIFY_IMAGE_SIZE,
+				NOTIFY_IMAGE_SIZE , NULL);
+		if(!pixbuf)
+			pixbuf = gdk_pixbuf_new_from_file_at_size(
+					SKIN_DIR"fetion.svg",
+					NOTIFY_IMAGE_SIZE,
+					NOTIFY_IMAGE_SIZE , NULL);
+			
+		notify_notification_update(fxmain->notify , notifySummary
+				, notifyText , NULL);
+		notify_notification_set_icon_from_pixbuf(fxmain->notify , pixbuf);
+		notify_notification_show(fxmain->notify , NULL);
+		g_object_unref(pixbuf);
+	}
+#endif
+}
+
 void fx_main_process_presence(FxMain* fxmain , const gchar* xml)
 {
 	gchar        *crc;
@@ -291,18 +337,11 @@ void fx_main_process_presence(FxMain* fxmain , const gchar* xml)
 	Contact      *contactlist;
 	Contact      *contact;
 	User         *user = fxmain->user;
-	Config       *config = user->config;
 	GtkWidget    *treeView = fxmain->mainPanel->treeView;
 	GtkTreeModel *model;
 	FxChat       *fxchat;
 	GtkTreeIter   iter;
 	GtkTreeIter   parentIter;
-#ifdef USE_LIBNOTIFY
-	gchar         notifySummary[256];
-	gchar         notifyText[1024];
-	gchar         iconPath[256];
-	GdkPixbuf    *pb;
-#endif
 
 	contactlist = fetion_user_parse_presence_body(xml , user);
 	contact = contactlist;
@@ -351,36 +390,8 @@ void fx_main_process_presence(FxMain* fxmain , const gchar* xml)
 			fx_tree_move_to_the_last(model , &iter);
 			fx_tree_move_to_the_first(model , &iter);
 
-#ifdef USE_LIBNOTIFY
-			if(start_popup_presence && 
-				config->onlineNotify == ONLINE_NOTIFY_ENABLE){
+			popup_online_notify(fxmain, contact);
 
-				sprintf(iconPath , "%s/%s.jpg",
-						config->iconPath , contact->sId);
-				sprintf(notifySummary,
-						_("%s , now ONLINE") , contact->nickname);
-				sprintf(notifyText ,
-						_("Phone Number: %s\n"
-						  "Fetion Number: %s\n"
-						  "Signature: %s")
-						, contact->mobileno == NULL ||
-							strlen(contact->mobileno) == 0 ?
-							"未知" : contact->mobileno
-						, contact->sId
-						, contact->impression );
-				pb = gdk_pixbuf_new_from_file_at_size(iconPath,
-						NOTIFY_IMAGE_SIZE , NOTIFY_IMAGE_SIZE , NULL);
-				if(!pb)
-					pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg",
-							NOTIFY_IMAGE_SIZE , NOTIFY_IMAGE_SIZE , NULL);
-				
-				notify_notification_update(fxmain->notify , notifySummary
-						, notifyText , NULL);
-				notify_notification_set_icon_from_pixbuf(fxmain->notify , pb);
-				notify_notification_show(fxmain->notify , NULL);
-				g_object_unref(pb);
-			}
-#endif
 		}
 		if(fxchat)
 			fxchat->state = contact->state;
@@ -1264,6 +1275,10 @@ int main(int argc , char* argv[])
 		g_thread_init(NULL);
 	gdk_threads_init();
 
+ 	struct sigaction sa;
+ 	sa.sa_handler = SIG_IGN;
+ 	sigaction(SIGPIPE, &sa, 0 );
+
 #ifdef USE_GSTREAMER
 	gst_init(&argc , &argv);
 #endif
@@ -1272,9 +1287,9 @@ int main(int argc , char* argv[])
 	notify_init("Openfetion");
 #endif
 	gtk_init(&argc , &argv);
-	
-	fx_conn_init();
 
+	fx_conn_init(fxmain);
+	
 	fx_main_initialize(fxmain);
 
 	return 0;
@@ -1286,11 +1301,13 @@ void* fx_main_listen_thread_func(void* data)
 	FetionSip  *sip;
 	SipMsg     *msg;
 	SipMsg     *pos;
+	User       *user;
 	gint        type;
 	gint        ret;
 
 	args = (ThreadArgs*)data;
 	fxmain = args->fxmain;
+	user = fxmain->user;
 	sip = args->sip;
 
 	struct timeval tv;
@@ -1306,6 +1323,10 @@ void* fx_main_listen_thread_func(void* data)
 		FD_ZERO(&fd_read);
 
 		g_static_mutex_lock(&mutex);
+		if(!sip || !sip->tcp){
+			debug_info("thread exited");
+			g_thread_exit(0);
+		}
 		FD_SET(sip->tcp->socketfd, &fd_read);
 		g_static_mutex_unlock(&mutex);
 		
@@ -1314,13 +1335,16 @@ void* fx_main_listen_thread_func(void* data)
 
 		ret = select(sip->tcp->socketfd+1, &fd_read, NULL, NULL, &tv);
 
-
 		if(ret == 0)
 			continue;
 
 		if (ret == -1) {
 			debug_info ("Error.. to read socket %d,exit thread",
 					sip->tcp->socketfd);
+			if(sip != user->sip){
+				debug_info("Error.. thread sip freed\n");
+				g_free(sip);
+			}
 			g_thread_exit(0);
 		}
 
@@ -1331,8 +1355,12 @@ void* fx_main_listen_thread_func(void* data)
 
 		msg = fetion_sip_listen(sip);
 
-		if(!msg)
-			continue;
+		if(!msg){
+			gdk_threads_enter();
+			fx_conn_offline(fxmain);
+			gdk_threads_leave();
+			g_thread_exit(0);
+		}
 		
 		pos = msg;
 		while(pos){

@@ -343,6 +343,9 @@ void fx_head_create_presence_item(int type , const char* message , GtkWidget* me
 		case P_HIDDEN :
 			pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"invisible.svg" , 20 , 20 , NULL);
 			break;
+		case P_OFFLINE :
+			pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"offline.svg", 20, 20, NULL);
+			break;
 		default :
 			pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"away.svg" , 20 , 20 , NULL);
 			break;
@@ -403,8 +406,8 @@ gboolean fx_head_impre_activate_func(GtkWidget* widget , gpointer data)
 	FxMain* fxmain = (FxMain*)data;
 	FxHead* fxhead = fxmain->headPanel;
 
-	char tooltip[1024];
-	const char* impression = gtk_entry_get_text(GTK_ENTRY(widget));
+	gchar tooltip[1024];
+	const gchar* impression = gtk_entry_get_text(GTK_ENTRY(widget));
 	
 	gtk_widget_show(fxhead->impre_box);
 	gtk_widget_hide(widget);
