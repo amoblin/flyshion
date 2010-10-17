@@ -7615,6 +7615,10 @@ _lt_linker_boilerplate=`cat conftest.err`
 $RM -r conftest*
 
 
+## CAVEAT EMPTOR:
+## There is no encapsulation within the following macros, do not change
+## the running order or otherwise move them around unless you know exactly
+## what you are doing...
 if test -n "$compiler"; then
 
 lt_prog_compiler_no_builtin_flag=
@@ -7640,11 +7644,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7643: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7647: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7647: \$? = $ac_status" >&5
+   echo "$as_me:7651: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7979,11 +7983,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7982: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7986: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7986: \$? = $ac_status" >&5
+   echo "$as_me:7990: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -8084,11 +8088,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8087: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8091: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:8091: \$? = $ac_status" >&5
+   echo "$as_me:8095: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -8139,11 +8143,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8142: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8146: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:8146: \$? = $ac_status" >&5
+   echo "$as_me:8150: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -10523,7 +10527,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 10526 "configure"
+#line 10530 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -10619,7 +10623,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 10622 "configure"
+#line 10626 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -14360,11 +14364,10 @@ pkg_failed=no
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for GTK" >&5
 $as_echo_n "checking for GTK... " >&6; }
 
-if test -n "$PKG_CONFIG"; then
-    if test -n "$GTK_CFLAGS"; then
-        pkg_cv_GTK_CFLAGS="$GTK_CFLAGS"
-    else
-        if test -n "$PKG_CONFIG" && \
+if test -n "$GTK_CFLAGS"; then
+    pkg_cv_GTK_CFLAGS="$GTK_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"gtk+-2.0 >= 2.16\""; } >&5
   ($PKG_CONFIG --exists --print-errors "gtk+-2.0 >= 2.16") 2>&5
   ac_status=$?
@@ -14374,15 +14377,13 @@ if test -n "$PKG_CONFIG"; then
 else
   pkg_failed=yes
 fi
-    fi
-else
-	pkg_failed=untried
+ else
+    pkg_failed=untried
 fi
-if test -n "$PKG_CONFIG"; then
-    if test -n "$GTK_LIBS"; then
-        pkg_cv_GTK_LIBS="$GTK_LIBS"
-    else
-        if test -n "$PKG_CONFIG" && \
+if test -n "$GTK_LIBS"; then
+    pkg_cv_GTK_LIBS="$GTK_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"gtk+-2.0 >= 2.16\""; } >&5
   ($PKG_CONFIG --exists --print-errors "gtk+-2.0 >= 2.16") 2>&5
   ac_status=$?
@@ -14392,9 +14393,8 @@ if test -n "$PKG_CONFIG"; then
 else
   pkg_failed=yes
 fi
-    fi
-else
-	pkg_failed=untried
+ else
+    pkg_failed=untried
 fi
 
 
@@ -14407,9 +14407,9 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        GTK_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "gtk+-2.0 >= 2.16"`
+	        GTK_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors "gtk+-2.0 >= 2.16" 2>&1`
         else
-	        GTK_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "gtk+-2.0 >= 2.16"`
+	        GTK_PKG_ERRORS=`$PKG_CONFIG --print-errors "gtk+-2.0 >= 2.16" 2>&1`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$GTK_PKG_ERRORS" >&5
@@ -14457,11 +14457,10 @@ pkg_failed=no
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for GTHREAD" >&5
 $as_echo_n "checking for GTHREAD... " >&6; }
 
-if test -n "$PKG_CONFIG"; then
-    if test -n "$GTHREAD_CFLAGS"; then
-        pkg_cv_GTHREAD_CFLAGS="$GTHREAD_CFLAGS"
-    else
-        if test -n "$PKG_CONFIG" && \
+if test -n "$GTHREAD_CFLAGS"; then
+    pkg_cv_GTHREAD_CFLAGS="$GTHREAD_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"gthread-2.0\""; } >&5
   ($PKG_CONFIG --exists --print-errors "gthread-2.0") 2>&5
   ac_status=$?
@@ -14471,15 +14470,13 @@ if test -n "$PKG_CONFIG"; then
 else
   pkg_failed=yes
 fi
-    fi
-else
-	pkg_failed=untried
+ else
+    pkg_failed=untried
 fi
-if test -n "$PKG_CONFIG"; then
-    if test -n "$GTHREAD_LIBS"; then
-        pkg_cv_GTHREAD_LIBS="$GTHREAD_LIBS"
-    else
-        if test -n "$PKG_CONFIG" && \
+if test -n "$GTHREAD_LIBS"; then
+    pkg_cv_GTHREAD_LIBS="$GTHREAD_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"gthread-2.0\""; } >&5
   ($PKG_CONFIG --exists --print-errors "gthread-2.0") 2>&5
   ac_status=$?
@@ -14489,9 +14486,8 @@ if test -n "$PKG_CONFIG"; then
 else
   pkg_failed=yes
 fi
-    fi
-else
-	pkg_failed=untried
+ else
+    pkg_failed=untried
 fi
 
 
@@ -14504,9 +14500,9 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        GTHREAD_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "gthread-2.0"`
+	        GTHREAD_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors "gthread-2.0" 2>&1`
         else
-	        GTHREAD_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "gthread-2.0"`
+	        GTHREAD_PKG_ERRORS=`$PKG_CONFIG --print-errors "gthread-2.0" 2>&1`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$GTHREAD_PKG_ERRORS" >&5
@@ -14555,11 +14551,10 @@ pkg_failed=no
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for LIBXML" >&5
 $as_echo_n "checking for LIBXML... " >&6; }
 
-if test -n "$PKG_CONFIG"; then
-    if test -n "$LIBXML_CFLAGS"; then
-        pkg_cv_LIBXML_CFLAGS="$LIBXML_CFLAGS"
-    else
-        if test -n "$PKG_CONFIG" && \
+if test -n "$LIBXML_CFLAGS"; then
+    pkg_cv_LIBXML_CFLAGS="$LIBXML_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libxml-2.0\""; } >&5
   ($PKG_CONFIG --exists --print-errors "libxml-2.0") 2>&5
   ac_status=$?
@@ -14569,15 +14564,13 @@ if test -n "$PKG_CONFIG"; then
 else
   pkg_failed=yes
 fi
-    fi
-else
-	pkg_failed=untried
+ else
+    pkg_failed=untried
 fi
-if test -n "$PKG_CONFIG"; then
-    if test -n "$LIBXML_LIBS"; then
-        pkg_cv_LIBXML_LIBS="$LIBXML_LIBS"
-    else
-        if test -n "$PKG_CONFIG" && \
+if test -n "$LIBXML_LIBS"; then
+    pkg_cv_LIBXML_LIBS="$LIBXML_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libxml-2.0\""; } >&5
   ($PKG_CONFIG --exists --print-errors "libxml-2.0") 2>&5
   ac_status=$?
@@ -14587,9 +14580,8 @@ if test -n "$PKG_CONFIG"; then
 else
   pkg_failed=yes
 fi
-    fi
-else
-	pkg_failed=untried
+ else
+    pkg_failed=untried
 fi
 
 
@@ -14602,9 +14594,9 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        LIBXML_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "libxml-2.0"`
+	        LIBXML_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors "libxml-2.0" 2>&1`
         else
-	        LIBXML_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "libxml-2.0"`
+	        LIBXML_PKG_ERRORS=`$PKG_CONFIG --print-errors "libxml-2.0" 2>&1`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$LIBXML_PKG_ERRORS" >&5
@@ -14653,11 +14645,10 @@ pkg_failed=no
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for SQLITE3" >&5
 $as_echo_n "checking for SQLITE3... " >&6; }
 
-if test -n "$PKG_CONFIG"; then
-    if test -n "$SQLITE3_CFLAGS"; then
-        pkg_cv_SQLITE3_CFLAGS="$SQLITE3_CFLAGS"
-    else
-        if test -n "$PKG_CONFIG" && \
+if test -n "$SQLITE3_CFLAGS"; then
+    pkg_cv_SQLITE3_CFLAGS="$SQLITE3_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"sqlite3 > 3.3\""; } >&5
   ($PKG_CONFIG --exists --print-errors "sqlite3 > 3.3") 2>&5
   ac_status=$?
@@ -14667,15 +14658,13 @@ if test -n "$PKG_CONFIG"; then
 else
   pkg_failed=yes
 fi
-    fi
-else
-	pkg_failed=untried
+ else
+    pkg_failed=untried
 fi
-if test -n "$PKG_CONFIG"; then
-    if test -n "$SQLITE3_LIBS"; then
-        pkg_cv_SQLITE3_LIBS="$SQLITE3_LIBS"
-    else
-        if test -n "$PKG_CONFIG" && \
+if test -n "$SQLITE3_LIBS"; then
+    pkg_cv_SQLITE3_LIBS="$SQLITE3_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"sqlite3 > 3.3\""; } >&5
   ($PKG_CONFIG --exists --print-errors "sqlite3 > 3.3") 2>&5
   ac_status=$?
@@ -14685,9 +14674,8 @@ if test -n "$PKG_CONFIG"; then
 else
   pkg_failed=yes
 fi
-    fi
-else
-	pkg_failed=untried
+ else
+    pkg_failed=untried
 fi
 
 
@@ -14700,9 +14688,9 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        SQLITE3_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "sqlite3 > 3.3"`
+	        SQLITE3_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors "sqlite3 > 3.3" 2>&1`
         else
-	        SQLITE3_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "sqlite3 > 3.3"`
+	        SQLITE3_PKG_ERRORS=`$PKG_CONFIG --print-errors "sqlite3 > 3.3" 2>&1`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$SQLITE3_PKG_ERRORS" >&5
@@ -14749,11 +14737,10 @@ pkg_failed=no
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for LIBXSS" >&5
 $as_echo_n "checking for LIBXSS... " >&6; }
 
-if test -n "$PKG_CONFIG"; then
-    if test -n "$LIBXSS_CFLAGS"; then
-        pkg_cv_LIBXSS_CFLAGS="$LIBXSS_CFLAGS"
-    else
-        if test -n "$PKG_CONFIG" && \
+if test -n "$LIBXSS_CFLAGS"; then
+    pkg_cv_LIBXSS_CFLAGS="$LIBXSS_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"xscrnsaver\""; } >&5
   ($PKG_CONFIG --exists --print-errors "xscrnsaver") 2>&5
   ac_status=$?
@@ -14763,15 +14750,13 @@ if test -n "$PKG_CONFIG"; then
 else
   pkg_failed=yes
 fi
-    fi
-else
-	pkg_failed=untried
+ else
+    pkg_failed=untried
 fi
-if test -n "$PKG_CONFIG"; then
-    if test -n "$LIBXSS_LIBS"; then
-        pkg_cv_LIBXSS_LIBS="$LIBXSS_LIBS"
-    else
-        if test -n "$PKG_CONFIG" && \
+if test -n "$LIBXSS_LIBS"; then
+    pkg_cv_LIBXSS_LIBS="$LIBXSS_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"xscrnsaver\""; } >&5
   ($PKG_CONFIG --exists --print-errors "xscrnsaver") 2>&5
   ac_status=$?
@@ -14781,9 +14766,8 @@ if test -n "$PKG_CONFIG"; then
 else
   pkg_failed=yes
 fi
-    fi
-else
-	pkg_failed=untried
+ else
+    pkg_failed=untried
 fi
 
 
@@ -14796,9 +14780,9 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        LIBXSS_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "xscrnsaver"`
+	        LIBXSS_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors "xscrnsaver" 2>&1`
         else
-	        LIBXSS_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "xscrnsaver"`
+	        LIBXSS_PKG_ERRORS=`$PKG_CONFIG --print-errors "xscrnsaver" 2>&1`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$LIBXSS_PKG_ERRORS" >&5
@@ -14848,11 +14832,10 @@ pkg_failed=no
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for LIBNOTIFY" >&5
 $as_echo_n "checking for LIBNOTIFY... " >&6; }
 
-if test -n "$PKG_CONFIG"; then
-    if test -n "$LIBNOTIFY_CFLAGS"; then
-        pkg_cv_LIBNOTIFY_CFLAGS="$LIBNOTIFY_CFLAGS"
-    else
-        if test -n "$PKG_CONFIG" && \
+if test -n "$LIBNOTIFY_CFLAGS"; then
+    pkg_cv_LIBNOTIFY_CFLAGS="$LIBNOTIFY_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libnotify\""; } >&5
   ($PKG_CONFIG --exists --print-errors "libnotify") 2>&5
   ac_status=$?
@@ -14862,15 +14845,13 @@ if test -n "$PKG_CONFIG"; then
 else
   pkg_failed=yes
 fi
-    fi
-else
-	pkg_failed=untried
+ else
+    pkg_failed=untried
 fi
-if test -n "$PKG_CONFIG"; then
-    if test -n "$LIBNOTIFY_LIBS"; then
-        pkg_cv_LIBNOTIFY_LIBS="$LIBNOTIFY_LIBS"
-    else
-        if test -n "$PKG_CONFIG" && \
+if test -n "$LIBNOTIFY_LIBS"; then
+    pkg_cv_LIBNOTIFY_LIBS="$LIBNOTIFY_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libnotify\""; } >&5
   ($PKG_CONFIG --exists --print-errors "libnotify") 2>&5
   ac_status=$?
@@ -14880,9 +14861,8 @@ if test -n "$PKG_CONFIG"; then
 else
   pkg_failed=yes
 fi
-    fi
-else
-	pkg_failed=untried
+ else
+    pkg_failed=untried
 fi
 
 
@@ -14895,9 +14875,9 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        LIBNOTIFY_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "libnotify"`
+	        LIBNOTIFY_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors "libnotify" 2>&1`
         else
-	        LIBNOTIFY_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "libnotify"`
+	        LIBNOTIFY_PKG_ERRORS=`$PKG_CONFIG --print-errors "libnotify" 2>&1`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$LIBNOTIFY_PKG_ERRORS" >&5
@@ -14947,11 +14927,10 @@ pkg_failed=no
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for GSTREAMER" >&5
 $as_echo_n "checking for GSTREAMER... " >&6; }
 
-if test -n "$PKG_CONFIG"; then
-    if test -n "$GSTREAMER_CFLAGS"; then
-        pkg_cv_GSTREAMER_CFLAGS="$GSTREAMER_CFLAGS"
-    else
-        if test -n "$PKG_CONFIG" && \
+if test -n "$GSTREAMER_CFLAGS"; then
+    pkg_cv_GSTREAMER_CFLAGS="$GSTREAMER_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"gstreamer-0.10\""; } >&5
   ($PKG_CONFIG --exists --print-errors "gstreamer-0.10") 2>&5
   ac_status=$?
@@ -14961,15 +14940,13 @@ if test -n "$PKG_CONFIG"; then
 else
   pkg_failed=yes
 fi
-    fi
-else
-	pkg_failed=untried
+ else
+    pkg_failed=untried
 fi
-if test -n "$PKG_CONFIG"; then
-    if test -n "$GSTREAMER_LIBS"; then
-        pkg_cv_GSTREAMER_LIBS="$GSTREAMER_LIBS"
-    else
-        if test -n "$PKG_CONFIG" && \
+if test -n "$GSTREAMER_LIBS"; then
+    pkg_cv_GSTREAMER_LIBS="$GSTREAMER_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"gstreamer-0.10\""; } >&5
   ($PKG_CONFIG --exists --print-errors "gstreamer-0.10") 2>&5
   ac_status=$?
@@ -14979,9 +14956,8 @@ if test -n "$PKG_CONFIG"; then
 else
   pkg_failed=yes
 fi
-    fi
-else
-	pkg_failed=untried
+ else
+    pkg_failed=untried
 fi
 
 
@@ -14994,9 +14970,9 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        GSTREAMER_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "gstreamer-0.10"`
+	        GSTREAMER_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors "gstreamer-0.10" 2>&1`
         else
-	        GSTREAMER_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "gstreamer-0.10"`
+	        GSTREAMER_PKG_ERRORS=`$PKG_CONFIG --print-errors "gstreamer-0.10" 2>&1`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$GSTREAMER_PKG_ERRORS" >&5
@@ -15046,11 +15022,10 @@ pkg_failed=no
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for NETWORKMANAGER" >&5
 $as_echo_n "checking for NETWORKMANAGER... " >&6; }
 
-if test -n "$PKG_CONFIG"; then
-    if test -n "$NETWORKMANAGER_CFLAGS"; then
-        pkg_cv_NETWORKMANAGER_CFLAGS="$NETWORKMANAGER_CFLAGS"
-    else
-        if test -n "$PKG_CONFIG" && \
+if test -n "$NETWORKMANAGER_CFLAGS"; then
+    pkg_cv_NETWORKMANAGER_CFLAGS="$NETWORKMANAGER_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"NetworkManager >= 0.5.0\""; } >&5
   ($PKG_CONFIG --exists --print-errors "NetworkManager >= 0.5.0") 2>&5
   ac_status=$?
@@ -15060,15 +15035,13 @@ if test -n "$PKG_CONFIG"; then
 else
   pkg_failed=yes
 fi
-    fi
-else
-	pkg_failed=untried
+ else
+    pkg_failed=untried
 fi
-if test -n "$PKG_CONFIG"; then
-    if test -n "$NETWORKMANAGER_LIBS"; then
-        pkg_cv_NETWORKMANAGER_LIBS="$NETWORKMANAGER_LIBS"
-    else
-        if test -n "$PKG_CONFIG" && \
+if test -n "$NETWORKMANAGER_LIBS"; then
+    pkg_cv_NETWORKMANAGER_LIBS="$NETWORKMANAGER_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"NetworkManager >= 0.5.0\""; } >&5
   ($PKG_CONFIG --exists --print-errors "NetworkManager >= 0.5.0") 2>&5
   ac_status=$?
@@ -15078,9 +15051,8 @@ if test -n "$PKG_CONFIG"; then
 else
   pkg_failed=yes
 fi
-    fi
-else
-	pkg_failed=untried
+ else
+    pkg_failed=untried
 fi
 
 
@@ -15093,9 +15065,9 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        NETWORKMANAGER_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "NetworkManager >= 0.5.0"`
+	        NETWORKMANAGER_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors "NetworkManager >= 0.5.0" 2>&1`
         else
-	        NETWORKMANAGER_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "NetworkManager >= 0.5.0"`
+	        NETWORKMANAGER_PKG_ERRORS=`$PKG_CONFIG --print-errors "NetworkManager >= 0.5.0" 2>&1`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$NETWORKMANAGER_PKG_ERRORS" >&5
@@ -15143,11 +15115,10 @@ pkg_failed=no
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for LIBSSL" >&5
 $as_echo_n "checking for LIBSSL... " >&6; }
 
-if test -n "$PKG_CONFIG"; then
-    if test -n "$LIBSSL_CFLAGS"; then
-        pkg_cv_LIBSSL_CFLAGS="$LIBSSL_CFLAGS"
-    else
-        if test -n "$PKG_CONFIG" && \
+if test -n "$LIBSSL_CFLAGS"; then
+    pkg_cv_LIBSSL_CFLAGS="$LIBSSL_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"
 		openssl
 \""; } >&5
@@ -15163,15 +15134,13 @@ if test -n "$PKG_CONFIG"; then
 else
   pkg_failed=yes
 fi
-    fi
-else
-	pkg_failed=untried
+ else
+    pkg_failed=untried
 fi
-if test -n "$PKG_CONFIG"; then
-    if test -n "$LIBSSL_LIBS"; then
-        pkg_cv_LIBSSL_LIBS="$LIBSSL_LIBS"
-    else
-        if test -n "$PKG_CONFIG" && \
+if test -n "$LIBSSL_LIBS"; then
+    pkg_cv_LIBSSL_LIBS="$LIBSSL_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"
 		openssl
 \""; } >&5
@@ -15187,9 +15156,8 @@ if test -n "$PKG_CONFIG"; then
 else
   pkg_failed=yes
 fi
-    fi
-else
-	pkg_failed=untried
+ else
+    pkg_failed=untried
 fi
 
 
@@ -15202,13 +15170,13 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        LIBSSL_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "
+	        LIBSSL_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors "
 		openssl
-"`
+" 2>&1`
         else
-	        LIBSSL_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "
+	        LIBSSL_PKG_ERRORS=`$PKG_CONFIG --print-errors "
 		openssl
-"`
+" 2>&1`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$LIBSSL_PKG_ERRORS" >&5
@@ -15252,11 +15220,10 @@ pkg_failed=no
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for GLIB2" >&5
 $as_echo_n "checking for GLIB2... " >&6; }
 
-if test -n "$PKG_CONFIG"; then
-    if test -n "$GLIB2_CFLAGS"; then
-        pkg_cv_GLIB2_CFLAGS="$GLIB2_CFLAGS"
-    else
-        if test -n "$PKG_CONFIG" && \
+if test -n "$GLIB2_CFLAGS"; then
+    pkg_cv_GLIB2_CFLAGS="$GLIB2_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"
         glib-2.0 >= 2.14
 \""; } >&5
@@ -15272,15 +15239,13 @@ if test -n "$PKG_CONFIG"; then
 else
   pkg_failed=yes
 fi
-    fi
-else
-	pkg_failed=untried
+ else
+    pkg_failed=untried
 fi
-if test -n "$PKG_CONFIG"; then
-    if test -n "$GLIB2_LIBS"; then
-        pkg_cv_GLIB2_LIBS="$GLIB2_LIBS"
-    else
-        if test -n "$PKG_CONFIG" && \
+if test -n "$GLIB2_LIBS"; then
+    pkg_cv_GLIB2_LIBS="$GLIB2_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"
         glib-2.0 >= 2.14
 \""; } >&5
@@ -15296,9 +15261,8 @@ if test -n "$PKG_CONFIG"; then
 else
   pkg_failed=yes
 fi
-    fi
-else
-	pkg_failed=untried
+ else
+    pkg_failed=untried
 fi
 
 
@@ -15311,13 +15275,13 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        GLIB2_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "
+	        GLIB2_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors "
         glib-2.0 >= 2.14
-"`
+" 2>&1`
         else
-	        GLIB2_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "
+	        GLIB2_PKG_ERRORS=`$PKG_CONFIG --print-errors "
         glib-2.0 >= 2.14
-"`
+" 2>&1`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$GLIB2_PKG_ERRORS" >&5
@@ -15361,11 +15325,10 @@ pkg_failed=no
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for GOBJECT2" >&5
 $as_echo_n "checking for GOBJECT2... " >&6; }
 
-if test -n "$PKG_CONFIG"; then
-    if test -n "$GOBJECT2_CFLAGS"; then
-        pkg_cv_GOBJECT2_CFLAGS="$GOBJECT2_CFLAGS"
-    else
-        if test -n "$PKG_CONFIG" && \
+if test -n "$GOBJECT2_CFLAGS"; then
+    pkg_cv_GOBJECT2_CFLAGS="$GOBJECT2_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"
         gobject-2.0 >= 2.14
 \""; } >&5
@@ -15381,15 +15344,13 @@ if test -n "$PKG_CONFIG"; then
 else
   pkg_failed=yes
 fi
-    fi
-else
-	pkg_failed=untried
+ else
+    pkg_failed=untried
 fi
-if test -n "$PKG_CONFIG"; then
-    if test -n "$GOBJECT2_LIBS"; then
-        pkg_cv_GOBJECT2_LIBS="$GOBJECT2_LIBS"
-    else
-        if test -n "$PKG_CONFIG" && \
+if test -n "$GOBJECT2_LIBS"; then
+    pkg_cv_GOBJECT2_LIBS="$GOBJECT2_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"
         gobject-2.0 >= 2.14
 \""; } >&5
@@ -15405,9 +15366,8 @@ if test -n "$PKG_CONFIG"; then
 else
   pkg_failed=yes
 fi
-    fi
-else
-	pkg_failed=untried
+ else
+    pkg_failed=untried
 fi
 
 
@@ -15420,13 +15380,13 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        GOBJECT2_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "
+	        GOBJECT2_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors "
         gobject-2.0 >= 2.14
-"`
+" 2>&1`
         else
-	        GOBJECT2_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "
+	        GOBJECT2_PKG_ERRORS=`$PKG_CONFIG --print-errors "
         gobject-2.0 >= 2.14
-"`
+" 2>&1`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$GOBJECT2_PKG_ERRORS" >&5

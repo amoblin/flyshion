@@ -25,6 +25,8 @@ struct userlist  *ul;
 #define PORTRAIT_SIZE      120
 #define LOADING_IMAGE_SIZE 128
 
+static void userlist_remove_clicked(GtkWidget *widget, gpointer data);
+
 FxLogin* fx_login_new()
 {
 	FxLogin* fxlogin = (FxLogin*)malloc(sizeof(FxLogin));
@@ -146,8 +148,10 @@ void fx_login_initialize(FxMain *fxmain)
 	Config           *config = NULL;
 	GtkTreeModel     *model = NULL;
 	GtkWidget        *proxyHbox = NULL;
+	GtkWidget        *rmBtn = NULL;
 	GdkPixbuf        *pixbuf;
 	Proxy            *proxy = NULL;
+	GtkWidget        *image = NULL;
 	gchar             text[1024];
 
 	config = fetion_config_new();
@@ -156,7 +160,7 @@ void fx_login_initialize(FxMain *fxmain)
 	fxlogin->proxy = proxy;
 	
 	ul = fetion_user_list_load(config);
-	model = fx_login_create_user_model(config);
+	model = fx_login_create_user_model();
 
 	pixbuf = gdk_pixbuf_new_from_file_at_size(
 					SKIN_DIR"fetion.svg",
@@ -173,10 +177,17 @@ void fx_login_initialize(FxMain *fxmain)
 
 	fxlogin->username = gtk_combo_box_entry_new_with_model(model , 0);
 	noentry = gtk_bin_get_child(GTK_BIN(fxlogin->username));
-	gtk_widget_set_size_request(GTK_WIDGET(fxlogin->username) , 200 , 25);
+	gtk_widget_set_size_request(GTK_WIDGET(fxlogin->username) , 165 , 25);
 
 	g_signal_connect(fxlogin->username, "changed",
 				   	G_CALLBACK(fx_login_user_change_func) , fxmain);
+	rmBtn = gtk_button_new();
+	gtk_widget_set_usize(rmBtn, 30, 25);
+	image = gtk_image_new_from_stock(GTK_STOCK_DELETE, 
+					GTK_ICON_SIZE_SMALL_TOOLBAR);
+	gtk_button_set_image(GTK_BUTTON(rmBtn), image);
+	g_signal_connect(rmBtn, "clicked",
+				   	G_CALLBACK(userlist_remove_clicked), fxmain);
 
 	fxlogin->userlabel = gtk_label_new(gettext("Cell number or fetion number:"));
 	gtk_label_set_justify(GTK_LABEL(fxlogin->userlabel),
@@ -259,6 +270,7 @@ void fx_login_initialize(FxMain *fxmain)
 				   	(WINDOW_WIDTH - PORTRAIT_SIZE - 10) / 2, 25);
 	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->userlabel , 20 ,165);
 	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->username , (WINDOW_WIDTH - 200)/2 , 185);
+	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , rmBtn , (WINDOW_WIDTH - 200)/2 + 170 , 185);
 	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->passlabel , 20 , 215);
 	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->password , (WINDOW_WIDTH - 200)/2 , 235);
 	gtk_fixed_put(GTK_FIXED(fxlogin->fixed) , fxlogin->statecombo , (WINDOW_WIDTH - 120)/2 , 265);
@@ -373,7 +385,7 @@ void fx_login_action_func(GtkWidget* UNUSED(widget) , gpointer data)
 				fxmain , FALSE , NULL);
 }
 
-GtkTreeModel* fx_login_create_user_model(Config* config)
+GtkTreeModel* fx_login_create_user_model()
 {
 	GtkTreeStore* model = gtk_tree_store_new(USER_COLS_NUM
 										   , G_TYPE_STRING
@@ -485,5 +497,57 @@ void fx_login_user_change_func(GtkWidget* widget , gpointer data)
 							   , strlen(pwd) == 0 ? FALSE : TRUE);
 
 	g_free(pwd);
+	g_free(no);
+}
+
+static void userlist_remove_clicked(GtkWidget *widget, gpointer data)
+{
+	FxMain          *fxmain = (FxMain*)data;
+	FxLogin         *fxlogin = fxmain->loginPanel;
+	GtkComboBox     *combo;
+	GtkTreeModel    *model;
+	GtkWidget       *entry;
+	GdkPixbuf       *pixbuf;
+	GtkTreeIter      iter;
+	gchar           *no;
+	Config          *config;
+
+
+	combo = GTK_COMBO_BOX(fxlogin->username);
+	model = gtk_combo_box_get_model(combo);
+
+	if(!gtk_combo_box_get_active_iter(combo, &iter))
+		return;
+
+	config = fetion_config_new();
+
+	gtk_tree_model_get(model, &iter,
+					L_NO_COL, &no, -1);
+
+	if(fetion_user_list_remove(config, no) == -1){
+		g_free(config);
+		g_free(no);
+		return;
+	}
+
+	gtk_tree_store_remove(GTK_TREE_STORE(model), &iter);
+	if(gtk_tree_model_get_iter_root(model, &iter)){
+		gtk_combo_box_set_active_iter(combo, &iter);
+	}else{
+		entry = gtk_bin_get_child(GTK_BIN(fxlogin->username));
+		gtk_entry_set_text(GTK_ENTRY(entry), "");
+		gtk_entry_set_text(GTK_ENTRY(fxlogin->password), "");
+		pixbuf = gdk_pixbuf_new_from_file_at_size(
+						SKIN_DIR"fetion.svg",
+						PORTRAIT_SIZE,
+						PORTRAIT_SIZE, NULL);
+		if(pixbuf){
+			gtk_image_set_from_pixbuf(
+					GTK_IMAGE(fxlogin->portrait), pixbuf);
+			g_object_unref(pixbuf);
+		}
+	}
+
+	g_free(config);
 	g_free(no);
 }

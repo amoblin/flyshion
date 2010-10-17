@@ -36,7 +36,7 @@ extern void fx_login_initialize(FxMain* fxmain);
 
 extern GtkTreeModel* fx_login_create_state_model();
 
-extern GtkTreeModel* fx_login_create_user_model(Config* config);
+extern GtkTreeModel* fx_login_create_user_model();
 
 extern void fx_login_set_last_login_user(FxLogin* fxlogin);
 

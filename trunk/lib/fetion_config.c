@@ -311,7 +311,7 @@ int fetion_config_download_configuration(User* user)
 	ip = get_ip_by_name(uri);
 	if(ip == NULL){
 		debug_error("Parse configuration uri (%s) failed!!!");
-		return;
+		return -1;
 	}
 	conn = tcp_connection_new();
 	if(config->proxy != NULL && config->proxy->proxyEnabled)
@@ -875,6 +875,33 @@ static void save_phrase(xmlNodePtr node, User *user)
 		}
 		node = node->next;
 	}
+}
+
+int fetion_user_list_remove(Config *config, const char *no)
+{
+	char path[256];
+	char sql[4096];
+	char *errMsg;
+	sqlite3 *db;
+
+	sprintf(path, "%s/data.db",
+				   	config->globalPath);
+
+	if(sqlite3_open(path, &db)){
+		debug_error("open data.db:%s",
+					sqlite3_errmsg(db));
+		return -1;
+	}
+
+	sprintf(sql, "delete from userlist where "
+				"no='%s';", no);
+	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+		debug_info("remove user list:%s", errMsg);
+		sqlite3_close(db);
+		return -1;
+	}
+	sqlite3_close(db);
+	return 1;
 }
 
 void escape_sql(char *in)
