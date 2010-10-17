@@ -65,6 +65,8 @@ extern void fetion_user_list_save(Config* config , struct userlist* ul);
 
 extern void fetion_user_list_set_lastuser_by_no(struct userlist *ul , const char* no);
 
+extern int fetion_user_list_remove(Config *config, const char *no);
+
 extern struct userlist* fetion_user_list_find_by_no(struct userlist* list , const char* no);
 
 extern struct userlist* fetion_user_list_load(Config* config);

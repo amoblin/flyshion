@@ -460,9 +460,7 @@ auth:
 	gtk_window_set_resizable(GTK_WINDOW(fxmain->window) , TRUE);
 	gdk_threads_leave();
 
-	/**
-	 *  if there is not a buddylist name "Ungrouped" or "Strangers", create one
-	 */
+	/*if there is not a buddylist name "Ungrouped" or "Strangers", create one */
 	if(fetion_group_list_find_by_id(user->groupList,
 			BUDDY_LIST_NOT_GROUPED) == NULL &&
 		    fetion_contact_has_ungrouped(user->contactList)){
@@ -480,10 +478,6 @@ auth:
 		fetion_group_list_prepend(user->groupList , group);
 	}
 	fx_login_show_msg(fxlogin , _("Initializing main panel"));
-
-	/*localization*/
-	fetion_contact_save(user);
-	fetion_user_save(user);
 
 	/* initialize head panel */
 	gdk_threads_enter();
@@ -520,7 +514,6 @@ auth:
 	fx_tree_show(fxmain);
 	fx_bottom_show(fxmain);
 	gdk_threads_leave();
-
 
 	/* start sending keep alive request periodically */
 	g_timeout_add_seconds(180 , (GSourceFunc)fx_main_register_func , user);
@@ -662,7 +655,7 @@ int fx_conn_reconnect(FxMain *fxmain, int state)
 		fx_util_popup_warning(fxmain,
 				_("Login failed"));
 		gdk_threads_leave();
-		return -1;
+		goto failed2;
 	}
 
 	/* set the connection to the sip obj already exist */
@@ -677,7 +670,7 @@ int fx_conn_reconnect(FxMain *fxmain, int state)
 		fx_util_popup_warning(fxmain,
 				_("Login failed"));
 		gdk_threads_leave();
-		return -1;
+		goto failed2;
 	}
 
 	parse_sipc_reg_response(res_str,
@@ -702,7 +695,7 @@ auth:
 		fx_util_popup_warning(fxmain,
 				_("Login failed"));
 		gdk_threads_leave();
-		return -1;
+		goto failed2;
 	}
 
 	if(parse_sipc_auth_response(res_str, user,
@@ -712,7 +705,7 @@ auth:
 				_("Authenticate failed."));
 		gdk_threads_leave();
 		g_free(res_str);
-		return -1;
+		goto failed2;
 	}
 
 	g_free(res_str);
@@ -724,7 +717,7 @@ auth:
 		fx_util_popup_warning(fxmain,
 				_("Authenticate failed."));
 		gdk_threads_leave();
-		return -1;
+		goto failed2;
 	}
 
 	/* need verification */
@@ -752,7 +745,7 @@ auth:
 		}else{
 			gtk_widget_destroy(fxcode->dialog);
 			gdk_threads_leave();
-			return -1;
+			goto failed2;
 		}
 		debug_info("Input verfication code:%s" , code);
 	}
@@ -794,6 +787,25 @@ auth:
 	/* start sending keep alive request periodically */
 	g_timeout_add_seconds(180 , (GSourceFunc)fx_main_register_func , user);
 	g_timeout_add_seconds(3 , (GSourceFunc)fx_main_check_func , fxmain);
+failed2:
+	fetion_user_set_st(user, P_OFFLINE);
+	sprintf(path, "%s/%s.jpg",
+			config->iconPath, user->sId);
+	pixbuf = gdk_pixbuf_new_from_file_at_size(path,
+					USER_PORTRAIT_SIZE, 
+					USER_PORTRAIT_SIZE, NULL);
+	if(!pixbuf)
+		pixbuf = gdk_pixbuf_new_from_file_at_size(
+					SKIN_DIR"fetion.svg",
+					USER_PORTRAIT_SIZE, 
+					USER_PORTRAIT_SIZE, NULL);
+
+	gdk_threads_enter();
+	gtk_image_set_from_pixbuf(
+			GTK_IMAGE(fxhead->portrait), pixbuf);
+	gdk_threads_leave();
+	g_object_unref(pixbuf);
+	return -1;
 
 	return 1;
 }
@@ -813,6 +825,11 @@ int fx_conn_offline_login(FxMain *fxmain)
 
 	fxlogin = fxmain->loginPanel;
 
+	gdk_threads_enter();
+	fx_login_hide(fxlogin);
+	fx_logining_show(fxmain);
+	gdk_threads_leave();
+
 	/* get login number and password */
 	no = gtk_combo_box_get_active_text(
 					GTK_COMBO_BOX(fxlogin->username));
@@ -823,30 +840,25 @@ int fx_conn_offline_login(FxMain *fxmain)
 	if(!ul_cur){
 		fx_login_show_err(fxlogin,
 			_("No local information stored"));
-		return -1;
+		goto failed1;
 	}
 
 	if(strcmp(ul_cur->password, password) != 0){
 		fx_login_show_err(fxlogin,
 			_("Authenticate failed."));
-		return -1;
+		goto failed1;
 	}
 
 	user = fetion_user_new(no , password);
 	fetion_user_set_userid(user, ul_cur->userid);
 	fx_main_set_user(fxmain , user);
 
-	gdk_threads_enter();
-	fx_login_hide(fxlogin);
-	fx_logining_show(fxmain);
-	gdk_threads_leave();
-
 	fx_login_show_msg(fxlogin , _("Preparing for login"));	
 
 	config = fetion_config_new();
 	if(!user){
 		fx_login_show_err(fxlogin , _("Login failed"));
-		return -1;
+		goto failed1;
 	}
 
 	/* set the proxy structure to config */
@@ -860,7 +872,7 @@ int fx_conn_offline_login(FxMain *fxmain)
 
 	fetion_config_load(user);
 	if(config->sipcProxyPort == 0)
-		return -1;
+		goto failed1;
 
 	fetion_user_set_st(user , P_OFFLINE);
 
@@ -906,15 +918,15 @@ int fx_conn_offline_login(FxMain *fxmain)
 	gdk_threads_leave();
 
 
-	g_thread_exit(0);
-failed:
+	return 1;
+failed1:
 	gdk_threads_enter();
 	gtk_widget_destroy(fxlogin->fixed1);
 	gtk_widget_show(fxlogin->fixed);
 	gtk_widget_grab_focus(fxlogin->loginbutton);
 	gdk_threads_leave();
 	g_thread_exit(0);
-	return 1;
+	return -1;
 
 }
 

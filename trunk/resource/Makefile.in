@@ -37,7 +37,14 @@ host_triplet = @host@
 subdir = resource
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/m4/gettext.m4 \
+	$(top_srcdir)/m4/iconv.m4 $(top_srcdir)/m4/lib-ld.m4 \
+	$(top_srcdir)/m4/lib-link.m4 $(top_srcdir)/m4/lib-prefix.m4 \
+	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
+	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
+	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/m4/nls.m4 \
+	$(top_srcdir)/m4/po.m4 $(top_srcdir)/m4/progtest.m4 \
+	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
@@ -242,7 +249,7 @@ resource_DATA = city.xml \
 		province.xml \
 		newmessage.wav
 
-desktopdir = $(prefix)/share/applications
+desktopdir = /usr/share/applications
 desktop_DATA = openfetion.desktop
 EXTRA_DIST = $(resource_DATA) $(desktop_DATA)
 all: all-am
@@ -474,21 +481,6 @@ uninstall-am: uninstall-desktopDATA uninstall-resourceDATA
 	mostlyclean-libtool pdf pdf-am ps ps-am uninstall uninstall-am \
 	uninstall-desktopDATA uninstall-resourceDATA
 
-
-#
-#all:
-#	@echo "[Desktop Entry]" > openfetion.desktop
-#	@echo "Icon=$(pkgdatadir)/skin/fetion.svg" >> openfetion.desktop
-#	@echo "Name=OpenFetion" >> openfetion.desktop
-#	@echo "Name[en_GB]=OpenFetion" >> openfetion.desktop
-#	@echo "Name[zh_CN]=飞信(OpenFetion)" >> openfetion.desktop
-#	@echo "Comment=Fetion For Linux" >> openfetion.desktop
-#	@echo "Comment[zh_CN]=Linux 版飞信客户端" >> openfetion.desktop
-#	@echo "Exec=openfetion" >> openfetion.desktop
-#	@echo "StartupNotify=true" >> openfetion.desktop
-#	@echo "Terminal=false" >> openfetion.desktop
-#	@echo "Type=Application" >> openfetion.desktop
-#	@echo "Categories=Network;InstantMessaging;" >> openfetion.desktop
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
