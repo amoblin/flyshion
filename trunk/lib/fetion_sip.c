@@ -391,14 +391,10 @@ char* fetion_sip_get_response(FetionSip* sip)
 		return NULL;
 
 	len = fetion_sip_get_length(buf);
-	if(len == 0)
-		return NULL;
 
 	if(strstr(buf , "\r\n\r\n") == NULL)
 		return NULL;
 
-	if(strstr(buf , "\r\n\r\n") + 4 == NULL)
-		return NULL;
 	n = strlen(buf) - strlen(strstr(buf , "\r\n\r\n") + 4);
 	len += n;
 	res = (char*)malloc(len + 1);
@@ -411,6 +407,7 @@ char* fetion_sip_get_response(FetionSip* sip)
 			memset(buf , 0 , sizeof(buf));
 			c1 = tcp_connection_recv(sip->tcp , buf
 					, len -c < (sizeof(buf) - 1) ? len -c : (sizeof(buf) - 1) );
+			printf("c1 : %d\n", c1);
 			if(c1 == -1){
 				free(res);
 				return NULL;
