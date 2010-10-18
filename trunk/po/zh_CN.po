@@ -1533,6 +1533,9 @@ msgstr "没有本地信息"
 msgid "The action can't be performed in offline state"
 msgstr "离线状态下该操作不能执行"
 
+#~msgid "Message send failed,Unknown Error"
+#~msgstr "消息发送失败，未知错误"
+
 #msgid "Connection has been shutdown by the server"
 #msgstr "服务器连接已关闭"
 

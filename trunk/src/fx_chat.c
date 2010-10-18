@@ -658,6 +658,9 @@ void* fx_chat_send_message_thread(void *data)
 		g_thread_create(fx_main_listen_thread_func , args , FALSE , NULL);
 
 		fetion_conversation_send_sms(conv , text);
+	}else{
+		fx_chat_add_information(fxchat, 
+				_("Message send failed,Unknown Error"));
 	}
 
 	return NULL;
