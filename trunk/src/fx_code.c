@@ -26,8 +26,6 @@ FxCode* fx_code_new(FxMain* fxmain , const char* reason
 {
 	FxCode* fxcode = (FxCode*)malloc(sizeof(FxCode));
 
-	DEBUG_FOOTPRINT();
-
 	memset(fxcode , 0 , sizeof(FxCode));
 	fxcode->fxmain = fxmain;
 	if(reason != NULL)
@@ -45,8 +43,6 @@ void fx_code_initialize(FxCode *fxcode)
 	GtkWidget *ok_button , *cancel_button;
 	GdkPixbuf *pb , *icon;
 	char codePath[256];
-
-	DEBUG_FOOTPRINT();
 
 	fxcode->dialog = gtk_dialog_new();
 	gtk_window_set_title(GTK_WINDOW(fxcode->dialog) , _("Please entry your verification code"));
@@ -124,8 +120,6 @@ void fx_code_code_event_func(GtkWidget* UNUSED(widget) , GdkEventButton* event ,
 	char codePath[256];
 	GdkPixbuf *pb;
 
-	DEBUG_FOOTPRINT();
-
 	switch(event->type)
 	{
 		case GDK_BUTTON_PRESS :
@@ -151,15 +145,11 @@ void fx_code_code_event_func(GtkWidget* UNUSED(widget) , GdkEventButton* event ,
 
 void fx_code_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
-	DEBUG_FOOTPRINT();
-
 	gtk_dialog_response(GTK_DIALOG(data) , GTK_RESPONSE_OK);
 }
 
 void fx_code_on_cancel_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
-	DEBUG_FOOTPRINT();
-
 	gtk_dialog_response(GTK_DIALOG(data) , GTK_RESPONSE_CANCEL);
 }
 

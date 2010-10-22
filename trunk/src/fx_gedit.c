@@ -25,8 +25,6 @@ FxGEdit* fx_gedit_new(FxMain* fxmain , GtkTreeIter iter , int groupid)
 {
 	FxGEdit* fxgedit = (FxGEdit*)malloc(sizeof(FxGEdit));
 
-	DEBUG_FOOTPRINT();
-
 	memset(fxgedit , 0 , sizeof(FxGEdit));
 	fxgedit->fxmain = fxmain;
 	fxgedit->iter = iter;
@@ -39,8 +37,6 @@ void fx_gedit_initialize(FxGEdit* fxgedit)
 	fxgedit->dialog = gtk_dialog_new();
 	GdkPixbuf* pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"online.svg",
 				   22 ,22,NULL);
-
-	DEBUG_FOOTPRINT();
 
 	gtk_window_set_icon(GTK_WINDOW(fxgedit->dialog) , pb);
 	g_object_unref(pb);
@@ -73,8 +69,6 @@ void fx_gedit_initialize(FxGEdit* fxgedit)
 
 void fx_gedit_free(FxGEdit* fxgedit)
 {
-	DEBUG_FOOTPRINT();
-
 	free(fxgedit);
 }
 void fx_gedit_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data)
@@ -87,8 +81,6 @@ void fx_gedit_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 	GtkTreeIter iter = fxgedit->iter;
 	int groupid = fxgedit->groupid;
 	const char* name = gtk_entry_get_text(GTK_ENTRY(fxgedit->remark_entry));
-
-	DEBUG_FOOTPRINT();
 
 	if(strlen(name) == 0)
 		return;
@@ -108,8 +100,6 @@ void fx_gedit_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 void fx_gedit_on_cancel_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	GtkWidget* dialog = (GtkWidget*)data;
-
-	DEBUG_FOOTPRINT();
 
 	gtk_dialog_response(GTK_DIALOG(dialog) , GTK_RESPONSE_CANCEL);
 }

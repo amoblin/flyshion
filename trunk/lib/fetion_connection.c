@@ -69,8 +69,8 @@ FetionConnection* tcp_connection_new(void)
 	FetionConnection* conn = (FetionConnection*)malloc(sizeof(FetionConnection));
 	memset(conn , 0 , sizeof(FetionConnection));
 	conn->socketfd = socket(AF_INET , SOCK_STREAM , 0);
-	if(tcp_keep_alive(conn->socketfd) == -1)
-		return NULL;
+//	if(tcp_keep_alive(conn->socketfd) == -1)
+//		return NULL;
 	conn->ssl = NULL;
 	conn->ssl_ctx = NULL;
 	return conn;

@@ -45,7 +45,6 @@ static gboolean key_press_func(GtkWidget *widget , GdkEventKey *event
 FxMain* fx_main_new()
 {
 	FxMain* fxmain = (FxMain*)malloc(sizeof(FxMain));
-	DEBUG_FOOTPRINT();
 
 	memset(fxmain , 0 , sizeof(FxMain));
 	fxmain->clist = fx_list_new(NULL);
@@ -277,6 +276,7 @@ static void *update_data(void *data)
 	FxMain *fxmain = (FxMain*)data;
 	User   *user = fxmain->user;
 
+	fetion_user_save(user);
 	fetion_contact_save(user);
 	fx_tree_update_portrait(data);
 
@@ -295,6 +295,7 @@ static void popup_online_notify(FxMain *fxmain, Contact *contact)
 	config = fxmain->user->config;
 
 	if(start_popup_presence && 
+		presence_count > fxmain->user->contactCount &&
 		config->onlineNotify == ONLINE_NOTIFY_ENABLE){
 
 		sprintf(iconPath , "%s/%s.jpg",
@@ -331,7 +332,7 @@ static void popup_online_notify(FxMain *fxmain, Contact *contact)
 
 void fx_main_process_presence(FxMain* fxmain , const gchar* xml)
 {
-	gchar        *crc;
+	gchar        *crc = NULL;
 	gchar        *name;
 	gint          oldstate , count;
 	Contact      *contactlist;
@@ -663,8 +664,6 @@ void fx_main_process_user_left(FxMain* fxmain , const gchar* msg)
 	Conversation *conv;
 
 	clist = fxmain->clist;
-
-	DEBUG_FOOTPRINT();
 
 	fetion_sip_parse_userleft(msg , &sipuri);
 	/* remove sip struct from stack	 */
@@ -1304,6 +1303,7 @@ void* fx_main_listen_thread_func(void* data)
 	User       *user;
 	gint        type;
 	gint        ret;
+	gint        error;
 
 	args = (ThreadArgs*)data;
 	fxmain = args->fxmain;
@@ -1353,9 +1353,9 @@ void* fx_main_listen_thread_func(void* data)
 			continue;
 		}
 
-		msg = fetion_sip_listen(sip);
+		msg = fetion_sip_listen(sip, &error);
 
-		if(!msg){
+		if(!msg && error){
 			gdk_threads_enter();
 			printf("\n\n\n\n\n Error ...... break out...\n\n\n\n\n");
 			fx_conn_offline(fxmain);
@@ -1508,8 +1508,6 @@ void fx_main_about_fetion_clicked(GtkWidget *UNUSED(widget) , gpointer UNUSED(da
 {
 	GtkWidget *dialog = gtk_about_dialog_new();
 	GdkPixbuf *logo = NULL;
-
-	DEBUG_FOOTPRINT();
 
 	gtk_window_set_modal(GTK_WINDOW(dialog) , TRUE);
 	gtk_about_dialog_set_name(GTK_ABOUT_DIALOG(dialog), "OpenFetion");
@@ -1734,8 +1732,6 @@ void fx_list_remove_pg_by_sipuri(FxList* fxlist , const char* sipuri)
 {
 	FxList    *cur;
 	FxPGGroup *fxpg;
-
-	DEBUG_FOOTPRINT();
 
 	foreach_list(fxlist , cur){
 		fxpg = (FxPGGroup*)(cur->data);

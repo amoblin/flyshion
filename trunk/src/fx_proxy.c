@@ -24,8 +24,6 @@ FxProxy *fx_proxy_new(FxLogin *fxlogin)
 {
 	FxProxy *fxproxy = (FxProxy*)malloc(sizeof(FxProxy));
 
-	DEBUG_FOOTPRINT();
-
 	memset(fxproxy , 0 , sizeof(FxProxy));
 	fxproxy->fxlogin = fxlogin;
 	return fxproxy;
@@ -33,8 +31,6 @@ FxProxy *fx_proxy_new(FxLogin *fxlogin)
 
 static void fx_proxy_set_sensitive(FxProxy *fxproxy , gboolean enable)
 {
-
-	DEBUG_FOOTPRINT();
 
 	gtk_widget_set_sensitive(fxproxy->hostEntry , enable);
 	gtk_widget_set_sensitive(fxproxy->portEntry , enable);
@@ -51,7 +47,6 @@ static void fx_proxy_enable_toggled(GtkWidget *UNUSED(widget) , gpointer data)
 	else
 		fx_proxy_set_sensitive(fxproxy , FALSE);
 	
-	DEBUG_FOOTPRINT();
 }
 
 void fx_proxy_initialize(FxProxy *fxproxy)
@@ -68,8 +63,6 @@ void fx_proxy_initialize(FxProxy *fxproxy)
 	GdkPixbuf *pb = NULL;
 	char text[128];
 	Proxy *proxy = fxproxy->fxlogin->proxy;
-
-	DEBUG_FOOTPRINT();
 
 	fxproxy->dialog = gtk_dialog_new();
 
@@ -169,8 +162,6 @@ void fx_proxy_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 	const char *text = NULL;
 	Proxy *proxy = NULL;
 
-	DEBUG_FOOTPRINT();
-
 	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxproxy->enableBtn)))
 	{
 		proxy = (Proxy*)malloc(sizeof(Proxy));
@@ -220,8 +211,6 @@ void fx_proxy_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 void fx_proxy_on_cancel_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 {
 	FxProxy *fxproxy = (FxProxy*)data;
-
-	DEBUG_FOOTPRINT();
 
 	gtk_dialog_response(GTK_DIALOG(fxproxy->dialog) , GTK_RESPONSE_CANCEL);
 }

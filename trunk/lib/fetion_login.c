@@ -50,8 +50,6 @@ char* generate_response(const char* nouce , const char* userid
 	int nonce_len , aeskey_len , psd_len;
 	RSA *r = RSA_new();
 
-	DEBUG_FOOTPRINT();
-
 	key = NULL;
 
 	bzero(modulus , sizeof(modulus));
@@ -111,8 +109,6 @@ void generate_pic_code(User* user)
 	xmlDocPtr doc;
 	xmlNodePtr node;
 
-	DEBUG_FOOTPRINT();
-
 	memset(buf , 0 , sizeof(buf));
 	ip = get_ip_by_name(NAVIGATION_URI);
 	FetionConnection* con = tcp_connection_new();
@@ -165,8 +161,6 @@ char* ssi_auth_action(User* user)
 	int passwordType;
 	int ret;
 	
-	DEBUG_FOOTPRINT();
-
 	debug_info("Initialize ssi authentication action");
 	password = hash_password_v4(user->userId , user->password);
 	bzero(noUri , sizeof(noUri));
@@ -223,7 +217,6 @@ char* sipc_reg_action(User* user)
 
 	FetionSip* sip = user->sip;
 
-	DEBUG_FOOTPRINT();
 	debug_info("Initialize sipc registeration action");
 
 	fetion_sip_set_type(sip , SIP_REGISTER);
@@ -255,7 +248,6 @@ char* sipc_aut_action(User* user , const char* response)
 	SipHeader* ackheader = NULL;
 	FetionSip* sip = user->sip;
 
-	DEBUG_FOOTPRINT();
 	debug_info("Initialize sipc authencation action");
 
 	xml = generate_auth_body(user);
@@ -292,7 +284,6 @@ void parse_ssi_auth_response(const char* ssi_response , User* user)
 	char* xml = strstr(ssi_response , "\r\n\r\n") + 4;
 	int n;
 
-	DEBUG_FOOTPRINT();
 	if(strstr(ssi_response , "ssic=")){
 		pos = strstr(ssi_response , "ssic=") + 5;
 		n = strlen(pos) - strlen(strstr(pos , ";"));
@@ -324,8 +315,6 @@ void parse_sipc_reg_response(const char* reg_response , char** nouce , char** ke
 	char digest[2048] = { 0 };
 	char* pos;
 	int n;
-
-	DEBUG_FOOTPRINT();
 
 	fetion_sip_get_attr(reg_response , "W" , digest);
 
@@ -379,8 +368,6 @@ int parse_sipc_auth_response(const char* auth_response , User* user, int *group_
 	xmlNodePtr node = NULL;
 	xmlNodePtr node1 = NULL;
 	int code;
-
-	DEBUG_FOOTPRINT();
 
 	code = fetion_sip_get_code(auth_response);
 	user->loginStatus = code;
@@ -506,8 +493,6 @@ static void parse_personal_info(xmlNodePtr node , User* user)
 	char *pos;
 	int n;
 	
-	DEBUG_FOOTPRINT();
-
 	buf = xmlGetProp(node , BAD_CAST "version");
 	strcpy(user->personalVersion , (char*)buf);
 	xmlFree(buf);
@@ -626,6 +611,7 @@ static void parse_contact_list(xmlNodePtr node, User* user,
 	node1 = xml_goto_node(node , "buddies");
 	node1 = node1->xmlChildrenNode;
 	user->contactCount = 0;
+
 	while(node1 != NULL){
 		hasBuddy = 1;
 

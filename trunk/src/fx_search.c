@@ -45,8 +45,6 @@ static void row_activate_func(GtkTreeView *view , GtkTreePath *path
 	if(!gtk_tree_model_get_iter(model , &iter , path))
 		return;
 
-	DEBUG_FOOTPRINT();
-
 	gtk_tree_model_get(model      , &iter
 					 , B_SIPURI_COL , &sipuri
 					 , B_PHONENUM_COL	 , &mobileno
@@ -97,7 +95,6 @@ static gboolean button_press_func(GtkWidget* tree
 	if(event->type == GDK_BUTTON_PRESS && event->button == 1)
 	{
 
-		DEBUG_FOOTPRINT();
 		model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
 		gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(tree) 
 				, (gint)event->x , (gint)event->y , &path , NULL , NULL , NULL);
@@ -212,8 +209,6 @@ static void create_column(GtkWidget* tree , FxMain* UNUSED(fxmain))
 {
 	GtkCellRenderer* renderer;
 	GtkTreeViewColumn *col , *col0;
-
-	DEBUG_FOOTPRINT();
 
 	renderer = gtk_cell_renderer_pixbuf_new();
 	col = gtk_tree_view_column_new(); 

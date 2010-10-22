@@ -25,8 +25,6 @@ FxApp* fx_app_new(FxMain* fxmain , const char* sipuri , const char* userid , con
 {
 	FxApp *fxapp = (FxApp*)malloc(sizeof(FxApp));
 
-	DEBUG_FOOTPRINT();
-
 	memset(fxapp , 0 , sizeof(FxApp));
 	fxapp->fxmain = fxmain;
 	fxapp->phraseid = phrase;
@@ -54,8 +52,6 @@ void fx_app_initialize(FxApp* fxapp)
 	Phrase *phrase = NULL;
 
 	char text[1024];
-
-	DEBUG_FOOTPRINT();
 
 	fxapp->dialog = gtk_dialog_new();
 	gtk_window_set_title(GTK_WINDOW(fxapp->dialog) , _("Receive an Add Buddy request"));
@@ -136,8 +132,6 @@ GtkTreeModel* fx_app_create_group_model(FxMain* fxmain)
 	char *groupname = NULL;
 	int groupid;
 
-	DEBUG_FOOTPRINT();
-
 	tree = GTK_TREE_VIEW(fxmain->mainPanel->treeView);
 	model = gtk_tree_view_get_model(tree);
 
@@ -178,8 +172,6 @@ void* fx_app_ok_thread(void* data)
 	char portraitPath[128];
 	char *sid = NULL;
 	
-	DEBUG_FOOTPRINT();
-
 	gmodel = gtk_combo_box_get_model(GTK_COMBO_BOX(fxapp->agCombo));
 	gtk_combo_box_get_active_iter(GTK_COMBO_BOX(fxapp->agCombo) , &iter);
 	gtk_tree_model_get(gmodel , &iter , APP_G_ID_COL , &buddylist , -1);
@@ -271,8 +263,6 @@ void fx_app_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 	FxApp *fxapp = (FxApp*)data;
 	GThread *thread;
 
-	DEBUG_FOOTPRINT();
-
 	thread = g_thread_create(fx_app_ok_thread , data , TRUE , NULL);
 
 	gtk_dialog_response(GTK_DIALOG(fxapp->dialog) , GTK_RESPONSE_OK);
@@ -281,8 +271,6 @@ void fx_app_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 void fx_app_on_cancel_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	FxApp *fxapp = (FxApp*)data;
-
-	DEBUG_FOOTPRINT();
 
 	gtk_dialog_response(GTK_DIALOG(fxapp->dialog) , GTK_RESPONSE_CANCEL);
 }
@@ -294,8 +282,6 @@ void* fx_app_check_thread(void* data)
 	char* sid = NULL;
 	Contact* contact = NULL;
 	FxLookupres* fxlookupres = NULL;
-
-	DEBUG_FOOTPRINT();
 
 	sid = fetion_sip_get_sid_by_sipuri(fxapp->sipuri);
 	contact = fetion_contact_get_contact_info_by_no(user , sid , FETION_NO);

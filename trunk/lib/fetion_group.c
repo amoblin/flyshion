@@ -23,7 +23,6 @@
 static char* generate_contact_info_by_no_body(const char* no);
 static char* generate_get_members_body(const char *pguri);
 static void pg_group_member_append(PGGroupMember *head , PGGroupMember *newmem);
-static void pg_group_member_prepend(PGGroupMember *head , PGGroupMember *newmem);
 static void pg_group_append(PGGroup *head , PGGroup *n);
 static void pg_group_prepend(PGGroup *head , PGGroup *n);
 
@@ -397,7 +396,7 @@ static void pg_group_member_append(PGGroupMember *head , PGGroupMember *newmem)
 	newmem->pre = head;
 	head->next = newmem;
 }
-
+#if 0
 static void pg_group_member_prepend(PGGroupMember *head , PGGroupMember *newmem)
 {
 	head->pre->next = newmem;
@@ -405,6 +404,7 @@ static void pg_group_member_prepend(PGGroupMember *head , PGGroupMember *newmem)
 	newmem->next = head;
 	head->pre = newmem;
 }
+#endif
 
 void pg_group_parse_member(PGGroup *pg , const char *sipmsg)
 {

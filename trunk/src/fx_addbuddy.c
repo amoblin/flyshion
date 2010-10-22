@@ -322,8 +322,6 @@ void fx_addbuddy_no_type_change(GtkWidget *UNUSED(widget) , gpointer data)
 {
 	FxAddbuddy* fxaddbuddy = (FxAddbuddy*)data;
 
-	DEBUG_FOOTPRINT();
-
 	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxaddbuddy->fetion_button)))
 	{
 		fxaddbuddy->notype = FETION_NO;

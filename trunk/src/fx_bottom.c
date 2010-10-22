@@ -164,8 +164,6 @@ void fx_bottom_on_sendtome_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 	FxMain* fxmain = (FxMain*)data;
 	FxMyself* fxmyself = fx_myself_new(fxmain);
 
-	DEBUG_FOOTPRINT();
-
 	if(fxmain->user->carrierStatus == CARRIER_STATUS_DOWN){
 		fx_util_popup_warning(fxmain , SERVICE_DOWN_MESSAGE);
 		return;

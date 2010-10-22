@@ -81,8 +81,6 @@ static void fetion_start_transfer(FetionSip *sip){
 	char *res = NULL;
 	char buf[2048];
 
-	DEBUG_FOOTPRINT();
-
 	fetion_sip_set_type(sip , SIP_SERVICE);
 	
 	kheader = fetion_sip_header_new("N" , "StartTransfer");
@@ -105,8 +103,6 @@ void fetion_share_request(FetionSip *sip , Share *share)
 	char *res = NULL;
 	char *body = NULL;
 	char buf[2048];
-
-	DEBUG_FOOTPRINT();
 
 	fetion_sip_set_type(sip , SIP_OPTION);
 	

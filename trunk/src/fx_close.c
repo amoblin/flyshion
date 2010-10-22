@@ -24,8 +24,6 @@ FxClose *fx_close_new(FxMain *fxmain)
 {
 	FxClose *fxclose = (FxClose*)malloc(sizeof(FxClose));
 
-	DEBUG_FOOTPRINT();
-
 	memset(fxclose , 0 , sizeof(FxClose));
 	fxclose->fxmain = fxmain;
 

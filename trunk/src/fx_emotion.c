@@ -62,8 +62,6 @@ FxEmotion *fx_emotion_new(FxChat *fxchat)
 {
 	FxEmotion *fxemotion = (FxEmotion*)malloc(sizeof(FxEmotion));
 
-	DEBUG_FOOTPRINT();
-
 	fxemotion->fxchat = fxchat;
 
 	return fxemotion;
@@ -90,8 +88,6 @@ static gboolean fx_emotion_ok_clicked(GtkWidget *UNUSED(widget)
 	GtkTextBuffer* buffer;
 	GtkTextIter iter;
 
-	DEBUG_FOOTPRINT();
-	
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(fxchat->send_text));
 
 	gtk_text_buffer_get_end_iter(buffer , &iter);
@@ -115,8 +111,6 @@ void fx_emotion_initialize(FxEmotion *fxemotion , int x , int y)
 		FxEmotion *fxemotion;
 		int id;
 	} *emotionArgs;
-
-	DEBUG_FOOTPRINT();
 
 	fxemotion->dialog = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_decorated(GTK_WINDOW(fxemotion->dialog) , FALSE);

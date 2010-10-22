@@ -34,8 +34,6 @@ FxChat* fx_chat_new(FxMain* fxmain , Conversation* conv)
 {
 	FxChat* fxchat = (FxChat*)malloc(sizeof(FxChat));
 
-	DEBUG_FOOTPRINT();
-
 	memset(fxchat , 0 , sizeof(FxChat));
 	fxchat->fxmain = fxmain;
 	fxchat->conv = conv;
@@ -275,6 +273,35 @@ void fx_chat_bind(FxChat* fxchat)
 	}
 }
 
+static void *get_contact_info(void *data)
+{
+	FxChat     *fxchat = (FxChat*)data;
+	FxProfile  *fxprofile;
+	Contact    *contact;
+
+	fxprofile = fx_profile_new(fxchat->fxmain,
+			fxchat->conv->currentContact->userId);
+	gdk_threads_enter();
+	fx_profile_initialize(fxprofile);
+	gdk_threads_leave();
+
+	contact = fx_profile_fetch(fxprofile);
+	if(!contact || strlen(contact->province) == 0)
+		contact = fetion_contact_get_contact_info(
+				fxchat->fxmain->user,
+				fxchat->conv->currentContact->userId);
+
+	gdk_threads_enter();
+	fx_profile_bind(fxprofile, contact);
+	gtk_dialog_run(GTK_DIALOG(fxprofile->dialog));
+
+	gtk_widget_destroy(fxprofile->dialog);
+	gdk_threads_leave();
+	free(fxprofile);
+
+	return NULL;
+}
+
 static void fx_chat_name_box_func(GtkWidget *UNUSED(widget)
 		, GdkEventButton *event , gpointer data)
 {
@@ -283,7 +310,6 @@ static void fx_chat_name_box_func(GtkWidget *UNUSED(widget)
     gchar      *sid;
     gchar       nametext[1024];
 	Contact    *contact;
-	FxProfile  *fxprofile;
 
 	fxchat = (FxChat*)data;
 	contact = fxchat->conv->currentContact;
@@ -308,11 +334,7 @@ static void fx_chat_name_box_func(GtkWidget *UNUSED(widget)
 			gtk_label_set_markup(GTK_LABEL(fxchat->name_label) , nametext);
 			break;
 		case GDK_BUTTON_PRESS :
-			fxprofile = fx_profile_new(fxchat->fxmain , contact->userId);
-			fx_profile_initialize(fxprofile);
-			gtk_dialog_run(GTK_DIALOG(fxprofile->dialog));
-			gtk_widget_destroy(fxprofile->dialog);
-			free(fxprofile);
+			g_thread_create(get_contact_info, fxchat, FALSE, NULL);
 			break;
 		default:
 			break;
@@ -985,8 +1007,6 @@ static gboolean fx_chat_on_key_pressed(GtkWidget* UNUSED(widget)
 {
 	FxChat *fxchat = NULL;
 	Config *config = NULL;
-
-	DEBUG_FOOTPRINT();
 
 	if(event->keyval == GDK_Return || event->keyval == GDK_ISO_Enter || event->keyval == GDK_KP_Enter){
 		fxchat = (FxChat*)data;

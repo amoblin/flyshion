@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.63])
-AC_INIT([OpenFetion], [1.9], [http://basiccoder.com/openfetion])
+AC_INIT([OpenFetion], [2.0], [http://basiccoder.com/openfetion])
 AC_CONFIG_SRCDIR([src/fx_main.c])
 AC_CONFIG_HEADERS([config.h])
 
@@ -159,7 +159,7 @@ PKG_CHECK_MODULES(NETWORKMANAGER, [NetworkManager >= 0.5.0], [
 			echo "libnotify development headers not found."
 			echo "Use --disable-nm if you do not need it."
 			echo "If you're using debian or ubuntu,install it by "
-			echo "\"sudo apt-get install networkmanager\""
+			echo "\"sudo apt-get install libnm-glib-dev\""
 			echo ""
 			exit -1
 			])

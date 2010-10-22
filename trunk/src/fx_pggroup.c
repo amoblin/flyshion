@@ -348,8 +348,6 @@ static void create_column(GtkWidget* tree)
 	GtkCellRenderer* renderer;
 	GtkTreeViewColumn *col , *col0;
 
-	DEBUG_FOOTPRINT();
-
 	renderer = gtk_cell_renderer_pixbuf_new();
 	col = gtk_tree_view_column_new(); 
 	gtk_tree_view_column_pack_start(col, renderer , FALSE);
@@ -486,8 +484,6 @@ static gboolean pggroup_on_key_pressed(GtkWidget* UNUSED(widget)
 
 	FxPGGroup *fxpg;
 	Config *config = NULL;
-
-	DEBUG_FOOTPRINT();
 
 	if(event->keyval == GDK_Return || event->keyval == GDK_ISO_Enter || event->keyval == GDK_KP_Enter)
 	{
