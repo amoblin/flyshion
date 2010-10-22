@@ -1357,6 +1357,7 @@ void* fx_main_listen_thread_func(void* data)
 
 		if(!msg){
 			gdk_threads_enter();
+			printf("\n\n\n\n\n Error ...... break out...\n\n\n\n\n");
 			fx_conn_offline(fxmain);
 			gdk_threads_leave();
 			g_thread_exit(0);

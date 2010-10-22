@@ -24,8 +24,6 @@ FxAddbuddy* fx_addbuddy_new(FxMain* fxmain)
 {
 	FxAddbuddy* fxaddbuddy = (FxAddbuddy*)malloc(sizeof(FxAddbuddy));
 
-	DEBUG_FOOTPRINT();
-
 	memset(fxaddbuddy , 0 , sizeof(FxAddbuddy));
 	fxaddbuddy->fxmain = fxmain;
 	fxaddbuddy->phraselist = fetion_config_get_phrase(fxmain->user->config);
@@ -39,8 +37,6 @@ void fx_addbuddy_initialize(FxAddbuddy* fxaddbuddy)
 	GtkWidget *cancel_button , *name_text , *msg_frame , *msglabel;
 	GtkWidget *group_entry , *name_hbox , *name_alignment;
 	GtkTreeModel* model;
-
-	DEBUG_FOOTPRINT();
 
 	fxaddbuddy->dialog = gtk_dialog_new();
 	icon = gdk_pixbuf_new_from_file(SKIN_DIR"add.png" , NULL);
@@ -136,8 +132,6 @@ GtkTreeModel* fx_addbuddy_create_group_model(FxAddbuddy* fxaddbuddy)
 	char* groupname;
 	int groupid;
 
-	DEBUG_FOOTPRINT();
-
 	store = gtk_tree_store_new(GROUP_COL_NUMS , G_TYPE_STRING , G_TYPE_INT);
 	gtk_tree_model_get_iter_root(model , &iter);
 	do
@@ -160,8 +154,6 @@ void fx_addbuddy_bind(FxAddbuddy* fxaddbuddy)
 	FxList *pos;
 	Phrase *phrase;
 	User *user = fxaddbuddy->fxmain->user;
-
-	DEBUG_FOOTPRINT();
 
 
 	foreach_list(fxaddbuddy->phraselist , pos){
@@ -193,8 +185,6 @@ void fx_addbuddy_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 	char code[24];
 	User* user = fxadd->fxmain->user;
 
-	DEBUG_FOOTPRINT();
-
 	config = user->config;
 
 	if(fxadd->notype == FETION_NO)
@@ -225,15 +215,19 @@ void fx_addbuddy_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 	gtk_tree_model_get(model , &iter , GROUP_ID_COL , &buddylist , -1);
 	localname = gtk_entry_get_text(GTK_ENTRY(fxadd->name_entry));
 addbuddy:
-	contact = fetion_contact_add_buddy(user , no , fxadd->notype , buddylist , localname , desc , fxadd->phraseid , &ret);
+	contact = fetion_contact_add_buddy(user, no, fxadd->notype, buddylist, localname, desc, fxadd->phraseid, &ret);
+
 	switch(ret)
 	{
 		case BUDDY_USER_EXIST :
-			fx_util_popup_warning(fxadd->fxmain , _("The contact you want to add has already been in your contact list, please don't add him(her) repeatedly!"));
-			gtk_dialog_response(GTK_DIALOG(fxadd->dialog) , GTK_RESPONSE_OK);
+			fx_util_popup_warning(fxadd->fxmain,
+					_("The contact you want to add has already been in your contact list, please don't add him(her) repeatedly!"));
+			gtk_dialog_response(GTK_DIALOG(fxadd->dialog),
+					GTK_RESPONSE_OK);
 			return;
 		case BUDDY_SAME_USER_DAILY_LIMIT :
-			fx_util_popup_warning(fxadd->fxmain , _("You have reached the daily limit of adding buddies, please retry later"));
+			fx_util_popup_warning(fxadd->fxmain,
+					_("You have reached the daily limit of adding buddies, please retry later"));
 			gtk_dialog_response(GTK_DIALOG(fxadd->dialog) , GTK_RESPONSE_OK);
 			return;
 		case BUDDY_BAD_REQUEST :
@@ -297,13 +291,12 @@ addbuddy:
 
 		}
 	}
+
 	gtk_dialog_response(GTK_DIALOG(fxadd->dialog) , GTK_RESPONSE_OK);
 }
 
 void fx_addbuddy_on_cancel_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 {
-	DEBUG_FOOTPRINT();
-
 	gtk_dialog_response(GTK_DIALOG(data) , GTK_RESPONSE_CANCEL);
 }
 void fx_addbuddy_on_phrase_change(GtkWidget* widget , gpointer data)
@@ -312,8 +305,6 @@ void fx_addbuddy_on_phrase_change(GtkWidget* widget , gpointer data)
 	const char *label;
 	FxList *pos;
 	Phrase *phrase;
-
-	DEBUG_FOOTPRINT();
 
 	if(!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)))
 		return;
