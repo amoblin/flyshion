@@ -30,8 +30,6 @@ static void fx_add_group_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data
 	GtkTreeIter iter;
 	int groupid;
 	
-	DEBUG_FOOTPRINT();
-
 	groupid = fetion_buddylist_create(user , text);
 	if(groupid > 0 )
 	{
@@ -50,16 +48,12 @@ static void fx_add_group_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data
 
 static void fx_add_group_on_cancel_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
-	DEBUG_FOOTPRINT();
-
 	gtk_dialog_response(GTK_DIALOG(data) , GTK_RESPONSE_CANCEL);
 }
 
 FxAddGroup* fx_add_group_new(FxMain* fxmain)
 {
 	FxAddGroup* fxaddgroup = (FxAddGroup*)malloc(sizeof(FxAddGroup));
-
-	DEBUG_FOOTPRINT();
 
 	memset(fxaddgroup , 0 , sizeof(FxAddGroup));
 	fxaddgroup->fxmain = fxmain;
@@ -69,8 +63,6 @@ FxAddGroup* fx_add_group_new(FxMain* fxmain)
 void fx_add_group_initialize(FxAddGroup* fxaddgroup)
 {
 	GdkPixbuf* pb;
-
-	DEBUG_FOOTPRINT();
 
 	fxaddgroup->dialog = gtk_dialog_new();
 	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"online.svg" , 22 , 22 , NULL);
@@ -103,7 +95,5 @@ void fx_add_group_initialize(FxAddGroup* fxaddgroup)
 
 void fx_add_group_free(FxAddGroup* fxaddgroup)
 {
-	DEBUG_FOOTPRINT();
-
 	free(fxaddgroup);
 }

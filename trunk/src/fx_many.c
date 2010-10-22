@@ -32,8 +32,6 @@ FxMany* fx_many_new(FxMain* fxmain)
 {
 	FxMany* fxmany = (FxMany*)malloc(sizeof(FxMany));
 
-	DEBUG_FOOTPRINT();
-
 	memset(fxmany , 0 , sizeof(FxMany));
 	fxmany->fxmain = fxmain;
 	return fxmany;

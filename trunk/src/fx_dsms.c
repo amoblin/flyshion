@@ -27,8 +27,6 @@ FxConfirm* fx_confirm_new(FxMain *fxmain)
 {
 	FxConfirm *fxconfirm ;
 	
-	DEBUG_FOOTPRINT();
-
 	fxconfirm = (FxConfirm*)malloc(sizeof(FxConfirm));
 	fxconfirm->fxmain = fxmain;
 	return fxconfirm;
@@ -100,8 +98,6 @@ void fx_confirm_initialize(FxConfirm *fxconfirm)
 FxDSMS* fx_dsms_new(FxMain *fxmain)
 {
 	FxDSMS *fxdsms = (FxDSMS*)malloc(sizeof(FxDSMS));
-
-	DEBUG_FOOTPRINT();
 
 	fxdsms->fxmain = fxmain;
 	return fxdsms;
@@ -243,8 +239,6 @@ fx_dsms_on_text_buffer_changed(GtkTextBuffer *buffer , gpointer data)
 		len = 180;
 	}
 
-	DEBUG_FOOTPRINT();
-
 	if(count <= 180)
 	{
 		bzero(text , sizeof(text));
@@ -269,8 +263,6 @@ fx_dsms_add_information(FxDSMS* fxdsms , const char* msg)
 	GtkTextMark *mark;
 	GtkTextBuffer* buffer;
 
-	DEBUG_FOOTPRINT();
-
  	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(fxdsms->recvText));
 	gtk_text_buffer_get_end_iter(buffer , &iter );
 	gtk_text_buffer_insert(buffer , &iter , "" , -1);
@@ -289,7 +281,6 @@ fx_dsms_sig_checked(GtkWidget *UNUSED(widget) , gpointer data)
 	FxDSMS *fxdsms = (FxDSMS*)data;
 	GtkTextBuffer *buffer;	
 
-	DEBUG_FOOTPRINT();
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(fxdsms->sendText));
 
 	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxdsms->checkBtn))){
@@ -317,8 +308,6 @@ fx_dsms_send_thread(void *data)
 
 	FxCode *fxcode;
 	FxConfirm *fxconfirm;
-
-	DEBUG_FOOTPRINT();
 
 	gtk_tree_model_get_iter_first(model , &iter);
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(fxdsms->sendText));
@@ -435,8 +424,6 @@ fx_dsms_send_message(FxDSMS *fxdsms)
 	char msg[1024];
 	struct tm *datetime;
 
-	DEBUG_FOOTPRINT();
-
 	treeView = GTK_TREE_VIEW(fxdsms->chooseList);
 	model = gtk_tree_view_get_model(treeView);
 	if(! gtk_tree_model_get_iter_first(model , &posIter))
@@ -485,8 +472,6 @@ fx_dsms_on_key_pressed(GtkWidget *UNUSED(widget) , GdkEventKey *event , gpointer
 {
 	FxDSMS *fxdsms = NULL;
 	Config *config = NULL;
-
-	DEBUG_FOOTPRINT();
 
 	if(event->keyval == GDK_Return || event->keyval == GDK_ISO_Enter || event->keyval == GDK_KP_Enter)
 	{

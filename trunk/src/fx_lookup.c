@@ -26,8 +26,6 @@ FxLookup* fx_lookup_new(FxMain* fxmain)
 {
 	FxLookup *fxlookup = (FxLookup*)malloc(sizeof(FxLookup));
 
-	DEBUG_FOOTPRINT();
-
 	memset(fxlookup , 0 , sizeof(fxlookup));
 	fxlookup->fxmain = fxmain;
 	return fxlookup;
@@ -37,8 +35,6 @@ void fx_lookup_initialize(FxLookup* fxlookup)
 {
 	fxlookup->dialog = gtk_dialog_new();
 	GdkPixbuf* pb = gdk_pixbuf_new_from_file(SKIN_DIR"find.png" , NULL);
-
-	DEBUG_FOOTPRINT();
 
 	gtk_window_set_icon(GTK_WINDOW(fxlookup->dialog) , pb);
 	gtk_window_set_title(GTK_WINDOW(fxlookup->dialog)
@@ -78,8 +74,6 @@ void* fx_lookup_ok_thread(void* data)
 	FxLookupres* fxlookupres;
 	GtkWidget *dialog;
 
-	DEBUG_FOOTPRINT();
-
 	mobileno = gtk_entry_get_text(GTK_ENTRY(fxlookup->remark_entry));
 	if(strlen(mobileno) != 11 && strlen(mobileno) != 9)
 	{
@@ -115,20 +109,14 @@ void* fx_lookup_ok_thread(void* data)
 }
 void fx_lookup_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
-	DEBUG_FOOTPRINT();
-
 	g_thread_create(fx_lookup_ok_thread , data , FALSE , NULL);
 }
 void fx_lookup_on_cancel_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
-	DEBUG_FOOTPRINT();
-
 	gtk_dialog_response(GTK_DIALOG(data) , GTK_RESPONSE_CANCEL);
 }
 
 static void fx_lookup_on_entry_activated(GtkWidget *UNUSED(widget) , gpointer data)
 {
-	DEBUG_FOOTPRINT();
-
 	g_thread_create(fx_lookup_ok_thread , data , FALSE , NULL);
 }

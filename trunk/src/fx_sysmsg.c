@@ -23,8 +23,6 @@ FxSysmsg *fx_sysmsg_new()
 {
 	FxSysmsg *sysmsg = (FxSysmsg*)malloc(sizeof(FxSysmsg));
 
-	DEBUG_FOOTPRINT();
-
 	return sysmsg;
 }
 
@@ -43,8 +41,6 @@ static void fx_on_close_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 {
 	GtkWidget *dialog = (GtkWidget*)data;
 
-	DEBUG_FOOTPRINT();
-
 	gtk_dialog_response(GTK_DIALOG(dialog) , GTK_RESPONSE_CANCEL);
 }
 
@@ -54,8 +50,6 @@ void fx_sysmsg_initialize(FxSysmsg *sysmsg)
 
 	GtkBox *vbox , *action_area;
 	GdkPixbuf *pb;
-
-	DEBUG_FOOTPRINT();
 
 	sysmsg->dialog = gtk_dialog_new();
 	vbox = GTK_BOX(GTK_DIALOG(sysmsg->dialog)->vbox);

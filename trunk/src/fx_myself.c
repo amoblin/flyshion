@@ -27,8 +27,6 @@ FxMyself* fx_myself_new(FxMain* fxmain)
 {
 	FxMyself* fxmyself = (FxMyself*)malloc(sizeof(FxMyself));
 
-	DEBUG_FOOTPRINT();
-
 	memset(fxmyself , 0 , sizeof(FxMyself));
 	fxmyself->fxmain = fxmain;
 	fxmyself->conv = fetion_conversation_new(fxmain->user , NULL , NULL);
@@ -43,9 +41,6 @@ void fx_myself_bind(FxMyself* fxmyself)
 	GdkPixbuf* pb;
 	char name[128];
 
-	DEBUG_FOOTPRINT();
-
-	bzero(name , sizeof(name));
 	sprintf(name , "%s/%s.jpg" , config->iconPath ,
 			user->sId );
 	pb = gdk_pixbuf_new_from_file_at_size(name , 40 , 40 ,
@@ -78,8 +73,6 @@ void fx_myself_add_message(FxMyself* fxmyself , const char* message)
 	struct tm* sendtime = get_currenttime();
 	GtkTextBuffer* buffer =	gtk_text_view_get_buffer(GTK_TEXT_VIEW(fxmyself->recv_text));
 
-	DEBUG_FOOTPRINT();
-
 	strftime(time , sizeof(time) , "%H:%M:%S" , sendtime);
 
 	sprintf(text , "%s(%s) %s\n" , user->nickname , user->sId , time);
@@ -109,8 +102,6 @@ void fx_myself_initialize(FxMyself* fxmyself)
 	GtkWidget* send_button;
 	GtkWidget* vbox;
 	GtkWidget* action_area;
-
-	DEBUG_FOOTPRINT();
 
 	fxmyself->dialog = gtk_dialog_new(); 
 	vbox = GTK_DIALOG(fxmyself->dialog)->vbox;
@@ -208,8 +199,6 @@ void fx_myself_on_close_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 {
 	FxMyself* fxmyself = (FxMyself*)data;
 
-	DEBUG_FOOTPRINT();
-
 	gtk_dialog_response(GTK_DIALOG(fxmyself->dialog) , GTK_RESPONSE_OK);
 }
 
@@ -219,8 +208,6 @@ void fx_myself_on_send_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 	FxMyself* fxmyself = (FxMyself*)data;
 	GtkTextIter begin , end;
 	char* text;
-
-	DEBUG_FOOTPRINT();
 
 	gtk_text_buffer_get_start_iter(fxmyself->send_buffer , &begin);
 	gtk_text_buffer_get_end_iter(fxmyself->send_buffer , &end);
@@ -237,8 +224,6 @@ gboolean fx_myself_on_enter_pressed(GtkWidget* widget , GdkEventKey* event , gpo
 	FxMyself* fxmyself = NULL;
 	Config *config = NULL;
 	
-	DEBUG_FOOTPRINT();
-
 	if(event->keyval == GDK_Return || event->keyval == GDK_ISO_Enter || event->keyval == GDK_KP_Enter)
 	{
 		fxmyself = (FxMyself*)data;

@@ -73,8 +73,6 @@ Args* fx_args_new(FxMain* fxmain , GtkTreeIter iter , const char* ss , int ii)
 {
 	Args* args = (Args*)malloc(sizeof(Args));
 
-	DEBUG_FOOTPRINT();
-
 	memset(args , 0 , sizeof(args));
 	args->fxmain = fxmain;
 	if(ss != NULL)
@@ -86,8 +84,6 @@ Args* fx_args_new(FxMain* fxmain , GtkTreeIter iter , const char* ss , int ii)
 FxTree* fx_tree_new()
 {
 	FxTree* fxtree = (FxTree*)malloc(sizeof(FxTree));
-
-	DEBUG_FOOTPRINT();
 
 	memset(fxtree , 0 , sizeof(FxTree));
 	return fxtree;
@@ -101,8 +97,6 @@ static void show_search(GtkEntry *entry , gpointer data)
 	GtkTreeModel *model = gtk_tree_view_get_model(view);
 	int x , y , ex , ey , root_x , root_y;
 	const char *text;
-
-	DEBUG_FOOTPRINT();
 
 	text = gtk_entry_get_text(entry);
 
@@ -149,8 +143,6 @@ static void create_pg_column(GtkWidget* tree)
 {
 	GtkCellRenderer* renderer;
 	GtkTreeViewColumn *col , *col0;
-
-	DEBUG_FOOTPRINT();
 
 	renderer = gtk_cell_renderer_pixbuf_new();
 	col = gtk_tree_view_column_new(); 
@@ -410,20 +402,14 @@ void fx_tree_show(FxMain *fxmain)
 
 void fx_tree_free(FxTree* fxtree)
 {
-	DEBUG_FOOTPRINT();
-
 	free(fxtree);
 }
 void fx_tree_move_to_the_first(GtkTreeModel* model , GtkTreeIter* iter)
 {
-	DEBUG_FOOTPRINT();
-
 	gtk_tree_store_move_after(GTK_TREE_STORE(model) , iter , NULL);
 }
 void fx_tree_move_to_the_last(GtkTreeModel* model , GtkTreeIter* iter)
 {
-	DEBUG_FOOTPRINT();
-
 	gtk_tree_store_move_before(GTK_TREE_STORE(model) , iter , NULL);
 }
 static GtkTreeModel* create_model(User* user)
@@ -717,8 +703,6 @@ static void fx_tree_create_group_menu(FxMain* fxmain , GtkWidget* tree
 	int count , groupid;
 	GtkTreeModel* model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
 
-	DEBUG_FOOTPRINT();
-
 	menu = gtk_menu_new();
 	gtk_tree_model_get(model ,  &iter
 					 , G_ALL_COUNT_COL , &count
@@ -770,8 +754,6 @@ static void fx_tree_add_new_buddy(FxMain* fxmain , Contact* contact)
 	GdkPixbuf *pb = NULL;
 	Config *config = fxmain->user->config;
 	int groupid;
-
-	DEBUG_FOOTPRINT();
 
 	gtk_tree_model_get_iter_root(model , &oIter);
 	do
@@ -976,8 +958,6 @@ static void fx_tree_create_column(GtkWidget* tree , FxMain* fxmain)
 {
 	GtkCellRenderer* renderer;
 	GtkTreeViewColumn *col , *col0;
-
-	DEBUG_FOOTPRINT();
 
 	renderer = gtk_cell_renderer_pixbuf_new();
 	col = gtk_tree_view_column_new(); 
@@ -1199,7 +1179,6 @@ static gboolean fx_tree_on_rightbutton_click(GtkWidget* UNUSED(tree)
 	if(event->type == GDK_BUTTON_PRESS && event->button == 3)
 	{
 
-		DEBUG_FOOTPRINT();
 		fxmain = (FxMain*)data;
 		fxtree = fxmain->mainPanel;
 		model = gtk_tree_view_get_model(GTK_TREE_VIEW(fxtree->treeView));
@@ -1231,6 +1210,27 @@ static void fx_tree_on_chatmenu_clicked(GtkWidget* UNUSED(widget) , gpointer dat
 	free(args);
 }
 
+static void* update_contact_info(void *data)
+{
+	FxProfile *fxprofile = (FxProfile*)data;
+	gchar *res;
+	Contact *contact = fetion_contact_get_contact_info(
+			fxprofile->fxmain->user,
+			fxprofile->userid);
+
+	gdk_threads_enter();
+	res = fetion_config_get_province_name(contact->province);
+	gtk_entry_set_text(GTK_ENTRY(fxprofile->province_entry) , res == NULL ? _("Unknown") : res);
+	free(res);
+	res = fetion_config_get_city_name(contact->province , contact->city);
+	gtk_entry_set_text(GTK_ENTRY(fxprofile->city_entry) , res == NULL ? _("Unknown") : res);
+	free(res);
+	gdk_threads_leave();
+
+	return NULL;
+	
+}
+
 static void fx_tree_on_profilemenu_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	Args        *args = (Args*)data;
@@ -1245,8 +1245,11 @@ static void fx_tree_on_profilemenu_clicked(GtkWidget* UNUSED(widget) , gpointer 
 
 	contact = fx_profile_fetch(fxprofile);
 
-	if(contact)
+	if(contact){
 		fx_profile_bind(fxprofile , contact);
+		if(strlen(contact->province) == 0)
+			g_thread_create(update_contact_info, fxprofile, FALSE, NULL);
+	}
 
 	gtk_dialog_run(GTK_DIALOG(fxprofile->dialog));
 	gtk_widget_destroy(fxprofile->dialog);
@@ -1367,6 +1370,7 @@ static void* fx_tree_reload_thread(void* data)
 
 	name = (contact->localname == NULL || strlen(contact->localname) == 0)
 			? contact->nickname : contact->localname;
+	gdk_threads_enter();
 	gtk_tree_store_set(GTK_TREE_STORE(model) , &iter
 					 , B_PIXBUF_COL 	, pb
 					 , B_SIPURI_COL 	, contact->sipuri
@@ -1378,6 +1382,7 @@ static void* fx_tree_reload_thread(void* data)
 					 , B_CRC_COL        , contact->portraitCrc
 					 , B_IDENTITY_COL	, contact->identity
 					 , -1);
+	gdk_threads_leave();
 	g_object_unref(pb);
 	return NULL;
 

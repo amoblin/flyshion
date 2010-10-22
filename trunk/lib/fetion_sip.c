@@ -442,7 +442,7 @@ static void sipmsg_set_msg(SipMsg *sipmsg, const char *msg, int n)
 #define BUFFER_SIZE (1024 * 20)
 
 /* the following code is hard to read,forgive me! */
-SipMsg *fetion_sip_listen(FetionSip *sip)
+SipMsg *fetion_sip_listen(FetionSip *sip, int *error)
 {
 	int     n;
 	int     body_len;
@@ -453,15 +453,18 @@ SipMsg *fetion_sip_listen(FetionSip *sip)
 	SipMsg *list = NULL;
 	SipMsg *msg;
 
+	*error = 0;
+
 	memset(buffer, 0, sizeof(buffer));
 	n = tcp_connection_recv_dont_wait(sip->tcp,
 				buffer, sizeof(buffer) - 1);
 	if(n == 0){
-		printf("fetion_sip_listen 0\n");
+		debug_info("fetion_sip_listen 0");
+		*error = 1;
 		return NULL;
 	}
 	if(n == -1){
-		printf("fetion_sip_listen -1\n");
+		*error = 1;
 		return NULL;
 	}
 	cur = buffer;
@@ -539,11 +542,8 @@ SipMsg *fetion_sip_listen(FetionSip *sip)
 				continue;
 			}
 		}
-
-
 	}
 
-	sleep(1);
 }
 
 SipMsg* fetion_sip_listen1(FetionSip* sip)
@@ -1058,8 +1058,6 @@ static char *generate_action_accept_body(Share *share)
 	xmlDocPtr doc;
 	xmlNodePtr node , root;
 	char body[] = "<share-content></share-content>";
-
-	DEBUG_FOOTPRINT();
 
 	doc = xmlParseMemory(body , strlen(body));
 	root = xmlDocGetRootElement(doc);

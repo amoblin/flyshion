@@ -24,8 +24,6 @@ FxEdit* fx_edit_new(FxMain* fxmain , GtkTreeIter iter , const char* userid)
 {
 	FxEdit* fxedit = (FxEdit*)malloc(sizeof(FxEdit));
 
-	DEBUG_FOOTPRINT();
-
 	memset(fxedit , 0 , sizeof(FxEdit));
 	fxedit->fxmain = fxmain;
 	fxedit->iter = iter;
@@ -38,8 +36,6 @@ void fx_edit_initialize(FxEdit* fxedit)
 	GdkPixbuf* pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"online.svg",
 				   22 , 22,	NULL);
 	fxedit->dialog = gtk_dialog_new();
-
-	DEBUG_FOOTPRINT();
 
 	gtk_window_set_icon(GTK_WINDOW(fxedit->dialog) , pb);
 	gtk_window_set_title(GTK_WINDOW(fxedit->dialog) , _("Edit note name"));
@@ -71,7 +67,6 @@ void fx_edit_initialize(FxEdit* fxedit)
 
 void fx_edit_free(FxEdit* fxedit)
 {
-	DEBUG_FOOTPRINT();
 	free(fxedit);
 }
 void fx_edit_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data)
@@ -83,8 +78,6 @@ void fx_edit_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 	GtkTreeModel* model = gtk_tree_view_get_model(tree);
 	GtkTreeIter iter = fxedit->iter;
 	const char* name = gtk_entry_get_text(GTK_ENTRY(fxedit->remark_entry));
-
-	DEBUG_FOOTPRINT();
 
 	if(strlen(name) == 0)
 		return;
@@ -104,8 +97,6 @@ void fx_edit_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 void fx_edit_on_cancel_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	GtkWidget* dialog = (GtkWidget*)data;
-
-	DEBUG_FOOTPRINT();
 
 	gtk_dialog_response(GTK_DIALOG(dialog) , GTK_RESPONSE_CANCEL);
 }

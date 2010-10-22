@@ -25,8 +25,6 @@ FxLookupres* fx_lookupres_new(FxMain* fxmain , Contact* contact)
 {
 	FxLookupres *fxlookupres = (FxLookupres*)malloc(sizeof(FxLookupres));
 
-	DEBUG_FOOTPRINT();
-
 	memset(fxlookupres , 0 , sizeof(FxLookupres));
 	fxlookupres->fxmain = fxmain;
 	fxlookupres->contact = contact;
@@ -42,8 +40,6 @@ void fx_lookupres_bind(FxLookupres* fxlookupres)
 	User *user = fxlookupres->fxmain->user;
 	Config* config = user->config;
 
-	DEBUG_FOOTPRINT();
-		
 	contact = fxlookupres->contact;
 	if(contact->nickname != NULL )
 		gtk_entry_set_text(GTK_ENTRY(fxlookupres->nick_entry) , contact->nickname);
@@ -103,8 +99,6 @@ void fx_lookupres_initialize(FxLookupres* fxlookupres)
 	GtkWidget* inbox = NULL ;
 	GdkPixbuf* pb = NULL;
 	FxMain* fxmain = fxlookupres->fxmain;
-
-	DEBUG_FOOTPRINT();
 
 	fxlookupres->dialog = gtk_dialog_new_with_buttons ("View information of user"
 									, GTK_WINDOW(fxmain->window)
@@ -223,7 +217,5 @@ void fx_lookupres_initialize(FxLookupres* fxlookupres)
 }
 void fx_lookupres_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
-	DEBUG_FOOTPRINT();
-
 	gtk_dialog_response(GTK_DIALOG(data) , GTK_RESPONSE_OK);
 }

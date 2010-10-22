@@ -24,14 +24,6 @@
 
 /* inline function to trace program track */
 
-#ifdef FETION_DEBUG_TRACE
-#	define DEBUG_FOOTPRINT()	\
-		printf("| TRACK |function '%s()' in file: <%s:%d>\n" \
-		, __FUNCTION__ , __FILE__ , __LINE__)
-#else
-#	define DEBUG_FOOTPRINT()
-#endif
-
 #ifdef UNUSED
 #elif defined(__GNUC__)
 # 	define UNUSED(x) UNUSED_ ## x __attribute__((unused))
@@ -40,7 +32,7 @@
 #endif
 
 #define FETION_NAME "OpenFetion"
-#define FETION_VERSION "1.9"
+#define FETION_VERSION "2.0"
 #define PROTO_VERSION "4.0.2510"
 #define NAVIGATION_URI "nav.fetion.com.cn"
 #define PGGROUP_SPACE_URI "http://group.feixin.10086.cn/space/Index/"

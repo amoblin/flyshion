@@ -148,7 +148,7 @@ void fx_history_initialize(FxHistory* fxhistory)
 	gtk_button_set_label(GTK_BUTTON(fxhistory->closebtn) , _("Close"));
 	g_signal_connect(fxhistory->closebtn, "clicked",
 			G_CALLBACK(fx_history_on_close_clicked),
-			fxhistory->dialog);
+			fxhistory);
 	gtk_box_pack_start_defaults(
 			GTK_BOX(GTK_DIALOG(fxhistory->dialog)->action_area),
 			fxhistory->closebtn);
@@ -210,8 +210,9 @@ static GtkTreeModel* fx_history_create_count_model()
 }
 static void fx_history_on_close_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
-	GtkDialog* dialog = GTK_DIALOG(data);
-	gtk_dialog_response(dialog , GTK_RESPONSE_OK);
+	FxHistory *fxhistory = (FxHistory*)data;
+	gtk_dialog_response(GTK_DIALOG(fxhistory->dialog)
+			, GTK_RESPONSE_OK);
 }
 static void fx_history_on_refresh_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {

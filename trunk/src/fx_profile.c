@@ -38,8 +38,6 @@ void fx_profile_initialize(FxProfile* fxprofile)
 	GdkPixbuf* pb;
 	FxMain* fxmain = fxprofile->fxmain;
 	
-	DEBUG_FOOTPRINT();
-
 	fxprofile->dialog = gtk_dialog_new_with_buttons (_("view contact's information")
 									, GTK_WINDOW(fxmain->window)
 									,GTK_DIALOG_DESTROY_WITH_PARENT	

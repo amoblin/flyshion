@@ -42,8 +42,6 @@ fx_sound_play_file(const char *filename){
 	GstElement *pipeline;
 	GstElement *source , *parser , *sink;
 
-	DEBUG_FOOTPRINT();
-
 	pipeline = gst_pipeline_new("audio-player");
 
 	source = gst_element_factory_make("filesrc" , "source");
