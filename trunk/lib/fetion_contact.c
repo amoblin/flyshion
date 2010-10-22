@@ -1012,6 +1012,12 @@ void fetion_contact_save(User *user)
 		debug_error("failed to save user list");
 		return;
 	}
+	/* begin transaction */
+	if(sqlite3_exec(db, "BEGIN TRANSACTION;", 0,0, &errMsg)){
+		debug_error("begin transaction :%s", errMsg);
+		sqlite3_close(db);
+		return;
+	}
 
 	sprintf(sql, "delete from groups");
 	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
@@ -1033,6 +1039,7 @@ void fetion_contact_save(User *user)
 			continue;
 		}
 	}
+	
 	sprintf(sql, "delete from contacts;");
 	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
 		sprintf(sql, "create table contacts (userId,"
@@ -1068,6 +1075,12 @@ void fetion_contact_save(User *user)
 		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg))
 			debug_error("insert contact %s:%s\n%s",
 							pos->userId, errMsg ? errMsg : "", sql);
+	}
+	/* begin transaction */
+	if(sqlite3_exec(db, "END TRANSACTION;", 0,0, &errMsg)){
+		debug_error("end transaction :%s", errMsg);
+		sqlite3_close(db);
+		return;
 	}
 #if 0
 	sprintf(sql, "select * from contacts;");

@@ -456,8 +456,14 @@ SipMsg *fetion_sip_listen(FetionSip *sip)
 	memset(buffer, 0, sizeof(buffer));
 	n = tcp_connection_recv_dont_wait(sip->tcp,
 				buffer, sizeof(buffer) - 1);
-	if(n == -1)
+	if(n == 0){
+		printf("fetion_sip_listen 0\n");
 		return NULL;
+	}
+	if(n == -1){
+		printf("fetion_sip_listen -1\n");
+		return NULL;
+	}
 	cur = buffer;
 	for(;;){
 		pos = strstr(cur, "\r\n\r\n");

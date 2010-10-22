@@ -63,6 +63,7 @@ nm_state_change_cb(DBusGProxy *proxy, NMState state, gpointer data)
 			fx_conn_offline(fxmain);
 			break;
 		case NM_STATE_UNKNOWN:
+			debug_info("unknown network state");
 		default:
 			break;
 	}
