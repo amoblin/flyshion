@@ -126,6 +126,8 @@ extern void fetion_group_list_append(Group* head , Group* group);
 
 extern void fetion_group_list_prepend(Group* head , Group* group);
 
+extern void fetion_group_list_remove(Group *group);
+
 extern void fetion_group_remove(Group* head , int groupid);
 
 extern Group* fetion_group_list_find_by_id(Group* head , int id);

@@ -1187,7 +1187,8 @@ static gboolean fx_tree_on_rightbutton_click(GtkWidget* UNUSED(tree)
 		if(path == NULL)
 			return FALSE;
 
-		gtk_tree_model_get_iter(GTK_TREE_MODEL(model) , &iter , path);
+		if(!gtk_tree_model_get_iter(GTK_TREE_MODEL(model) , &iter , path))
+			return FALSE;
 
 		depth = gtk_tree_path_get_depth(path);
 		if(depth == 2){
@@ -1494,7 +1495,6 @@ static void fx_tree_on_gdeletemenu_clicked(GtkWidget* UNUSED(widget) , gpointer 
 		if(fetion_buddylist_delete(fxmain->user , groupid) != -1)
 		{
 			gtk_tree_store_remove(GTK_TREE_STORE(model) , &args->iter);
-			fetion_buddylist_save(fxmain->user);
 		}
 	}
 	free(args);

@@ -581,6 +581,8 @@ static void parse_contact_list(xmlNodePtr node, User* user,
 	xmlFree(buf);
 	node1 = xml_goto_node(node , "buddy-lists");
 	node2 = node1->xmlChildrenNode;
+	user->groupCount = 0;
+
 	while(node2 != NULL){
 		hasGroup = 1;
 
@@ -597,6 +599,8 @@ static void parse_contact_list(xmlNodePtr node, User* user,
 		xmlFree(buf);
 
 		nr ++;
+		group->dirty = 1;
+		user->groupCount ++;
 		
 		if(hasGroup == 0){
 			fetion_group_list_append(user->groupList , group);

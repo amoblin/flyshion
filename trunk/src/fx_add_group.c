@@ -41,7 +41,6 @@ static void fx_add_group_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data
 						 , G_ONLINE_COUNT_COL , 0
 						 , -1);
 		gtk_tree_view_set_model(tree , model);
-		fetion_buddylist_save(user);
 	}
 	gtk_dialog_response(GTK_DIALOG(fxaddgroup->dialog) , GTK_RESPONSE_CANCEL);
 }

@@ -27,9 +27,6 @@ extern int fetion_buddylist_delete(User* user , int id);
 
 extern int fetion_buddylist_edit(User* user , int id , const char* name);
 
-extern int fetion_buddylist_save(User* user);
-
-extern int fetion_buddylist_load(User* user);
 /*private*/
 extern char* generate_create_buddylist_body(const char* name);
 

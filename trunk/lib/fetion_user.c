@@ -218,6 +218,12 @@ void fetion_group_list_prepend(Group* head , Group* group)
 	head->pre = group;
 }
 
+void fetion_group_list_remove(Group *group)
+{
+	group->next->pre = group->pre;
+	group->pre->next = group->next;
+}
+
 void fetion_group_remove(Group* head , int groupid)
 {
 	Group *gl_cur;
