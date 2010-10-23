@@ -40,11 +40,11 @@ FxChat* fx_chat_new(FxMain* fxmain , Conversation* conv)
 	fxchat->sendtophone = FALSE;
 	return fxchat;
 }
-void fx_chat_add_message(FxChat* fxchat , const char* msg 
+void fx_chat_add_message(FxChat* fxchat , const char* msg
 	, const struct tm* datetime , int issendmsg,
 	int issysback)
 {
-	GtkTextChildAnchor *anchor; 
+	GtkTextChildAnchor *anchor;
 	GtkTextIter         iter;
 	GtkWidget          *pb;
 	GtkTextBuffer      *buffer;
@@ -121,7 +121,7 @@ void fx_chat_add_message(FxChat* fxchat , const char* msg
 						gtk_widget_show(pb);
 						anchor = gtk_text_buffer_create_child_anchor(buffer , &iter);
 						gtk_text_view_add_child_at_anchor(GTK_TEXT_VIEW(fxchat->recv_text)
-								, pb , anchor); 
+								, pb , anchor);
 						i += n + 2;
 						p = i;
 						continue;
@@ -145,7 +145,7 @@ void fx_chat_add_information(FxChat* fxchat , const char* msg)
 {
 	GtkTextIter    iter;
 	GtkTextBuffer *buffer;
-	
+
 	buffer = gtk_text_view_get_buffer(
 			GTK_TEXT_VIEW(fxchat->recv_text));
 
@@ -163,8 +163,8 @@ void fx_chat_add_information(FxChat* fxchat , const char* msg)
 			GTK_TEXT_VIEW(fxchat->recv_text), fxchat->mark);
 }
 gboolean fx_chat_focus_in_func(GtkWidget *UNUSED(widget)
-		, GdkEventFocus *UNUSED(event) , gpointer data)  
-{ 
+		, GdkEventFocus *UNUSED(event) , gpointer data)
+{
 	FxChat    *fxchat;
 	FxMain    *fxmain;
 	FxList    *ctlist;
@@ -188,7 +188,7 @@ gboolean fx_chat_focus_in_func(GtkWidget *UNUSED(widget)
 	}
 
 	if(list_empty(ctlist)){
-		/* if the message queue is empty,and the status icon is not blinking 
+		/* if the message queue is empty,and the status icon is not blinking
 		 * and there`s no unread mesasge for the current chat window,do nothing */
 		if(!gtk_status_icon_get_blinking(
 				GTK_STATUS_ICON(fxmain->trayIcon))
@@ -203,7 +203,7 @@ gboolean fx_chat_focus_in_func(GtkWidget *UNUSED(widget)
 				fxmain->iconConnectId);
 
 		fxmain->iconConnectId = g_signal_connect(
-							G_OBJECT(fxmain->trayIcon) 
+							G_OBJECT(fxmain->trayIcon)
 							 , "activate"
 							 , GTK_SIGNAL_FUNC(fx_main_tray_activate_func)
 							 , fxmain);
@@ -227,7 +227,7 @@ gboolean fx_chat_focus_in_func(GtkWidget *UNUSED(widget)
 				fxmain->iconConnectId);
 
 		fxmain->iconConnectId = g_signal_connect(
-							G_OBJECT(fxmain->trayIcon) 
+							G_OBJECT(fxmain->trayIcon)
 							 , "activate"
 							 , GTK_SIGNAL_FUNC(fx_main_message_func)
 							, fxmain);
@@ -238,7 +238,7 @@ gboolean fx_chat_focus_in_func(GtkWidget *UNUSED(widget)
 	return FALSE;
 }
 gboolean fx_chat_focus_out_func(GtkWidget *UNUSED(widget)
-		, GdkEventFocus *UNUSED(event) , gpointer data)  
+		, GdkEventFocus *UNUSED(event) , gpointer data)
 {
 	FxChat* fxchat = (FxChat*)data;
 
@@ -324,12 +324,12 @@ static void fx_chat_name_box_func(GtkWidget *UNUSED(widget)
 		case GDK_ENTER_NOTIFY :
 			snprintf(nametext, 1023,
 					"<span underline='low'><b>%s(%s)</b></span>",
-					name , sid);
+					g_markup_escape_text(name, -1), sid);
 			g_free(sid);
 			gtk_label_set_markup(GTK_LABEL(fxchat->name_label) , nametext);
 			break;
 		case GDK_LEAVE_NOTIFY :
-			snprintf(nametext , 1023 , "<b>%s(%s)</b>" , name , sid);
+			snprintf(nametext, 1023, "<b>%s(%s)</b>", g_markup_escape_text(name, -1), sid);
 			g_free(sid);
 			gtk_label_set_markup(GTK_LABEL(fxchat->name_label) , nametext);
 			break;
@@ -396,7 +396,7 @@ void fx_chat_initialize(FxChat* fxchat)
 	gchar     *sid;
 	gchar     *name;
 	Contact   *contact;
-	
+
 	contact = fxchat->conv->currentContact;
 	FxMain    *fxmain = fxchat->fxmain;
 	User      *user = fxmain->user;
@@ -431,7 +431,7 @@ void fx_chat_initialize(FxChat* fxchat)
 	sid = fetion_sip_get_sid_by_sipuri(contact->sipuri);
 	name = (contact->localname == NULL || strlen(contact->localname) == 0) ?
 				contact->nickname : contact->localname;
-	sprintf(nametext , "<b>%s(%s)</b>" , name , sid);
+	sprintf(nametext , "<b>%s(%s)</b>" , g_markup_escape_text(name, -1) , sid);
 	free(sid);
 	gtk_label_set_markup(GTK_LABEL(fxchat->name_label) , nametext);
 	gtk_label_set_justify(GTK_LABEL(fxchat->name_label) , GTK_JUSTIFY_LEFT);
@@ -448,14 +448,14 @@ void fx_chat_initialize(FxChat* fxchat)
 	gtk_container_add(GTK_CONTAINER(fxchat->name_box) , fxchat->name_label);
 
 	gtk_table_attach(GTK_TABLE(fxchat->headbox) , fxchat->name_box
-								, 1 , 2 , 0 , 1 
+								, 1 , 2 , 0 , 1
 								, GTK_FILL , GTK_FILL , 0 , 0);
 
 	snprintf(nametext , 510 , "%s" , contact->impression);
 	escape_impression(nametext);
 	fxchat->impre_label = gtk_label_new(nametext);
 	gtk_label_set_justify(GTK_LABEL(fxchat->impre_label) , GTK_JUSTIFY_LEFT);
-	gtk_table_attach(GTK_TABLE(fxchat->headbox) , fxchat->impre_label  
+	gtk_table_attach(GTK_TABLE(fxchat->headbox) , fxchat->impre_label
 								, 1 , 10 , 1 , 2
 								, GTK_FILL , GTK_FILL , 0 , 0);
 
@@ -490,7 +490,7 @@ void fx_chat_initialize(FxChat* fxchat)
 	gtk_text_buffer_create_tag(fxchat->recv_buffer , "small" , "left_margin" , 5 , NULL);
 	gtk_text_buffer_get_end_iter(fxchat->recv_buffer , &(fxchat->recv_iter));
 	gtk_text_buffer_create_mark(fxchat->recv_buffer , "scroll" , &(fxchat->recv_iter) , FALSE);
-	
+
 	/*toolbar begin*/
 	fxchat->toolbar = gtk_toolbar_new();
 	gtk_toolbar_set_style(GTK_TOOLBAR(fxchat->toolbar) , GTK_TOOLBAR_ICONS);
@@ -502,7 +502,7 @@ void fx_chat_initialize(FxChat* fxchat)
 	fxchat->nouge = gtk_toolbar_append_item(GTK_TOOLBAR(fxchat->toolbar)
 					    , _("Emotion") , "" , NULL , nouge_icon
 					    , G_CALLBACK(fx_chat_on_emotion_clicked)
-					   , fxchat );									   
+					   , fxchat );
 	gtk_toolbar_append_space(GTK_TOOLBAR(fxchat->toolbar));
 	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"phone.png" , 16 , 16 , NULL);
 	tophone_icon = gtk_image_new_from_pixbuf(pb);
@@ -510,7 +510,7 @@ void fx_chat_initialize(FxChat* fxchat)
 	fxchat->tophone = gtk_toolbar_append_element(GTK_TOOLBAR(fxchat->toolbar)
 					 	, GTK_TOOLBAR_CHILD_TOGGLEBUTTON , NULL
 						, _("Contact's cell phone")
-					       	, _("Mesage will be send to Contact's cell phone in long SMS format") 
+					       	, _("Mesage will be send to Contact's cell phone in long SMS format")
 						, NULL , tophone_icon
 					     , G_CALLBACK(fx_chat_on_tophone_clicked)
 						   , fxchat );
@@ -527,7 +527,7 @@ void fx_chat_initialize(FxChat* fxchat)
 	fxchat->nouge = gtk_toolbar_append_item(GTK_TOOLBAR(fxchat->toolbar)
 					 	  , _("Screen jitter") , _("Send a screen jitter") , NULL , nouge_icon
 					  	  , G_CALLBACK(fx_chat_on_nudge_clicked)
-											   , fxchat );									   
+											   , fxchat );
 	gtk_toolbar_append_space(GTK_TOOLBAR(fxchat->toolbar));
 
 	label = gtk_label_new(_("total 180 character left"));
@@ -555,7 +555,7 @@ void fx_chat_initialize(FxChat* fxchat)
 	halign1 = gtk_alignment_new( 1 , 0 , 0 , 0);
 	gtk_container_add(GTK_CONTAINER(halign1) , action_area);
 	gtk_box_pack_start(GTK_BOX(vbox) , halign1 , FALSE , FALSE , 0);
-	
+
 	close_button = gtk_button_new_with_label(_("Close"));
 	gtk_widget_set_usize(close_button , 100 , 30);
 	gtk_box_pack_start(GTK_BOX(action_area) , close_button , FALSE , TRUE , 2);
@@ -591,7 +591,7 @@ void fx_chat_initialize(FxChat* fxchat)
 	pb = gdk_pixbuf_new_from_file_at_size(portraitPath , 140 , 140 , NULL);
 	if(!pb)
 		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" , 140 , 140 , NULL);
-	
+
 	img = gtk_image_new_from_pixbuf(pb);
 	g_object_unref(pb);
 	gtk_container_add(GTK_CONTAINER(frame) , img);
@@ -599,7 +599,7 @@ void fx_chat_initialize(FxChat* fxchat)
 
 	GtkWidget *spliter = gtk_label_new(NULL);
 	gtk_box_pack_start(GTK_BOX(rvbox) , spliter , TRUE , TRUE , 0);
-	
+
 	frame = gtk_frame_new(NULL);
 	gtk_frame_set_shadow_type(GTK_FRAME(frame) , GTK_SHADOW_ETCHED_IN);
 	gtk_widget_set_usize(frame , 160 , 160);
@@ -681,7 +681,7 @@ void* fx_chat_send_message_thread(void *data)
 
 		fetion_conversation_send_sms(conv , text);
 	}else{
-		fx_chat_add_information(fxchat, 
+		fx_chat_add_information(fxchat,
 				_("Message send failed,Unknown Error"));
 	}
 
@@ -820,7 +820,7 @@ send:
 	gtk_text_buffer_delete(fxchat->send_buffer , &begin , &end);
 
 	fetion_conversation_send_sms(conv , text);
-} 
+}
 
 void* fx_chat_send_nudge_thread(void* data)
 {
@@ -888,12 +888,12 @@ static void fx_chat_on_nudge_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 	}
 	fetion_conversation_send_nudge(conv);
 	fx_chat_nudge(fxchat);
-	
+
 }
 void fx_chat_nudge(FxChat* fxchat)
 {
 	int x , y , i;
-	
+
 	gtk_window_get_position(GTK_WINDOW(fxchat->dialog) , &x , &y);
 
 	for(i = 0 ; i < 4 ; i++){
@@ -909,7 +909,7 @@ void fx_chat_nudge(FxChat* fxchat)
 void fx_chat_nudge_in_thread(FxChat* fxchat)
 {
 	int x , y , i;
-	
+
 	gdk_threads_enter();
 	gtk_window_get_position(GTK_WINDOW(fxchat->dialog) , &x , &y);
 	gdk_threads_leave();
@@ -945,7 +945,7 @@ static void fx_chat_on_tophone_clicked(GtkWidget* widget , gpointer data)
 
 		if(user->boundToMobile == BOUND_MOBILE_DISABLE){
 			bzero(text , sizeof(text));
-			if(user->smsDayLimit == user->smsDayCount 
+			if(user->smsDayLimit == user->smsDayCount
 			|| user->smsMonthLimit == user->smsMonthCount){
 				strcpy(text , _("Run out of your quota,"
 							" you can still send IM mesages."
@@ -956,7 +956,7 @@ static void fx_chat_on_tophone_clicked(GtkWidget* widget , gpointer data)
 				sprintf(text , _("Mesage will be sent to "
 							"contact's cell phone. You have"
 							" %d free SMS left. If want to send"
-							" more free SMS, bind your cell phone,please.") 
+							" more free SMS, bind your cell phone,please.")
 						, user->smsDayLimit - user->smsDayCount);
 			}
 			fx_chat_add_information(fxchat , text);
@@ -989,7 +989,7 @@ static void fx_chat_on_history_clicked(GtkWidget* UNUSED(widget) , gpointer data
 	Conversation *conv;
 	Contact      *contact;
 	FxHistory    *fxhistory;
- 	
+
 	fxchat = (FxChat*)data;
  	conv = fxchat->conv;
  	contact = conv->currentContact;
@@ -1041,8 +1041,8 @@ static gboolean fx_chat_on_text_buffer_changed(GtkTextBuffer* buffer , gpointer 
 	GtkTextIter  endIter;
 	gchar        text[48];
 	const gchar *res = NULL;
-	gint         count;  
-	
+	gint         count;
+
 	count = gtk_text_buffer_get_char_count(buffer);
 
 	if(count <= 180){
@@ -1073,7 +1073,7 @@ void fx_chat_update_window(FxChat *fxchat)
 	else
 		snprintf(markup , sizeof(markup) - 1,
 				_("Chatting with [%s]"), name);
-	
+
 
 	gtk_window_set_title(GTK_WINDOW(fxchat->dialog), markup);
 }

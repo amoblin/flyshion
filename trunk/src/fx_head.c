@@ -180,20 +180,19 @@ void fx_head_bind(FxMain* fxmain)
 	bzero(fxhead->oldimpression , sizeof(fxhead->oldimpression));
 
 	sprintf(name , "<b>%s</b>"
-			, user->nickname == NULL ? user->sId : user->nickname );
+			, user->nickname == NULL ? user->sId : g_markup_escape_text(user->nickname, -1) );
 
-	gtk_label_set_markup(GTK_LABEL(fxhead->name_label) , name );
+	gtk_label_set_markup(GTK_LABEL(fxhead->name_label), name );
 	
 
 	strcpy(fxhead->oldimpression
 		, (strlen(user->impression) == 0 || user->impression == NULL)
 		? "Click here to input signature" : user->impression);
 
-	sprintf(tooltip , "<b>%s</b>" , user->impression);
-	gtk_widget_set_tooltip_markup(fxhead->impre_label
-			, g_markup_escape_text(tooltip, strlen(tooltip)));
+	sprintf(tooltip, "<b>%s</b>", g_markup_escape_text(user->impression, strlen(user->impression)));
+	gtk_widget_set_tooltip_markup(fxhead->impre_label, tooltip);
 	escape_impression(fxhead->oldimpression);
-	gtk_label_set_text(GTK_LABEL(fxhead->impre_label) , fxhead->oldimpression);
+	gtk_label_set_text(GTK_LABEL(fxhead->impre_label), fxhead->oldimpression);
 
 	sprintf(name , "%s/%s.jpg" , config->iconPath , user->sId);
 
@@ -419,7 +418,7 @@ gboolean fx_head_impre_activate_func(GtkWidget* widget , gpointer data)
 		bzero(fxhead->oldimpression , sizeof(fxhead->oldimpression));
 		strcpy(fxhead->oldimpression , impression);
 		bzero(tooltip , sizeof(tooltip));
-		sprintf(tooltip , "<b>%s</b>" , impression);
+		sprintf(tooltip , "<b>%s</b>" , g_markup_escape_text(impression, -1));
 		gtk_widget_set_tooltip_markup(fxhead->impre_label , tooltip);
 	}
 	return TRUE;
