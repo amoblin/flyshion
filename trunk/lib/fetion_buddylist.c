@@ -107,74 +107,7 @@ int fetion_buddylist_edit(User* user , int id , const char* name)
 		return -1;
 	}
 }
-int fetion_buddylist_save(User* user)
-{
-	FILE* fd;
-	char filename[] = "buddylist.dat";
-	char* filepath;
-	Group *gl_cur;
-	Config* config = user->config;
-	int n;
 
-	n = strlen(config->userPath) + strlen(filename) + 2;
-	filepath = (char*)malloc(n);
-	bzero(filepath , n);
-	strcpy(filepath , config->userPath);
-	strcat(filepath , "/");
-	strcat(filepath , filename);
-	
-	fd = fopen(filepath , "wb+");
-	debug_info("Storing buddy list to local disk");
-	if(fd == NULL){
-		debug_info("Store buddy list to local disk failed");
-		return -1;
-	}
-	foreach_grouplist(user->groupList , gl_cur){
-		fwrite(gl_cur , sizeof(Group) , 1 , fd);
-		fflush(fd);
-	}
-	fclose(fd);
-	free(filepath);
-	return 1;
-
-}
-int fetion_buddylist_load(User* user)
-{
-	FILE* fd;
-	char filename[] = "buddylist.dat";
-	char* filepath;
-	Group *pos , *buddylist = NULL;	
-	Config* config = user->config;
-	int n ;
-	n = strlen(config->userPath) + strlen(filename) + 4;
-	filepath = (char*)malloc(n);
-	bzero(filepath , n);
-	strcpy(filepath , config->userPath);
-	strcat(filepath , "/");
-	strcat(filepath , filename);
-	fd = fopen(filepath , "r");
-	debug_info("Reading buddy list from local disk");
-	if(fd == NULL){
-		debug_info("Reading buddy list from local disk failed");
-		return -1;
-	}
-	buddylist = fetion_group_new();
-	while(!feof(fd))
-	{
-		pos = fetion_group_new();
-		n = fread(pos , sizeof(Group) , 1 , fd);
-		pos->next = pos;
-		pos->pre = pos;
-		if(n > 0)
-			fetion_group_list_append(buddylist , pos);
-		else
-			free(pos);
-	}
-	user->groupList = buddylist;
-	fclose(fd);
-	free(filepath);
-	return 1;
-}
 char* generate_create_buddylist_body(const char* name)
 {
 	char args[] = "<args></args>";

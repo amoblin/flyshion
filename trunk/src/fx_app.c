@@ -127,10 +127,11 @@ GtkTreeModel* fx_app_create_group_model(FxMain* fxmain)
 {
 	GtkTreeStore *store = NULL;
 	GtkTreeModel *model = NULL;
-	GtkTreeView *tree = NULL;
-	GtkTreeIter oIter , nIter;
-	char *groupname = NULL;
-	int groupid;
+	GtkTreeView  *tree = NULL;
+	GtkTreeIter   oIter;
+	GtkTreeIter   nIter;
+	gchar        *groupname = NULL;
+	gint          groupid;
 
 	tree = GTK_TREE_VIEW(fxmain->mainPanel->treeView);
 	model = gtk_tree_view_get_model(tree);
@@ -154,29 +155,29 @@ GtkTreeModel* fx_app_create_group_model(FxMain* fxmain)
 }
 void* fx_app_ok_thread(void* data)
 {
-	FxApp *fxapp = (FxApp*)data;
-	const char *localname = NULL;
-	int buddylist;
-	int groupid;
-	int result;
-	int allCount;
-	int onlineCount;
-	FxMain *fxmain = fxapp->fxmain;
-	GtkTreeView *tree = GTK_TREE_VIEW(fxmain->mainPanel->treeView);
-	GtkTreeModel *model = gtk_tree_view_get_model(tree);
-	GtkTreeModel *gmodel = NULL;
-	GtkTreeIter iter , iter1 , piter;
-	Contact* contact = NULL;
-	GdkPixbuf* pb = NULL;
-	Config *config = NULL;
-	char portraitPath[128];
-	char *sid = NULL;
+	FxApp         *fxapp = (FxApp*)data;
+	const gchar   *localname = NULL;
+	gint           buddylist;
+	gint           groupid;
+	gint           result;
+	gint           allCount;
+	gint           onlineCount;
+	FxMain        *fxmain = fxapp->fxmain;
+	GtkTreeView   *tree = GTK_TREE_VIEW(fxmain->mainPanel->treeView);
+	GtkTreeModel  *model = gtk_tree_view_get_model(tree);
+	GtkTreeModel  *gmodel = NULL;
+	GtkTreeIter    iter;
+	GtkTreeIter    iter1;
+	GtkTreeIter    piter;
+	Contact       *contact = NULL;
+	GdkPixbuf     *pb = NULL;
+	Config        *config = NULL;
+	gchar          portraitPath[512];
+	gchar         *sid = NULL;
 	
 	gmodel = gtk_combo_box_get_model(GTK_COMBO_BOX(fxapp->agCombo));
 	gtk_combo_box_get_active_iter(GTK_COMBO_BOX(fxapp->agCombo) , &iter);
 	gtk_tree_model_get(gmodel , &iter , APP_G_ID_COL , &buddylist , -1);
-
-
 
 
 	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxapp->aptButton)))
@@ -205,17 +206,21 @@ void* fx_app_ok_thread(void* data)
 		if(groupid == buddylist)
 		{
 			allCount ++;
+			gdk_threads_enter();
 			gtk_tree_store_set(GTK_TREE_STORE(model)  , &piter
 							 , G_ALL_COUNT_COL		  , allCount
 							 , G_ONLINE_COUNT_COL	  , onlineCount
 							 , -1);
+			gdk_threads_leave();
 			break;
 		}
 	}
 	while(gtk_tree_model_iter_next(model , &piter));
 
 
+	gdk_threads_enter();
 	gtk_tree_store_append(GTK_TREE_STORE(model) , &iter1 , &piter);
+	gdk_threads_leave();
 
 	fetion_user_download_portrait(fxmain->user , fxapp->sipuri);
 
@@ -223,9 +228,8 @@ void* fx_app_ok_thread(void* data)
 
 	sid = fetion_sip_get_sid_by_sipuri(fxapp->sipuri);
 
-	bzero(portraitPath , sizeof(portraitPath));
 	sprintf(portraitPath , "%s/%s.jpg" , config->iconPath , sid);
-	free(sid);
+	g_free(sid);
 
 	pb = gdk_pixbuf_new_from_file_at_size(portraitPath
 			, config->iconSize , config->iconSize , NULL);
@@ -233,19 +237,24 @@ void* fx_app_ok_thread(void* data)
 		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"online.svg"
 				, config->iconSize , config->iconSize , NULL);
 
+	gdk_threads_enter();
 	gtk_tree_store_set(GTK_TREE_STORE(model) , &iter1
 					, B_PIXBUF_COL , pb
 					, B_SIPURI_COL , fxapp->sipuri
 					, -1);
+	gdk_threads_leave();
 
 	contact = fetion_contact_handle_contact_request(fxmain->user
 					, fxapp->sipuri , fxapp->userid , localname , buddylist , result);
 
 	if(contact == NULL){
+		gdk_threads_enter();
 		gtk_tree_store_remove(GTK_TREE_STORE(model) , &iter1);
+		gdk_threads_leave();
 		return NULL;
 	}	
 
+	gdk_threads_enter();
 	gtk_tree_store_set(GTK_TREE_STORE(model)		 , &iter1
 					, B_USERID_COL			, contact->userId
 					, B_NAME_COL			, contact->nickname ? contact->nickname : ""
@@ -255,6 +264,7 @@ void* fx_app_ok_thread(void* data)
 					, B_CARRIERSTATUS_COL	, CARRIER_STATUS_NORMAL
 					, B_DEVICE_COL			, "PC"
 					, -1);
+	gdk_threads_leave();
 
 	return NULL;
 }
@@ -277,19 +287,20 @@ void fx_app_on_cancel_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 
 void* fx_app_check_thread(void* data)
 {
-	FxApp *fxapp = (FxApp*)data;
-	User* user = fxapp->fxmain->user;
-	char* sid = NULL;
-	Contact* contact = NULL;
-	FxLookupres* fxlookupres = NULL;
+	FxApp        *fxapp = (FxApp*)data;
+	User         *user = fxapp->fxmain->user;
+	gchar        *sid = NULL;
+	Contact      *contact = NULL;
+	FxLookupres  *fxlookupres = NULL;
 
 	sid = fetion_sip_get_sid_by_sipuri(fxapp->sipuri);
 	contact = fetion_contact_get_contact_info_by_no(user , sid , FETION_NO);
-	free(sid);
-	if(contact == NULL)
-	{
+	g_free(sid);
+
+	if(contact == NULL){
 		gdk_threads_enter();
-		fx_util_popup_warning(fxapp->fxmain , _("Lookup failed,Unknown identity,Unknown reason"));
+		fx_util_popup_warning(fxapp->fxmain,
+				_("Lookup failed,Unknown identity,Unknown reason"));
 		gdk_threads_leave();
 		return NULL;
 	}
@@ -298,7 +309,7 @@ void* fx_app_check_thread(void* data)
 	fx_lookupres_initialize(fxlookupres);
 	gtk_dialog_run(GTK_DIALOG(fxlookupres->dialog));
 
-	free(contact);
+	g_free(contact);
 
 	gtk_widget_destroy(fxlookupres->dialog);
 	gdk_threads_leave();	

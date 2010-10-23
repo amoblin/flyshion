@@ -201,6 +201,7 @@ typedef struct group
 {
 	char groupname[32];					/* current buddy list name  */
 	int groupid;						/* current buddy list Id	*/
+	int dirty;
 	struct group *next;
 	struct group *pre;
 } Group;
@@ -371,6 +372,7 @@ typedef struct
 	int boundToMobile;					/* whether this number is bound to a mobile number  */
 	long loginTimes;
 	int contactCount;
+	int groupCount;
 	char* ssic;						    /* cookie string read from reply message after ssi login 	*/
 	char* customConfig;					/* custom config string used to set personal information	*/
 	Verification* verification;			/* a struct used to generate picture code					*/	 

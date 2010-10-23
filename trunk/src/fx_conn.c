@@ -432,6 +432,23 @@ auth:
 
 	Contact *c_cur;
 	Contact *c_tmp;
+	Group   *g_cur;
+	Group   *g_tmp;
+
+	/* update buddy list */
+	if(user->groupCount == 0)
+		user->groupCount = local_group_count;
+	else if(user->groupCount != local_group_count){
+		for(g_cur = user->groupList->next;
+				g_cur != user->groupList;){
+			g_tmp = g_cur;
+			g_cur = g_cur->next;
+			if(!g_tmp->dirty){
+				fetion_group_list_remove(g_tmp);
+				g_free(g_tmp);
+			}
+		}
+	}
 
 	/* update buddy count */
 	if(user->contactCount == 0)

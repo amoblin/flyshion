@@ -518,6 +518,40 @@ static void process_group_message(FxMain *fxmain , Message *message)
 		fx_sound_play_file(RESOURCE_DIR"newmessage.wav");
 }
 
+static void popup_msg_notify(FxMain *fxmain, Contact *senderContact, Message *msg)
+{
+#ifdef USE_LIBNOTIFY
+	Config    *config = fxmain->user->config;
+	GdkPixbuf *notifyIcon;
+	gchar     *senderSid;
+	gchar      iconPath[256];
+	gchar      notifySum[256];
+
+	if(config->msgAlert == MSG_ALERT_ENABLE){	
+		if(senderContact){
+			sprintf(iconPath, "%s/%s.jpg",
+					config->iconPath, senderContact->sId);
+			senderSid = fetion_sip_get_sid_by_sipuri(msg->sipuri);
+			sprintf(notifySum, _("%s(%s) said:"),
+					senderContact->nickname , senderContact->sId);
+			g_free(senderSid);
+
+			notifyIcon = gdk_pixbuf_new_from_file_at_size(
+					iconPath , 48 , 48 , NULL);
+			notify_notification_update(fxmain->notify,
+					notifySum, msg->message , NULL);
+
+			if(notifyIcon)
+				notify_notification_set_icon_from_pixbuf(
+						fxmain->notify , notifyIcon);
+
+			notify_notification_show(fxmain->notify , NULL);
+			g_object_unref(notifyIcon);
+		}
+	}
+#endif
+}
+
 void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const gchar* sipmsg)
 {
 	Message   *msg;
@@ -581,41 +615,14 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const gchar* sipm
 				fx_chat_add_message(fxchat , msg->message,
 								&(msg->sendtime) , 0 , msg->sysback);
 				fetion_message_free(msg);
+				gdk_threads_leave();
 				return;
 			}else{
 				/* chat window doesn`t exist and auto-pupup wasn`t enabled
 				 * just push message into message queue,wait for user action */
 				mitem = fx_list_new(msg);
 				fx_list_append(fxmain->mlist , mitem );
-
-#ifdef USE_LIBNOTIFY
-				gchar iconPath[256];
-				gchar notifySum[256];
-				gchar *senderSid;
-				GdkPixbuf *notifyIcon;
-				if(config->msgAlert == MSG_ALERT_ENABLE){	
-					if(senderContact){
-						sprintf(iconPath, "%s/%s.jpg",
-								config->iconPath, senderContact->sId);
-						senderSid = fetion_sip_get_sid_by_sipuri(msg->sipuri);
-						sprintf(notifySum, _("%s(%s) said:"),
-								senderContact->nickname , senderContact->sId);
-						g_free(senderSid);
-
-						notifyIcon = gdk_pixbuf_new_from_file_at_size(
-								iconPath , 48 , 48 , NULL);
-						notify_notification_update(fxmain->notify,
-								notifySum, msg->message , NULL);
-
-						if(notifyIcon)
-							notify_notification_set_icon_from_pixbuf(
-									fxmain->notify , notifyIcon);
-
-						notify_notification_show(fxmain->notify , NULL);
-						g_object_unref(notifyIcon);
-					}
-				}
-#endif
+				popup_msg_notify(fxmain, senderContact, msg);
 			}
 		/* chat window exist,but not focused */
 		}else{
