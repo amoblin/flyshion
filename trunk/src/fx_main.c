@@ -100,7 +100,7 @@ void fx_main_initialize(FxMain* fxmain)
 #if 0
 	g_signal_connect(G_OBJECT(fxmain->window)
 				  , "configure-event"
-				  , G_CALLBACK(fx_main_position_func) 
+				  , G_CALLBACK(fx_main_position_func)
 				  , NULL);
 #endif
 
@@ -131,7 +131,7 @@ void fx_main_initialize(FxMain* fxmain)
 
 	fxmain->mainbox = gtk_vbox_new(FALSE , 4);
 	gtk_container_add(GTK_CONTAINER(fxmain->window) , fxmain->mainbox);
-	
+
 	fxmain->loginPanel = fx_login_new();
 	fx_login_initialize(fxmain);
 	gtk_widget_show_all(fxmain->window);
@@ -162,7 +162,7 @@ void update()
 {
 	g_usleep(1);
 	while(gtk_events_pending()){
-		 gtk_main_iteration();         
+		 gtk_main_iteration();
 	}
 }
 TimeOutArgs* timeout_args_new(FxMain *fxmain , FetionSip *sip , const gchar *sipuri)
@@ -294,7 +294,7 @@ static void popup_online_notify(FxMain *fxmain, Contact *contact)
 
 	config = fxmain->user->config;
 
-	if(start_popup_presence && 
+	if(start_popup_presence &&
 		presence_count > fxmain->user->contactCount &&
 		config->onlineNotify == ONLINE_NOTIFY_ENABLE){
 
@@ -320,7 +320,7 @@ static void popup_online_notify(FxMain *fxmain, Contact *contact)
 					SKIN_DIR"fetion.svg",
 					NOTIFY_IMAGE_SIZE,
 					NOTIFY_IMAGE_SIZE , NULL);
-			
+
 		notify_notification_update(fxmain->notify , notifySummary
 				, notifyText , NULL);
 		notify_notification_set_icon_from_pixbuf(fxmain->notify , pixbuf);
@@ -355,7 +355,7 @@ void fx_main_process_presence(FxMain* fxmain , const gchar* xml)
 
 		presence_count ++;
 
-		/* all presence information has been pushed 
+		/* all presence information has been pushed
 		 * then start update local data and buddy portrait */
 		if(presence_count == user->contactCount)
 			g_thread_create(update_data, fxmain, FALSE, NULL);
@@ -396,13 +396,13 @@ void fx_main_process_presence(FxMain* fxmain , const gchar* xml)
 		}
 		if(fxchat)
 			fxchat->state = contact->state;
-		
+
 		name = (contact->nickname == NULL || strlen(contact->localname) == 0)?
 				contact->nickname : contact->localname;
 		gtk_tree_store_set(GTK_TREE_STORE(model) , &iter
-						 , B_NAME_COL            , g_markup_escape_text(name , strlen(name))
+						 , B_NAME_COL            , g_markup_escape_text(name, -1)
 						 , B_SIPURI_COL			 , contact->sipuri
-						 , B_IMPRESSION_COL		 , contact->impression
+						 , B_IMPRESSION_COL		 , g_markup_escape_text(contact->impression, -1)
 						 , B_PHONENUM_COL		 , contact->mobileno
 						 , B_USERID_COL			 , contact->userId
 						 , B_STATE_COL			 , contact->state
@@ -423,7 +423,7 @@ void fx_main_process_presence(FxMain* fxmain , const gchar* xml)
 
 static void process_system_message(const char *sipmsg)
 {
-	
+
 	gint     showonce;
 	gint     type;
 	gchar    *msg;
@@ -468,7 +468,7 @@ static void process_group_message(FxMain *fxmain , Message *message)
 		if(strcmp(fxpgcur->pggroup->pguri,
 					message->pguri) == 0){
 			fxpg = fxpgcur;
-		       	break;	
+		       	break;
 		}
 	}
 
@@ -503,7 +503,7 @@ static void process_group_message(FxMain *fxmain , Message *message)
 		g_object_unref(pixbuf);
 		gtk_status_icon_set_blinking(GTK_STATUS_ICON(fxmain->trayIcon) , TRUE);
 		g_signal_handler_disconnect(fxmain->trayIcon , fxmain->iconConnectId);
-		fxmain->iconConnectId = g_signal_connect(G_OBJECT(fxmain->trayIcon) 
+		fxmain->iconConnectId = g_signal_connect(G_OBJECT(fxmain->trayIcon)
 							, "activate"
 							, GTK_SIGNAL_FUNC(fx_main_message_func)
 							, fxmain);
@@ -527,7 +527,7 @@ static void popup_msg_notify(FxMain *fxmain, Contact *senderContact, Message *ms
 	gchar      iconPath[256];
 	gchar      notifySum[256];
 
-	if(config->msgAlert == MSG_ALERT_ENABLE){	
+	if(config->msgAlert == MSG_ALERT_ENABLE){
 		if(senderContact){
 			sprintf(iconPath, "%s/%s.jpg",
 					config->iconPath, senderContact->sId);
@@ -596,7 +596,7 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const gchar* sipm
 	if(senderContact)
 		fx_main_add_history(fxmain, senderContact->nickname,
 				senderContact->userId, msg->message, 0);
-	
+
 
 	gdk_threads_enter();
 
@@ -642,8 +642,8 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const gchar* sipm
 
 		gtk_status_icon_set_blinking(GTK_STATUS_ICON(fxmain->trayIcon) , TRUE);
 		g_signal_handler_disconnect(fxmain->trayIcon , fxmain->iconConnectId);
-		
-		fxmain->iconConnectId = g_signal_connect(G_OBJECT(fxmain->trayIcon) 
+
+		fxmain->iconConnectId = g_signal_connect(G_OBJECT(fxmain->trayIcon)
 							, "activate"
 							, GTK_SIGNAL_FUNC(fx_main_message_func)
 							, fxmain);
@@ -681,7 +681,7 @@ void fx_main_process_user_left(FxMain* fxmain , const gchar* msg)
 	timeout = fx_list_find_timeout_by_sipuri(fxmain->tlist , sipuri);
 	if(!timeout)
 		timeout->terminated = TRUE;
-	
+
 	/* if fxchat exist , set current sip struct to NULL ,
 	 * and exit thread, orelse just exit current thread	 */
 	fxchat = fx_list_find_chat_by_sipuri(clist , sipuri);
@@ -711,7 +711,7 @@ FxChat* fx_main_create_chat_window(FxMain* fxmain , const gchar* sipuri)
 	if((fxchat = fx_list_find_chat_by_sipuri(fxmain->clist , sipuri)) != NULL)
 		return fxchat;
 	conv = fetion_conversation_new(fxmain->user , sipuri , NULL);
-	
+
 	/* this buddy is not in the friend list*/
 	if(!conv) {
 		sid = fetion_sip_get_sid_by_sipuri(sipuri);
@@ -748,7 +748,7 @@ void fx_main_process_invitation(FxMain* fxmain , const gchar* sipmsg)
 	TimeOutArgs *timeout;
 	gchar        event[16];
 	ThreadArgs  *args;
-	
+
 	args = (ThreadArgs*)malloc(sizeof(ThreadArgs));
 	sip = fxmain->user->sip;
 
@@ -776,7 +776,7 @@ void fx_main_process_invitation(FxMain* fxmain , const gchar* sipmsg)
 	timeout = timeout_args_new(fxmain , osip , sipuri);
 	list = fx_list_new(timeout);
 	fx_list_append(fxmain->tlist , list);
-} 
+}
 #if 0
 static void process_share_action_accept(FxMain *fxmain
 		, FetionSip *sip , const char *sipmsg , const char *sipuri){
@@ -857,7 +857,7 @@ void fx_main_process_sipc(FxMain* fxmain , const gchar* sipmsg)
 	User *user = fxmain->user;
 
 	struct unacked_list *ulist;
-	
+
 	PGGroup *pggroup = user->pggroup;
 	PGGroup *pgcur;
 
@@ -898,7 +898,7 @@ void fx_main_process_sipc(FxMain* fxmain , const gchar* sipmsg)
 				    pgcur->hasAcked = 1;
 				    return;
 				}
-				
+
 			}
 			/* get group member response */
 			if(pgcur->getMembersCallId == callid){
@@ -1178,14 +1178,14 @@ void fx_main_tray_popmenu_func(
 		const gchar* icon;
 		int type;
 	} presence[] = {
-		{ N_("Online")	 , SKIN_DIR"online.svg" , P_ONLINE } , 
-		{ N_("Leave")	 , SKIN_DIR"away.svg" , P_AWAY } , 
+		{ N_("Online")	 , SKIN_DIR"online.svg" , P_ONLINE } ,
+		{ N_("Leave")	 , SKIN_DIR"away.svg" , P_AWAY } ,
 		{ N_("Busy")	 , SKIN_DIR"busy.svg" , P_BUSY } ,
-		{ N_("Hide")	 , SKIN_DIR"invisible.svg" , P_HIDDEN } , 
+		{ N_("Hide")	 , SKIN_DIR"invisible.svg" , P_HIDDEN } ,
 		{ N_("Eating out") , SKIN_DIR"away.svg" , P_OUTFORLUNCH } ,
-		{ N_("Do Not Disturb") , SKIN_DIR"away.svg" , P_DONOTDISTURB } , 
-		{ N_("Back Soon") , SKIN_DIR"away.svg" , P_RIGHTBACK } , 
-		{ N_("Meeting")	 , SKIN_DIR"away.svg" , P_MEETING } , 
+		{ N_("Do Not Disturb") , SKIN_DIR"away.svg" , P_DONOTDISTURB } ,
+		{ N_("Back Soon") , SKIN_DIR"away.svg" , P_RIGHTBACK } ,
+		{ N_("Meeting")	 , SKIN_DIR"away.svg" , P_MEETING } ,
 		{ N_("Calling")	 , SKIN_DIR"away.svg" , P_ONTHEPHONE} ,
 		{ NULL		 , NULL 			   , -1}
 	};
@@ -1233,7 +1233,7 @@ void fx_main_tray_popmenu_func(
 		if(fxmain->user->boundToMobile == BOUND_MOBILE_ENABLE)
 			fx_main_create_menu1(_("SMS myself") , GTK_STOCK_FILE
 							 , menu , fx_main_send_to_myself_clicked , fxmain);
-		
+
 		statemenu = fx_main_create_menu1(_("Edit statement"),
 				GTK_STOCK_INFO , menu , NULL , NULL);
 
@@ -1264,7 +1264,7 @@ void fx_main_tray_popmenu_func(
 	fx_main_create_menu1(_("Exit OpenFetion ") , GTK_STOCK_QUIT
 					 , menu , fx_main_destroy , fxmain);
 	gtk_widget_show_all(menu);
-	gtk_menu_popup(GTK_MENU(menu) , NULL , NULL , NULL , NULL 
+	gtk_menu_popup(GTK_MENU(menu) , NULL , NULL , NULL , NULL
 				, button , activate_time);
 }
 int main(int argc , char* argv[])
@@ -1295,7 +1295,7 @@ int main(int argc , char* argv[])
 	gtk_init(&argc , &argv);
 
 	fx_conn_init(fxmain);
-	
+
 	fx_main_initialize(fxmain);
 
 	return 0;
@@ -1323,7 +1323,7 @@ void* fx_main_listen_thread_func(void* data)
 
 	sip = (sip == NULL ? fxmain->user->sip : sip);
 	for(;;){
-		
+
 		if(!fxmain)
 			g_thread_exit(0);
 
@@ -1336,7 +1336,7 @@ void* fx_main_listen_thread_func(void* data)
 		}
 		FD_SET(sip->tcp->socketfd, &fd_read);
 		g_static_mutex_unlock(&mutex);
-		
+
 		tv.tv_sec = 13;
 		tv.tv_usec = 0;
 
@@ -1369,7 +1369,7 @@ void* fx_main_listen_thread_func(void* data)
 			gdk_threads_leave();
 			g_thread_exit(0);
 		}
-		
+
 		pos = msg;
 		while(pos){
 
@@ -1461,7 +1461,7 @@ void fx_main_message_func(GtkWidget *UNUSED(widget) , gpointer data)
 	g_signal_handler_disconnect(fxmain->trayIcon,
 			fxmain->iconConnectId);
 	fxmain->iconConnectId = g_signal_connect(
-						G_OBJECT(fxmain->trayIcon) 
+						G_OBJECT(fxmain->trayIcon)
 						 , "activate"
 						 , GTK_SIGNAL_FUNC(fx_main_tray_activate_func)
 						 , fxmain);
@@ -1518,15 +1518,15 @@ void fx_main_about_fetion_clicked(GtkWidget *UNUSED(widget) , gpointer UNUSED(da
 
 	gtk_window_set_modal(GTK_WINDOW(dialog) , TRUE);
 	gtk_about_dialog_set_name(GTK_ABOUT_DIALOG(dialog), "OpenFetion");
-	gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), FETION_VERSION); 
-	gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog), 
+	gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), FETION_VERSION);
+	gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog),
 	"(c) Li Wenpeng");
 	logo = gdk_pixbuf_new_from_file(SKIN_DIR"about.png" , NULL);
 	gtk_window_set_icon(GTK_WINDOW(dialog) , logo);
-	gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog), 
+	gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog),
 	_("OpenFetion is a non-profit software, aiming at making linux users convenient to use "
 	"fetion."));
-	gtk_about_dialog_set_website(GTK_ABOUT_DIALOG(dialog), 
+	gtk_about_dialog_set_website(GTK_ABOUT_DIALOG(dialog),
 	"http://www.basiccoder.com/openfetion");
 	gtk_dialog_run(GTK_DIALOG (dialog));
 	gtk_widget_destroy(dialog);
@@ -1621,7 +1621,7 @@ void fx_list_remove_sip_by_sipuri(FxList *fxlist , const char *sipuri)
 		sip = (FetionSip*)(cur->data);
 		sid = fetion_sip_get_sid_by_sipuri(sip->sipuri);
 		sid1 = fetion_sip_get_sid_by_sipuri(sipuri);
-		if(strcmp(sid , sid1) == 0)	{	
+		if(strcmp(sid , sid1) == 0)	{
 			debug_info("Removing sip from sip list");
 			cur->next->pre = cur->pre;
 			cur->pre->next = cur->next;
@@ -1629,7 +1629,7 @@ void fx_list_remove_sip_by_sipuri(FxList *fxlist , const char *sipuri)
 			g_free(sid1);sid1 = NULL;
 			g_free(cur);
 			break;
-		}	
+		}
 		g_free(sid);sid = NULL;
 		g_free(sid1);sid1 = NULL;
 	}
@@ -1682,7 +1682,7 @@ void fx_list_remove_chat_by_sipuri(FxList *fxlist , const char *sipuri)
 			cur->next->pre = cur->pre;
 			cur->pre->next = cur->next;
 			break;
-		}	
+		}
 		g_free(sid);sid = NULL;
 		g_free(sid1);sid1 = NULL;
 	}
@@ -1728,7 +1728,7 @@ void fx_list_remove_timeout_by_sipuri(FxList* fxlist , const char* sipuri)
 			g_free(sid1);sid1 = NULL;
 			g_free(cur);
 			break;
-		}	
+		}
 		g_free(sid);sid = NULL;
 		g_free(sid1);sid1 = NULL;
 	}
@@ -1747,7 +1747,7 @@ void fx_list_remove_pg_by_sipuri(FxList* fxlist , const char* sipuri)
 			cur->pre->next = cur->next;
 			g_free(cur);
 			break;
-		}	
+		}
 	}
 
 }
@@ -1764,7 +1764,7 @@ void fx_main_add_history(FxMain *fxmain, const char *name,
 
 	history = fetion_history_message_new(name
 				, sid , *now , msg , issend);
-	
+
 	g_static_mutex_lock(&mutex);
 	fetion_history_add(fxmain->history , history);
 	fetion_history_message_free(history);
@@ -1785,7 +1785,7 @@ static void fx_main_process_pgpresencechanged(FxMain *fxmain , const char *sipms
 	PGGroup *pggroup = fxmain->user->pggroup;
 
 	pg_group_parse_member(pggroup , sipmsg);
-		
+
 #if 0
 	PGGroup *pgcur;
 	/* get member contact info of current group */
