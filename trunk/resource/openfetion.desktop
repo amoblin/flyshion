@@ -2,7 +2,7 @@
 Icon=fetion
 Name=OpenFetion
 Name[en_GB]=OpenFetion
-Name[zh_CN]=飞信(OpenFetion)
+Name[zh_CN]=OpenFetion(飞信)
 Comment=Fetion For Linux
 Comment[zh_CN]=Linux 版飞信客户端
 Exec=openfetion

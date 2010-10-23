@@ -26,7 +26,7 @@
 #include <gdk/gdkx.h>
 #endif
 
-#define IDLE_TIMEOUT_SEC 90
+#define IDLE_TIMEOUT_SEC 180
 
 extern int old_state;
 
