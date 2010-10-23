@@ -191,7 +191,7 @@ void fx_head_bind(FxMain* fxmain)
 
 	sprintf(tooltip , "<b>%s</b>" , user->impression);
 	gtk_widget_set_tooltip_markup(fxhead->impre_label
-			, tooltip);
+			, g_markup_escape_text(tooltip, strlen(tooltip)));
 	escape_impression(fxhead->oldimpression);
 	gtk_label_set_text(GTK_LABEL(fxhead->impre_label) , fxhead->oldimpression);
 
