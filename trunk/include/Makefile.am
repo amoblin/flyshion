@@ -20,6 +20,8 @@ EXTRA_DIST = fx_add_group.h \
 			 fx_myself.h \
 			 fx_profile.h \
 			 fx_emotion.h \
+			 fx_conn.h \
+			 fx_idle.h \
 			 fx_set.h \
 			 fx_tree.h \
 			 fx_types.h \

@@ -3,15 +3,15 @@ SUBDIRS = lib src include skin resource po
 EXTRA_DIST = config.rpath  m4/ChangeLog  LICENSE License.OpenSSL 
 
 install: install-recursive
-	@echo "----------------------------------------------------------";
-	@echo "|                                                        |";
-	@echo "|       OpenFetion 2.0 by lwp(levin108@gmail.com)        |";
-	@echo "|                                                        |";
-	@echo "|  OpenFetion a fetion client for linux based on GTK+2.0,|";
-	@echo "|  using Fetion Protocol Version 4. It supports most     |";
-	@echo "|  useful functions of Mobile Fetion,more important.     |";
-	@echo "|  It\`s small and fast,and is better in look.            |";
-	@echo "|  More information at http://basiccoder.com/openfetion  |";
-	@echo "----------------------------------------------------------";
+	@echo "------------------------------------------------------------";
+	@echo "|                                                          |";
+	@echo "|       OpenFetion 2.0 by lwp(levin108@gmail.com)          |";
+	@echo "|                                                          |";
+	@echo "| OpenFetion is a Fetion client for linux based on GTK+2.0,|";
+	@echo "| implementing Fetion Protocol Version 4. It supports most |";
+	@echo "| features of Fetion. What's more, it's lightweight        |";
+	@echo "| and efficient with intuitive interface.                  |";
+	@echo "| More information at http://basiccoder.com/openfetion     |";
+	@echo "------------------------------------------------------------";
 
 ACLOCAL_AMFLAGS = -I m4

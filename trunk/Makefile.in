@@ -201,8 +201,6 @@ PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
-PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
-PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
 POFILES = @POFILES@
 POSUB = @POSUB@
 PO_IN_DATADIR_FALSE = @PO_IN_DATADIR_FALSE@
@@ -769,16 +767,16 @@ uninstall-am:
 
 
 install: install-recursive
-	@echo "----------------------------------------------------------";
-	@echo "|                                                        |";
-	@echo "|       OpenFetion 2.0 by lwp(levin108@gmail.com)        |";
-	@echo "|                                                        |";
-	@echo "|  OpenFetion a fetion client for linux based on GTK+2.0,|";
-	@echo "|  using Fetion Protocol Version 4. It supports most     |";
-	@echo "|  useful functions of Mobile Fetion,more important.     |";
-	@echo "|  It\`s small and fast,and is better in look.            |";
-	@echo "|  More information at http://basiccoder.com/openfetion  |";
-	@echo "----------------------------------------------------------";
+	@echo "------------------------------------------------------------";
+	@echo "|                                                          |";
+	@echo "|       OpenFetion 2.0 by lwp(levin108@gmail.com)          |";
+	@echo "|                                                          |";
+	@echo "| OpenFetion is a Fetion client for linux based on GTK+2.0,|";
+	@echo "| implementing Fetion Protocol Version 4. It supports most |";
+	@echo "| features of Fetion. What's more, it's lightweight        |";
+	@echo "| and efficient with intuitive interface.                  |";
+	@echo "| More information at http://basiccoder.com/openfetion     |";
+	@echo "------------------------------------------------------------";
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

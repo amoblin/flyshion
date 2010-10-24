@@ -101,7 +101,7 @@ typedef struct
 	FxList* shlist;				 /*	 share content window list		   			 */
 	FxList* pglist;
 	FetionHistory* history;
-#ifdef HAVE_LIBNOTIFY
+#ifdef USE_LIBNOTIFY
 	NotifyNotification *notify;
 #endif
 	int iconConnectId;			 /*  status icon connect id						 */
