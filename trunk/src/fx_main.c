@@ -667,7 +667,6 @@ void fx_main_process_user_left(FxMain* fxmain , const gchar* msg)
 	gchar         *sipuri;
 	FxList       *clist;
 	FxChat       *fxchat;
-	TimeOutArgs  *timeout;
 	Conversation *conv;
 
 	clist = fxmain->clist;
@@ -675,12 +674,6 @@ void fx_main_process_user_left(FxMain* fxmain , const gchar* msg)
 	fetion_sip_parse_userleft(msg , &sipuri);
 	/* remove sip struct from stack	 */
 	fx_list_remove_sip_by_sipuri(fxmain->slist , sipuri);
-
-	/* mark timeout struct to TERMINATED
-	 * and the struct is to be remove from stack in timeout thread */
-	timeout = fx_list_find_timeout_by_sipuri(fxmain->tlist , sipuri);
-	if(!timeout)
-		timeout->terminated = TRUE;
 
 	/* if fxchat exist , set current sip struct to NULL ,
 	 * and exit thread, orelse just exit current thread	 */
@@ -1300,6 +1293,34 @@ int main(int argc , char* argv[])
 
 	return 0;
 }
+
+static void chat_listen_thread_end(FxMain *fxmain, const char *sipuri)
+{
+	FxList       *clist;
+	FxChat       *fxchat;
+	Conversation *conv;
+
+	clist = fxmain->clist;
+
+	if(!sipuri || strlen(sipuri) == 0)
+		return;
+
+	fx_list_remove_sip_by_sipuri(fxmain->slist , sipuri);
+
+	fxchat = fx_list_find_chat_by_sipuri(clist , sipuri);
+	if(!fxchat) {
+		debug_info("User %s left conversation" , sipuri);
+		debug_info("Thread exit");
+		g_thread_exit(0);
+	}
+	conv = fxchat->conv;
+	conv->currentSip = NULL;
+
+	debug_info("User %s left conversation" , sipuri);
+	debug_info("Thread exit");
+	g_thread_exit(0);
+}
+
 void* fx_main_listen_thread_func(void* data)
 {
 	ThreadArgs *args;
@@ -1322,6 +1343,7 @@ void* fx_main_listen_thread_func(void* data)
 	debug_info("A new thread entered");
 
 	sip = (sip == NULL ? fxmain->user->sip : sip);
+
 	for(;;){
 
 		if(!fxmain)
@@ -1363,11 +1385,19 @@ void* fx_main_listen_thread_func(void* data)
 		msg = fetion_sip_listen(sip, &error);
 
 		if(!msg && error){
-			gdk_threads_enter();
-			printf("\n\n\n\n\n Error ...... break out...\n\n\n\n\n");
-			fx_conn_offline(fxmain);
-			gdk_threads_leave();
-			g_thread_exit(0);
+			/* if it is the main listening thread */
+			if(sip == user->sip){
+				gdk_threads_enter();
+				printf("\n\nError ...... break out...\n\n");
+				fx_conn_offline(fxmain);
+				gdk_threads_leave();
+				g_thread_exit(0);
+			}else{
+				printf("\n\n Error ... user listen thread break out\n\n");
+				chat_listen_thread_end(fxmain, sip->sipuri);
+				tcp_connection_free(sip->tcp);
+				g_thread_exit(0);
+			}
 		}
 
 		pos = msg;
