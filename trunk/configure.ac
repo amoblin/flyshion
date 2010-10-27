@@ -38,31 +38,31 @@ AC_CHECK_LIB([pthread], [pthread_create])
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h netinet/in.h stdint.h stdlib.h string.h sys/ioctl.h sys/socket.h unistd.h])
 
 AC_ARG_ENABLE(screensaver,
-	[  --disable-screensaver   compile without X screensaver extension (used to detect idleness)],
-	[ enable_screensaver="no"],
-	[ enable_screensaver="yes"])
+              AS_HELP_STRING([--enable-screensaver],
+                             [Enable X screensaver extension (used to detect idleness) @<:@default=yes@:>@]),,
+              enable_screensaver="yes")
 
-AC_ARG_ENABLE(notify,
-	[  --disable-notify        compile without libnotify (used to show message notification)],
-	[ enable_notify="no"],
-	[ enable_notify="yes"])
+AC_ARG_ENABLE(libnotify,
+              AS_HELP_STRING([--enable-libnotify],
+                             [Enable libnotify support (used to show message notifications) @<:@default=yes@:>@]),,
+              enable_libnotify="yes")
 
-AC_ARG_ENABLE(gstreamer,
-	[  --disable-gstreamer     compile without gstreamer (used to play alert sound)],
-	[ enable_gst="no"],
-	[ enable_gst="yes"])
+AC_ARG_ENABLE(gst,
+              AS_HELP_STRING([--enable-gst],
+                             [Enable gstreamer support (used to play alert sounds) @<:@default=yes@:>@]),,
+              enable_gst="yes")
 
 AC_ARG_ENABLE(nm,
-	[  --disable-nm            compile without NetworkManager (used to check network state)],
-	[ enable_nm="no"],
-	[ enable_nm="yes"])
+              AS_HELP_STRING([--enable-nm],
+                             [Enable NetworkManager support (used to monitor network status) @<:@default=yes@:>@]),,
+              enable_nm="yes")
 
 # checks for gtk+2.0
 PKG_CHECK_MODULES(GTK, [gtk+-2.0 >= 2.16], [
 			AC_DEFINE(USE_GTK, 1, [Use GTK])
 			AC_SUBST(GTK_CFLAGS)
 			AC_SUBST(GTK_LIBS)
-		] ,	
+		] ,
 			)
 # checks for gthread-2.0
 PKG_CHECK_MODULES(GTHREAD, [gthread-2.0], [
@@ -112,7 +112,7 @@ PKG_CHECK_MODULES(LIBXSS, [xscrnsaver], [
 fi
 
 # checks for libnotify
-if test "x$enable_notify" = "xyes"; then
+if test "x$enable_libnotify" = "xyes"; then
 PKG_CHECK_MODULES(LIBNOTIFY, [libnotify], [
 			AC_DEFINE(USE_LIBNOTIFY, 1, [Use libnotify for notification])
 			AC_SUBST(LIBNOTIFY_CFLAGS)
@@ -121,7 +121,7 @@ PKG_CHECK_MODULES(LIBNOTIFY, [libnotify], [
 			echo ""
 			echo "configure: error: "
 			echo "libnotify development headers not found."
-			echo "Use --disable-notify if you do not need it."
+			echo "Use --disable-libnotify if you do not need it."
 			echo "If you're using debian or ubuntu,install it by "
 			echo "\"sudo apt-get install libnotify-dev\""
 			echo ""
@@ -138,8 +138,8 @@ PKG_CHECK_MODULES(GSTREAMER, [gstreamer-0.10], [
 		] , [
 			echo ""
 			echo "configure: error: "
-			echo "libnotify development headers not found."
-			echo "Use --disable-gstreamer if you do not need it."
+			echo "gstreamer development headers not found."
+			echo "Use --disable-gst if you do not need it."
 			echo "If you're using debian or ubuntu,install it by "
 			echo "\"sudo apt-get install libgstreamer0.10-dev\""
 			echo ""
@@ -150,13 +150,13 @@ fi
 # checks for networkmanager
 if test "x$enable_nm" = "xyes"; then
 PKG_CHECK_MODULES(NETWORKMANAGER, [NetworkManager >= 0.5.0], [
-			AC_DEFINE(USE_NETWORKMANAGER, 1, [Use NetworkManager for checking network state])
+			AC_DEFINE(USE_NETWORKMANAGER, 1, [Use NetworkManager for monitoring network status])
 			AC_SUBST(NETWORKMANAGER_CFLAGS)
 			AC_SUBST(NETWORKMANAGER_LIBS)
 		] , [
 			echo ""
 			echo "configure: error: "
-			echo "libnotify development headers not found."
+			echo "NetworkManager development headers not found."
 			echo "Use --disable-nm if you do not need it."
 			echo "If you're using debian or ubuntu,install it by "
 			echo "\"sudo apt-get install libnm-glib-dev\""
@@ -204,7 +204,7 @@ AC_OUTPUT
 
 echo
 echo Use XScreenSaver Extension.... : $enable_screensaver
-echo Use libnotify................. : $enable_notify
+echo Use libnotify................. : $enable_libnotify
 echo Use gstreamer0.10............. : $enable_gst
 echo Use NetworkManager............ : $enable_nm
 echo
