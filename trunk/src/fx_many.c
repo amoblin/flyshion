@@ -439,6 +439,7 @@ void fx_many_initialize(FxMany* fxmany)
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(fxmany->recv_scroll)
 									  , GTK_SHADOW_ETCHED_IN);
 	fxmany->recv_text = gtk_text_view_new();
+	gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(fxmany->recv_text) , FALSE);
 	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(fxmany->recv_text) , GTK_WRAP_CHAR);
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(fxmany->recv_text) , FALSE);
 	gtk_container_add(GTK_CONTAINER(fxmany->recv_scroll) , fxmany->recv_text);
@@ -478,6 +479,9 @@ void fx_many_initialize(FxMany* fxmany)
 	g_signal_connect(send_button , "clicked" , G_CALLBACK(fx_many_on_send_clicked) , fxmany);
 
 	gtk_window_set_position(GTK_WINDOW(fxmany->dialog) , GTK_WIN_POS_CENTER);
+
+	GTK_WIDGET_SET_FLAGS(fxmany->send_text, GTK_CAN_FOCUS);
+	gtk_widget_grab_focus(fxmany->send_text);
 
 	gtk_widget_show_all(fxmany->dialog);
 	gtk_widget_hide(fxmany->dialog);

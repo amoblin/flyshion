@@ -19,6 +19,7 @@
  ***************************************************************************/
 
 #include <openfetion.h>
+#include <signal.h>
 
 struct unacked_list *unackedlist;
 
@@ -35,6 +36,11 @@ static void parse_set_sms_status_response(User *user , const char *sipmsg);
 User* fetion_user_new(const char* no , const char* password)
 {
 	User* user = (User*)malloc(sizeof(User));
+
+ 	struct sigaction sa;
+ 	sa.sa_handler = SIG_IGN;
+ 	sigaction(SIGPIPE, &sa, 0 );
+
 	memset(user , 0 , sizeof(User));
 	if(strlen(no) == 11){
 		strcpy(user->mobileno , no);
@@ -795,6 +801,8 @@ void fetion_user_save(User *user)
 {
 	char path[256];
 	char sql[4096];
+	char password[4096];
+	char impression[4096];
 	char *errMsg;
 	sqlite3 *db;
 	Config *config = user->config;
@@ -814,7 +822,7 @@ void fetion_user_save(User *user)
 		sprintf(sql, "create table user ("
 					"sId,userId,mobileno,password,sipuri,"
 					"publicIp,lastLoginIp,lastLoginTime,"
-					"personalVersion,contactVersion,"
+					"personalVersion, contactVersion,"
 					"nickname,impression,country,province,"
 					"city,gender,smsOnLineStatus,"
 					"customConfigVersion, customConfig,"
@@ -826,16 +834,20 @@ void fetion_user_save(User *user)
 			return;
 		}
 	}
+	sprintf(password, "%s", user->password);
+	sprintf(impression, "%s", user->impression);
+	escape_sql(password);
+	escape_sql(impression);
 	snprintf(sql, sizeof(sql)-1, "insert into user "
 				"values ('%s','%s','%s','%s','%s',"
 				"'%s','%s','%s','%s','%s',"
 				"'%s','%s','%s','%s','%s',%d,'%s',"
 				" '%s', '%s',%d);",
 				user->sId, user->userId, user->mobileno,
-				user->password, user->sipuri, user->publicIp,
+				password, user->sipuri, user->publicIp,
 				user->lastLoginIp, user->lastLoginTime,
 				user->personalVersion, user->contactVersion,
-				user->nickname, user->impression, user->country,
+				user->nickname, impression, user->country,
 				user->province, user->city, user->gender,
 				user->smsOnLineStatus, user->customConfigVersion,
 				user->customConfig, user->boundToMobile);
@@ -873,6 +885,11 @@ void fetion_user_load(User *user)
 		return;
 	}
 
+	if(nrows == 0 || ncols == 0){
+		sqlite3_close(db);
+		return;
+	}
+
 	strcpy(user->sId , 				sqlres[ncols]);
 	strcpy(user->userId , 			sqlres[ncols+1]);
 	strcpy(user->mobileno , 		sqlres[ncols+2]);
@@ -895,6 +912,9 @@ void fetion_user_load(User *user)
 	memset(user->customConfig, 0, strlen(sqlres[ncols+18])+1);
 	strcpy(user->customConfig, sqlres[ncols+18]);
 	user->boundToMobile = atoi(sqlres[ncols+19]);
+
+	unescape_sql(user->password);
+	unescape_sql(user->impression);
 
 	sqlite3_close(db);
 }

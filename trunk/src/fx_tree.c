@@ -1706,7 +1706,7 @@ static gboolean fx_tree_on_show_tooltip(GtkWidget* widget
 	g_free(sid);
 	pb = gdk_pixbuf_new_from_file_at_size(iconpath , 80 , 80 , NULL);
 	if(pb == NULL)
-		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" , 80 , 80 , NULL);
+		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"portrait.png" , 80 , 80 , NULL);
 	gtk_tooltip_set_markup(tip , text);
 	gtk_tooltip_set_icon(tip , pb);
 	g_object_unref(pb);
