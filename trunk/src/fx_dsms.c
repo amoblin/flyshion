@@ -566,6 +566,7 @@ void fx_dsms_initialize(FxDSMS *fxdsms)
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(recvScroll)
 									  , GTK_SHADOW_ETCHED_IN);
 	fxdsms->recvText = gtk_text_view_new();
+	gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(fxdsms->recvText) , FALSE);
 	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(fxdsms->recvText) , GTK_WRAP_CHAR);
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(fxdsms->recvText) , FALSE);
 	gtk_container_add(GTK_CONTAINER(recvScroll) , fxdsms->recvText);
@@ -676,6 +677,9 @@ void fx_dsms_initialize(FxDSMS *fxdsms)
 
 	gtk_box_pack_start(abox	, cancelBtn , FALSE , FALSE , 0);
 	gtk_box_pack_start(abox	, okBtn , FALSE , FALSE , 0);
+
+	GTK_WIDGET_SET_FLAGS(fxdsms->sendText, GTK_CAN_FOCUS);
+	gtk_widget_grab_focus(fxdsms->sendText);
 
 	gtk_widget_show_all(fxdsms->dialog);
 	gtk_widget_hide(fxdsms->chooseList);

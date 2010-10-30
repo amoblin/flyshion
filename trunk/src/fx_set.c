@@ -66,9 +66,10 @@ static void fx_set_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 		else
 			config->msgAlert = MSG_ALERT_ENABLE;
 
-		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxset->iconBtn)))
+		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxset->iconBtn))){
 			config->canIconify = ICON_CAN;
-		else
+			config->closeAlert = CLOSE_ALERT_DISABLE;
+		}else
 			config->canIconify = ICON_CANNOT;
 
 		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxset->autoAwayBtn)))

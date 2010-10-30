@@ -66,7 +66,7 @@ void fx_myself_add_message(FxMyself* fxmyself , const char* message)
 	GtkTextIter iter;
 
 	User* user = fxmyself->fxmain->user;
-	char text[200] = { 0 };
+	char text[4096];
 	char time[30] = { 0 };
 	char color[] = "blue";
 
@@ -150,6 +150,7 @@ void fx_myself_initialize(FxMyself* fxmyself)
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(fxmyself->recv_scroll)
 									  , GTK_SHADOW_ETCHED_IN);
 	fxmyself->recv_text = gtk_text_view_new();
+	gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(fxmyself->recv_text) , FALSE);
 	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(fxmyself->recv_text) , GTK_WRAP_CHAR);
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(fxmyself->recv_text) , FALSE);
 	gtk_container_add(GTK_CONTAINER(fxmyself->recv_scroll) , fxmyself->recv_text);
@@ -190,8 +191,12 @@ void fx_myself_initialize(FxMyself* fxmyself)
 	g_signal_connect(send_button , "clicked" , G_CALLBACK(fx_myself_on_send_clicked) , fxmyself);
 
 	gtk_window_set_position(GTK_WINDOW(fxmyself->dialog) , GTK_WIN_POS_CENTER);
-	gtk_window_set_opacity(GTK_WINDOW(fxmyself->dialog) , 0.9);
+	//gtk_window_set_opacity(GTK_WINDOW(fxmyself->dialog) , 0.9);
 	fx_myself_bind(fxmyself);
+
+	GTK_WIDGET_SET_FLAGS(fxmyself->send_text, GTK_CAN_FOCUS);
+	gtk_widget_grab_focus(fxmyself->send_text);
+
 	gtk_widget_show_all(fxmyself->dialog);
 	gtk_widget_hide(fxmyself->dialog);
 }

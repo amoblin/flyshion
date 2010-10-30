@@ -614,6 +614,9 @@ void fx_chat_initialize(FxChat* fxchat)
 	gtk_container_add(GTK_CONTAINER(frame) , img);
 	gtk_box_pack_start(GTK_BOX(rvbox) , frame , FALSE , FALSE , 0);
 
+	GTK_WIDGET_SET_FLAGS(fxchat->send_text, GTK_CAN_FOCUS);
+	gtk_widget_grab_focus(fxchat->send_text);
+
 	gtk_widget_show_all (vbox);
 	gtk_widget_show(fxchat->dialog);
 }

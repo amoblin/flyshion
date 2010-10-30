@@ -189,7 +189,7 @@
 /* Use XScreenSaver for idleness */
 #undef USE_LIBXSS
 
-/* Use NetworkManager for checking network state */
+/* Use NetworkManager for monitoring network status */
 #undef USE_NETWORKMANAGER
 
 /* Use sqlite3 */

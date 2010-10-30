@@ -31,6 +31,7 @@ skin_DATA = bigimage.png \
 			offline.svg \
 			away.svg \
 			invisible.svg \
+			portrait.png \
 			proxy.png
 pixmapdir = $(prefix)/share/pixmaps
 pixmap_DATA = fetion.svg

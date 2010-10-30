@@ -134,6 +134,7 @@ void fetion_user_list_save(Config* config , struct userlist* ul)
 {	
 	char path[256];
 	char sql[1024];
+	char password[1024];
 	sqlite3 *db;
 	char *errMsg = NULL;
 	struct userlist *pos;
@@ -153,10 +154,13 @@ void fetion_user_list_save(Config* config , struct userlist* ul)
 		return;
 	}
 
+
 	foreach_userlist(ul, pos){
+		sprintf(password, "%s", pos->password);
+		escape_sql(password);
 		sprintf(sql, "insert into userlist values"
 					"('%s','%s',%d,%d,'%s','%s')",
-					pos->no, pos->password,
+					pos->no, password,
 					pos->laststate, pos->islastuser,
 				   	pos->userid, pos->sid);
 		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
@@ -243,6 +247,11 @@ create_ul_table:
 		}
 	}
 
+	if(nrows == 0 || ncols == 0){
+		sqlite3_close(db);
+		return res;
+	}
+
 	debug_info("Loading user list store in local data file");
 	for(i = 0; i < nrows; i ++){
 		start = ncols + i * ncols;
@@ -252,6 +261,7 @@ create_ul_table:
 					sqlres[start + 5],
 				   	atoi(sqlres[start + 2]),
 					atoi(sqlres[start + 3]));
+		unescape_sql(pos->password);
 		fetion_user_list_append(res , pos);
 	}
 	sqlite3_close(db);
@@ -906,10 +916,11 @@ int fetion_user_list_remove(Config *config, const char *no)
 
 void escape_sql(char *in)
 {
-	while((*in)&&((*in)=='\'' ? (*in++)=(char)255 : in++));
+	while(*in){if(*in == '\'') *in = (char)255; in ++;}
 }
-void unescape_sql(char *in)
+void unescape_sql(char *inn)
 {
-	while((*in)&&((*in)==(char)255 ? (*in++)='\'' : in++));
+	char *in = inn;
+	while(*in){if(*in == (char)255) *in = '\''; in ++;}
 }
 
