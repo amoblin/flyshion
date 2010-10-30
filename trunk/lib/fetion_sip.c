@@ -199,22 +199,20 @@ void fetion_sip_add_header(FetionSip* sip , SipHeader* header)
 
 char* fetion_sip_to_string(FetionSip* sip , const char* body)
 {
-	char *res , *head , buf[40] , type[5];
+	char *res , *head , buf[1024] , type[128];
 	SipHeader *pos , *tmp;
 	int len = 0;
 
 	pos = sip->header;
-	while(pos != NULL)
-	{
+	while(pos){
 		len += (strlen(pos->value) + strlen(pos->name) + 5);
 		pos = pos->next;
 	}
 	len += (body == NULL ? 100 : strlen(body) + 100 );
 	res = (char*)malloc(len + 1);
 	memset(res , 0 , len + 1);
-	bzero(type , sizeof(type));
-	switch(sip->type)
-	{
+	memset(type, 0 , sizeof(type));
+	switch(sip->type){
 		case SIP_REGISTER     : strcpy(type , "R");
 			break;
 		case SIP_SUBSCRIPTION :	strcpy(type , "SUB");
@@ -234,23 +232,25 @@ char* fetion_sip_to_string(FetionSip* sip , const char* body)
 		default:
 			break;
 	};
+
 	if(strlen(type) == 0)
 		return NULL;
-	sprintf(buf , "%s fetion.com.cn SIP-C/4.0\r\n" , type);
-	strcpy(res , buf);
-	sprintf(buf , "F: %s\r\n" , sip->from);
-	strcat(res , buf);
-	sprintf(buf , "I: %d\r\n" , sip->callid);
-	strcat(res , buf);
-	sprintf(buf , "Q: 2 %s\r\n" , type);
+
+	sprintf(buf, "%s fetion.com.cn SIP-C/4.0\r\n"
+			"F: %s\r\n"
+			"I: %d\r\n"
+			"Q: 2 %s\r\n",
+			type,
+			sip->from,
+			sip->callid,
+			type);
+
 	strcat(res , buf);
 
 	pos = sip->header;
-	while(pos != NULL)
-	{
+	while(pos){
 		len = strlen(pos->value) + strlen(pos->name) + 5;
 		head = (char*)malloc(len);
-		memset(head , 0 , len);
 		sprintf(head , "%s: %s\r\n" , pos->name , pos->value);
 		strcat(res , head);
 		tmp = pos;
@@ -259,15 +259,11 @@ char* fetion_sip_to_string(FetionSip* sip , const char* body)
 		free(tmp->value);
 		free(tmp);
 	}
-	if(body != NULL)
-	{
-		bzero(buf , sizeof(buf));
+	if(body){
 		sprintf(buf , "L: %d\r\n\r\n" , strlen(body));
 		strcat(res , buf);
 		strcat(res , body);
-	}
-	else
-	{
+	}else{
 		strcat(res , "\r\n");
 	}
 	callid ++;

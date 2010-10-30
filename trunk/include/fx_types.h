@@ -46,6 +46,7 @@ typedef struct
 	GtkWidget* loginbutton;
 	GtkWidget* userlabel;
 	GtkWidget* passlabel;
+	GtkWidget* statusLabel;
 	GtkWidget* statecombo;
 	GtkWidget* remember;
 	GtkWidget* proxyBtn;

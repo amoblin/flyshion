@@ -133,11 +133,11 @@ Contact* fetion_contact_get_contact_info(User* user , const char* userid)
 {
 	FetionSip* sip = user->sip;
 	char *res , *body , *pos;
+	char *cur;
 	Contact* contact;
 	xmlChar* cs;
 	xmlDocPtr doc;
 	xmlNodePtr node;
-	int n;
 	contact = fetion_contact_list_find_by_userid(user->contactList , userid);
 	body = generate_contact_info_body(userid);
 	fetion_sip_set_type(sip , SIP_SERVICE);
@@ -159,15 +159,13 @@ Contact* fetion_contact_get_contact_info(User* user , const char* userid)
 	if(xmlHasProp(node , BAD_CAST "carrier-region")){
 		cs = xmlGetProp(node , BAD_CAST "carrier-region");
 		pos = (char*)cs;
-		n = strlen(pos) - strlen(strstr(pos , "."));
-		strncpy(contact->country , pos , n);
-		pos = strstr(pos , ".") + 1;
-		n = strlen(pos) - strlen(strstr(pos , "."));
-		strncpy(contact->province , pos , n);
-		pos = strstr(pos , ".") + 1;
-		n = strlen(pos) - strlen(strstr(pos , "."));
-		strncpy(contact->city , pos , n);
-		contact->city[n] = 0;
+
+		for(cur = contact->country;*pos && *pos != '.';*cur ++ = *pos ++);
+		*cur = '\0'; pos ++;
+		for(cur = contact->province;*pos && *pos != '.';*cur ++ = *pos ++);
+		*cur = '\0'; pos ++;
+		for(cur = contact->city;*pos && *pos != '.';*cur ++ = *pos ++);
+		*cur = '\0';
 		xmlFree(cs);
 		free(res);
 	}

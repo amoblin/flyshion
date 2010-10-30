@@ -380,7 +380,8 @@ int parse_sipc_auth_response(const char* auth_response , User* user, int *group_
 		parse_add_buddy_verification(user , auth_response);
 		return 2;
 	}else{
-		debug_error("Sipc authentication failed");
+		debug_error("Sipc authentication failed\n");
+		printf("%s\n", auth_response);
 		return -1;
 	}
 	if(!strstr(auth_response, "\r\n\r\n"))

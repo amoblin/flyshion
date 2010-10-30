@@ -1,3 +1,28 @@
+2010-10-24 levin <levin108@gmail.com>
+
+	* 修复了登录和运行时的崩溃问题
+	* 修复了群发短信时的崩溃问题
+	* 修复了添加好友时的崩溃问题
+	* 添加了数据本地化，实现了离线登录功能
+	* 添加了断线自动重连功能
+	* 添加了空闲时间自动离开功能
+	* 添加了关闭上线提示的功能
+	* 优化了登录过程，登录速度更快
+	* 更换了新版图标，更美观
+
+2010-9-25 levin <levin108@gmail.com>
+
+	* 修复了旧版本登录过程中出现的各种崩溃的问题
+	* 修复了查看聊天记录崩溃的问题
+	* 修复了查看群功能使用中的崩溃问题
+	* 更换了图标及提示音，解决了资源文件的版权问题
+	* 去掉了之前的自绘主题
+	* 添加了离线不接收飞信信息的功能
+	* 添加了发送失败提示功能
+	* 添加了断线提示功能
+	* 添加了多种常用快捷键
+	* 对界面做了一些优化，使更美观
+
 2010-08-14  gettextize  <bug-gnu-gettext@gnu.org>
 
 	* configure.ac (AC_CONFIG_FILES): Add po/Makefile.in.
@@ -11,6 +36,17 @@
 	* Makefile.am (ACLOCAL_AMFLAGS): New variable.
 	(EXTRA_DIST): Add m4/ChangeLog.
 	* configure.ac (AC_CONFIG_FILES): Add po/Makefile.in.
+
+2010-7-20 levin <levin108@gmail.com>
+
+	* 添加了联系人搜索功能
+	* 添加了聊天记录导出功能
+	* 修复了系统消息导致程序崩溃的bug
+	* 可选择窗体不隐藏到托盘图标
+	* 增加了聊天窗口关闭快捷键CTRL+Q
+	* 修复了表情提示框的bug
+	* 更换了主题图标
+	* 优化了代码
 
 2010-6-7 levin <levin108@gmail.com>
 	
