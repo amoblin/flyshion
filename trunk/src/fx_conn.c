@@ -272,7 +272,7 @@ login:
 	   	user->loginStatus == 404){
 		debug_info("password ERROR!!!");
 		fx_login_show_err(fxlogin,
-			_("Login failed. Incorrect cell phone number or password"));
+			_("Login failed. \nIncorrect cell phone number or password"));
 		goto failed;
 	}
 	

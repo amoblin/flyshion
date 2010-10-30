@@ -1150,11 +1150,6 @@ static void fx_tree_on_double_click(GtkTreeView *treeview
 		g_free(sipuri);
 		g_free(mobileno);
 		g_free(carrier);
-	}else{
-		if(gtk_tree_view_row_expanded(treeview , path))
-			gtk_tree_view_collapse_row(treeview , path);
-		else
-			gtk_tree_view_expand_row(treeview , path , TRUE);
 	}
 }
 static gboolean fx_tree_on_rightbutton_click(GtkWidget* UNUSED(tree)
@@ -1167,9 +1162,8 @@ static gboolean fx_tree_on_rightbutton_click(GtkWidget* UNUSED(tree)
 	FxTree       *fxtree = NULL;
 	int depth;
 
-	if(event->type == GDK_BUTTON_PRESS && event->button == 3)
+	if(event->type == GDK_BUTTON_PRESS)
 	{
-
 		fxmain = (FxMain*)data;
 		fxtree = fxmain->mainPanel;
 		model = gtk_tree_view_get_model(GTK_TREE_VIEW(fxtree->treeView));
@@ -1182,13 +1176,24 @@ static gboolean fx_tree_on_rightbutton_click(GtkWidget* UNUSED(tree)
 			return FALSE;
 
 		depth = gtk_tree_path_get_depth(path);
-		if(depth == 2){
-			fx_tree_create_buddy_menu(fxmain , fxtree->treeView , path , event , iter);
-		}else{
-			fx_tree_create_group_menu(fxmain , fxtree->treeView , event , iter);
+
+		if(event->button == 3){
+			if(depth == 2)
+				fx_tree_create_buddy_menu(fxmain , fxtree->treeView , path , event , iter);
+			else
+				fx_tree_create_group_menu(fxmain , fxtree->treeView , event , iter);
+			
+			gtk_tree_path_free(path);
+			return TRUE;
+		}else if(event->button == 1){
+			if(depth == 2)
+				return FALSE;
+			if(gtk_tree_view_row_expanded(GTK_TREE_VIEW(fxtree->treeView) , path))
+				gtk_tree_view_collapse_row(GTK_TREE_VIEW(fxtree->treeView) , path);
+			else
+				gtk_tree_view_expand_row(GTK_TREE_VIEW(fxtree->treeView) , path , TRUE);
+			return TRUE;
 		}
-		gtk_tree_path_free(path);
-		return TRUE;
 	}
 	return FALSE;
 }
@@ -1213,9 +1218,11 @@ static void* update_contact_info(void *data)
 	gdk_threads_enter();
 	res = fetion_config_get_province_name(contact->province);
 	gtk_entry_set_text(GTK_ENTRY(fxprofile->province_entry) , res == NULL ? _("Unknown") : res);
+	update();
 	free(res);
 	res = fetion_config_get_city_name(contact->province , contact->city);
 	gtk_entry_set_text(GTK_ENTRY(fxprofile->city_entry) , res == NULL ? _("Unknown") : res);
+	update();
 	free(res);
 	gdk_threads_leave();
 
@@ -1239,7 +1246,7 @@ static void fx_tree_on_profilemenu_clicked(GtkWidget* UNUSED(widget) , gpointer 
 
 	if(contact){
 		fx_profile_bind(fxprofile , contact);
-		if(strlen(contact->province) == 0)
+		if(strlen(contact->province) == 0 && fxmain->user->state != P_OFFLINE)
 			g_thread_create(update_contact_info, fxprofile, FALSE, NULL);
 	}
 

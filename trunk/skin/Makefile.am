@@ -29,6 +29,7 @@ skin_DATA = bigimage.png \
 			online.svg \
 			busy.svg \
 			offline.svg \
+			openfetion.png \
 			away.svg \
 			invisible.svg \
 			portrait.png \
