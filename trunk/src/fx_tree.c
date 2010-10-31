@@ -421,7 +421,7 @@ static GtkTreeModel* create_model(User* user)
 	GtkTreeStore  *store = NULL;
 	GtkTreeIter    iter;
 	GtkTreeIter    iter1;
-	gchar         *sid;
+	gchar         *sid = NULL;
 	gchar         *name;
 	gchar          path[1024];
 	gint           count;

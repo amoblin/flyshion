@@ -306,10 +306,10 @@ char* fetion_sip_get_pgid_by_sipuri(const char *pgsipuri)
 
 int fetion_sip_get_attr(const char* sip , const char* name , char* result)
 {
-	char m_name[5];
+	char m_name[16];
 	char* pos;
 	int n;
-	bzero(m_name , sizeof(m_name));
+
 	sprintf(m_name , "%s: " , name);
 	if(strstr(sip , m_name) == NULL)
 		return -1;
@@ -377,7 +377,7 @@ char* fetion_sip_get_response(FetionSip* sip)
 {
 	char *res;
 	unsigned int len , n , c , c1;
-	char buf[2048];
+	char buf[4096];
 
 	memset(buf , 0 , sizeof(buf));
 
@@ -388,15 +388,16 @@ char* fetion_sip_get_response(FetionSip* sip)
 
 	len = fetion_sip_get_length(buf);
 
-	if(strstr(buf , "\r\n\r\n") == NULL)
-		return NULL;
+	while(strstr(buf , "\r\n\r\n") == NULL && c < sizeof(buf))
+		c += tcp_connection_recv(sip->tcp, buf + c, sizeof(buf) - c - 1);
+	
 
 	n = strlen(buf) - strlen(strstr(buf , "\r\n\r\n") + 4);
 	len += n;
 	res = (char*)malloc(len + 1);
-	memset(res , 0 , len + 1);
 	if(res == NULL)
 		return NULL;
+	memset(res , 0 , len + 1);
 	strcpy(res , buf);
 	if(c < len)
 	   	for(;;){
@@ -1213,10 +1214,10 @@ void fetion_sip_get_auth_attr(const char* auth , char** ipaddress , int* port , 
 	char* pos = strstr(auth , "address=\"") + 9;
 	int n = strlen(pos) - strlen(strstr(pos , ":"));
 	char port_str[6] = { 0 };
-	*credential = (char*)malloc(48);
-	memset(*credential , 0 , 48);
-	*ipaddress = (char*)malloc(18);
-	memset(*ipaddress , 0 , 18);
+	*credential = (char*)malloc(256);
+	memset(*credential , 0 , 256);
+	*ipaddress = (char*)malloc(256);
+	memset(*ipaddress , 0 , 256);
 	strncpy(*ipaddress , pos , n);
 	pos = strstr(pos , ":") + 1;
 	n = strlen(pos) - strlen(strstr(pos , ";"));

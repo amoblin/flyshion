@@ -534,8 +534,8 @@ auth:
 	gdk_threads_leave();
 
 	/* start sending keep alive request periodically */
-	g_timeout_add_seconds(60 , (GSourceFunc)fx_main_register_func , user);
-	g_timeout_add_seconds(3 , (GSourceFunc)fx_main_check_func , fxmain);
+	g_timeout_add_seconds(70 , (GSourceFunc)fx_main_register_func , user);
+	g_timeout_add_seconds(5 , (GSourceFunc)fx_main_check_func , fxmain);
 
 	g_thread_exit(0);
 failed:

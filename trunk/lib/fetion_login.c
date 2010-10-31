@@ -230,12 +230,16 @@ char* sipc_reg_action(User* user)
 			 , sip->tcp->remote_ipaddress , sip->tcp->remote_port);
 	tcp_connection_send(sip->tcp , sipmsg , strlen(sipmsg));
 	free(sipmsg);
+#if 0
 	sipmsg = (char*)malloc(1024);
 	memset(sipmsg, 0 , 1024);
 	if(tcp_connection_recv(sip->tcp , sipmsg , 1023) <= 0){
 		debug_info("Network error occured here");
 		return NULL;
 	}
+#endif
+	sipmsg = fetion_sip_get_response(sip);
+
 	return sipmsg;
 }
 char* sipc_aut_action(User* user , const char* response)
