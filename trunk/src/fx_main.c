@@ -1526,7 +1526,7 @@ gboolean fx_main_check_func(FxMain* fxmain)
 		now_t = mktime(now);
 		msg_time_t = mktime(&(list->message->sendtime));
 		seconds = (long)now_t - (long)msg_time_t;
-		if(seconds > 10) {
+		if(seconds > 20) {
 			unacked_list_remove(unackedlist , list);
 			msg = contruct_message_sip(fxmain->user->sId , list->message);
 			fx_main_process_message(fxmain , fxmain->user->sip , msg);
