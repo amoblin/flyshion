@@ -461,7 +461,7 @@ int fetion_config_load(User *user)
 		return -1;
 	}
 
-	sprintf(sql, "select onlineNotify from config");
+	sprintf(sql, "select CloseSysMsg from config");
 	if(sqlite3_get_table(db, sql, &sqlres
 						, &nrows, &ncols, &errMsg)){
 		sqlite3_close(db);
@@ -496,6 +496,7 @@ int fetion_config_load(User *user)
 	config->autoAway = atoi(sqlres[ncols+18]);
 	config->autoAwayTimeout = atoi(sqlres[ncols+19]);
 	config->onlineNotify = atoi(sqlres[ncols+20]);
+	config->closeSysMsg = atoi(sqlres[ncols+21]);
 
 	sqlite3_close(db);
 	return 1;
@@ -532,7 +533,7 @@ recreate:
 				"sendMode,closeMode,canIconify,allHighlight,"
 				"serversVersion,paremetersVersion,"
 				"hintsVersion,autoAway,autoAwayTimeout,"
-				"onlineNotify);");
+				"onlineNotify,closeSysMsg);");
 		count ++;
 		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
 			debug_error("create table config:%s",
@@ -547,7 +548,7 @@ recreate:
 	sprintf(sql, "insert into config values ("
 				"'%s',%d,'%s','%s',%d,%d,%d,"
 				"%d,'%s',%d,%d,%d,%d,%d,%d,"
-				"'%s','%s','%s',%d,%d,%d);",
+				"'%s','%s','%s',%d,%d,%d,%d);",
 				config->sipcProxyIP,
 				config->sipcProxyPort,
 				config->portraitServerName,
@@ -568,7 +569,8 @@ recreate:
 				config->configHintsVersion,
 				config->autoAway,
 				config->autoAwayTimeout,
-				config->onlineNotify);
+				config->onlineNotify,
+				config->closeSysMsg);
 	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
 		debug_error("save config:%s",
 					sqlite3_errmsg(db));

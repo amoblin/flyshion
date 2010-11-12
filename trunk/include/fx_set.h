@@ -71,6 +71,11 @@ typedef enum {
 	ONLINE_NOTIFY_DISABLE
 } OnlineNotify;
 
+typedef enum {
+	CLOSE_SYSMSG_DISABLE,
+	CLOSE_SYSMSG_ENABLE
+} CloseSysMsg;
+
 extern FxSet* fx_set_new(FxMain* fxmain);
 
 extern void fx_set_initialize(FxSet* fxset);

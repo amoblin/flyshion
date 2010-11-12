@@ -82,6 +82,11 @@ static void fx_set_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 		else
 			config->onlineNotify = ONLINE_NOTIFY_DISABLE;
 
+		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxset->closeSysMsgBtn)))
+			config->closeSysMsg = CLOSE_SYSMSG_ENABLE;
+		else
+			config->closeSysMsg = CLOSE_SYSMSG_DISABLE;
+
 		gtk_text_buffer_get_start_iter(buffer , &startIter);
 		gtk_text_buffer_get_end_iter(buffer , &endIter);
 		autoReplyMsg = gtk_text_buffer_get_text(buffer , &startIter , &endIter , TRUE);
@@ -256,6 +261,11 @@ void fx_set_bind_system(FxSet* fxset)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->onlineNotifyBtn), TRUE);
 	else
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->onlineNotifyBtn), FALSE);
+
+	if(config->closeSysMsg == CLOSE_SYSMSG_ENABLE)
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->closeSysMsgBtn), TRUE);
+	else
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->closeSysMsgBtn), FALSE);
 
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(fxset->apEty));
 	gtk_text_buffer_get_start_iter(buffer , &startIter);
@@ -458,6 +468,9 @@ void fx_set_initialize_system(FxSet* fxset)
 
 	fxset->onlineNotifyBtn = gtk_check_button_new_with_label(_("Online notification enabled"));
 	gtk_fixed_put(GTK_FIXED(fixed) , fxset->onlineNotifyBtn , 40 , 117);
+
+	fxset->closeSysMsgBtn = gtk_check_button_new_with_label(_("Disable System Message"));
+	gtk_fixed_put(GTK_FIXED(fixed), fxset->closeSysMsgBtn, 230, 117);
 
 	label2 = gtk_label_new("");
 	gtk_label_set_markup(GTK_LABEL(label2) , _("<b>Auto Reply</b>"));
