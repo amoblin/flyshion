@@ -588,6 +588,8 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const gchar* sipm
 	/* system message */
 	if(strlen(sid) < 5 || strcmp(sid , "10000") == 0){
 		g_free(sid);
+		if(config->closeSysMsg == CLOSE_ALERT_ENABLE)
+			return;
 		gdk_threads_enter();
 		process_system_message(sipmsg);
 		gdk_threads_leave();
@@ -720,7 +722,7 @@ FxChat* fx_main_create_chat_window(FxMain* fxmain , const gchar* sipuri)
 		if(!contact)
 			return NULL;
 		/* replace the sipuri*/
-		bzero(contact->sipuri , sizeof(contact->sipuri));
+		memset(contact->sipuri, 0, sizeof(contact->sipuri));
 		strcpy(contact->sipuri , sipuri);
 		fetion_contact_list_append(fxmain->user->contactList , contact);
 		conv = fetion_conversation_new(fxmain->user , sipuri , NULL);
