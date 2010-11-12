@@ -541,10 +541,12 @@ static void popup_msg_notify(FxMain *fxmain, Contact *senderContact, Message *ms
 			notify_notification_update(fxmain->notify,
 					notifySum, msg->message , NULL);
 
-			if(notifyIcon)
-				notify_notification_set_icon_from_pixbuf(
-						fxmain->notify , notifyIcon);
+			if(!notifyIcon)
+				notifyIcon = gdk_pixbuf_new_from_file_at_size(
+						SKIN_DIR"fetion.svg", 48, 48, NULL);
 
+			notify_notification_set_icon_from_pixbuf(
+						fxmain->notify , notifyIcon);
 			notify_notification_show(fxmain->notify , NULL);
 			g_object_unref(notifyIcon);
 		}
