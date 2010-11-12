@@ -1468,7 +1468,6 @@ void fx_main_message_func(GtkWidget *UNUSED(widget) , gpointer data)
 			    g_print("%s:%s\n" , msg->sipuri ,  msg->message);
 			    continue;
 		    }
-
 		    fx_chat_add_message(fxchat , msg->message,
 					&(msg->sendtime) , 0 , msg->sysback);
 		}else{
@@ -1499,6 +1498,13 @@ void fx_main_message_func(GtkWidget *UNUSED(widget) , gpointer data)
 						 , "activate"
 						 , GTK_SIGNAL_FUNC(fx_main_tray_activate_func)
 						 , fxmain);
+
+	foreach_list(fxmain->clist, cur){
+		fxchat = (FxChat*)cur->data;
+		if(fxchat->unreadMsgCount != 0)
+			gtk_window_present(GTK_WINDOW(fxchat->dialog));
+
+	}
 }
 gboolean fx_main_register_func(User* user)
 {
