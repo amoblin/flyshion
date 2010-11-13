@@ -401,6 +401,7 @@ typedef struct
 	GtkWidget *autoAwayBtn;
 	GtkWidget *onlineNotifyBtn;
 	GtkWidget *closeSysMsgBtn;
+	GtkWidget *closeShowBtn;
 	/* personal setting */
 	GtkWidget* image ;
 	GtkWidget* sid_label ;

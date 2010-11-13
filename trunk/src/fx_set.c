@@ -87,6 +87,11 @@ static void fx_set_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 		else
 			config->closeSysMsg = CLOSE_SYSMSG_DISABLE;
 
+		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxset->closeShowBtn)))
+			config->closeFetionShow = CLOSE_FETION_SHOW_ENABLE;
+		else
+			config->closeFetionShow = CLOSE_FETION_SHOW_DISABLE;
+
 		gtk_text_buffer_get_start_iter(buffer , &startIter);
 		gtk_text_buffer_get_end_iter(buffer , &endIter);
 		autoReplyMsg = gtk_text_buffer_get_text(buffer , &startIter , &endIter , TRUE);
@@ -266,6 +271,11 @@ void fx_set_bind_system(FxSet* fxset)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->closeSysMsgBtn), TRUE);
 	else
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->closeSysMsgBtn), FALSE);
+
+	if(config->closeFetionShow == CLOSE_FETION_SHOW_ENABLE)
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->closeShowBtn), TRUE);
+	else
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->closeShowBtn), FALSE);
 
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(fxset->apEty));
 	gtk_text_buffer_get_start_iter(buffer , &startIter);
@@ -472,17 +482,20 @@ void fx_set_initialize_system(FxSet* fxset)
 	fxset->closeSysMsgBtn = gtk_check_button_new_with_label(_("Disable System Message"));
 	gtk_fixed_put(GTK_FIXED(fixed), fxset->closeSysMsgBtn, 230, 117);
 
+	fxset->closeShowBtn = gtk_check_button_new_with_label(_("Disable Fetion Show"));
+	gtk_fixed_put(GTK_FIXED(fixed), fxset->closeShowBtn, 40, 139);
+
 	label2 = gtk_label_new("");
 	gtk_label_set_markup(GTK_LABEL(label2) , _("<b>Auto Reply</b>"));
-	gtk_fixed_put(GTK_FIXED(fixed) , label2 , 20 , 142);
+	gtk_fixed_put(GTK_FIXED(fixed) , label2 , 20 , 167);
 
 	fxset->apBtn = gtk_check_button_new_with_label(_("Enable"));
 	g_signal_connect(fxset->apBtn , "toggled" , G_CALLBACK(fx_set_on_autoreply_toggled) , fxset);
-	gtk_fixed_put(GTK_FIXED(fixed) , fxset->apBtn , 140 , 142);
+	gtk_fixed_put(GTK_FIXED(fixed) , fxset->apBtn , 140 , 167);
 
 	fxset->apEty = gtk_text_view_new();
 	gtk_widget_set_sensitive(fxset->apEty , FALSE);
-	gtk_widget_set_usize(fxset->apEty , 380 , 40);
+	gtk_widget_set_usize(fxset->apEty , 380 , 20);
 	apScr = gtk_scrolled_window_new(NULL , NULL);
 	gtk_container_add(GTK_CONTAINER(apScr) , fxset->apEty);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(apScr)
@@ -490,17 +503,17 @@ void fx_set_initialize_system(FxSet* fxset)
 								 , GTK_POLICY_NEVER);
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(apScr)
 									  , GTK_SHADOW_ETCHED_IN);
-	gtk_fixed_put(GTK_FIXED(fixed) , apScr , 40 , 165);
+	gtk_fixed_put(GTK_FIXED(fixed) , apScr , 40 , 192);
 
 	label3 = gtk_label_new("");
 	gtk_label_set_markup(GTK_LABEL(label3) , _("<b>Send Message</b>"));
-	gtk_fixed_put(GTK_FIXED(fixed) , label3 , 20 , 212);
+	gtk_fixed_put(GTK_FIXED(fixed) , label3 , 20 , 222);
 
 	fxset->etBtn = gtk_radio_button_new_with_label(NULL , _("Press Enter to Send"));
-	gtk_fixed_put(GTK_FIXED(fixed) , fxset->etBtn , 40 , 230);
+	gtk_fixed_put(GTK_FIXED(fixed) , fxset->etBtn , 40 , 240);
 	gl = gtk_radio_button_get_group(GTK_RADIO_BUTTON(fxset->etBtn));
 	fxset->ctBtn = gtk_radio_button_new_with_label(gl , _("Press CTRL + Enter to Send"));
-	gtk_fixed_put(GTK_FIXED(fixed) , fxset->ctBtn , 40 , 250);
+	gtk_fixed_put(GTK_FIXED(fixed) , fxset->ctBtn , 40 , 260);
 
 	gtk_box_pack_start_defaults(GTK_BOX(fxset->ssetting) , fixed);
 
