@@ -33,6 +33,10 @@ extern int fetion_config_download_configuration(User* user);
 
 extern int fetion_config_initialize(Config* config , const char* userid);
 
+extern int fetion_config_load_size(Config *config);
+
+extern int fetion_config_save_size(Config *config);
+
 extern int fetion_config_load(User* user);
 
 extern Proxy* fetion_config_load_proxy();

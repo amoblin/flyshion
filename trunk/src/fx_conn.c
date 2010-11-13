@@ -474,10 +474,6 @@ auth:
 
 	fx_login_show_msg(fxlogin , _("Login sucessful"));
 
-	gdk_threads_enter();
-	gtk_window_set_resizable(GTK_WINDOW(fxmain->window) , TRUE);
-	gdk_threads_leave();
-
 	/*if there is not a buddylist name "Ungrouped" or "Strangers", create one */
 	if(fetion_group_list_find_by_id(user->groupList,
 			BUDDY_LIST_NOT_GROUPED) == NULL &&
@@ -511,6 +507,14 @@ auth:
 	/* initialize bottom panel */
 	gdk_threads_enter();
 	fx_bottom_initialize(fxmain);
+	gdk_threads_leave();
+
+	gdk_threads_enter();
+	gtk_window_set_resizable(GTK_WINDOW(fxmain->window) , TRUE);
+	fetion_config_load_size(config);
+	gtk_window_resize(GTK_WINDOW(fxmain->window),
+		   	config->window_width,
+			config->window_height);
 	gdk_threads_leave();
 
 	/* set tooltip of status icon */
