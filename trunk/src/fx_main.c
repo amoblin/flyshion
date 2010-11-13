@@ -1095,7 +1095,6 @@ gboolean fx_main_window_state_func(GtkWidget *widget
 			if(config->canIconify == ICON_CAN){
 				gtk_window_get_position(GTK_WINDOW(widget)
 						, &window_pos_x_old , &window_pos_y_old);
-				gtk_widget_hide(widget);
 				return TRUE;
 			}else{
 				return FALSE;
@@ -1123,6 +1122,7 @@ void fx_main_tray_activate_func(GtkWidget *UNUSED(widget) , gpointer data)
 			gtk_window_iconify(GTK_WINDOW(fxmain->window));
 			gtk_window_get_position(GTK_WINDOW(fxmain->window)
 					, &window_pos_x_old , &window_pos_y_old);
+			gtk_widget_hide(fxmain->window);
 		}
 	}
     else{
