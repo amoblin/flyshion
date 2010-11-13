@@ -441,6 +441,87 @@ static int parse_configuration_xml(User *user, const char *xml)
 	return 1;
 }
 
+int fetion_config_load_size(Config *config)
+{
+	char path[256];
+	char sql[4096];
+	char *errMsg;
+	char **sqlres;
+	sqlite3 *db;
+	int ncols, nrows;
+
+	sprintf(path, "%s/data.db",
+				   	config->globalPath);
+
+	if(sqlite3_open(path, &db)){
+		debug_error("open data.db:%s",
+					sqlite3_errmsg(db));
+		return -1;
+	}
+
+	sprintf(sql, "select * from size;");
+	if(sqlite3_get_table(db, sql, &sqlres
+						, &nrows, &ncols, &errMsg)){
+		sqlite3_close(db);
+		return -1;
+	}
+
+	config->window_width = atoi(sqlres[ncols]);
+	config->window_height = atoi(sqlres[ncols+1]);
+	config->window_pos_x = atoi(sqlres[ncols+2]);
+	config->window_pos_y = atoi(sqlres[ncols+3]);
+
+	sqlite3_close(db);
+	return 1;
+}
+
+int fetion_config_save_size(Config *config)
+{
+	char path[256];
+	char sql[4096];
+	sqlite3 *db;
+	char *errMsg = NULL;
+	int count = 0;
+
+	sprintf(path , "%s/data.db" , config->globalPath);
+
+	if(sqlite3_open(path, &db)){
+		debug_error("failed to load user list");
+		return -1;
+	}
+
+	sprintf(sql, "delete from size;");
+	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+		sprintf(sql, "create table size ("
+				"window_width,window_height,"
+				"window_pos_x,window_pos_y);");
+		count ++;
+		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+			debug_error("create table size:%s",
+							sqlite3_errmsg(db));
+			if(count == 2){
+				sqlite3_close(db);
+				return -1;
+			}
+		}
+	}
+
+	sprintf(sql, "insert into size values ("
+				"%d,%d,%d,%d);",
+				config->window_width,
+				config->window_height,
+				config->window_pos_x,
+				config->window_pos_y);
+	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+		debug_error("save size:%s",
+					sqlite3_errmsg(db));
+		sqlite3_close(db);
+		return -1;
+	}
+	sqlite3_close(db);
+	return 1;
+}
+
 int fetion_config_load(User *user)
 {
 	char path[256];
@@ -461,14 +542,7 @@ int fetion_config_load(User *user)
 		return -1;
 	}
 
-	sprintf(sql, "select closeFetionShow from config");
-	if(sqlite3_get_table(db, sql, &sqlres
-						, &nrows, &ncols, &errMsg)){
-		sqlite3_close(db);
-		return -1;
-	}
-
-	sprintf(sql, "select * from config;");
+	sprintf(sql, "select * from config_2_0_2;");
 	if(sqlite3_get_table(db, sql, &sqlres
 						, &nrows, &ncols, &errMsg)){
 		sqlite3_close(db);
@@ -523,10 +597,10 @@ int fetion_config_save(User *user)
 		return -1;
 	}
 
-	sprintf(sql, "delete from config;");
+	sprintf(sql, "delete from config_2_0_2;");
 	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
 recreate:
-		sprintf(sql, "create table config ("
+		sprintf(sql, "create table config_2_0_2 ("
 				"sipcProxyIP,sipcProxyPort,"
 				"portraitServerName,portraitServerPath,"
 				"iconSize,closeAlert,autoReply,isMute,"
@@ -546,7 +620,7 @@ recreate:
 		}
 	}
 
-	sprintf(sql, "insert into config values ("
+	sprintf(sql, "insert into config_2_0_2 values ("
 				"'%s',%d,'%s','%s',%d,%d,%d,"
 				"%d,'%s',%d,%d,%d,%d,%d,%d,"
 				"'%s','%s','%s',%d,%d,%d,%d,%d);",
@@ -577,7 +651,7 @@ recreate:
 		debug_error("save config:%s",
 					sqlite3_errmsg(db));
 
-		sprintf(sql1, "drop table config;");
+		sprintf(sql1, "drop table config_2_0_2;");
 		if(sqlite3_exec(db, sql1, NULL, NULL, &errMsg)){
 			debug_error("drop table config:%s",
 						sqlite3_errmsg(db));

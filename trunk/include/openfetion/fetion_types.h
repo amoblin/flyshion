@@ -324,6 +324,11 @@ typedef struct
 	int closeSysMsg;
 	int closeFetionShow;
 
+	int window_width;
+	int window_height;
+	int window_pos_x;
+	int window_pos_y;
+
 	char configServersVersion[16];		/* the version of some related servers such as sipc server	*/
 	char configParametersVersion[16];
 	char configHintsVersion[16];		/* the version of hints										*/

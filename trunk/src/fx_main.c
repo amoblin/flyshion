@@ -55,6 +55,7 @@ FxMain* fx_main_new()
 	fxmain->pglist = fx_list_new(NULL);
 	return fxmain;
 }
+
 #if 0
 static void fx_main_position_func(GtkWidget *UNUSED(widget) , GdkEventConfigure *event ,
                                     gpointer UNUSED(user_data)){
@@ -67,6 +68,7 @@ void fx_main_initialize(FxMain* fxmain)
 {
 	int window_width , window_height;
 	GdkScreen *screen;
+	Config    *config;
 
 	fxmain->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_widget_set_name(fxmain->window , "mainwindow");
@@ -74,10 +76,18 @@ void fx_main_initialize(FxMain* fxmain)
 
 
 	screen = gdk_screen_get_default();
-	window_width = gdk_screen_get_width(screen);
-	window_height = gdk_screen_get_height(screen);
-	window_pos_x = window_width - WINDOW_WIDTH - 200;
-	window_pos_y = (window_height - WINDOW_HEIGHT) / 2;
+	config = fetion_config_new();
+	fetion_config_load_size(config);
+	if(config->window_width == 0){
+		window_width = gdk_screen_get_width(screen);
+		window_height = gdk_screen_get_height(screen);
+		window_pos_x = window_width - WINDOW_WIDTH - 200;
+		window_pos_y = (window_height - WINDOW_HEIGHT) / 2;
+	}else{
+		window_pos_x = config->window_pos_x;
+		window_pos_y = config->window_pos_y;
+	}
+	fetion_config_free(config);
 
 	gtk_window_move(GTK_WINDOW(fxmain->window) , window_pos_x , window_pos_y);
 	gtk_container_set_border_width(GTK_CONTAINER(fxmain->window) , 0);
@@ -996,20 +1006,39 @@ void fx_main_process_addbuddyapplication(FxMain* fxmain , const char* sipmsg)
 	strcpy(args->sipmsg , sipmsg);
 	g_thread_create(fx_main_process_addbuddyapplication_thread , args , FALSE , NULL);
 }
-void fx_main_destroy(GtkWidget* UNUSED(widget) , gpointer UNUSED(data))
+void fx_main_destroy(GtkWidget* UNUSED(widget) , gpointer data)
 {
+	FxMain *fxmain = (FxMain*)data;
+	User   *user = fxmain->user;
+	Config *config = user->config;
+
+	fetion_config_save_size(config);
 	gtk_main_quit();
 }
 gboolean fx_main_delete(GtkWidget *widget , GdkEvent *UNUSED(event) , gpointer data)
 {
 	FxMain *fxmain = (FxMain*)data;
 	FxClose *fxclose;
-	Config *config;;
+	Config *config;
 
 	int ret;
 
+	int     window_width;
+	int     window_height;
+	int     window_x;
+	int     window_y;
+
+	config = fxmain->user->config;
+	gtk_window_get_position(GTK_WINDOW(fxmain->window),
+			&window_x, &window_y);
+	config->window_pos_x = window_x;
+	config->window_pos_y = window_y;
+	gtk_window_get_size(GTK_WINDOW(fxmain->window),
+			&window_width, &window_height);
+	config->window_width = window_width;
+	config->window_height = window_height;
+
 	if(fxmain->user){
-		config = fxmain->user->config;
 		if(config->closeAlert == CLOSE_ALERT_ENABLE){
 			fxclose = fx_close_new(fxmain);
 			fx_close_initialize(fxclose);
@@ -1036,7 +1065,7 @@ gboolean fx_main_delete(GtkWidget *widget , GdkEvent *UNUSED(event) , gpointer d
 			}
 		}
 	}else{
-		fx_main_destroy(widget , NULL);
+		fx_main_destroy(widget , fxmain);
 		return FALSE;
 	}
 
