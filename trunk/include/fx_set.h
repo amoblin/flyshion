@@ -76,6 +76,11 @@ typedef enum {
 	CLOSE_SYSMSG_ENABLE
 } CloseSysMsg;
 
+typedef enum {
+	CLOSE_FETION_SHOW_DISABLE,
+	CLOSE_FETION_SHOW_ENABLE
+} CloseFetionShow;
+
 extern FxSet* fx_set_new(FxMain* fxmain);
 
 extern void fx_set_initialize(FxSet* fxset);

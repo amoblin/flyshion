@@ -494,7 +494,7 @@ static void process_group_message(FxMain *fxmain , Message *message)
 		    }
 		}
 		sid = fetion_sip_get_pgid_by_sipuri(message->pguri);
-		snprintf(path , 1023 , "%s/PG%s.jpg" , config->iconPath , sid);
+		snprintf(path , sizeof(path) - 1 , "%s/PG%s.jpg" , config->iconPath , sid);
 		g_free(sid);
 		pixbuf = gdk_pixbuf_new_from_file(path , NULL);
 		if(pixbuf == NULL)
@@ -588,7 +588,7 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const gchar* sipm
 	/* system message */
 	if(strlen(sid) < 5 || strcmp(sid , "10000") == 0){
 		g_free(sid);
-		if(config->closeSysMsg == CLOSE_ALERT_ENABLE)
+		if(config->closeSysMsg == CLOSE_SYSMSG_ENABLE)
 			return;
 		gdk_threads_enter();
 		process_system_message(sipmsg);

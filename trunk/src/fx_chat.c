@@ -404,7 +404,10 @@ void fx_chat_initialize(FxChat* fxchat)
 
 	fxchat->dialog = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_modal(GTK_WINDOW(fxchat->dialog) , FALSE);
-	gtk_window_set_default_size(GTK_WINDOW(fxchat->dialog) , 600 , 430);
+	if(config->closeFetionShow == CLOSE_FETION_SHOW_DISABLE)
+		gtk_window_set_default_size(GTK_WINDOW(fxchat->dialog) , 600 , 430);
+	else
+		gtk_window_set_default_size(GTK_WINDOW(fxchat->dialog) , 550 , 430);
 	gtk_widget_set_size_request(fxchat->dialog , 550 , 0);
 	gtk_container_set_border_width(GTK_CONTAINER(fxchat->dialog) , 10);
 	fx_chat_update_window(fxchat);
@@ -582,37 +585,37 @@ void fx_chat_initialize(FxChat* fxchat)
 
 	g_signal_connect(fxchat->dialog , "key-press-event" , G_CALLBACK(key_press_func) , fxchat);
 	/*right box */
+	if(config->closeFetionShow == CLOSE_FETION_SHOW_DISABLE){
+		frame = gtk_frame_new(NULL);
+		gtk_frame_set_shadow_type(GTK_FRAME(frame) , GTK_SHADOW_ETCHED_IN);
+		gtk_widget_set_usize(frame , 160 , 160);
 
-	frame = gtk_frame_new(NULL);
-	gtk_frame_set_shadow_type(GTK_FRAME(frame) , GTK_SHADOW_ETCHED_IN);
-	gtk_widget_set_usize(frame , 160 , 160);
+		sprintf(portraitPath , "%s/%s.jpg" , config->iconPath , contact->sId);
+		pb = gdk_pixbuf_new_from_file_at_size(portraitPath , 140 , 140 , NULL);
+		if(!pb)
+			pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" , 140 , 140 , NULL);
 
-	sprintf(portraitPath , "%s/%s.jpg" , config->iconPath , contact->sId);
-	pb = gdk_pixbuf_new_from_file_at_size(portraitPath , 140 , 140 , NULL);
-	if(!pb)
-		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" , 140 , 140 , NULL);
+		img = gtk_image_new_from_pixbuf(pb);
+		g_object_unref(pb);
+		gtk_container_add(GTK_CONTAINER(frame) , img);
+		gtk_box_pack_start(GTK_BOX(rvbox) , frame , FALSE , FALSE , 0);
 
-	img = gtk_image_new_from_pixbuf(pb);
-	g_object_unref(pb);
-	gtk_container_add(GTK_CONTAINER(frame) , img);
-	gtk_box_pack_start(GTK_BOX(rvbox) , frame , FALSE , FALSE , 0);
+		GtkWidget *spliter = gtk_label_new(NULL);
+		gtk_box_pack_start(GTK_BOX(rvbox) , spliter , TRUE , TRUE , 0);
 
-	GtkWidget *spliter = gtk_label_new(NULL);
-	gtk_box_pack_start(GTK_BOX(rvbox) , spliter , TRUE , TRUE , 0);
-
-	frame = gtk_frame_new(NULL);
-	gtk_frame_set_shadow_type(GTK_FRAME(frame) , GTK_SHADOW_ETCHED_IN);
-	gtk_widget_set_usize(frame , 160 , 160);
-	bzero(portraitPath , sizeof(portraitPath));
-	sprintf(portraitPath , "%s/%s.jpg" , config->iconPath , user->sId);
-	pb = gdk_pixbuf_new_from_file_at_size(portraitPath , 140 , 140 , NULL);
-	if(!pb){
-		pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" , 140 , 140 , NULL);
+		frame = gtk_frame_new(NULL);
+		gtk_frame_set_shadow_type(GTK_FRAME(frame) , GTK_SHADOW_ETCHED_IN);
+		gtk_widget_set_usize(frame , 160 , 160);
+		sprintf(portraitPath , "%s/%s.jpg" , config->iconPath , user->sId);
+		pb = gdk_pixbuf_new_from_file_at_size(portraitPath , 140 , 140 , NULL);
+		if(!pb)
+			pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" , 140 , 140 , NULL);
+		
+		img = gtk_image_new_from_pixbuf(pb);
+		g_object_unref(pb);
+		gtk_container_add(GTK_CONTAINER(frame) , img);
+		gtk_box_pack_start(GTK_BOX(rvbox) , frame , FALSE , FALSE , 0);
 	}
-	img = gtk_image_new_from_pixbuf(pb);
-	g_object_unref(pb);
-	gtk_container_add(GTK_CONTAINER(frame) , img);
-	gtk_box_pack_start(GTK_BOX(rvbox) , frame , FALSE , FALSE , 0);
 
 	GTK_WIDGET_SET_FLAGS(fxchat->send_text, GTK_CAN_FOCUS);
 	gtk_widget_grab_focus(fxchat->send_text);

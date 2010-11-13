@@ -322,6 +322,7 @@ typedef struct
 	int autoAwayTimeout;
 	int onlineNotify;
 	int closeSysMsg;
+	int closeFetionShow;
 
 	char configServersVersion[16];		/* the version of some related servers such as sipc server	*/
 	char configParametersVersion[16];
