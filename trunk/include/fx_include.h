@@ -63,4 +63,5 @@
 #include "fx_smsstat.h"
 #include "fx_idle.h"
 #include "fx_conn.h"
+#include "fx_about.h"
 #endif

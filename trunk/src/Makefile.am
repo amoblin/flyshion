@@ -15,6 +15,7 @@ openfetion_LDADD=   $(LIBXML_LIBS) $(GTK_LIBS) $(GTHREAD_LIBS) $(SQLITE3_LIBS)\
 openfetion_SOURCES = fx_add_group.c \
 					 fx_addbuddy.c \
 					 fx_app.c \
+					 fx_about.c \
 					 fx_bottom.c \
 					 fx_chat.c \
 					 fx_code.c \

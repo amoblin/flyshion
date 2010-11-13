@@ -36,6 +36,7 @@ gint window_pos_y_old = 0;
 gint start_popup_presence = 0;
 extern struct unacked_list *unackedlist;
 GStaticMutex mutex = G_STATIC_MUTEX_INIT;
+GdkScreen *current_screen;
 
 static void fx_main_process_pggetgroupinfo(FxMain *fxmain , const gchar *sipmsg);
 static void fx_main_process_pgpresencechanged(FxMain *fxmain , const gchar *sipmsg);
@@ -67,7 +68,6 @@ static void fx_main_position_func(GtkWidget *UNUSED(widget) , GdkEventConfigure 
 void fx_main_initialize(FxMain* fxmain)
 {
 	int window_width , window_height;
-	GdkScreen *screen;
 	Config    *config;
 
 	fxmain->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -75,12 +75,12 @@ void fx_main_initialize(FxMain* fxmain)
 	gtk_window_set_title(GTK_WINDOW(fxmain->window) , "OpenFetion");
 
 
-	screen = gdk_screen_get_default();
+	current_screen = gdk_screen_get_default();
 	config = fetion_config_new();
 	fetion_config_load_size(config);
 	if(config->window_width == 0){
-		window_width = gdk_screen_get_width(screen);
-		window_height = gdk_screen_get_height(screen);
+		window_width = gdk_screen_get_width(current_screen);
+		window_height = gdk_screen_get_height(current_screen);
 		window_pos_x = window_width - WINDOW_WIDTH - 200;
 		window_pos_y = (window_height - WINDOW_HEIGHT) / 2;
 	}else{
@@ -1010,9 +1010,10 @@ void fx_main_destroy(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	FxMain *fxmain = (FxMain*)data;
 	User   *user = fxmain->user;
-	Config *config = user->config;
-
-	fetion_config_save_size(config);
+	if(user){
+		Config *config = user->config;
+		fetion_config_save_size(config);
+	}
 	gtk_main_quit();
 }
 gboolean fx_main_delete(GtkWidget *widget , GdkEvent *UNUSED(event) , gpointer data)
@@ -1086,12 +1087,15 @@ gboolean fx_main_window_state_func(GtkWidget *widget
 {
 	FxMain *fxmain;
 	Config *config;
+	GdkScreen *screen;
 
 	fxmain = (FxMain*)data;
 	config = fxmain->user == NULL ? NULL: fxmain->user->config;
 
 	if(config){
-		if(event->new_window_state == GDK_WINDOW_STATE_ICONIFIED){
+			if(event->changed_mask == GDK_WINDOW_STATE_ICONIFIED && 
+				event->new_window_state == GDK_WINDOW_STATE_ICONIFIED){
+			
 			if(config->canIconify == ICON_CAN){
 				gtk_window_get_position(GTK_WINDOW(widget)
 						, &window_pos_x_old , &window_pos_y_old);
@@ -1219,10 +1223,6 @@ void fx_main_tray_popmenu_func(
 	menu = gtk_menu_new();
 	fx_main_create_menu1(_("About OpenFetion") , GTK_STOCK_ABOUT
 					 , menu , fx_main_about_fetion_clicked , NULL);
-	fx_main_create_menu1(_("About Authors") , GTK_STOCK_HOME
-					 , menu , fx_main_about_author_clicked , NULL);
-	fx_main_create_menu1(_("Look for new version") , GTK_STOCK_HELP
-					 , menu , fx_main_check_update_clicked , NULL);
 
 	if(fxmain->user && fxmain->user->loginStatus != -1)
 	{
@@ -1256,9 +1256,6 @@ void fx_main_tray_popmenu_func(
 		fx_main_create_menu1(_("Information query") , GTK_STOCK_FIND
 						 , menu , fx_main_info_lookup_clicked , fxmain);
 
-		if(fxmain->user->boundToMobile == BOUND_MOBILE_ENABLE)
-			fx_main_create_menu1(_("SMS myself") , GTK_STOCK_FILE
-							 , menu , fx_main_send_to_myself_clicked , fxmain);
 
 		statemenu = fx_main_create_menu1(_("Edit statement"),
 				GTK_STOCK_INFO , menu , NULL , NULL);
@@ -1275,10 +1272,19 @@ void fx_main_tray_popmenu_func(
 		}
 
 		gtk_menu_item_set_submenu(GTK_MENU_ITEM(statemenu) , submenu);
-		fx_main_create_menu1(_("SMS to many") , GTK_STOCK_DND_MULTIPLE
-						 , menu , fx_main_send_to_many_clicked , fxmain);
-		fx_main_create_menu1(_("SMS directly") , GTK_STOCK_DND
-						 , menu , fx_main_direct_sms_clicked , fxmain);
+
+		statemenu = fx_main_create_menu1(_("Message Function"),
+				GTK_STOCK_INFO , menu , NULL , NULL);
+		submenu = gtk_menu_new();
+		fx_main_create_menu(_("SMS to many") , SKIN_DIR"groupsend.png" 
+						 , submenu , fx_main_send_to_many_clicked , fxmain);
+		fx_main_create_menu(_("SMS directly") , SKIN_DIR"directsms.png"
+						 , submenu , fx_main_direct_sms_clicked , fxmain);
+		if(fxmain->user->boundToMobile == BOUND_MOBILE_ENABLE)
+			fx_main_create_menu(_("SMS myself") , SKIN_DIR"myselfsms.png"
+							 , submenu , fx_main_send_to_myself_clicked , fxmain);
+		gtk_menu_item_set_submenu(GTK_MENU_ITEM(statemenu) , submenu);
+
 		fx_main_create_menu1(_("Add contact") , GTK_STOCK_ADD
 						 , menu , fx_main_add_buddy_clicked , fxmain);
 		fx_main_create_menu1(_("Personal setting") ,  GTK_STOCK_EDIT
@@ -1582,39 +1588,7 @@ gboolean fx_main_check_func(FxMain* fxmain)
 
 void fx_main_about_fetion_clicked(GtkWidget *UNUSED(widget) , gpointer UNUSED(data))
 {
-	GtkWidget *dialog = gtk_about_dialog_new();
-	GdkPixbuf *logo = NULL;
-
-	gtk_window_set_modal(GTK_WINDOW(dialog) , TRUE);
-	gtk_about_dialog_set_name(GTK_ABOUT_DIALOG(dialog), "OpenFetion");
-	gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), FETION_VERSION);
-	gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog),
-	"(c) Li Wenpeng");
-	logo = gdk_pixbuf_new_from_file(SKIN_DIR"about.png" , NULL);
-	gtk_window_set_icon(GTK_WINDOW(dialog) , logo);
-	gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog),
-	_("OpenFetion is a non-profit software, aiming at making linux users convenient to use "
-	"fetion."));
-	gtk_about_dialog_set_website(GTK_ABOUT_DIALOG(dialog),
-	"http://www.basiccoder.com/openfetion");
-	gtk_dialog_run(GTK_DIALOG (dialog));
-	gtk_widget_destroy(dialog);
-}
-
-void fx_main_check_update_clicked(GtkWidget* UNUSED(widget) , gpointer UNUSED(data))
-{
-	if(fork() == 0){
-		execlp("xdg-open" , "xdg-open" , "http://basiccoder.com/openfetion" , (char**)NULL);
-		return;
-	}
-}
-
-void fx_main_about_author_clicked(GtkWidget* UNUSED(widget) , gpointer UNUSED(data))
-{
-	if(fork() == 0){
-		execlp("xdg-open" , "xdg-open" , "http://basiccoder.com" , (char**)NULL);
-		return;
-	}
+	show_about();
 }
 
 void fx_main_send_to_myself_clicked(GtkWidget *widget , gpointer data)
