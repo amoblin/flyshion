@@ -1029,15 +1029,17 @@ gboolean fx_main_delete(GtkWidget *widget , GdkEvent *UNUSED(event) , gpointer d
 	int     window_x;
 	int     window_y;
 
-	config = fxmain->user->config;
-	gtk_window_get_position(GTK_WINDOW(fxmain->window),
-			&window_x, &window_y);
-	config->window_pos_x = window_x;
-	config->window_pos_y = window_y;
-	gtk_window_get_size(GTK_WINDOW(fxmain->window),
-			&window_width, &window_height);
-	config->window_width = window_width;
-	config->window_height = window_height;
+	if(fxmain->user){
+		config = fxmain->user->config;
+		gtk_window_get_position(GTK_WINDOW(fxmain->window),
+				&window_x, &window_y);
+		config->window_pos_x = window_x;
+		config->window_pos_y = window_y;
+		gtk_window_get_size(GTK_WINDOW(fxmain->window),
+				&window_width, &window_height);
+		config->window_width = window_width;
+		config->window_height = window_height;
+	}
 
 	if(fxmain->user){
 		if(config->closeAlert == CLOSE_ALERT_ENABLE){
@@ -1087,7 +1089,6 @@ gboolean fx_main_window_state_func(GtkWidget *widget
 {
 	FxMain *fxmain;
 	Config *config;
-	GdkScreen *screen;
 
 	fxmain = (FxMain*)data;
 	config = fxmain->user == NULL ? NULL: fxmain->user->config;
