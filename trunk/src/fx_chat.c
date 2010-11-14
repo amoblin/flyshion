@@ -521,6 +521,7 @@ void fx_chat_initialize(FxChat* fxchat)
 	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"history.png" , 16 , 16 , NULL);
 	history_icon = gtk_image_new_from_pixbuf(pb);
 	g_object_unref(pb);
+
 	fxchat->historybutton = gtk_toolbar_append_item(GTK_TOOLBAR(fxchat->toolbar)
 					 	, _("Chat logs") , _("View chat logs") , NULL , history_icon
 					  	, G_CALLBACK(fx_chat_on_history_clicked)
@@ -896,6 +897,7 @@ static void fx_chat_on_nudge_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 	fx_chat_nudge(fxchat);
 
 }
+
 void fx_chat_nudge(FxChat* fxchat)
 {
 	int x , y , i;
