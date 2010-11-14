@@ -247,7 +247,6 @@ top_srcdir = @top_srcdir@
 resourcedir = $(pkgdatadir)/resource
 resource_DATA = city.xml \
 		province.xml \
-		license.txt \
 		newmessage.wav
 
 desktopdir = /usr/share/applications
