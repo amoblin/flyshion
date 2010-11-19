@@ -2,7 +2,7 @@ bin_PROGRAMS = openfetion
 
 openfetion_CPPFLAGS=$(LIBXML_CFLAGS) $(GTK_CFLAGS) $(GTHREAD_CFLAGS) \
 					$(GSTREAMER_CFLAGS) $(LIBNOTIFY_CFLAGS) $(LIBXSS_CFLAGS) \
-					$(NETWORKMANAGER_CFLAGS) -g -Wall\
+					$(NETWORKMANAGER_CFLAGS) $(DBUS_CFLAGS) -g -Wall\
 					-I../include -I../include/openfetion -I ../. \
 					-DSKIN_DIR=\"$(pkgdatadir)/skin/\" \
 					-DRESOURCE_DIR=\"$(pkgdatadir)/resource/\" \
@@ -10,7 +10,7 @@ openfetion_CPPFLAGS=$(LIBXML_CFLAGS) $(GTK_CFLAGS) $(GTHREAD_CFLAGS) \
 
 openfetion_LDADD=   $(LIBXML_LIBS) $(GTK_LIBS) $(GTHREAD_LIBS) $(SQLITE3_LIBS)\
 				    $(GSTREAMER_LIBS) $(LIBNOTIFY_LIBS) $(LIBXSS_LIBS)\
-					$(NETWORKMANAGER_LIBS) ../lib/libofetion.la
+					$(NETWORKMANAGER_LIBS) $(DBUS_LIBS) ../lib/libofetion.la
 
 openfetion_SOURCES = fx_add_group.c \
 					 fx_addbuddy.c \
