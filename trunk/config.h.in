@@ -171,6 +171,9 @@
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 
+/* Use DBus for NetworkManager */
+#undef USE_DBUS
+
 /* Use Gstreamer for playing sound */
 #undef USE_GSTREAMER
 
