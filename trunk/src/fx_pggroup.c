@@ -394,7 +394,7 @@ static void text_cell_data_func(GtkTreeViewColumn *UNUSED(col),
 	sid = fetion_sip_get_sid_by_sipuri(sipuri);
 
 	sprintf(text , "<b>%s</b> %s(%s)"
-	       	, strlen(nickname) == 0 ? sid : g_markup_escape_text(nickname , strlen(nickname))
+	       	, nickname == NULL ? sid : g_markup_escape_text(nickname , strlen(nickname))
 		, identity == 2 ? _("<span color='#0099ff'>[Administrator]</span>")
 	       		: ( identity == 1 ?_("<span color='#0099ff'>[Super Administrator]</span>") : "")
 		, sid);
@@ -445,9 +445,9 @@ void pg_add_message(FxPGGroup* fxpggroup , const char* msg
 
 	//usid = fetion_sip_get_sid_by_sipuri(contact->sipuri);
 	if(contact != NULL){
-		sprintf(text , _("%s says: (%s):\n") , contact->nickname , time);
+		sprintf(text , _("%s said: (%s):\n") , contact->nickname , time);
 	}else{
-		sprintf(text , _("%s says: (%s):\n") , user->nickname , time);
+		sprintf(text , _("%s said: (%s):\n") , user->nickname , time);
 	}
 	gtk_text_buffer_get_end_iter(buffer , &iter );
 	gtk_text_buffer_insert_with_tags_by_name(buffer
@@ -529,7 +529,7 @@ static void pggroup_send_message(FxPGGroup *fxpg)
 	gtk_text_buffer_get_end_iter(buffer , &eiter);
 	value = gtk_text_buffer_get_text(buffer , &biter , &eiter , TRUE);
 
-	if(strlen(value) == 0)
+	if(value == NULL)
 	    return;
 	pg_add_message(fxpg , value , now , NULL);
 	gtk_text_buffer_delete(buffer , &biter , &eiter);

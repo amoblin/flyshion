@@ -458,7 +458,7 @@ static void process_system_message(const char *sipmsg)
 static void process_group_message(FxMain *fxmain , Message *message)
 {
 	FxPGGroup     *fxpgcur;
-	FxPGGroup     *fxpg;
+	FxPGGroup     *fxpg=NULL;
 	PGGroupMember *memcur;
 	FxList        *pglist;
 	FxList        *cur;
@@ -475,8 +475,7 @@ static void process_group_message(FxMain *fxmain , Message *message)
 
 	foreach_list(pglist , cur){
 		fxpgcur = (FxPGGroup*)(cur->data);
-		if(strcmp(fxpgcur->pggroup->pguri,
-					message->pguri) == 0){
+		if(strcmp(fxpgcur->pggroup->pguri,message->pguri) == 0){
 			fxpg = fxpgcur;
 		       	break;
 		}
@@ -760,8 +759,10 @@ void fx_main_process_invitation(FxMain* fxmain , const gchar* sipmsg)
 	sip = fxmain->user->sip;
 
 	memset(event, 0, sizeof(event));
-	if(fetion_sip_get_attr(sipmsg , "N" , event) != -1)
+	if(fetion_sip_get_attr(sipmsg , "N" , event) != -1){
+		free(args);
 		return;
+	}
 
 	fetion_sip_parse_invitation(sip,
 			fxmain->user->config->proxy,
@@ -1028,7 +1029,6 @@ gboolean fx_main_delete(GtkWidget *widget , GdkEvent *UNUSED(event) , gpointer d
 	int     window_height;
 	int     window_x;
 	int     window_y;
-
 	if(fxmain->user){
 		config = fxmain->user->config;
 		gtk_window_get_position(GTK_WINDOW(fxmain->window),
@@ -1040,7 +1040,6 @@ gboolean fx_main_delete(GtkWidget *widget , GdkEvent *UNUSED(event) , gpointer d
 		config->window_width = window_width;
 		config->window_height = window_height;
 	}
-
 	if(fxmain->user){
 		if(config->closeAlert == CLOSE_ALERT_ENABLE){
 			fxclose = fx_close_new(fxmain);
@@ -1071,7 +1070,7 @@ gboolean fx_main_delete(GtkWidget *widget , GdkEvent *UNUSED(event) , gpointer d
 		fx_main_destroy(widget , fxmain);
 		return FALSE;
 	}
-
+	
 	if(fxmain->user != NULL && fxmain->user->loginStatus != -1){
 		config = fxmain->user->config;
 		if(config->closeMode == CLOSE_ICON_MODE){
@@ -1267,7 +1266,7 @@ void fx_main_tray_popmenu_func(
 			args->fxmain = fxmain;
 			args->type = presence[i].type;
 
-			sprintf(stateMenu , "%s      " , _(presence[i].name));
+			snprintf(stateMenu, sizeof(stateMenu), "%s      " , presence[i].name);
 			fx_main_create_menu(stateMenu , presence[i].icon
 							 , submenu , fx_main_set_state_clicked , args);
 		}
@@ -1288,9 +1287,9 @@ void fx_main_tray_popmenu_func(
 
 		fx_main_create_menu1(_("Add contact") , GTK_STOCK_ADD
 						 , menu , fx_main_add_buddy_clicked , fxmain);
-		fx_main_create_menu1(_("Personal Settings") ,  GTK_STOCK_EDIT
+		fx_main_create_menu1(_("Personal setting") ,  GTK_STOCK_EDIT
 						 , menu , fx_main_personal_setting_clicked , fxmain);
-		fx_main_create_menu1(_("System Settings") , GTK_STOCK_PREFERENCES
+		fx_main_create_menu1(_("System setting") , GTK_STOCK_PREFERENCES
 						 , menu , fx_main_system_setting_clicked , fxmain);
 	}
 
@@ -1342,7 +1341,7 @@ static void chat_listen_thread_end(FxMain *fxmain, const char *sipuri)
 
 	clist = fxmain->clist;
 
-	if(!sipuri || strlen(sipuri) == 0)
+	if(sipuri == NULL)
 		return;
 
 	fx_list_remove_sip_by_sipuri(fxmain->slist , sipuri);

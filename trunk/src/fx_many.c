@@ -484,7 +484,6 @@ void fx_many_initialize(FxMany* fxmany)
 	gtk_widget_grab_focus(fxmany->send_text);
 
 	gtk_widget_show_all(fxmany->dialog);
-	gtk_widget_hide(fxmany->dialog);
 }
 static void fx_many_on_close_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
@@ -523,7 +522,7 @@ static void* fx_many_sms_send_func(void* data)
 	gtk_text_buffer_get_end_iter(fxmany->send_buffer , &end);
 	text = gtk_text_buffer_get_text(fxmany->send_buffer , &begin , &end , TRUE);
 
-	if(strlen(text) == 0){
+	if(text == NULL){
 		gdk_threads_enter();
 		fx_many_add_information(fxmany , _("Please input the contents of message"));
 		gdk_threads_leave();

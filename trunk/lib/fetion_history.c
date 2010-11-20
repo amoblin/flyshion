@@ -57,8 +57,7 @@ FetionHistory* fetion_history_new(User* user)
 	sprintf(filepath, "%s/data.db",
 			config->userPath);
 	if(sqlite3_open(filepath, &(fhistory->db)))
-		debug_error("open data.db:%s",
-				sqlite3_errmsg(fhistory->db));
+		debug_error("open data.db:%s", sqlite3_errmsg(fhistory->db));
 	
 	return fhistory;
 }
@@ -76,7 +75,6 @@ void fetion_history_add(FetionHistory* fhistory , History* history)
 	sqlite3 *db;
 	char sql[4096];
 	char sql1[4096];
-	char *errMsg;
 	db = fhistory->db;
 
 	if(!db){
@@ -85,25 +83,24 @@ void fetion_history_add(FetionHistory* fhistory , History* history)
 	}
 
 	escape_sql(history->message);
-	sprintf(sql, "insert into history values"
+	snprintf(sql, sizeof(sql), "insert into history values"
 			" (NULL,'%s','%s','%s',datetime('%s'),%d);",
 			history->name, history->userid,
 			history->message, history->sendtime,
 			history->issend);
 
 	int ret;
-	if((ret = sqlite3_exec(db, sql, 0, 0, &errMsg))){
-		sprintf(sql1, "create table history ("
+	if((ret = sqlite3_exec(db, sql, 0, 0, NULL))){
+		snprintf(sql1, sizeof(sql1),"create table history ("
 				"id INTEGER PRIMARY KEY AUTOINCREMENT,"
 				"name TEXT,userid TEXT,message TEXT,"
 				"updatetime TEXT,issend INTEGER);");
-		if(sqlite3_exec(db, sql1, 0, 0, &errMsg)){
-			debug_error("create table history:%s",
-					errMsg);
+		if(sqlite3_exec(db, sql1, 0, 0, NULL)){
+			debug_error("create table history:%s",sqlite3_errmsg(db));
 			return;
 		}
-		if(sqlite3_exec(db, sql, 0, 0, &errMsg))
-			debug_error("%s\n%s",errMsg, sql);
+		if(sqlite3_exec(db, sql, 0, 0, NULL))
+			debug_error("%s\n%s",sqlite3_errmsg(db), sql);
 	}
 
 }
@@ -114,32 +111,28 @@ FxList* fetion_history_get_list(Config* config,
 	sqlite3 *db;
 	char sql[4096];
 	char path[256];
-	char *errMsg;
 	char **res;
 	int nrows, ncols, start, i;
 	FxList *hislist, *pos;
 	History *his;
 
-	sprintf(path, "%s/data.db",
-				   	config->userPath);
+	snprintf(path, sizeof(path),"%s/data.db", config->userPath);
 
 	hislist = fx_list_new(NULL);
 
 	debug_info("Load chat history with %s",
 			userid);
 	if(sqlite3_open(path, &db)){
-		debug_error("open data.db:%s",
-					sqlite3_errmsg(db));
+		debug_error("open data.db:%s", sqlite3_errmsg(db));
 		return hislist;
 	}
 
-	sprintf(sql, "select * from history"
+	snprintf(sql, sizeof(sql),"select * from history"
 			" where userid='%s' order"
 			" by id desc limit %d;",
 			userid, count);
 
-	if(sqlite3_get_table(db, sql, &res,
-				&nrows, &ncols, &errMsg)){
+	if(sqlite3_get_table(db, sql, &res, &nrows, &ncols, NULL)){
 		sqlite3_close(db);
 		return hislist;
 	}
@@ -158,6 +151,9 @@ FxList* fetion_history_get_list(Config* config,
 		pos = fx_list_new(his);
 		fx_list_prepend(hislist , pos);
 	}
+	
+	sqlite3_free_table(res);
+	sqlite3_close(db);
 	return hislist;
 }
 
@@ -168,39 +164,35 @@ FxList* fetion_history_get_e_list(Config *config,
 	char sql[4096];
 	char path[256];
 	char condition[256];
-	char *errMsg;
 	char **res;
 	int nrows, ncols, start, i;
 	FxList *hislist, *pos;
 	History *his;
 
-	sprintf(path, "%s/data.db",
-				   	config->userPath);
+	snprintf(path, sizeof(path),"%s/data.db", config->userPath);
 
 	hislist = fx_list_new(NULL);
 
-	debug_info("Load chat history with %s",
-			userid);
+	debug_info("Load chat history with %s", userid);
 	if(sqlite3_open(path, &db)){
-		debug_error("open data.db:%s",
-					sqlite3_errmsg(db));
+		debug_error("open data.db:%s", sqlite3_errmsg(db));
 		return hislist;
 	}
 
 	switch(type){
 		case HISTORY_TODAY:
-			sprintf(condition,
+			snprintf(condition, sizeof(condition),
 				"strftime('%%Y',updatetime) == strftime('%%Y','now') and "
 				"strftime('%%m',updatetime) == strftime('%%m','now') and "
 				"strftime('%%d',updatetime) == strftime('%%d','now') ");
 			break;
 		case HISTORY_WEEK:
-			sprintf(condition,
+			snprintf(condition, sizeof(condition),
 				"strftime('%%Y',updatetime) == strftime('%%Y','now') and "
 				"strftime('%%W',updatetime) == strftime('%%W','now') ");
 			break;
 		case HISTORY_MONTH:
-			sprintf(condition,
+			snprintf(condition, sizeof(condition),
 				"strftime('%%Y',updatetime) == strftime('%%Y','now') and "
 				"strftime('%%m',updatetime) == strftime('%%m','now') ");
 			break;
@@ -211,13 +203,12 @@ FxList* fetion_history_get_e_list(Config *config,
 			break;
 	};
 
-	sprintf(sql, "select * from history"
+	snprintf(sql, sizeof(sql),"select * from history"
 			" where userid='%s' and %s order"
 			" by id desc;",
 			userid, condition);
 
-	if(sqlite3_get_table(db, sql, &res,
-				&nrows, &ncols, &errMsg)){
+	if(sqlite3_get_table(db, sql, &res, &nrows, &ncols, NULL)){
 		sqlite3_close(db);
 		return hislist;
 	}
@@ -236,6 +227,8 @@ FxList* fetion_history_get_e_list(Config *config,
 		pos = fx_list_new(his);
 		fx_list_prepend(hislist , pos);
 	}
+	
+	sqlite3_free_table(res);
 	return hislist;
 }
 
@@ -246,7 +239,6 @@ int fetion_history_export(Config *config , const char *myid
 	char sql[4096];
 	char text[4096];
 	char path[256];
-	char *errMsg;
 	char **res;
 	int nrows, ncols, start, i;
 	FILE *f;
@@ -272,8 +264,7 @@ int fetion_history_export(Config *config , const char *myid
 			" by id;",
 			userid);
 
-	if(sqlite3_get_table(db, sql, &res,
-				&nrows, &ncols, &errMsg)){
+	if(sqlite3_get_table(db, sql, &res, &nrows, &ncols, NULL)){
 		sqlite3_close(db);
 		return -1;
 	}
@@ -292,34 +283,29 @@ int fetion_history_export(Config *config , const char *myid
 		fflush(f);
 	}
 	
+	sqlite3_free_table(res);
 	sqlite3_close(db);
 	fclose(f);
 	return 1;
 }
 
-int fetion_history_delete(Config *config,
-		const char *userid)
+int fetion_history_delete(Config *config, const char *userid)
 {
 	sqlite3 *db;
 	char sql[4096];
 	char path[256];
-	char *errMsg;
 
-	sprintf(path, "%s/data.db",
-				   	config->userPath);
+	snprintf(path, sizeof(path),"%s/data.db", config->userPath);
 
-	debug_info("Delete chat history with %s",
-			userid);
+	debug_info("Delete chat history with %s", userid);
 	if(sqlite3_open(path, &db)){
-		debug_error("open data.db:%s",
-					sqlite3_errmsg(db));
+		debug_error("open data.db:%s", sqlite3_errmsg(db));
 		return -1;
 	}
-	sprintf(sql, "delete from history where "
-			"userid = '%s'", userid);
-	if(sqlite3_exec(db, sql, 0, 0, &errMsg)){
-		debug_error("delete history with %s failed:%s",
-				userid, errMsg);
+	sprintf(sql, "delete from history where userid = '%s'", userid);
+	if(sqlite3_exec(db, sql, 0, 0, NULL)){
+		debug_error("delete history with %s failed:%s", 
+				userid, sqlite3_errmsg(db));
 		sqlite3_close(db);
 		return -1;
 	}

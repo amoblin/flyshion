@@ -164,7 +164,6 @@ void fx_head_show(FxMain *fxmain)
 {
 	FxHead *fxhead = fxmain->headPanel;
 	gtk_widget_show_all(fxhead->topbox);
-	gtk_widget_hide(fxhead->impre_entry);
 }
 
 void fx_head_bind(FxMain* fxmain)

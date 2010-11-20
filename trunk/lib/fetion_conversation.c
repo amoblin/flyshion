@@ -206,7 +206,7 @@ int fetion_conversation_invite_friend(Conversation* conversation)
 
 	memset(auth , 0 , sizeof(auth));
 	fetion_sip_get_attr(res , "A" , auth);
-	if(strlen(auth) == 0)
+	if(auth==NULL)
 		return -1;
 
 	fetion_sip_get_auth_attr(auth , &ip , &port , &credential);

@@ -78,7 +78,6 @@ void fx_sysmsg_initialize(FxSysmsg *sysmsg)
 	g_signal_connect(closeBtn , "clicked" , G_CALLBACK(fx_on_close_clicked) , sysmsg->dialog);
 
 	gtk_widget_show_all(sysmsg->dialog);
-	gtk_widget_hide(sysmsg->dialog);
 }
 
 void fx_sysmsg_bind(FxSysmsg *sysmsg

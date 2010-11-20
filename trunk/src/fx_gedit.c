@@ -64,7 +64,6 @@ void fx_gedit_initialize(FxGEdit* fxgedit)
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxgedit->dialog)->action_area) , fxgedit->cancel_button);
 	g_signal_connect(fxgedit->cancel_button , "clicked" , G_CALLBACK(fx_gedit_on_cancel_clicked) , fxgedit->dialog);
 	gtk_widget_show_all(fxgedit->dialog);
-	gtk_widget_hide(fxgedit->dialog);
 }
 
 void fx_gedit_free(FxGEdit* fxgedit)
@@ -82,7 +81,7 @@ void fx_gedit_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 	int groupid = fxgedit->groupid;
 	const char* name = gtk_entry_get_text(GTK_ENTRY(fxgedit->remark_entry));
 
-	if(strlen(name) == 0)
+	if(name == NULL)
 		return;
 	if(fetion_buddylist_edit(user , groupid , name) > 0)
 	{

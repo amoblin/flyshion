@@ -109,7 +109,6 @@ void fx_code_initialize(FxCode *fxcode)
 
 	gtk_box_pack_start_defaults(GTK_BOX(vbox) , fixed);
 	gtk_widget_show_all(fxcode->dialog);
-	gtk_widget_hide(fxcode->dialog);
 }
 
 void fx_code_code_event_func(GtkWidget* UNUSED(widget) , GdkEventButton* event , gpointer data)

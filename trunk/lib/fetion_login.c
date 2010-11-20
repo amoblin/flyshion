@@ -757,7 +757,9 @@ static unsigned char* strtohex(const char* in , int* len)
 	int i = 0 , j = 0 , k = 0 ,length = 0;
 	char tmp[3] = { 0 };
 	memset(out , 0 , strlen(in) / 2);
-	while(i < (int)strlen(in))
+	int inlength;
+	inlength=(int)strlen(in);
+	while(i < inlength)
 	{
 		tmp[k++] = in[i++];
 		tmp[k] = '\0';
@@ -783,7 +785,9 @@ static char* hextostr(const unsigned char* in , int len)
 		i ++;
 	};
 	i = 0;
-	while(i < (int)strlen(res))
+	int reslength;
+	reslength=(int)strlen(res);
+	while(i < reslength)
 	{
 		res[i] = toupper(res[i]);
 		i ++;
@@ -833,7 +837,7 @@ static char* hash_password_v4(const char* userid , const char* password)
 	res = hash_password_v1(udomain , strlen(domain) , upassword , strlen(password));
 	free(udomain);
 	free(upassword);
-	if(userid == NULL || strlen(userid) == 0)
+	if(userid == NULL)
 	{
 		return res;
 	}

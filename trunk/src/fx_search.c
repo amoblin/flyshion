@@ -61,7 +61,7 @@ static void row_activate_func(GtkTreeView *view , GtkTreePath *path
 	}
 	if(serviceStatus == BASIC_SERVICE_ABNORMAL && 
 		(carrierStatus == CARRIER_STATUS_CLOSED ||
-		 (strlen(carrier) != 0 && strlen(mobileno) == 0)))
+		 (carrier != NULL && mobileno == NULL)))
 	{
 		fx_util_popup_warning(fxmain , _("User has shut his fetion service"
 			", so you can not send a message to him"));
@@ -154,7 +154,7 @@ static void text_cell_data_func(GtkTreeViewColumn *UNUSED(col),
 		}else{
 			if(carrier != NULL || strlen(carrier) != 0){
 				sprintf(statusStr , "<span color='#d4b4b4'>[Online with SMS]</span>");
-				if(mobileno == NULL || strlen(mobileno) == 0){
+				if(mobileno == NULL){
 					sprintf(statusStr , "<span color='#d4b4b4'>[Has shut fetion service]</span>");
 				}
 			}else{
@@ -177,7 +177,7 @@ static void text_cell_data_func(GtkTreeViewColumn *UNUSED(col),
 		sprintf(text , "<b>%s</b>%s%s"
 					   "(%s)  <span color='#838383'>%s</span>"
 					   , name == NULL ? "" : g_markup_escape_text(name , strlen(name))
-					   , (strlen(statusStr) == 0 ? (presence == 0 ? "" : stateStr1) : statusStr)
+					   , (statusStr == NULL ? (presence == 0 ? "" : stateStr1) : statusStr)
 					   , (device != NULL && strcmp(device , "PC") != 0) ? "[Login with cell phone]" : "" , sid
 					   , impression == NULL ? "" : g_markup_escape_text(impression , strlen(impression)));
 	}
@@ -186,7 +186,7 @@ static void text_cell_data_func(GtkTreeViewColumn *UNUSED(col),
 		sprintf(text , "<b>%s</b>%s%s"
 					   "(%s) \n <span color='#838383'>%s</span>"
 					   , name == NULL ? "" : g_markup_escape_text(name , strlen(name))
-					   , (strlen(statusStr) == 0 ? (presence == 0 ? "" : stateStr1) : statusStr)
+					   , (statusStr == NULL ? (presence == 0 ? "" : stateStr1) : statusStr)
 					   , (device != NULL &&strcmp(device , "PC") != 0) ? "[Login with cell phone]" : "" , sid
 					   , impression == NULL ? "" : g_markup_escape_text(impression , strlen(impression)));
 	}
@@ -261,7 +261,7 @@ static GtkTreeModel* create_model(GtkTreeModel *model , const char *str)
 							 , G_TYPE_INT
 							 , G_TYPE_INT);
 
-	if(str == NULL || strlen(str) == 0)
+	if(str == NULL)
 		return GTK_TREE_MODEL(store);
 
 	gtk_tree_model_get_iter_first(model , &iter);
