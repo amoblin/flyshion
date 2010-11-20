@@ -306,7 +306,8 @@ static void fx_history_on_cleanup_clicked(GtkWidget* widget , gpointer data)
                                  GTK_DIALOG_DESTROY_WITH_PARENT,
                                  GTK_MESSAGE_WARNING,
                                  GTK_BUTTONS_OK_CANCEL,
-                                 _("The action can not be restored\nwhether to continue?"));
+                                 _("The action can not be undone.\n")
+								 _("Are you sure you want to continue?"));
 	ret = gtk_dialog_run (GTK_DIALOG (dialog));
 	if(ret == GTK_RESPONSE_OK){
 

@@ -84,7 +84,7 @@ void fx_bottom_initialize(FxMain* fxmain)
 	gtk_box_pack_start(GTK_BOX(mainbox) , fxbottom->toolbar , FALSE , FALSE , 0);
 	icon = gtk_image_new_from_file(SKIN_DIR"options.png");
 	gtk_toolbar_append_item(GTK_TOOLBAR(fxbottom->toolbar)
-						  , NULL , _("Personal setting") , NULL , icon
+						  , NULL , _("Personal Settings") , NULL , icon
 						  , G_CALLBACK(fx_bottom_on_setting_clicked)
 						  , fxmain );
 

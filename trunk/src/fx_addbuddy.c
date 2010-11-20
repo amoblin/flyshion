@@ -50,10 +50,10 @@ void fx_addbuddy_initialize(FxAddbuddy* fxaddbuddy)
 
 	fxaddbuddy->tablebox = gtk_table_new(2 , 2 , FALSE);
 
-	fxaddbuddy->mobile_button = gtk_radio_button_new_with_label(NULL , _("Cell phone number:"));
+	fxaddbuddy->mobile_button = gtk_radio_button_new_with_label(NULL , _("Cell Phone Number:"));
 	fxaddbuddy->group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(fxaddbuddy->mobile_button));
 
-	fxaddbuddy->fetion_button = gtk_radio_button_new_with_label(fxaddbuddy->group , _("Fetion number:"));
+	fxaddbuddy->fetion_button = gtk_radio_button_new_with_label(fxaddbuddy->group , _("Fetion Number:"));
 	g_signal_connect(fxaddbuddy->fetion_button , "toggled" , G_CALLBACK(fx_addbuddy_no_type_change) , fxaddbuddy);
 	gtk_table_attach_defaults(GTK_TABLE(fxaddbuddy->tablebox) , fxaddbuddy->fetion_button , 0 , 1 , 1 , 2);
 
@@ -231,7 +231,7 @@ addbuddy:
 			gtk_dialog_response(GTK_DIALOG(fxadd->dialog) , GTK_RESPONSE_OK);
 			return;
 		case BUDDY_BAD_REQUEST :
-			fx_util_popup_warning(fxadd->fxmain , _("Add buddy failed.Unknown reason!"));
+			fx_util_popup_warning(fxadd->fxmain , _("Add buddy failed. Unknown reason!"));
 			gtk_dialog_response(GTK_DIALOG(fxadd->dialog) , GTK_RESPONSE_OK);
 			return;
 		default:
