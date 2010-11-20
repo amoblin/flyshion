@@ -999,7 +999,7 @@ msgid "Decline his(her) add buddy request"
 msgstr "拒绝对方的添加好友请求"
 
 #: ../src/fx_app.c:303
-msgid "Lookup failed,Unknown identity,Unknown reason"
+msgid "Lookup failed, unknown identity, unknown reason"
 msgstr "查询失败，对方身份不明，原因未知"
 
 #: ../src/fx_close.c:55
@@ -1007,7 +1007,7 @@ msgid "Notification"
 msgstr "提示信息"
 
 #: ../src/fx_close.c:67
-msgid "Are you sure you want to quit OpenFetion?"
+msgid "Are you sure you want to exit OpenFetion?"
 msgstr "确定要退出 OpenFetion 吗？"
 
 #: ../src/fx_close.c:70
@@ -1015,7 +1015,7 @@ msgid "Exit OpenFetion"
 msgstr "退出 OpenFetion"
 
 #: ../src/fx_close.c:72
-msgid "Minimize to tray"
+msgid "Minimize to Tray"
 msgstr "最小化到托盘"
 
 #: ../src/fx_close.c:73
@@ -1479,8 +1479,8 @@ msgstr "正在加载本地用户信息"
 
 #: ../src/fx_conn.c:318
 msgid ""
-"It detected that this`s this first time you login\n"
-"downloading configuration file..."
+"Detected that this is the first time you login\n"
+"Downloading configuration file..."
 msgstr ""
 "系统检测到这是您初次登录飞信\n"
 "正在下载配置文件..."
