@@ -26,12 +26,12 @@ msgstr "添加好友"
 
 #: ../src/fx_addbuddy.c:53 ../src/fx_lookupres.c:142 ../src/fx_profile.c:80
 #: ../src/fx_set.c:340
-msgid "Cell phone number:"
+msgid "Cell Phone Number:"
 msgstr "手机号："
 
 #: ../src/fx_addbuddy.c:56 ../src/fx_lookupres.c:126 ../src/fx_profile.c:64
 #: ../src/fx_set.c:320
-msgid "Fetion number:"
+msgid "Fetion Number:"
 msgstr "飞信号："
 
 #: ../src/fx_addbuddy.c:72
@@ -84,11 +84,11 @@ msgid "You have reached the daily limit of adding buddies, please retry later"
 msgstr "您已经达到添加好友的上限，请改日再试"
 
 #: ../src/fx_addbuddy.c:234
-msgid "Add buddy failed.Unknown reason!"
+msgid "Add buddy failed. Unknown reason!"
 msgstr "添加好友失败，原因不详"
 
 #: ../src/fx_bottom.c:87 ../src/fx_main.c:1286 ../src/fx_set.c:195
-msgid "Personal setting"
+msgid "Personal Settings"
 msgstr "个人设置"
 
 #: ../src/fx_bottom.c:103
@@ -201,19 +201,19 @@ msgid "Clock"
 msgstr "时钟"
 
 #: ../src/fx_emotion.c:24
-msgid "Red heart"
+msgid "Red Heart"
 msgstr "红心"
 
 #: ../src/fx_emotion.c:25
-msgid "Broken heart"
+msgid "Broken Heart"
 msgstr "破碎的心"
 
 #: ../src/fx_emotion.c:26
-msgid "Face of cat"
+msgid "Face of Cat"
 msgstr "猫脸"
 
 #: ../src/fx_emotion.c:27
-msgid "Face of dog"
+msgid "Face of Dog"
 msgstr "狗脸"
 
 #: ../src/fx_emotion.c:28
@@ -241,15 +241,15 @@ msgid "Hug right"
 msgstr "右侧拥抱"
 
 #: ../src/fx_emotion.c:34
-msgid "Red lips"
+msgid "Red Lips"
 msgstr "红唇"
 
 #: ../src/fx_emotion.c:35
-msgid "Red rose"
+msgid "Red Rose"
 msgstr "红玫瑰"
 
 #: ../src/fx_emotion.c:36
-msgid "Withered rose"
+msgid "Withered Rose"
 msgstr "凋谢的玫瑰"
 
 #: ../src/fx_emotion.c:37
@@ -257,7 +257,7 @@ msgid "Gift Box"
 msgstr "礼品盒"
 
 #: ../src/fx_emotion.c:38
-msgid "Birthday cake"
+msgid "Birthday Cake"
 msgstr "生日蛋糕"
 
 #: ../src/fx_emotion.c:39
@@ -390,8 +390,8 @@ msgstr "与 %s 的聊天记录.txt"
 
 #: ../src/fx_history.c:309
 msgid ""
-"The action can not be restored\n"
-"whether to continue?"
+"The action can not be undone.\n"
+"Are you sure you want to continue?"
 msgstr "该操作不可恢复，确定删除？"
 
 #: ../src/fx_lookupres.c:48 ../src/fx_profile.c:175 ../src/fx_set.c:531
@@ -421,7 +421,7 @@ msgstr "昵称："
 
 #: ../src/fx_lookupres.c:159 ../src/fx_lookupres.c:172 ../src/fx_profile.c:96
 #: ../src/fx_set.c:355
-msgid "Personal signature:"
+msgid "Personal Signature:"
 msgstr "个性签名："
 
 #: ../src/fx_lookupres.c:180 ../src/fx_profile.c:117
@@ -515,7 +515,7 @@ msgstr "您于[%s]发送的消息“%s”发送失败，请重新发送"
 #: ../src/fx_chat.c:91 ../src/fx_chat.c:96 ../src/fx_pggroup.c:448
 #: ../src/fx_pggroup.c:450
 #, c-format
-msgid "%s said: (%s):\n"
+msgid "%s says: (%s):\n"
 msgstr "%s 说: (%s):\n"
 
 #: ../src/fx_chat.c:506
@@ -571,7 +571,8 @@ msgstr "对不起，你今天的免费短信限额已经用完，不能再发送
 #: ../src/fx_chat.c:758
 #, c-format
 msgid ""
-"You have %d free SMS can send  (include this one). Free SMS: %d per month"
+"%d free SMS messages can be sent(include this one). "
+"Free SMS messages: %d per month"
 msgstr "您还可以发送%d条免费短信（含本条），免费短信限额：每月%d条"
 
 #: ../src/fx_chat.c:763
@@ -610,7 +611,8 @@ msgstr ""
 #: ../src/fx_chat.c:970
 #, c-format
 msgid ""
-"Mesage will be sent to you phone as long SMS. You have sent %d, and %d left."
+"Mesages will be sent to you phone as long SMS messages. You have sent %d, "
+"and %d left."
 msgstr ""
 "信息将以长短信的方式发送到对方的手机上，您今天发送了%d条，还可以发送%d条"
 

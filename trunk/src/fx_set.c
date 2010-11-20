@@ -192,7 +192,7 @@ void fx_set_initialize(FxSet* fxset)
 					 , fxset->notebook , FALSE , FALSE , 0);
 
 	fxset->psetting = gtk_vbox_new(FALSE , FALSE);
-	psetting_label = gtk_label_new(_("Personal setting"));
+	psetting_label = gtk_label_new(_("Personal Settings"));
 	gtk_notebook_append_page(GTK_NOTEBOOK(fxset->notebook)
 						   , fxset->psetting
 						   , psetting_label);
@@ -317,7 +317,7 @@ void fx_set_initialize_personal(FxSet* fxset)
 	g_object_unref(pb);
 	gtk_fixed_put(GTK_FIXED(box) , fxset->image , 10 , 15 );
 
-	fxset->sid_label = gtk_label_new(_("Fetion number:"));
+	fxset->sid_label = gtk_label_new(_("Fetion Number:"));
 	gtk_misc_set_alignment(GTK_MISC(fxset->sid_label) , 0 , 0);
 	gtk_fixed_put(GTK_FIXED(box) , fxset->sid_label , 120 , 10 );
 
@@ -337,7 +337,7 @@ void fx_set_initialize_personal(FxSet* fxset)
 	gtk_widget_set_usize(fxset->gender_combo , 150 , 25);
 	gtk_fixed_put(GTK_FIXED(box) , fxset->gender_combo , 310 , 30 );
 
-	fxset->mno_label = gtk_label_new(_("Cell phone number:"));
+	fxset->mno_label = gtk_label_new(_("Cell Phone Number:"));
 	gtk_misc_set_alignment(GTK_MISC(fxset->mno_label) , 0 , 0);
 	gtk_fixed_put(GTK_FIXED(box) , fxset->mno_label , 120 , 60 );
 
@@ -352,7 +352,7 @@ void fx_set_initialize_personal(FxSet* fxset)
 	fxset->nick_entry = gtk_entry_new();
 	gtk_fixed_put(GTK_FIXED(box) , fxset->nick_entry , 310 , 80 );
 
-	fxset->impre_label = gtk_label_new(_("Personal signature:"));
+	fxset->impre_label = gtk_label_new(_("Personal Signature:"));
 	gtk_misc_set_alignment(GTK_MISC(fxset->impre_label) , 0 , 0);
 	gtk_fixed_put(GTK_FIXED(box) , fxset->impre_label , 10 , 115 );
 
