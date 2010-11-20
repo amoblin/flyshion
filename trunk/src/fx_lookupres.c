@@ -123,7 +123,7 @@ void fx_lookupres_initialize(FxLookupres* fxlookupres)
 	fxlookupres->image = gtk_image_new_from_pixbuf(pb);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxlookupres->image , 0 , 1 , 0 , 4);
 
-	fxlookupres->sid_label = gtk_label_new(_("Fetion number:"));
+	fxlookupres->sid_label = gtk_label_new(_("Fetion Number:"));
 	gtk_misc_set_alignment(GTK_MISC(fxlookupres->sid_label) , 0 , 0);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxlookupres->sid_label , 1 , 2 , 0 , 1);
 
@@ -139,7 +139,7 @@ void fx_lookupres_initialize(FxLookupres* fxlookupres)
 	gtk_entry_set_editable(GTK_ENTRY(fxlookupres->gender_entry) , FALSE);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxlookupres->gender_entry , 2 , 3 , 1 , 2);
 
-	fxlookupres->mno_label = gtk_label_new(_("Cell phone number:"));
+	fxlookupres->mno_label = gtk_label_new(_("Cell Phone Number:"));
 	gtk_misc_set_alignment(GTK_MISC(fxlookupres->mno_label) , 0 , 0);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxlookupres->mno_label , 1 , 2 , 2 , 3);
 
@@ -156,7 +156,7 @@ void fx_lookupres_initialize(FxLookupres* fxlookupres)
 	gtk_entry_set_editable(GTK_ENTRY(fxlookupres->nick_entry) , FALSE);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxlookupres->nick_entry , 2 , 3 , 3 , 4);
 
-	fxlookupres->impre_label = gtk_label_new(_("Personal signature:"));
+	fxlookupres->impre_label = gtk_label_new(_("Personal Signature:"));
 	gtk_misc_set_alignment(GTK_MISC(fxlookupres->impre_label) , 0 , 0);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxlookupres->impre_label , 0 , 3 , 4, 5);
 
@@ -169,7 +169,7 @@ void fx_lookupres_initialize(FxLookupres* fxlookupres)
 	gtk_table_set_col_spacings(GTK_TABLE(inbox) , 2);
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxlookupres->dialog)->vbox) , inbox);
 
-	fxlookupres->birth_label = gtk_label_new(_("Personal signature:"));
+	fxlookupres->birth_label = gtk_label_new(_("Personal Signature:"));
 	gtk_misc_set_alignment(GTK_MISC(fxlookupres->birth_label) , 0 , 0 );
 	gtk_table_attach_defaults(GTK_TABLE(inbox) , fxlookupres->birth_label , 0 , 1 , 0 , 1);
 

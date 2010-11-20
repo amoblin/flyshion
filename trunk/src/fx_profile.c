@@ -61,7 +61,7 @@ void fx_profile_initialize(FxProfile* fxprofile)
 	g_object_unref(pb);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxprofile->image , 0 , 1 , 0 , 4);
 
-	fxprofile->sid_label = gtk_label_new(_("Fetion number:"));
+	fxprofile->sid_label = gtk_label_new(_("Fetion Number:"));
 	gtk_misc_set_alignment(GTK_MISC(fxprofile->sid_label) , 0 , 1);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxprofile->sid_label , 1 , 2 , 0 , 1);
 
@@ -77,7 +77,7 @@ void fx_profile_initialize(FxProfile* fxprofile)
 	gtk_entry_set_editable(GTK_ENTRY(fxprofile->gender_entry) , FALSE);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxprofile->gender_entry , 2 , 3 , 1 , 2);
 
-	fxprofile->mno_label = gtk_label_new(_("Cell phone number:"));
+	fxprofile->mno_label = gtk_label_new(_("Cell Phone Number:"));
 	gtk_misc_set_alignment(GTK_MISC(fxprofile->mno_label) , 0 , 1);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxprofile->mno_label , 1 , 2 , 2 , 3);
 
@@ -93,7 +93,7 @@ void fx_profile_initialize(FxProfile* fxprofile)
 	gtk_entry_set_editable(GTK_ENTRY(fxprofile->nick_entry) , FALSE);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxprofile->nick_entry , 2 , 3 , 3 , 4);
 
-	fxprofile->impre_label = gtk_label_new(_("Personal signature:"));
+	fxprofile->impre_label = gtk_label_new(_("Personal Signature:"));
 	gtk_misc_set_alignment(GTK_MISC(fxprofile->impre_label) , 0 , 1);
 	gtk_table_attach_defaults(GTK_TABLE(box) , fxprofile->impre_label , 0 , 3 , 4, 5);
 
