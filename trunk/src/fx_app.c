@@ -300,7 +300,7 @@ void* fx_app_check_thread(void* data)
 	if(contact == NULL){
 		gdk_threads_enter();
 		fx_util_popup_warning(fxapp->fxmain,
-				_("Lookup failed,Unknown identity,Unknown reason"));
+				_("Lookup failed, unknown identity, unknown reason"));
 		gdk_threads_leave();
 		return NULL;
 	}

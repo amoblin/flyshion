@@ -64,12 +64,12 @@ void fx_close_initialize(FxClose *fxclose)
 	fixed = GTK_FIXED(gtk_fixed_new());
 	gtk_box_pack_start_defaults(vbox , GTK_WIDGET(fixed));
 
-	label = gtk_label_new(_("Are you sure you want to quit OpenFetion?"));
+	label = gtk_label_new(_("Are you sure you want to exit OpenFetion?"));
 	gtk_fixed_put(fixed , label , 20 , 20);
 
 	fxclose->closeBtn = gtk_radio_button_new_with_label(NULL , _("Exit OpenFetion"));
 	group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(fxclose->closeBtn));
-	fxclose->iconBtn = gtk_radio_button_new_with_label(group , _("Minimize to tray"));
+	fxclose->iconBtn = gtk_radio_button_new_with_label(group , _("Minimize to Tray"));
 	fxclose->notalert = gtk_check_button_new_with_label(_("Don't notify again"));
 	gtk_fixed_put(fixed , fxclose->closeBtn , 40 , 50);
 	gtk_fixed_put(fixed , fxclose->iconBtn , 40 , 70);
