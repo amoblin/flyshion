@@ -198,7 +198,7 @@ void fx_set_initialize(FxSet* fxset)
 						   , psetting_label);
 
 	fxset->ssetting = gtk_vbox_new(FALSE , FALSE);
-	ssetting_label = gtk_label_new(_("System setting"));
+	ssetting_label = gtk_label_new(_("System Settings"));
 	gtk_notebook_append_page(GTK_NOTEBOOK(fxset->notebook)
 						   , fxset->ssetting
 						   , ssetting_label);

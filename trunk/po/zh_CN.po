@@ -866,7 +866,7 @@ msgid "Add contact"
 msgstr "添加好友"
 
 #: ../src/fx_main.c:1288 ../src/fx_set.c:201
-msgid "System setting"
+msgid "System Settings"
 msgstr "系统设置"
 
 #: ../src/fx_main.c:1292 ../src/fx_head.c:308
@@ -914,6 +914,7 @@ msgid "<b>Appearance</b>"
 msgstr "<b>外观</b>"
 
 #: ../src/fx_set.c:461
+#: ../src/fx_close.c:72
 msgid "Minimize to Tray"
 msgstr "最小化到托盘"
 
@@ -1013,10 +1014,6 @@ msgstr "确定要退出 OpenFetion 吗？"
 #: ../src/fx_close.c:70
 msgid "Exit OpenFetion"
 msgstr "退出 OpenFetion"
-
-#: ../src/fx_close.c:72
-msgid "Minimize to Tray"
-msgstr "最小化到托盘"
 
 #: ../src/fx_close.c:73
 msgid "Don't notify again"

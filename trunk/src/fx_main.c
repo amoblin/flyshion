@@ -1290,7 +1290,7 @@ void fx_main_tray_popmenu_func(
 						 , menu , fx_main_add_buddy_clicked , fxmain);
 		fx_main_create_menu1(_("Personal Settings") ,  GTK_STOCK_EDIT
 						 , menu , fx_main_personal_setting_clicked , fxmain);
-		fx_main_create_menu1(_("System setting") , GTK_STOCK_PREFERENCES
+		fx_main_create_menu1(_("System Settings") , GTK_STOCK_PREFERENCES
 						 , menu , fx_main_system_setting_clicked , fxmain);
 	}
 
