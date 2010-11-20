@@ -19,6 +19,8 @@
  ***************************************************************************/
 
 #include <openfetion.h>
+#include <errno.h>
+#include <unistd.h>
 
 static int parse_configuration_xml(User *user, const char *xml);
 static char* generate_configuration_body(User* user);
@@ -28,21 +30,18 @@ Config* fetion_config_new()
 {
 	char* homepath = NULL;
 	Config* config = NULL;
-	int e;
-	DIR *dir = NULL;
 
 	homepath = getenv("HOME");
 	config = (Config*)malloc(sizeof(Config));
 	memset(config , 0 , sizeof(Config));
 
-	sprintf(config->globalPath , "%s/.openfetion" , homepath);
-	dir = opendir(config->globalPath);
-	if(dir == NULL){
-		e = mkdir(config->globalPath , S_IRWXU|S_IRWXO|S_IRWXG);
-		if(e == -1){
-			debug_error("Create directory: %s failed" , config->globalPath);
-			return NULL;
-		}
+	snprintf(config->globalPath, sizeof(config->globalPath), "%s/.openfetion" , homepath);
+	int e;
+	e = mkdir(config->globalPath, S_IRWXU|S_IRWXO|S_IRWXG);
+	if(e && access(config->globalPath,R_OK|W_OK)){
+		debug_error("%s,cannot create, read or write", config->globalPath);
+		free(config);
+		return NULL;
 	}
 	config->ul = NULL;
 	config->iconSize = 25;
@@ -55,7 +54,6 @@ FxList* fetion_config_get_phrase(Config* config)
 	char path[256];
 	char sql[1024];
 	sqlite3 *db;
-	char *errMsg = NULL;
 	char **sqlres;
 	int ncols, nrows, i, start;
 	FxList *list, *pos;
@@ -63,17 +61,15 @@ FxList* fetion_config_get_phrase(Config* config)
 
 	list = fx_list_new(NULL);
 
-	sprintf(path , "%s/data.db" , config->userPath);
+	snprintf(path, sizeof(path), "%s/data.db" , config->userPath);
 	if(sqlite3_open(path, &db)){
 		debug_error("failed to load user list");
 		return list;
 	}
 
-	sprintf(sql, "select * from phrases order by id desc;");
-	if(sqlite3_get_table(db, sql, &sqlres,
-						&nrows, &ncols, &errMsg)){
-		debug_error("read phrases :%s",
-						sqlite3_errmsg(db));
+	snprintf(sql, sizeof(sql), "select * from phrases order by id desc;");
+	if(sqlite3_get_table(db, sql, &sqlres, &nrows, &ncols, NULL)){
+		debug_error("read phrases :%s",	sqlite3_errmsg(db));
 		sqlite3_close(db);
 		return list;
 	}
@@ -86,7 +82,8 @@ FxList* fetion_config_get_phrase(Config* config)
 		pos = fx_list_new(phrase);
 		fx_list_append(list , pos);
 	}
-
+	
+	sqlite3_free_table(sqlres);
 	sqlite3_close(db);
 	return list;
 }
@@ -104,7 +101,7 @@ void fetion_config_free(Config *config)
 }
 struct userlist* fetion_user_list_new(const char *no,
 	    	const char *password, const char *userid,
-			const char *sid, int laststate , int islastuser)
+		const char *sid, int laststate , int islastuser)
 {
 	struct userlist* ul;
 
@@ -123,6 +120,7 @@ struct userlist* fetion_user_list_new(const char *no,
 	ul->next = ul->pre = ul;
 	return ul;
 }
+
 void fetion_user_list_append(struct userlist* head , struct userlist* ul)
 {
 	head->next->pre = ul;
@@ -130,42 +128,41 @@ void fetion_user_list_append(struct userlist* head , struct userlist* ul)
 	ul->pre = head;
 	head->next = ul;
 }
+
 void fetion_user_list_save(Config* config , struct userlist* ul)
 {	
 	char path[256];
 	char sql[1024];
 	char password[1024];
 	sqlite3 *db;
-	char *errMsg = NULL;
 	struct userlist *pos;
 
 	memset(path , 0 , sizeof(path));
-	sprintf(path , "%s/data.db" , config->globalPath);
+	snprintf(path, sizeof(path), "%s/data.db" , config->globalPath);
 	if(sqlite3_open(path, &db)){
 		debug_error("failed to save user list");
 		return;
 	}
 
-	sprintf(sql, "delete from userlist;");
-	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
-		debug_error("delete userlist failed:%s",
-					errMsg ? errMsg : "");
+	snprintf(sql, sizeof(sql), "delete from userlist;");
+	if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
+		debug_error("delete userlist failed:%s", sqlite3_errmsg(db));
 		sqlite3_close(db);
 		return;
 	}
 
 
 	foreach_userlist(ul, pos){
-		sprintf(password, "%s", pos->password);
+		snprintf(password, sizeof(password), "%s", pos->password);
 		escape_sql(password);
-		sprintf(sql, "insert into userlist values"
+		snprintf(sql, sizeof(sql), "insert into userlist values"
 					"('%s','%s',%d,%d,'%s','%s')",
 					pos->no, password,
 					pos->laststate, pos->islastuser,
 				   	pos->userid, pos->sid);
-		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+		if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
 			debug_error("insert no : %s failed: %s",
-						pos->no, errMsg ? errMsg : "");
+					pos->no, sqlite3_errmsg(db));
 			continue;
 		}
 	}
@@ -195,15 +192,13 @@ struct userlist* fetion_user_list_find_by_no(struct userlist* list , const char*
 static int create_userlist_table(sqlite3 *db)
 {
 	char sql[1024];
-	char *errMsg;
 	sprintf(sql, "create table userlist (no, password"
 					", laststate, islastuser,userid,sid);");
-	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
-		debug_error("create table userlist failed:%s",
-						sqlite3_errmsg(db));
-		return 0;
+	if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
+		debug_error("create table userlist failed:%s", sqlite3_errmsg(db));
+		return 1;
 	}
-	return 1;
+	return 0;
 }
 
 struct userlist* fetion_user_list_load(Config* config)
@@ -211,45 +206,42 @@ struct userlist* fetion_user_list_load(Config* config)
 	char path[256];
 	char sql[1024];
 	sqlite3 *db;
-	char *errMsg = NULL;
 	char **sqlres;
 	struct userlist *res = NULL , *pos;
 	int ncols, nrows, i, start;
 
 	res = fetion_user_list_new(NULL, NULL, NULL, NULL, 0, 0);
 
-	sprintf(path , "%s/data.db" , config->globalPath);
+	snprintf(path, sizeof(path), "%s/data.db" , config->globalPath);
 	if(sqlite3_open(path, &db)){
 		debug_error("failed to load user list");
 		return res;
 	}
 
-	sprintf(sql, "select sid from userlist;");
-	if(sqlite3_get_table(db, sql, &sqlres,
-						&nrows, &ncols, &errMsg)){
+	snprintf(sql, sizeof(sql), "select sid from userlist;");
+	if(sqlite3_get_table(db, sql, &sqlres, &nrows, &ncols, NULL)){
 create_ul_table:
-		if(!create_userlist_table(db)){
+		if(create_userlist_table(db)){
 			sprintf(sql, "drop table userlist;");
-			if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
-				sqlite3_close(db);
-				return res;
+			if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
+				goto create_ul_table;
 			}
-			goto create_ul_table;
+			sqlite3_close(db);
+			return res;
 		}
 	}
-
-	sprintf(sql, "select * from userlist order by islastuser desc;");
-	if(sqlite3_get_table(db, sql, &sqlres,
-						&nrows, &ncols, &errMsg)){
-		if(!create_userlist_table(db)){
+	sqlite3_free_table(sqlres);
+	
+	snprintf(sql, sizeof(sql), "select * from userlist order by islastuser desc;");
+	if(sqlite3_get_table(db, sql, &sqlres, &nrows, &ncols, NULL)){
+		if(create_userlist_table(db)){
 			sqlite3_close(db);
 			return res;
 		}
 	}
 
 	if(nrows == 0 || ncols == 0){
-		sqlite3_close(db);
-		return res;
+		goto list_load_re;
 	}
 
 	debug_info("Loading user list store in local data file");
@@ -264,6 +256,9 @@ create_ul_table:
 		unescape_sql(pos->password);
 		fetion_user_list_append(res , pos);
 	}
+
+list_load_re:	
+	sqlite3_free_table(sqlres);
 	sqlite3_close(db);
 	return res;
 }
@@ -274,20 +269,19 @@ void fetion_user_list_update_userid(Config *config,
 	char path[256];
 	char sql[1024];
 	sqlite3 *db;
-	char *errMsg = NULL;
 
-	sprintf(path , "%s/data.db" , config->globalPath);
+	snprintf(path, sizeof(path), "%s/data.db" , config->globalPath);
 	if(sqlite3_open(path, &db)){
 		debug_error("failed to load user list");
 		return;
 	}
 
-	sprintf(sql, "update userlist set userid='%s' "
+	snprintf(sql, sizeof(sql), "update userlist set userid='%s' "
 			"where no='%s';",userid, no);
-	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
-		debug_error("update userlist:%s",
-						errMsg);
+	if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
+		debug_error("update userlist:%s", sqlite3_errmsg(db));
 	}
+	
 	sqlite3_close(db);
 	return;
 }
@@ -320,7 +314,7 @@ int fetion_config_download_configuration(User* user)
 
 	ip = get_ip_by_name(uri);
 	if(ip == NULL){
-		debug_error("Parse configuration uri (%s) failed!!!");
+		debug_error("Parse configuration uri (%s) failed!!!", uri);
 		return -1;
 	}
 	conn = tcp_connection_new();
@@ -333,11 +327,11 @@ int fetion_config_download_configuration(User* user)
 		return -1;
 
 	body = generate_configuration_body(user);
-	sprintf(http , "POST /nav/getsystemconfig.aspx HTTP/1.1\r\n"
+	snprintf(http, sizeof(http), "POST /nav/getsystemconfig.aspx HTTP/1.1\r\n"
 				   "User-Agent: IIC2.0/PC "PROTO_VERSION"\r\n"
 				   "Host: %s\r\n"
 				   "Connection: Close\r\n"
-				   "Content-Length: %d\r\n\r\n%s"
+				   "Content-Length: %ld\r\n\r\n%s"
 				 , uri , strlen(body) , body);
 	ret = tcp_connection_send(conn , http , strlen(http));
 	if(ret < 0)
@@ -345,7 +339,11 @@ int fetion_config_download_configuration(User* user)
 
 	res = http_connection_get_response(conn);
 	parse_configuration_xml(user, res);
+	
 	free(res);
+	free(ip);
+	free(conn);
+	free(body);
 	return 1;
 }
 int fetion_config_initialize(Config* config , const char* userid)
@@ -353,26 +351,22 @@ int fetion_config_initialize(Config* config , const char* userid)
 
 	DIR *userdir , *icondir;
 
-	sprintf(config->userPath , "%s/%s" , config->globalPath , userid);
-	sprintf(config->iconPath , "%s/icons" , config->userPath );
+	snprintf(config->userPath, sizeof(config->userPath), "%s/%s" , config->globalPath , userid);
+	snprintf(config->iconPath, sizeof(config->iconPath), "%s/icons" , config->userPath );
 
-	userdir = opendir(config->userPath);
+	int e;
+	e = mkdir(config->userPath, S_IRWXU|S_IRWXO|S_IRWXG);
+	if(e && access(config->userPath,R_OK|W_OK)){
+		debug_error("%s,cannot create, read or write", config->userPath);
+		return 1;
+	}
 
-	if(userdir == NULL){
-		int e = mkdir(config->userPath , S_IRWXU|S_IRWXO|S_IRWXG);
-		if(e == -1){
-			debug_error("Create directory: %s failed" , config->userPath);
-			return e;
-		}
+	e = mkdir(config->iconPath, S_IRWXU|S_IRWXO|S_IRWXG);
+	if(e && access(config->iconPath,R_OK|W_OK)){
+		debug_error("%s,cannot create, read or write",config->iconPath);
+		return 1;
 	}
-	icondir = opendir(config->iconPath);
-	if(icondir == NULL){
-		int e = mkdir(config->iconPath , S_IRWXU|S_IRWXO|S_IRWXG);
-		if(e == -1){
-			debug_error("Create directory: %s failed" , config->iconPath);
-			return e;
-		}
-	}
+		
 	return 0;
 }
 
@@ -407,13 +401,15 @@ static int parse_configuration_xml(User *user, const char *xml)
 	cnode = xml_goto_node(node, "parameters");
 	if(cnode && xmlHasProp(cnode, BAD_CAST "version")){
 		res = xmlGetProp(cnode, BAD_CAST "version");
-		strcpy(config->configParametersVersion, (char*)res);
+		strncpy(config->configParametersVersion, (char*)res, 
+			sizeof(config->configParametersVersion));
 		xmlFree(res);
 	}
 	cnode = xml_goto_node(node, "hints");
 	if(cnode && xmlHasProp(cnode, BAD_CAST "version")){
 		res = xmlGetProp(cnode, BAD_CAST "version");
-		strcpy(config->configHintsVersion, (char*)res);
+		strncpy(config->configHintsVersion, (char*)res,
+			sizeof(config->configHintsVersion));
 		xmlFree(res);
 	}
 	cnode = xml_goto_node(node, "sipc-proxy");
@@ -445,23 +441,19 @@ int fetion_config_load_size(Config *config)
 {
 	char path[256];
 	char sql[4096];
-	char *errMsg;
 	char **sqlres;
 	sqlite3 *db;
 	int ncols, nrows;
 
-	sprintf(path, "%s/data.db",
-				   	config->globalPath);
+	sprintf(path, "%s/data.db", config->globalPath);
 
 	if(sqlite3_open(path, &db)){
-		debug_error("open data.db:%s",
-					sqlite3_errmsg(db));
+		debug_error("open data.db:%s", sqlite3_errmsg(db));
 		return -1;
 	}
 
-	sprintf(sql, "select * from size;");
-	if(sqlite3_get_table(db, sql, &sqlres
-						, &nrows, &ncols, &errMsg)){
+	snprintf(sql, sizeof(sql), "select * from size;");
+	if(sqlite3_get_table(db, sql, &sqlres, &nrows, &ncols, NULL)){
 		sqlite3_close(db);
 		return -1;
 	}
@@ -471,6 +463,7 @@ int fetion_config_load_size(Config *config)
 	config->window_pos_x = atoi(sqlres[ncols+2]);
 	config->window_pos_y = atoi(sqlres[ncols+3]);
 
+	sqlite3_free_table(sqlres);
 	sqlite3_close(db);
 	return 1;
 }
@@ -480,44 +473,36 @@ int fetion_config_save_size(Config *config)
 	char path[256];
 	char sql[4096];
 	sqlite3 *db;
-	char *errMsg = NULL;
-	int count = 0;
 
-	sprintf(path , "%s/data.db" , config->globalPath);
+	snprintf(path, sizeof(path), "%s/data.db" , config->globalPath);
 
 	if(sqlite3_open(path, &db)){
 		debug_error("failed to load user list");
 		return -1;
 	}
 
-	sprintf(sql, "delete from size;");
-	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
-		sprintf(sql, "create table size ("
+	snprintf(sql, sizeof(sql), "delete from size;");
+	if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
+		snprintf(sql, sizeof(sql), "create table size ("
 				"window_width,window_height,"
 				"window_pos_x,window_pos_y);");
-		count ++;
-		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
-			debug_error("create table size:%s",
-							sqlite3_errmsg(db));
-			if(count == 2){
-				sqlite3_close(db);
-				return -1;
-			}
+		if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
+			debug_error("create table size:%s", sqlite3_errmsg(db));
 		}
 	}
 
-	sprintf(sql, "insert into size values ("
+	snprintf(sql, sizeof(sql), "insert into size values ("
 				"%d,%d,%d,%d);",
 				config->window_width,
 				config->window_height,
 				config->window_pos_x,
 				config->window_pos_y);
-	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
-		debug_error("save size:%s",
-					sqlite3_errmsg(db));
+	if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
+		debug_error("save size:%s", sqlite3_errmsg(db));
 		sqlite3_close(db);
 		return -1;
 	}
+	
 	sqlite3_close(db);
 	return 1;
 }
@@ -526,25 +511,21 @@ int fetion_config_load(User *user)
 {
 	char path[256];
 	char sql[4096];
-	char *errMsg;
 	char **sqlres;
 	sqlite3 *db;
 	int ncols, nrows;
 	Config *config = user->config;
 
-	sprintf(path, "%s/data.db",
-				   	config->userPath);
+	sprintf(path, "%s/data.db", config->userPath);
 
 	debug_info("Load configuration");
 	if(sqlite3_open(path, &db)){
-		debug_error("open data.db:%s",
-					sqlite3_errmsg(db));
+		debug_error("open data.db:%s error.", sqlite3_errmsg(db));
 		return -1;
 	}
 
 	sprintf(sql, "select * from config_2_0_2;");
-	if(sqlite3_get_table(db, sql, &sqlres
-						, &nrows, &ncols, &errMsg)){
+	if(sqlite3_get_table(db, sql, &sqlres, &nrows, &ncols, NULL)){
 		sqlite3_close(db);
 		return -1;
 	}
@@ -573,6 +554,7 @@ int fetion_config_load(User *user)
 	config->closeSysMsg = atoi(sqlres[ncols+21]);
 	config->closeFetionShow = atoi(sqlres[ncols+22]);
 
+	sqlite3_free_table(sqlres);
 	sqlite3_close(db);
 	return 1;
 
@@ -584,11 +566,10 @@ int fetion_config_save(User *user)
 	char sql[4096];
 	char sql1[4096];
 	sqlite3 *db;
-	char *errMsg = NULL;
 	int count = 0;
 	Config *config = user->config;
 
-	sprintf(path , "%s/data.db" , config->userPath);
+	snprintf(path, sizeof(path), "%s/data.db" , config->userPath);
 
 	debug_info("Save configuration");
 
@@ -598,9 +579,9 @@ int fetion_config_save(User *user)
 	}
 
 	sprintf(sql, "delete from config_2_0_2;");
-	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+	if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
 recreate:
-		sprintf(sql, "create table config_2_0_2 ("
+		snprintf(sql, sizeof(sql), "create table config_2_0_2 ("
 				"sipcProxyIP,sipcProxyPort,"
 				"portraitServerName,portraitServerPath,"
 				"iconSize,closeAlert,autoReply,isMute,"
@@ -610,9 +591,8 @@ recreate:
 				"hintsVersion,autoAway,autoAwayTimeout,"
 				"onlineNotify,closeSysMsg,closeFetionShow);");
 		count ++;
-		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
-			debug_error("create table config:%s",
-							sqlite3_errmsg(db));
+		if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
+			debug_error("create table config:%s",sqlite3_errmsg(db));
 			if(count == 2){
 				sqlite3_close(db);
 				return -1;
@@ -646,15 +626,13 @@ recreate:
 				config->autoAwayTimeout,
 				config->onlineNotify,
 				config->closeSysMsg,
-				config->closeFetionShow);
-	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
-		debug_error("save config:%s",
-					sqlite3_errmsg(db));
+				config->closeFetionShow);				
+	if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
+		debug_error("save config:%s", sqlite3_errmsg(db));
 
 		sprintf(sql1, "drop table config_2_0_2;");
-		if(sqlite3_exec(db, sql1, NULL, NULL, &errMsg)){
-			debug_error("drop table config:%s",
-						sqlite3_errmsg(db));
+		if(sqlite3_exec(db, sql1, NULL, NULL, NULL)){
+			debug_error("drop table config:%s", sqlite3_errmsg(db));
 		}
 		goto recreate;
 	}
@@ -664,99 +642,88 @@ recreate:
 
 Proxy* fetion_config_load_proxy()
 {
-	Proxy *proxy;
+	Proxy *proxy=NULL;
 	sqlite3 *db;
-	char *errMsg;
 	char **sqlres;
 	char sql[1024];
 	char path[1024];
 	int ncols, nrows;
 
-	proxy = (Proxy*)malloc(sizeof(Proxy));
-
-	sprintf(path, "%s/.openfetion/data.db",
-				   	getenv("HOME"));
+	snprintf(path, sizeof(path),"%s/.openfetion/data.db",getenv("HOME"));
 
 	debug_info("Read proxy information");
 	if(sqlite3_open(path, &db)){
-		debug_error("open data.db:%s",
-					sqlite3_errmsg(db));
+		debug_error("open data.db:%s", sqlite3_errmsg(db));
 		return NULL;
 	}
 
 	sprintf(sql, "select * from proxy;");
-	if(sqlite3_get_table(db, sql, &sqlres
-						, &nrows, &ncols, &errMsg)){
+	
+	if(sqlite3_get_table(db, sql, &sqlres, &nrows, &ncols, NULL)){
 		sprintf(sql, "create table proxy ("
 					"proxyEnabled, proxyHost,"
 					"proxyPort, proxyUser, proxyPass);");
-		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
-			debug_info("create table proxy:%s",
-							errMsg);
+		if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
+			debug_info("create table proxy:%s", sqlite3_errmsg(db));
 		}
-		sqlite3_close(db);
-		return NULL;
+		goto load_proxy;
 	}
 	if(!nrows)
-		return NULL;
-
+		goto load_proxy;
+	
+	proxy = (Proxy*)malloc(sizeof(Proxy));
 	proxy->proxyEnabled = atoi(sqlres[ncols]);
 	strcpy(proxy->proxyHost, sqlres[ncols+1]);
 	proxy->proxyPort = atoi(sqlres[ncols+2]);
 	strcpy(proxy->proxyUser, sqlres[ncols+3]);
 	strcpy(proxy->proxyPass, sqlres[ncols+4]);
 
+load_proxy:	
+	sqlite3_close(db);
 	return proxy;
 }
 
 void fetion_config_save_proxy(Proxy *proxy)
 {
 	sqlite3 *db;
-	char *errMsg;
 	char **sqlres;
 	char sql[1024];
 	char path[1024];
 	int ncols, nrows;
 
-	sprintf(path, "%s/.openfetion/data.db",
-				   	getenv("HOME"));
+	snprintf(path, sizeof(path), "%s/.openfetion/data.db", getenv("HOME"));
 
 	debug_info("Save proxy information");
 	if(sqlite3_open(path, &db)){
-		debug_error("open data.db:%s",
-					sqlite3_errmsg(db));
+		debug_error("open data.db:%s", sqlite3_errmsg(db));
 		return;
 	}
 
 	sprintf(sql, "select * from proxy;");
-	if(sqlite3_get_table(db, sql, &sqlres
-						, &nrows, &ncols, &errMsg)){
+	if(sqlite3_get_table(db, sql, &sqlres, &nrows, &ncols, NULL)){
 		sprintf(sql, "create table proxy ("
 					"proxyEnabled, proxyHost,"
 					"proxyPort, proxyUser, proxyPass);");
-		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
-			debug_error("create table proxy:%s",
-							errMsg ? errMsg : "");
+		if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
+			debug_error("create table proxy:%s",sqlite3_errmsg(db));
 		}
 		nrows = 0;
-		sqlite3_close(db);
 	}
 
 	if(nrows == 0){
-		sprintf(sql, "insert into proxy values("
+		snprintf(sql, sizeof(sql), "insert into proxy values("
 					"%d,'%s',%d,'%s','%s');",
 					proxy->proxyEnabled,
 					proxy->proxyHost,
 					proxy->proxyPort,
 					proxy->proxyUser,
 					proxy->proxyPass);
-		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
-			debug_error("insert into proxy:%s",
-							errMsg ? errMsg : "");
+		if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
+			debug_error("insert into proxy:%s",sqlite3_errmsg(db));
 			return;
 		}
 	}else{
-		sprintf(sql, "update proxy set proxyEnabled=%d,"
+		snprintf(sql, sizeof(sql), "update proxy set proxyEnabled=%d,"
 					"proxyHost='%s',proxyPort='%d',"
 					"proxyUser='%s',proxyPass='%s';",
 					proxy->proxyEnabled,
@@ -764,12 +731,12 @@ void fetion_config_save_proxy(Proxy *proxy)
 					proxy->proxyPort,
 					proxy->proxyUser,
 					proxy->proxyPass);
-		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
-			debug_error("update proxy:%s",
-							errMsg ? errMsg : "");
+		if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
+			debug_error("update proxy:%s", sqlite3_errmsg(db));
 			return;
 		}
 	}
+	
 }
 
 static char* generate_configuration_body(User* user)
@@ -917,7 +884,6 @@ static void save_phrase(xmlNodePtr node, User *user)
 {
 	char path[256];
 	char sql[4096];
-	char *errMsg;
 	sqlite3 *db;
 	xmlChar *res, *res1;
 	Config *config = user->config;
@@ -926,24 +892,19 @@ static void save_phrase(xmlNodePtr node, User *user)
 	if(!node)
 		return;
 
-	sprintf(path, "%s/data.db",
-				   	config->userPath);
+	snprintf(path, sizeof(path), "%s/data.db",config->userPath);
 
 	debug_info("Load user information");
 	if(sqlite3_open(path, &db)){
-		debug_error("open data.db:%s",
-					sqlite3_errmsg(db));
+		debug_error("open data.db:%s",sqlite3_errmsg(db));
 		return;
 	}
 
-	sprintf(sql, "delete from phrases;");
-	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
-		sprintf(sql, "create table phrases "
-					"(id,content);");
-		if(sqlite3_exec(db, sql,
-					NULL, NULL, &errMsg)){
-			debug_error("create table phrase:%s",
-						errMsg?errMsg:"");
+	snprintf(sql, sizeof(sql),"delete from phrases;");
+	if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
+		sprintf(sql, "create table phrases (id,content);");
+		if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
+			debug_error("create table phrase:%s", sqlite3_errmsg(db));
 			sqlite3_close(db);
 			return;
 		}
@@ -952,14 +913,12 @@ static void save_phrase(xmlNodePtr node, User *user)
 	while(node){
 		res = xmlNodeGetContent(node);
 		res1 = xmlGetProp(node , BAD_CAST "id");
-		sprintf(sql, "insert into phrases values ("
-					"%s,'%s');", (char*)res1, (char*)res);
+		snprintf(sql, sizeof(sql),"insert into phrases values (%s,'%s');", 
+				(char*)res1, (char*)res);
 		xmlFree(res);
 		xmlFree(res1);
-		if(sqlite3_exec(db, sql,
-					NULL, NULL, &errMsg)){
-			debug_error("insert phrase:%s\n%s",
-						errMsg?errMsg:"", sql);
+		if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
+			debug_error("insert phrase:%s\n%s", sqlite3_errmsg(db), sql);
 		}
 		node = node->next;
 	}
@@ -969,25 +928,22 @@ int fetion_user_list_remove(Config *config, const char *no)
 {
 	char path[256];
 	char sql[4096];
-	char *errMsg;
 	sqlite3 *db;
 
-	sprintf(path, "%s/data.db",
-				   	config->globalPath);
+	snprintf(path, sizeof(path), "%s/data.db", config->globalPath);
 
 	if(sqlite3_open(path, &db)){
-		debug_error("open data.db:%s",
-					sqlite3_errmsg(db));
+		debug_error("open data.db:%s", sqlite3_errmsg(db));
 		return -1;
 	}
 
-	sprintf(sql, "delete from userlist where "
-				"no='%s';", no);
-	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
-		debug_info("remove user list:%s", errMsg);
+	snprintf(sql, sizeof(sql), "delete from userlist where no='%s';", no);
+	if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
+		debug_info("remove user list:%s", sqlite3_errmsg(db));
 		sqlite3_close(db);
 		return -1;
 	}
+	
 	sqlite3_close(db);
 	return 1;
 }

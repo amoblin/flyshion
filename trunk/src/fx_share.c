@@ -102,7 +102,6 @@ void fx_share_initialize(FxShare *fxshare)
 	
 
 	gtk_widget_show_all(fxshare->dialog);
-	gtk_widget_hide(fxshare->dialog);
 }
 
 FxShare *fx_share_find_by_sipuri(FxList *fxlist , const char *sipuri)

@@ -85,8 +85,10 @@ FetionConnection* tcp_connection_new_with_port(const int port)
 	conn = (FetionConnection*)malloc(sizeof(FetionConnection));
 	memset(conn , 0 , sizeof(FetionConnection));
 	conn->socketfd = socket(AF_INET , SOCK_STREAM , 0);
-	if(tcp_keep_alive(conn->socketfd) == -1)
+	if(tcp_keep_alive(conn->socketfd) == -1){
+		free(conn);
 		return NULL;
+	}
 	conn->local_port = port;
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = INADDR_ANY;
@@ -94,6 +96,7 @@ FetionConnection* tcp_connection_new_with_port(const int port)
 	ret = bind(conn->socketfd , (struct sockaddr*)(&addr) , sizeof(struct sockaddr));
 	if(ret == -1){
 		printf("Failed to bind");
+		free(conn);
 		return NULL;
 	}
 	return conn;
@@ -108,8 +111,10 @@ FetionConnection* tcp_connection_new_with_ip_and_port(const char* ipaddress , co
 	conn = (FetionConnection*)malloc(sizeof(FetionConnection));
 	memset(conn , 0 , sizeof(FetionConnection));
 	conn->socketfd = socket(AF_INET , SOCK_STREAM , 0);
-	if(tcp_keep_alive(conn->socketfd) == -1)
+	if(tcp_keep_alive(conn->socketfd) == -1){
+		free(conn);
 		return NULL;
+	}
 	strcpy(conn->local_ipaddress , ipaddress);
 	conn->local_port = port;
 	addr.sin_family = AF_INET;
@@ -117,7 +122,8 @@ FetionConnection* tcp_connection_new_with_ip_and_port(const char* ipaddress , co
 	addr.sin_port = htons(port);
 	ret = bind(conn->socketfd , (struct sockaddr*)(&addr) , sizeof(struct sockaddr));
 	if(ret == -1)
-	{
+	{	
+		free(conn);
 		printf("Failed to bind");
 		return NULL;
 	}
@@ -285,14 +291,13 @@ int ssl_connection_start(FetionConnection* conn)
 }
 char* ssl_connection_get(FetionConnection* conn , const char* buf)
 {
-	int n;
 	char* ret;
 	
 	ret = (char*)malloc(1025);
 	memset(ret , 0 , 1025);
 
 	SSL_write(conn->ssl, buf, strlen(buf));
-	n = SSL_read(conn->ssl, ret , 1024);
+	SSL_read(conn->ssl, ret , 1024);
 	return ret; 
 }
 

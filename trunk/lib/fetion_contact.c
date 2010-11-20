@@ -765,6 +765,7 @@ static Contact* parse_add_buddy_response(const char* sipmsg , int* statuscode)
 	if(node == NULL)
 	{
 		*statuscode = 400;
+		free(contact);
 		return NULL;
 	}
 	if(xmlHasProp(node , BAD_CAST "uri"))
@@ -914,7 +915,6 @@ void fetion_contact_load(User *user, int *gcount, int *bcount)
 	char path[256];
 	char sql[4096];
 	sqlite3 *db;
-	char *errMsg = NULL;
 	char **sqlres;
 	int ncols, nrows, i, j, start;
 	Contact *pos;
@@ -933,8 +933,7 @@ void fetion_contact_load(User *user, int *gcount, int *bcount)
 	}
 
 	sprintf(sql, "select * from groups order by groupid;");
-	if(sqlite3_get_table(db, sql, &sqlres,
-						&nrows, &ncols, &errMsg)){
+	if(sqlite3_get_table(db, sql, &sqlres, &nrows, &ncols, NULL)){
 		sqlite3_close(db);
 		return;
 	}
@@ -953,8 +952,7 @@ void fetion_contact_load(User *user, int *gcount, int *bcount)
 	sqlite3_free_table(sqlres);
 
 	sprintf(sql, "select * from contacts;");
-	if(sqlite3_get_table(db, sql, &sqlres,
-						&nrows, &ncols, &errMsg)){
+	if(sqlite3_get_table(db, sql, &sqlres, &nrows, &ncols, NULL)){
 		sqlite3_close(db);
 		return;
 	}
@@ -998,7 +996,6 @@ void fetion_contact_save(User *user)
 	char path[256];
 	char sql[4096];
 	sqlite3 *db;
-	char *errMsg = NULL;
 	Contact *pos;
 	Group *gpos;
 	Config *config = user->config;
@@ -1011,18 +1008,17 @@ void fetion_contact_save(User *user)
 		return;
 	}
 	/* begin transaction */
-	if(sqlite3_exec(db, "BEGIN TRANSACTION;", 0,0, &errMsg)){
-		debug_error("begin transaction :%s", errMsg);
+	if(sqlite3_exec(db, "BEGIN TRANSACTION;", 0,0, NULL)){
+		debug_error("begin transaction :%s", sqlite3_errmsg(db));
 		sqlite3_close(db);
 		return;
 	}
 
 	sprintf(sql, "delete from groups");
-	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+	if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
 		sprintf(sql, "create table groups (groupid,groupname)");
-		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
-			debug_error("create table groups:%s",
-							sqlite3_errmsg(db));
+		if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
+			debug_error("create table groups:%s", sqlite3_errmsg(db));
 			sqlite3_close(db);
 			return;
 		}
@@ -1031,15 +1027,14 @@ void fetion_contact_save(User *user)
 		snprintf(sql, sizeof(sql)-1, "insert into groups "
 				"values (%d,'%s');", gpos->groupid,
 				gpos->groupname);
-		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
-			debug_error("insert group info:%s",
-							sqlite3_errmsg(db));
+		if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
+			debug_error("insert group info:%s", sqlite3_errmsg(db));
 			continue;
 		}
 	}
 	
 	sprintf(sql, "delete from contacts;");
-	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+	if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
 		sprintf(sql, "create table contacts (userId,"
 						"sId,sipuri,localname,nickname,"
 						"impression,mobileno,devicetype,"
@@ -1047,9 +1042,8 @@ void fetion_contact_save(User *user)
 						"province,city,identity,scoreLevel,"
 						"serviceStatus,carrierStatus,"
 						"relationStatus,carrier,groupid,gender);");
-		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
-			debug_error("create table contacts:%s",
-							sqlite3_errmsg(db));
+		if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
+			debug_error("create table contacts:%s", sqlite3_errmsg(db));
 			sqlite3_close(db);
 			return;
 		}
@@ -1070,13 +1064,13 @@ void fetion_contact_save(User *user)
 				pos->serviceStatus, pos->carrierStatus,
 				pos->relationStatus, pos->carrier,
 				pos->groupid, pos->gender);
-		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg))
+		if(sqlite3_exec(db, sql, NULL, NULL, NULL))
 			debug_error("insert contact %s:%s\n%s",
-							pos->userId, errMsg ? errMsg : "", sql);
+					pos->userId, sqlite3_errmsg(db), sql);
 	}
 	/* begin transaction */
-	if(sqlite3_exec(db, "END TRANSACTION;", 0,0, &errMsg)){
-		debug_error("end transaction :%s", errMsg);
+	if(sqlite3_exec(db, "END TRANSACTION;", 0,0, NULL)){
+		debug_error("end transaction :%s", sqlite3_errmsg(db));
 		sqlite3_close(db);
 		return;
 	}
@@ -1089,7 +1083,6 @@ void fetion_contact_update(User *user, Contact *contact)
 	char path[256];
 	char sql[4096];
 	sqlite3 *db;
-	char *errMsg = NULL;
 	Config *config = user->config;
 
 	debug_info("Update contact information");
@@ -1121,9 +1114,8 @@ void fetion_contact_update(User *user, Contact *contact)
 			contact->relationStatus, contact->carrier,
 			contact->groupid, contact->gender, contact->userId);
 
-	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
-		debug_error("update contact %s:%s",
-					contact->userId, errMsg ? errMsg : "");
+	if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
+		debug_error("update contact %s:%s", contact->userId, sqlite3_errmsg(db));
 		sprintf(sql, "create table contacts (userId,"
 					"sId,sipuri,localname,nickname,"
 					"impression,mobileno,devicetype,"
@@ -1131,9 +1123,8 @@ void fetion_contact_update(User *user, Contact *contact)
 					"province,city,identity,scoreLevel,"
 					"serviceStatus,carrierStatus,"
 					"relationStatus,carrier,groupid,gender);");
-		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
-			debug_error("create table contacts:%s",
-						sqlite3_errmsg(db));
+		if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
+			debug_error("create table contacts:%s", sqlite3_errmsg(db));
 			sqlite3_close(db);
 			return;
 		}
@@ -1152,9 +1143,8 @@ void fetion_contact_update(User *user, Contact *contact)
 					contact->relationStatus, contact->carrier,
 					contact->groupid, contact->gender);
 
-		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
-			debug_error("insert contacts:%s",
-							sqlite3_errmsg(db));
+		if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
+			debug_error("insert contacts:%s", sqlite3_errmsg(db));
 			sqlite3_close(db);
 			return;
 		}
@@ -1167,7 +1157,6 @@ int fetion_contact_del_localbuddy(User *user, const char *userid)
 	char path[256];
 	char sql[4096];
 	sqlite3 *db;
-	char *errMsg = NULL;
 	Config *config = user->config;
 
 	sprintf(path , "%s/data.db" , config->userPath);
@@ -1178,9 +1167,8 @@ int fetion_contact_del_localbuddy(User *user, const char *userid)
 
 	sprintf(sql, "delete from contacts where "
 			"userid='%s';", userid);
-	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
-		debug_error("failed to delete localbuddy:%s",
-				errMsg);
+	if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
+		debug_error("failed to delete localbuddy:%s",sqlite3_errmsg(db));
 		return -1;
 	}
 	return 1;
@@ -1191,7 +1179,6 @@ int fetion_contact_del_localgroup(User *user, const char *userid)
 	char path[256];
 	char sql[4096];
 	sqlite3 *db;
-	char *errMsg = NULL;
 	Config *config = user->config;
 
 	sprintf(path , "%s/data.db" , config->userPath);
@@ -1202,9 +1189,8 @@ int fetion_contact_del_localgroup(User *user, const char *userid)
 
 	sprintf(sql, "delete from groups where "
 			"id='%s';", userid);
-	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
-		debug_error("failed to delete localgroup:%s",
-				errMsg);
+	if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
+		debug_error("failed to delete localgroup:%s",sqlite3_errmsg(db));
 		return -1;
 	}
 	return 1;
@@ -1213,7 +1199,8 @@ int fetion_contact_del_localgroup(User *user, const char *userid)
 static int has_special_word(const char *in)
 {
 	int i = 0;
-	for(;i< strlen(in); i++){
+	int inlength=(int)strlen(in);
+	for(;i< inlength; i++){
 		if(in[i] == '\'')
 			return 1;
 	}

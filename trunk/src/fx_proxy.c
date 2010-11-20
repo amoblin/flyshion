@@ -151,7 +151,6 @@ void fx_proxy_initialize(FxProxy *fxproxy)
 	}
 	/* show widgets*/
 	gtk_widget_show_all(fxproxy->dialog);
-	gtk_widget_hide(fxproxy->dialog);
 
 }
 
@@ -168,7 +167,7 @@ void fx_proxy_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 		memset(proxy , 0 , sizeof(proxy));
 		proxy->proxyEnabled = TRUE;
 		text = gtk_entry_get_text(GTK_ENTRY(fxproxy->hostEntry));
-		if(strlen(text) == 0)
+		if(text == NULL)
 		{
 			gtk_label_set_markup(GTK_LABEL(fxproxy->errorLabel)
 					, _("<span color='red'>Please input hostname</span>"));
@@ -177,7 +176,7 @@ void fx_proxy_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 		strcpy(proxy->proxyHost , text);
 		text = gtk_entry_get_text(GTK_ENTRY(fxproxy->portEntry));
 		proxy->proxyPort = atoi(text);
-		if(strlen(text) == 0)
+		if(text == NULL)
 		{
 			gtk_label_set_markup(GTK_LABEL(fxproxy->errorLabel)
 					, _("<span color='red'>Please input port number</span>"));

@@ -158,7 +158,7 @@ int fetion_directsms_send_subscribe(User *user , const char *code , char **error
 				   "Cookie: ssic=%s\r\n"
 				   "Accept: */*\r\n"
 				   "Host: %s\r\n"
-				   "Content-Length: %d\r\n"
+				   "Content-Length: %ld\r\n"
 				   "Content-Type: application/x-www-form-urlencoded;"
 				   "charset=utf-8\r\n"
 				   "User-Agent: IIC2.0/PC "PROTO_VERSION"\r\n"

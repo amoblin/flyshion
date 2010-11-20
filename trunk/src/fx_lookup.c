@@ -63,7 +63,6 @@ void fx_lookup_initialize(FxLookup* fxlookup)
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxlookup->dialog)->action_area) , fxlookup->cancel_button);
 	g_signal_connect(fxlookup->cancel_button , "clicked" , G_CALLBACK(fx_lookup_on_cancel_clicked) , fxlookup->dialog);
 	gtk_widget_show_all(fxlookup->dialog);
-	gtk_widget_hide(fxlookup->dialog);
 }
 void* fx_lookup_ok_thread(void* data)
 {

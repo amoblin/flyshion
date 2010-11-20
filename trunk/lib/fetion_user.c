@@ -406,7 +406,7 @@ int fetion_user_download_portrait_with_uri(User *user , const char *sipuri
 		debug_error("Parse server ip address failed , %s" , server);
 		return -1;
 	}
-	if(! sipuri || strlen(sipuri) == 0)
+	if(sipuri == NULL)
 		return -1;
 	friendSid = fetion_sip_get_sid_by_sipuri(sipuri);
 	if(friendSid == NULL)
@@ -720,7 +720,7 @@ Contact* fetion_user_parse_presence_body(const char* body , User* user)
 		if(xmlHasProp(cnode , BAD_CAST "dt"))
 		{
 			pos = xmlGetProp(cnode , BAD_CAST "dt");
-			strcpy(currentContact->devicetype ,  strlen((char*)pos) == 0 ? "PC" : (char*)pos);
+			strcpy(currentContact->devicetype ,  pos==NULL ? "PC" : (char*)pos);
 			xmlFree(pos);
 		}
 		if(xmlHasProp(cnode , BAD_CAST "b"))
@@ -803,7 +803,6 @@ void fetion_user_save(User *user)
 	char sql[4096];
 	char password[4096];
 	char impression[4096];
-	char *errMsg;
 	sqlite3 *db;
 	Config *config = user->config;
 
@@ -818,7 +817,7 @@ void fetion_user_save(User *user)
 	}
 
 	sprintf(sql, "delete from user;");
-	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
+	if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
 		sprintf(sql, "create table user ("
 					"sId,userId,mobileno,password,sipuri,"
 					"publicIp,lastLoginIp,lastLoginTime,"
@@ -827,9 +826,8 @@ void fetion_user_save(User *user)
 					"city,gender,smsOnLineStatus,"
 					"customConfigVersion, customConfig,"
 					"boundToMobile);");
-		if(sqlite3_exec(db, sql, NULL, NULL, &errMsg)){
-			debug_error("create table user:%s",
-							errMsg ? errMsg : "");
+		if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
+			debug_error("create table user:%s", sqlite3_errmsg(db));
 			sqlite3_close(db);
 			return;
 		}
@@ -851,9 +849,8 @@ void fetion_user_save(User *user)
 				user->province, user->city, user->gender,
 				user->smsOnLineStatus, user->customConfigVersion,
 				user->customConfig, user->boundToMobile);
-	if(sqlite3_exec(db, sql, NULL, NULL, &errMsg))
-		debug_error("update user:%s\n%s",
-						errMsg ? errMsg : "", sql);
+	if(sqlite3_exec(db, sql, NULL, NULL, NULL))
+		debug_error("update user:%s\n%s", sqlite3_errmsg(db), sql);
 
 	sqlite3_close(db);
 }
@@ -862,25 +859,21 @@ void fetion_user_load(User *user)
 {
 	char path[256];
 	char sql[4096];
-	char *errMsg;
 	char **sqlres;
 	sqlite3 *db;
 	int ncols, nrows;
 	Config *config = user->config;
 
-	sprintf(path, "%s/data.db",
-				   	config->userPath);
+	sprintf(path, "%s/data.db",config->userPath);
 
 	debug_info("Load user information");
 	if(sqlite3_open(path, &db)){
-		debug_error("open data.db:%s",
-					sqlite3_errmsg(db));
+		debug_error("open data.db:%s", sqlite3_errmsg(db));
 		return;
 	}
 
 	sprintf(sql, "select * from user;");
-	if(sqlite3_get_table(db, sql, &sqlres
-						, &nrows, &ncols, &errMsg)){
+	if(sqlite3_get_table(db, sql, &sqlres, &nrows, &ncols, NULL)){
 		sqlite3_close(db);
 		return;
 	}
@@ -915,7 +908,8 @@ void fetion_user_load(User *user)
 
 	unescape_sql(user->password);
 	unescape_sql(user->impression);
-
+	
+	sqlite3_free_table(sqlres);
 	sqlite3_close(db);
 }
 

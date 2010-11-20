@@ -62,7 +62,6 @@ void fx_edit_initialize(FxEdit* fxedit)
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxedit->dialog)->action_area) , fxedit->cancel_button);
 	g_signal_connect(fxedit->cancel_button , "clicked" , G_CALLBACK(fx_edit_on_cancel_clicked) , fxedit->dialog);
 	gtk_widget_show_all(fxedit->dialog);
-	gtk_widget_hide(fxedit->dialog);
 }
 
 void fx_edit_free(FxEdit* fxedit)
@@ -79,7 +78,7 @@ void fx_edit_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 	GtkTreeIter iter = fxedit->iter;
 	const char* name = gtk_entry_get_text(GTK_ENTRY(fxedit->remark_entry));
 
-	if(strlen(name) == 0)
+	if(name == NULL)
 		return;
 	if(fetion_contact_set_displayname(user , fxedit->userid , name) > 0)
 	{

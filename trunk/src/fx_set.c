@@ -105,7 +105,7 @@ static void fx_set_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 	else
 	{
 		nickname = gtk_entry_get_text(GTK_ENTRY(fxset->nick_entry));
-		if(strlen(nickname) == 0)
+		if(nickname == NULL)
 		{
 			fx_util_popup_warning(fxset->fxmain , _("Nick can not be empty!"));
 			return;
@@ -192,13 +192,13 @@ void fx_set_initialize(FxSet* fxset)
 					 , fxset->notebook , FALSE , FALSE , 0);
 
 	fxset->psetting = gtk_vbox_new(FALSE , FALSE);
-	psetting_label = gtk_label_new(_("Personal Settings"));
+	psetting_label = gtk_label_new(_("Personal setting"));
 	gtk_notebook_append_page(GTK_NOTEBOOK(fxset->notebook)
 						   , fxset->psetting
 						   , psetting_label);
 
 	fxset->ssetting = gtk_vbox_new(FALSE , FALSE);
-	ssetting_label = gtk_label_new(_("System Settings"));
+	ssetting_label = gtk_label_new(_("System setting"));
 	gtk_notebook_append_page(GTK_NOTEBOOK(fxset->notebook)
 						   , fxset->ssetting
 						   , ssetting_label);
@@ -216,7 +216,6 @@ void fx_set_initialize(FxSet* fxset)
 	fx_set_initialize_system(fxset);
 
 	gtk_widget_show_all(fxset->dialog);
-	gtk_widget_hide(fxset->dialog);
 }
 
 void fx_set_bind_system(FxSet* fxset)
@@ -317,7 +316,7 @@ void fx_set_initialize_personal(FxSet* fxset)
 	g_object_unref(pb);
 	gtk_fixed_put(GTK_FIXED(box) , fxset->image , 10 , 15 );
 
-	fxset->sid_label = gtk_label_new(_("Fetion Number:"));
+	fxset->sid_label = gtk_label_new(_("Fetion number:"));
 	gtk_misc_set_alignment(GTK_MISC(fxset->sid_label) , 0 , 0);
 	gtk_fixed_put(GTK_FIXED(box) , fxset->sid_label , 120 , 10 );
 
@@ -337,7 +336,7 @@ void fx_set_initialize_personal(FxSet* fxset)
 	gtk_widget_set_usize(fxset->gender_combo , 150 , 25);
 	gtk_fixed_put(GTK_FIXED(box) , fxset->gender_combo , 310 , 30 );
 
-	fxset->mno_label = gtk_label_new(_("Cell Phone Number:"));
+	fxset->mno_label = gtk_label_new(_("Cell phone number:"));
 	gtk_misc_set_alignment(GTK_MISC(fxset->mno_label) , 0 , 0);
 	gtk_fixed_put(GTK_FIXED(box) , fxset->mno_label , 120 , 60 );
 
@@ -352,7 +351,7 @@ void fx_set_initialize_personal(FxSet* fxset)
 	fxset->nick_entry = gtk_entry_new();
 	gtk_fixed_put(GTK_FIXED(box) , fxset->nick_entry , 310 , 80 );
 
-	fxset->impre_label = gtk_label_new(_("Personal Signature:"));
+	fxset->impre_label = gtk_label_new(_("Personal signature:"));
 	gtk_misc_set_alignment(GTK_MISC(fxset->impre_label) , 0 , 0);
 	gtk_fixed_put(GTK_FIXED(box) , fxset->impre_label , 10 , 115 );
 

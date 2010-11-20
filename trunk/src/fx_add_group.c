@@ -89,7 +89,6 @@ void fx_add_group_initialize(FxAddGroup* fxaddgroup)
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxaddgroup->dialog)->action_area) , fxaddgroup->cancel_button);
 	g_signal_connect(fxaddgroup->cancel_button , "clicked" , G_CALLBACK(fx_add_group_on_cancel_clicked) , fxaddgroup->dialog);
 	gtk_widget_show_all(fxaddgroup->dialog);
-	gtk_widget_hide(fxaddgroup->dialog);
 }
 
 void fx_add_group_free(FxAddGroup* fxaddgroup)

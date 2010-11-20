@@ -91,8 +91,6 @@ void fx_confirm_initialize(FxConfirm *fxconfirm)
 			, G_CALLBACK(fx_confirm_on_cancel_clicked) , fxconfirm);
 
 	gtk_widget_show_all(fxconfirm->dialog);
-	gtk_widget_hide(fxconfirm->dialog);
-
 }
 
 FxDSMS* fx_dsms_new(FxMain *fxmain)
@@ -118,7 +116,7 @@ add_contact(gpointer data)
 	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"online.svg",
 				   22 , 22 , NULL);
 	number = gtk_entry_get_text(GTK_ENTRY(fxdsms->numberEntry));
-	if(strlen(number) == 0)
+	if(number == NULL)
 		return;
 	gtk_tree_store_append(GTK_TREE_STORE(model) , &iter , NULL);
 	gtk_tree_store_set(GTK_TREE_STORE(model) , &iter
@@ -439,7 +437,7 @@ fx_dsms_send_message(FxDSMS *fxdsms)
 	gtk_text_buffer_get_end_iter(buffer1 , &end);
 
 	message = gtk_text_buffer_get_text(buffer1 , &begin , &end , TRUE);
-	if(strlen(message) == 0)
+	if(message == NULL)
 		return;
 	bzero(msg , sizeof(msg));
 	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxdsms->checkBtn))){

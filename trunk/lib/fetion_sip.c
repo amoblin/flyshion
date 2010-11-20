@@ -17,7 +17,7 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-
+#define _XOPEN_SOURCE
 #include <openfetion.h>
 
 int callid = 1;
@@ -91,7 +91,7 @@ SipHeader* fetion_sip_ack_header_new(const char* code , const char* algorithm , 
 SipHeader* fetion_sip_event_header_new(int eventType)
 {
 	char event[48];
-	bzero(event , sizeof(event));
+	memset(event, 0, sizeof(event));
 	switch(eventType)
 	{
 		case SIP_EVENT_PRESENCE :
@@ -174,7 +174,7 @@ SipHeader* fetion_sip_event_header_new(int eventType)
 SipHeader* fetion_sip_credential_header_new(const char* credential)
 {
 	char value[64];
-	bzero(value , sizeof(value));
+	memset(value , 0, sizeof(value));
 	sprintf(value , "TICKS auth=\"%s\"" , credential);
 	return fetion_sip_header_new("A" , value);
 }
@@ -233,8 +233,10 @@ char* fetion_sip_to_string(FetionSip* sip , const char* body)
 			break;
 	};
 
-	if(strlen(type) == 0)
+	if(type == NULL){
+		free(res);
 		return NULL;
+	}
 
 	sprintf(buf, "%s fetion.com.cn SIP-C/4.0\r\n"
 			"F: %s\r\n"
@@ -260,7 +262,7 @@ char* fetion_sip_to_string(FetionSip* sip , const char* body)
 		free(tmp);
 	}
 	if(body){
-		sprintf(buf , "L: %d\r\n\r\n" , strlen(body));
+		sprintf(buf , "L: %ld\r\n\r\n" , strlen(body));
 		strcat(res , buf);
 		strcat(res , body);
 	}else{
@@ -326,7 +328,7 @@ int fetion_sip_get_length(const char* sip)
 {
 	char res[6];
 	char name[] = "L";
-	bzero(res , sizeof(res));
+	memset(res, 0, sizeof(res));
 	if(fetion_sip_get_attr(sip , name , res) == -1)
 		return 0;
 	return atoi(res);
@@ -355,7 +357,7 @@ int fetion_sip_get_type(const char* sip)
 		return SIP_UNKNOWN;
 
 	n = strlen(sip) - strlen(strstr(sip , " "));
-	bzero(res , sizeof(res));
+	memset(res, 0, sizeof(res));
 	strncpy(res , sip , n);
 	if(strcmp(res , "I") == 0 )
 		return SIP_INVITATION;
@@ -475,7 +477,7 @@ SipMsg *fetion_sip_listen(FetionSip *sip, int *error)
 			body_len = fetion_sip_get_length(holder);
 		}
 
-		if(cur == NULL || strlen(cur) == 0)
+		if(cur == NULL)
 			return list;
 
 		if(body_len == 0 && pos){
@@ -577,7 +579,7 @@ SipMsg* fetion_sip_listen1(FetionSip* sip)
 			free(strBeforeSpt);
 		}
 		/* if read to the end of buffer , just return */
-		if(buf == NULL || strlen(buf) == 0 )
+		if(buf == NULL)
 			return msglist;
 
 		/**
@@ -650,7 +652,7 @@ SipMsg* fetion_sip_listen1(FetionSip* sip)
 			len = strlen(buf) - strlen(pos);
 			msglen = len + 4 + bodyLen;
 			msg->message = (char*)malloc(msglen + 1);
-			bzero(msg->message , msglen + 1);
+			memset(msg->message, 0, msglen + 1);
 			strncpy(msg->message , buf , len + 4);
 			pos += 4;
 			if(strlen(pos) == (unsigned int)bodyLen)
@@ -676,7 +678,7 @@ SipMsg* fetion_sip_listen1(FetionSip* sip)
 
 			readmissing:	
 				missingStr = (char*)malloc(missingLen + 1);
-				bzero(missingStr , missingLen + 1);
+				memset(missingStr, 0, missingLen + 1);
 				rereceiveLen = tcp_connection_recv(sip->tcp , missingStr , missingLen);
 				strcpy(msg->message + msgCurrentLen , missingStr);
 				free(missingStr);
@@ -759,7 +761,7 @@ void fetion_sip_parse_notification(const char* sip , int* type , int* event , ch
 	xmlChar *event1;
 	xmlDocPtr doc;
 	xmlNodePtr node;
-	bzero(type1 , sizeof(type1));
+	memset(type1, 0, sizeof(type1));
 	fetion_sip_get_attr(sip , "N" , type1);
 	if(strcmp(type1 , "PresenceV4") == 0)
 		*type = NOTIFICATION_TYPE_PRESENCE;
@@ -878,9 +880,9 @@ void fetion_sip_parse_invitation(FetionSip* sip , Proxy *proxy , const char* sip
 	SipHeader* nheader = NULL;
 	char* sipres = NULL;
 
-	bzero(from , sizeof(from));
-	bzero(auth , sizeof(auth));
-	bzero(buf , sizeof(buf));
+	memset(from, 0, sizeof(from));
+	memset(auth, 0, sizeof(auth));
+	memset(buf, 0, sizeof(buf));
 	fetion_sip_get_attr(sipmsg , "F" , from);
 	fetion_sip_get_attr(sipmsg , "A" , auth);
 	fetion_sip_get_auth_attr(auth , &ipaddress , &port , &credential);
@@ -918,7 +920,7 @@ void fetion_sip_parse_invitation(FetionSip* sip , Proxy *proxy , const char* sip
 	memset(buf , 0 , sizeof(buf));
 	port = tcp_connection_recv(conn , buf , sizeof(buf));
 
-	bzero((*conversionSip)->sipuri , sizeof((*conversionSip)->sipuri));
+	memset((*conversionSip)->sipuri, 0, sizeof((*conversionSip)->sipuri));
 	strcpy((*conversionSip)->sipuri , *sipuri);
 
 }
@@ -936,19 +938,19 @@ void fetion_sip_parse_addbuddyapplication(const char* sipmsg
 
 	res = xmlGetProp(node , BAD_CAST "uri");
 	*sipuri = (char*)malloc(strlen((char*)res) + 1);
-	bzero(*sipuri , strlen((char*)res) + 1);
+	memset(*sipuri, 0, strlen((char*)res) + 1);
 	strcpy(*sipuri , (char*)res);
 	xmlFree(res);
 
 	res = xmlGetProp(node , BAD_CAST "user-id");
 	*userid = (char*)malloc(strlen((char*)res) + 1);
-	bzero(*userid , strlen((char*)res) + 1);
+	memset(*userid, 0, strlen((char*)res) + 1);
 	strcpy(*userid , (char*)res);
 	xmlFree(res);
 
 	res = xmlGetProp(node , BAD_CAST "desc");
 	*desc = (char*)malloc(xmlStrlen(res) + 1);
-	bzero(*desc , xmlStrlen(res) + 1);
+	memset(*desc, 0, xmlStrlen(res) + 1);
 	strcpy(*desc , (char*)res);
 	xmlFree(res);
 
@@ -978,7 +980,7 @@ void fetion_sip_parse_incoming(FetionSip* sip
 	if(xmlStrcmp(node->name , BAD_CAST "share-content") == 0){
 		debug_info("Received a share-content IN message");
 		*sipuri = (char*)malloc(48);
-		bzero(*sipuri , 48);
+		memset(*sipuri, 0, 48);
 		fetion_sip_get_attr(sipmsg , "F" , *sipuri);
 		*type = INCOMING_SHARE_CONTENT;
 		if(! xmlHasProp(node , BAD_CAST "action")){
@@ -1010,10 +1012,10 @@ void fetion_sip_parse_incoming(FetionSip* sip
 	{
 		*type = INCOMING_UNKNOWN;
 		*sipuri = (char*)malloc(50);
-		bzero(replyMsg , sizeof(replyMsg));
-		bzero(callid   , sizeof(callid));
-		bzero(seq 	   , sizeof(seq));
-		bzero(*sipuri  , 50);
+		memset(replyMsg, 0, sizeof(replyMsg));
+		memset(callid, 0, sizeof(callid));
+		memset(seq, 0, sizeof(seq));
+		memset(*sipuri, 0, 50);
 
 		fetion_sip_get_attr(sipmsg , "I" , callid);
 		fetion_sip_get_attr(sipmsg , "Q" , seq);
@@ -1044,7 +1046,7 @@ void fetion_sip_parse_userleft(const char* sipmsg , char** sipuri)
 	node = xml_goto_node(node , "member");
 	res = xmlGetProp(node , BAD_CAST "uri");
 	*sipuri = (char*)malloc(xmlStrlen(res) + 1);
-	bzero(*sipuri , xmlStrlen(res) + 1);
+	memset(*sipuri, 0, xmlStrlen(res) + 1);
 	strcpy(*sipuri , (char*)res);
 	xmlFreeDoc(doc);
 }
@@ -1081,9 +1083,9 @@ int fetion_sip_parse_shareaccept(FetionSip *sip
 	char response[1024];
 	char *pos;
 
-	bzero(callid , sizeof(callid));
-	bzero(from , sizeof(from));
-	bzero(seq , sizeof(seq));
+	memset(callid, 0, sizeof(callid));
+	memset(from, 0, sizeof(from));
+	memset(seq, 0, sizeof(seq));
 	fetion_sip_get_attr(sipmsg , "I" , callid);
 	fetion_sip_get_attr(sipmsg , "F" , from);
 	fetion_sip_get_attr(sipmsg , "Q" , seq);
@@ -1116,12 +1118,12 @@ int fetion_sip_parse_shareaccept(FetionSip *sip
 	xmlFree(res);
 
 	pos = generate_action_accept_body(share);
-	bzero(response , sizeof(response));
+	memset(response, 0, sizeof(response));
 	sprintf(response , "SIP-C/4.0 200 OK\r\n"
 					   "F: %s\r\n"
 					   "I: %s\r\n"
 					   "Q: %s\r\n"
-					   "L: %d\r\n\r\n%s"
+					   "L: %ld\r\n\r\n%s"
 					 , from , callid , seq , strlen(pos) , pos);
 	free(pos);
 	pos = NULL;
@@ -1154,13 +1156,13 @@ void fetion_sip_parse_sysmsg(const char* sipmsg , int *type
 	node = node->xmlChildrenNode->next->next->next;
 	res = xmlNodeGetContent(node);
 	*content = (char*)malloc(xmlStrlen(res) + 1);
-	bzero(*content , xmlStrlen(res) + 1);
+	memset(*content, 0, xmlStrlen(res) + 1);
 	strcpy(*content , (char*)res);
 	xmlFree(res);
 	node = node->next->next;
 	res = xmlNodeGetContent(node);
 	*url = (char*)malloc(xmlStrlen(res) + 1);
-	bzero(*url , xmlStrlen(res) + 1);
+	memset(*url, 0, xmlStrlen(res) + 1);
 	strcpy(*url , (char*)res);
 	xmlFree(res);
 
@@ -1203,6 +1205,7 @@ struct tm convert_date(const char* date)
 	struct tm dstr;
 
 	strptime(pos , "%d %b %Y %T %Z" , &dstr);
+
 	dstr.tm_hour += 8;
 	if(dstr.tm_hour > 23)
 		dstr.tm_hour -= 24;

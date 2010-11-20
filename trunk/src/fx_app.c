@@ -121,7 +121,6 @@ void fx_app_initialize(FxApp* fxapp)
 	g_signal_connect(cancelButton , "clicked" , G_CALLBACK(fx_app_on_cancel_clicked) , fxapp);
 
 	gtk_widget_show_all(fxapp->dialog);
-	gtk_widget_hide(fxapp->dialog);
 }
 GtkTreeModel* fx_app_create_group_model(FxMain* fxmain)
 {
@@ -300,7 +299,7 @@ void* fx_app_check_thread(void* data)
 	if(contact == NULL){
 		gdk_threads_enter();
 		fx_util_popup_warning(fxapp->fxmain,
-				_("Lookup failed, unknown identity, unknown reason"));
+				_("Lookup failed,Unknown identity,Unknown reason"));
 		gdk_threads_leave();
 		return NULL;
 	}
