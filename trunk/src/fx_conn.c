@@ -315,9 +315,8 @@ login:
 	fetion_config_load(user);
 	if(config->sipcProxyPort == 0)
 		fx_login_show_msg(fxlogin,
-					_("It detected that this`s"
-					" this first time you login\n"
-					"downloading configuration file..."));
+					_("Detected that this is the first time you login\n"
+					"Downloading configuration file..."));
 	else
 		fx_login_show_msg(fxlogin,
 					_("Downloading configuration files"));

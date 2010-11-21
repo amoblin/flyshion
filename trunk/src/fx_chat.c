@@ -88,12 +88,12 @@ void fx_chat_add_message(FxChat* fxchat , const char* msg
 	if(issendmsg == 0){
 		strftime(time, sizeof(time), "%H:%M:%S", datetime);
 		snprintf(text, sizeof(text) - 1,
-				_("%s said: (%s):\n"), contact->nickname, time);
+				_("%s says: (%s):\n"), contact->nickname, time);
 	}else{
 		now = get_currenttime();
 		strftime(time, sizeof(time), "%H:%M:%S", now);
 		snprintf(text, sizeof(text) - 1,
-				_("%s said: (%s):\n"), user->nickname, time);
+				_("%s says: (%s):\n"), user->nickname, time);
 		fx_main_add_history(fxmain, user->nickname,	contact->userId,
 				msg, issendmsg);
 	}
@@ -660,7 +660,7 @@ void* fx_chat_send_message_thread(void *data)
 	gtk_text_buffer_get_end_iter(fxchat->send_buffer , &end);
 	text = gtk_text_buffer_get_text(fxchat->send_buffer , &begin , &end , TRUE);
 
-	if(text == NULL){
+	if(strlen(text) == 0){
 		fx_chat_add_information(fxchat,
 				_("Empty messages are not allowed."));
 		return NULL;
@@ -728,7 +728,7 @@ void fx_chat_send_message(FxChat* fxchat)
 	text = gtk_text_buffer_get_text(fxchat->send_buffer,
 			&begin, &end, TRUE);
 
-	if(text == NULL)
+	if(strlen(text) == 0)
 		return;
 
 
@@ -739,7 +739,7 @@ void fx_chat_send_message(FxChat* fxchat)
 		text = gtk_text_buffer_get_text(fxchat->send_buffer,
 				&begin, &end, TRUE);
 
-		if(text == NULL){
+		if(strlen(text) == 0){
 			fx_chat_add_information(fxchat,
 					_("Empty messages are not allowed."));
 			return;
@@ -969,8 +969,8 @@ static void fx_chat_on_tophone_clicked(GtkWidget* widget , gpointer data)
 			}
 			fx_chat_add_information(fxchat , text);
 		}else{
-			sprintf(text , _("Mesage will be sent to you phone as long SMS."
-						" You have sent %d, and %d left.")
+			sprintf(text , _("Messages will be sent to you phone as long SMS "
+						"messages. You have sent %d, and %d left.")
 					, user->smsDayCount , user->smsDayLimit - user->smsDayCount);
 			fx_chat_add_information(fxchat , text);
 		}

@@ -394,7 +394,7 @@ static void text_cell_data_func(GtkTreeViewColumn *UNUSED(col),
 	sid = fetion_sip_get_sid_by_sipuri(sipuri);
 
 	sprintf(text , "<b>%s</b> %s(%s)"
-	       	, nickname == NULL ? sid : g_markup_escape_text(nickname , strlen(nickname))
+	       	, strlen(nickname) == 0 ? sid : g_markup_escape_text(nickname , strlen(nickname))
 		, identity == 2 ? _("<span color='#0099ff'>[Administrator]</span>")
 	       		: ( identity == 1 ?_("<span color='#0099ff'>[Super Administrator]</span>") : "")
 		, sid);
@@ -529,7 +529,7 @@ static void pggroup_send_message(FxPGGroup *fxpg)
 	gtk_text_buffer_get_end_iter(buffer , &eiter);
 	value = gtk_text_buffer_get_text(buffer , &biter , &eiter , TRUE);
 
-	if(value == NULL)
+	if(strlen(value) == 0)
 	    return;
 	pg_add_message(fxpg , value , now , NULL);
 	gtk_text_buffer_delete(buffer , &biter , &eiter);

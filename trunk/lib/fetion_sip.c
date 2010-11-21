@@ -233,7 +233,7 @@ char* fetion_sip_to_string(FetionSip* sip , const char* body)
 			break;
 	};
 
-	if(type == NULL){
+	if(strlen(type) == 0){
 		free(res);
 		return NULL;
 	}
@@ -477,7 +477,7 @@ SipMsg *fetion_sip_listen(FetionSip *sip, int *error)
 			body_len = fetion_sip_get_length(holder);
 		}
 
-		if(cur == NULL)
+		if(cur == NULL || strlen(cur) == 0)
 			return list;
 
 		if(body_len == 0 && pos){
@@ -579,7 +579,7 @@ SipMsg* fetion_sip_listen1(FetionSip* sip)
 			free(strBeforeSpt);
 		}
 		/* if read to the end of buffer , just return */
-		if(buf == NULL)
+		if(buf == NULL || strlen(buf) == 0 )
 			return msglist;
 
 		/**

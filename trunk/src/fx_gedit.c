@@ -81,7 +81,7 @@ void fx_gedit_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 	int groupid = fxgedit->groupid;
 	const char* name = gtk_entry_get_text(GTK_ENTRY(fxgedit->remark_entry));
 
-	if(name == NULL)
+	if(strlen(name) == 0)
 		return;
 	if(fetion_buddylist_edit(user , groupid , name) > 0)
 	{

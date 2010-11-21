@@ -66,7 +66,7 @@ void idle_autoaway(FxMain *fxmain)
 	gint    os;
 
 	if(config->autoAway == AUTO_AWAY_ENABLE){
- 		args = (Args*)g_malloc(sizeof(Args));
+ 		args = (Args*)malloc(sizeof(Args));
 		args->fxmain = fxmain;
 
 		if(user->state > 0 && user->state != P_AWAY &&

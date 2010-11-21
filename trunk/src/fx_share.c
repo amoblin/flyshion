@@ -63,7 +63,7 @@ void fx_share_initialize(FxShare *fxshare)
 	gtk_window_set_default_size(GTK_WINDOW(fxshare->dialog) , 400 , 180);
 	pb = gdk_pixbuf_new_from_file(SKIN_DIR"sendfile.png" , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxshare->dialog) , pb);
-	gtk_window_set_title(GTK_WINDOW(fxshare->dialog) , "飞信文件传输");
+	gtk_window_set_title(GTK_WINDOW(fxshare->dialog) , _("Transport files by Fetion"));
 
 	vbox = GTK_BOX(GTK_DIALOG(fxshare->dialog)->vbox);
 
@@ -73,14 +73,14 @@ void fx_share_initialize(FxShare *fxshare)
 	fxshare->uLabel = gtk_label_new(NULL);
 	bzero(text , sizeof(text));
 
-	sprintf(text , "正在与好友 <b>%s</b> 传送文件 <b>阿凡达.mkv </b>"
+	sprintf(text , _("Transporting files <b>OS Revolution.mkv </b> to <b>%s</b>...")
 			, fxshare->contact->nickname);
 
 	gtk_label_set_markup(GTK_LABEL(fxshare->uLabel) , text);
 	gtk_fixed_put(GTK_FIXED(fixed) , fxshare->uLabel , 20 , 20);
 
 	pLabel = gtk_label_new(NULL);
-	gtk_label_set_markup(GTK_LABEL(pLabel) , "<b>进度：</b>");
+	gtk_label_set_markup(GTK_LABEL(pLabel) , _("<b>Progress: </b>"));
 	gtk_fixed_put(GTK_FIXED(fixed) , pLabel , 10 , 65);
 
 	fxshare->progress = gtk_progress_bar_new();
@@ -90,14 +90,14 @@ void fx_share_initialize(FxShare *fxshare)
 
 	fxshare->iLabel = gtk_label_new(NULL);
 	gtk_label_set_markup(GTK_LABEL(fxshare->iLabel)
-			, "<span color='#838383'>正在建立连接...</span>");
+			, _("<span color='#838383'>Establishing Connection...</span>"));
 	gtk_fixed_put(GTK_FIXED(fixed) , fxshare->iLabel , 60 , 100);
 
-	okButton = gtk_button_new_with_label("确定");
+	okButton = gtk_button_new_with_label(_("OK"));
 	gtk_widget_set_sensitive(okButton , FALSE);
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxshare->dialog)->action_area) , okButton);
 
-	cancelButton = gtk_button_new_with_label("取消");
+	cancelButton = gtk_button_new_with_label(_("Cancel"));
 	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxshare->dialog)->action_area) , cancelButton);
 	
 
@@ -138,7 +138,7 @@ void fx_share_start_transfer(FxShare *fxshare)
 	DEBUG_FOOTPRINT();
 
 	gtk_label_set_markup(GTK_LABEL(fxshare->iLabel)
-			, "<span color='#838383'>对方同意了您的文件传输请求，传输进行中...</span>");
+			, _("<span color='#838383'>Contact acccept your request of transporting files. Transporting...</span>"));
 
 	tcp = tcp_connection_new_with_port(1435);
 	tcp_connection_getname(tcp , &innerIp , &innerUdpPort);

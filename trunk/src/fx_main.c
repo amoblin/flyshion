@@ -458,7 +458,7 @@ static void process_system_message(const char *sipmsg)
 static void process_group_message(FxMain *fxmain , Message *message)
 {
 	FxPGGroup     *fxpgcur;
-	FxPGGroup     *fxpg=NULL;
+	FxPGGroup     *fxpg;
 	PGGroupMember *memcur;
 	FxList        *pglist;
 	FxList        *cur;
@@ -475,7 +475,8 @@ static void process_group_message(FxMain *fxmain , Message *message)
 
 	foreach_list(pglist , cur){
 		fxpgcur = (FxPGGroup*)(cur->data);
-		if(strcmp(fxpgcur->pggroup->pguri,message->pguri) == 0){
+		if(strcmp(fxpgcur->pggroup->pguri,
+					message->pguri) == 0){
 			fxpg = fxpgcur;
 		       	break;
 		}
@@ -1029,6 +1030,7 @@ gboolean fx_main_delete(GtkWidget *widget , GdkEvent *UNUSED(event) , gpointer d
 	int     window_height;
 	int     window_x;
 	int     window_y;
+
 	if(fxmain->user){
 		config = fxmain->user->config;
 		gtk_window_get_position(GTK_WINDOW(fxmain->window),
@@ -1040,6 +1042,7 @@ gboolean fx_main_delete(GtkWidget *widget , GdkEvent *UNUSED(event) , gpointer d
 		config->window_width = window_width;
 		config->window_height = window_height;
 	}
+
 	if(fxmain->user){
 		if(config->closeAlert == CLOSE_ALERT_ENABLE){
 			fxclose = fx_close_new(fxmain);
@@ -1070,7 +1073,7 @@ gboolean fx_main_delete(GtkWidget *widget , GdkEvent *UNUSED(event) , gpointer d
 		fx_main_destroy(widget , fxmain);
 		return FALSE;
 	}
-	
+
 	if(fxmain->user != NULL && fxmain->user->loginStatus != -1){
 		config = fxmain->user->config;
 		if(config->closeMode == CLOSE_ICON_MODE){
@@ -1266,7 +1269,7 @@ void fx_main_tray_popmenu_func(
 			args->fxmain = fxmain;
 			args->type = presence[i].type;
 
-			snprintf(stateMenu, sizeof(stateMenu), "%s      " , presence[i].name);
+			sprintf(stateMenu , "%s      " , presence[i].name);
 			fx_main_create_menu(stateMenu , presence[i].icon
 							 , submenu , fx_main_set_state_clicked , args);
 		}
@@ -1341,7 +1344,7 @@ static void chat_listen_thread_end(FxMain *fxmain, const char *sipuri)
 
 	clist = fxmain->clist;
 
-	if(sipuri == NULL)
+	if(!sipuri || strlen(sipuri) == 0)
 		return;
 
 	fx_list_remove_sip_by_sipuri(fxmain->slist , sipuri);

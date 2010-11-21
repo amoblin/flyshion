@@ -100,7 +100,7 @@ static void show_search(GtkEntry *entry , gpointer data)
 
 	text = gtk_entry_get_text(entry);
 
-	if(text == NULL)
+	if(text == NULL || strlen(text) == 0)
 		return;
 
 	if(has_gb(text)){
@@ -627,7 +627,7 @@ static void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* UNUSED(tree)
 		chatargs = fx_args_new(fxmain , iter , sipuri , 0);
 		fx_tree_create_menu(_("Send IM mesages") , SKIN_DIR"myselfsms.png" , menu
 						  , ((serviceStatus == BASIC_SERVICE_ABNORMAL
-							&& (carrierStatus == CARRIER_STATUS_CLOSED || (carrier != NULL && mobileno == NULL)))
+								  && (carrierStatus == CARRIER_STATUS_CLOSED || (strlen(carrier)!= 0 && strlen(mobileno) == 0)))
 						  || relationStatus == RELATION_STATUS_UNAUTHENTICATED || user->state == P_OFFLINE)
 						  ? FALSE : TRUE
 						  , fx_tree_on_chatmenu_clicked , chatargs);
@@ -635,7 +635,7 @@ static void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* UNUSED(tree)
 		fx_tree_create_menu(_("view contact's information") , SKIN_DIR"profile.png"
 						, menu , (serviceStatus == BASIC_SERVICE_ABNORMAL
 						  && (carrierStatus == CARRIER_STATUS_CLOSED ||
-							  (carrier != NULL && mobileno == NULL))) ?
+							  (strlen(carrier)!= 0 && strlen(mobileno) == 0))) ?
 						FALSE : TRUE , fx_tree_on_profilemenu_clicked , profileargs);
 #if 0
 		fx_tree_create_menu("FILE" , SKIN_DIR"sendfile.png"
@@ -852,7 +852,7 @@ static void fx_tree_text_cell_data_func(GtkTreeViewColumn *UNUSED(col),
 				if(carrier != NULL || strlen(carrier) != 0){
 					snprintf(statusStr , sizeof(statusStr) - 1,
 								 _("<span color='#d4b4b4'>[Online with SMS]</span>"));
-					if(mobileno == NULL){
+					if(mobileno == NULL || strlen(mobileno) == 0){
 						snprintf(statusStr , sizeof(statusStr) - 1,
 									 _("<span color='#d4b4b4'>[Has shut fetion service]</span>"));
 					}
@@ -882,7 +882,7 @@ static void fx_tree_text_cell_data_func(GtkTreeViewColumn *UNUSED(col),
         snprintf(text , sizeof(text) - 1 , "<b>%s</b>%s%s"
                        "(%s) %s <span color='#838383'>%s</span>"
                        , name == NULL ? "" : name
-                       , (statusStr == NULL ? (presence == 0 ? "" : stateStr1) : statusStr)
+                       , (strlen(statusStr) == 0 ? (presence == 0 ? "" : stateStr1) : statusStr)
                        , (device != NULL && strcmp(device , "PC") != 0) ? _("[Login with cell phone]") : "", sid, newline
                        , impression == NULL ? "" : impression);
 		g_object_set(renderer, "markup", text, NULL);
@@ -1141,7 +1141,7 @@ static void fx_tree_on_double_click(GtkTreeView *treeview
 		}
 		if(serviceStatus == BASIC_SERVICE_ABNORMAL &&
 			(carrierStatus == CARRIER_STATUS_CLOSED ||
-			 (carrier != NULL && mobileno == NULL)))
+			 (strlen(carrier) != 0 && strlen(mobileno) == 0)))
 		{
 			fx_util_popup_warning(fxmain , _("This user have shut fetion service,so you cannot send mesage to him/her"));
 			return;
@@ -1680,19 +1680,19 @@ static gboolean fx_tree_on_show_tooltip(GtkWidget* widget
 	bzero(phonetext , sizeof(phonetext));
 	if(carrierStatus == CARRIER_STATUS_DOWN){
 
-		if(carrier == NULL)
+		if(strlen(carrier) == 0)
 			snprintf(phonetext, sizeof(phonetext) - 1,
 					_("<span color='#0088bf'>Not bind to a phone number.</span>"));
 		else
 			snprintf(phonetext, sizeof(phonetext) - 1,
 					_("<span color='#0088bf'>%s</span>(<b>Out of service</b>)")
-					, mobileno == NULL ? _("Phone number not be published.") : mobileno);
+					, strlen(mobileno) == 0 ? _("Phone number not be published.") : mobileno);
 
 	}else if (carrierStatus == CARRIER_STATUS_NORMAL){
 		snprintf(phonetext, sizeof(phonetext) - 1,
 				"<span color='#0088bf'>%s</span>"
-				, carrier == NULL ? _("Not bind to a phone number.")
-				: (mobileno == NULL ? _("Phone number not be published.") : mobileno));
+				, (carrier == NULL || strlen(carrier) == 0) ? _("Not bind to a phone number.")
+				: (mobileno == NULL || strlen(mobileno) == 0 ? _("Phone number not be published.") : mobileno));
 	}
 	snprintf(text , sizeof(text) - 1 ,
 				   	_(" <span color='#808080'>Nickname:</span>  <b>%s</b>\n"
