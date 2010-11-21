@@ -206,7 +206,7 @@ void fx_addbuddy_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 			return;
 		}
 	}
-	if(no == NULL)
+	if(strlen(no) == 0)
 		return;
 	desc = gtk_entry_get_text(GTK_ENTRY(fxadd->myname_entry));
 	model = gtk_combo_box_get_model(GTK_COMBO_BOX(fxadd->group_combo));
@@ -230,7 +230,7 @@ addbuddy:
 			gtk_dialog_response(GTK_DIALOG(fxadd->dialog) , GTK_RESPONSE_OK);
 			return;
 		case BUDDY_BAD_REQUEST :
-			fx_util_popup_warning(fxadd->fxmain , _("Add buddy failed.Unknown reason!"));
+			fx_util_popup_warning(fxadd->fxmain , _("Add buddy failed. Unknown reason!"));
 			gtk_dialog_response(GTK_DIALOG(fxadd->dialog) , GTK_RESPONSE_OK);
 			return;
 		default:

@@ -522,7 +522,7 @@ static void* fx_many_sms_send_func(void* data)
 	gtk_text_buffer_get_end_iter(fxmany->send_buffer , &end);
 	text = gtk_text_buffer_get_text(fxmany->send_buffer , &begin , &end , TRUE);
 
-	if(text == NULL){
+	if(strlen(text) == 0){
 		gdk_threads_enter();
 		fx_many_add_information(fxmany , _("Please input the contents of message"));
 		gdk_threads_leave();

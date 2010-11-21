@@ -296,9 +296,9 @@ void fx_login_initialize(FxMain *fxmain)
 					GTK_COMBO_BOX(fxlogin->username));
 	psd = gtk_entry_get_text(
 					GTK_ENTRY(fxlogin->password));
-	if(no == NULL)
+	if(!no || strlen(no) == 0)
 		gtk_widget_grab_focus(fxlogin->username);
-	else if(psd == NULL)
+	else if(!psd || strlen(psd) == 0)
 		gtk_widget_grab_focus(fxlogin->password);
 	else
 		gtk_widget_grab_focus(fxlogin->loginbutton);
@@ -516,7 +516,7 @@ void fx_login_user_change_func(GtkWidget* widget , gpointer data)
 	gtk_entry_set_text(GTK_ENTRY(fxlogin->password) , pwd);
 	fx_login_set_last_login_state(fxlogin , state);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxlogin->remember)
-							   , pwd == NULL ? FALSE : TRUE);
+							   , strlen(pwd) == 0 ? FALSE : TRUE);
 
 	g_free(pwd);
 	g_free(no);

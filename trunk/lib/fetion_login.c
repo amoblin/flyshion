@@ -176,7 +176,7 @@ char* ssi_auth_action(User* user)
 						  , user->verification->code
 						  , user->verification->algorithm);
 	}
-	passwordType = (user->userId == NULL ? 1 : 2);
+	passwordType = (strlen(user->userId) == 0 ? 1 : 2);
 	sprintf(sslbuf, "GET /ssiportal/SSIAppSignInV4.aspx?%s"
 				    "&domains=fetion.com.cn%s&v4digest-type=%d&v4digest=%s\r\n"
 				    "User-Agent: IIC2.0/pc "PROTO_VERSION"\r\n"
@@ -837,7 +837,7 @@ static char* hash_password_v4(const char* userid , const char* password)
 	res = hash_password_v1(udomain , strlen(domain) , upassword , strlen(password));
 	free(udomain);
 	free(upassword);
-	if(userid == NULL)
+	if(userid == NULL || strlen(userid) == 0)
 	{
 		return res;
 	}

@@ -105,7 +105,7 @@ static void fx_set_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 	else
 	{
 		nickname = gtk_entry_get_text(GTK_ENTRY(fxset->nick_entry));
-		if(nickname == NULL)
+		if(strlen(nickname) == 0)
 		{
 			fx_util_popup_warning(fxset->fxmain , _("Nick can not be empty!"));
 			return;

@@ -406,7 +406,7 @@ int fetion_user_download_portrait_with_uri(User *user , const char *sipuri
 		debug_error("Parse server ip address failed , %s" , server);
 		return -1;
 	}
-	if(sipuri == NULL)
+	if(! sipuri || strlen(sipuri) == 0)
 		return -1;
 	friendSid = fetion_sip_get_sid_by_sipuri(sipuri);
 	if(friendSid == NULL)
@@ -720,7 +720,7 @@ Contact* fetion_user_parse_presence_body(const char* body , User* user)
 		if(xmlHasProp(cnode , BAD_CAST "dt"))
 		{
 			pos = xmlGetProp(cnode , BAD_CAST "dt");
-			strcpy(currentContact->devicetype ,  pos==NULL ? "PC" : (char*)pos);
+			strcpy(currentContact->devicetype ,  strlen((char*)pos) == 0 ? "PC" : (char*)pos);
 			xmlFree(pos);
 		}
 		if(xmlHasProp(cnode , BAD_CAST "b"))
