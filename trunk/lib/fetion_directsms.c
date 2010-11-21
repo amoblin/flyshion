@@ -30,17 +30,17 @@ parse_option_verification(User *user , const char *in)
 	xmlChar *res;
 
 	user->verification = fetion_verification_new();
-	bzero(w , sizeof(w));
+	memset(w, 0, sizeof(w));
 	fetion_sip_get_attr(in , "W" , w);
 	pos = strstr(w , "thm=\"") + 5;
 	n = strlen(pos) - strlen(strstr(pos , "\""));
 	user->verification->algorithm = (char*)malloc(n + 1);
-	bzero(user->verification->algorithm , n + 1);
+	memset(user->verification->algorithm, 0, n + 1);
 	strncpy(user->verification->algorithm , pos , n);
 	pos = strstr(pos , "type=\"") + 6;
 	n = strlen(pos) - strlen(strstr(pos , "\""));
 	user->verification->type = (char*)malloc(n + 1);
-	bzero(user->verification->type , n + 1);
+	memset(user->verification->type, 0, n + 1);
 	strncpy(user->verification->type , pos , n);
 
 	pos = strstr(in , "\r\n\r\n") + 4;
@@ -51,7 +51,7 @@ parse_option_verification(User *user , const char *in)
 	if(xmlHasProp(node , BAD_CAST "text")){
 		res = xmlGetProp(node , BAD_CAST "text");
 		user->verification->text = (char*)malloc(xmlStrlen(res) + 1);
-		bzero(user->verification->text , xmlStrlen(res) + 1);
+		memset(user->verification->text, 0, xmlStrlen(res) + 1);
 		strcpy(user->verification->text , (char*)res);
 		xmlFree(res);
 	}
@@ -60,7 +60,7 @@ parse_option_verification(User *user , const char *in)
 		if(strstr((char*)res , "，<a")){
 			n = xmlStrlen(res) - strlen(strstr((char*)res , "，<a"));
 			user->verification->tips = (char*)malloc(n + 1);
-			bzero(user->verification->tips , n + 1);
+			memset(user->verification->tips, 0, n + 1);
 			strncpy(user->verification->tips , (char*)res , n);
 		}
 		xmlFree(res);
@@ -78,7 +78,7 @@ int fetion_directsms_send_option(User *user , const char *response)
 	eheader = fetion_sip_event_header_new(SIP_EVENT_DIRECTSMS);	
 	fetion_sip_add_header(sip , eheader);
 	if(user->verification != NULL && response != NULL){
-		bzero(atext , sizeof(atext));
+		memset(atext, 0, sizeof(atext));
 		sprintf(atext , "Verify algorithm=\"%s\","
 				"type=\"%s\",response=\"%s\",chid=\"%s\""
 				, user->verification->algorithm
@@ -113,7 +113,7 @@ parse_subscribe_response(const char *in , char **error)
 
 	pos = strstr(in , " ") + 1;
 	n = strlen(pos) - strlen(strstr(pos , " "));
-	bzero(c , sizeof(c));
+	memset(c, 0, sizeof(c));
 	strncpy(c , pos , n);
 	if(strcmp(c , "200") == 0){
 		*error = NULL;
@@ -149,16 +149,16 @@ int fetion_directsms_send_subscribe(User *user , const char *code , char **error
 	FetionConnection *tcp;
 
 	ip = get_ip_by_name(NAVIGATION_URI);
-	bzero(body , sizeof(body));
+	memset(body, 0, sizeof(body));
 	sprintf(body , "PicCertSessionId=%s&PicCertCode=%s&MobileNo=%s"
 			, user->verification->guid , code , user->mobileno);
 
-	bzero(http , sizeof(http));
+	memset(http, 0, sizeof(http));
 	sprintf(http , "POST /nav/ApplySubscribe.aspx HTTP/1.1\r\n"
 				   "Cookie: ssic=%s\r\n"
 				   "Accept: */*\r\n"
 				   "Host: %s\r\n"
-				   "Content-Length: %ld\r\n"
+				   "Content-Length: %d\r\n"
 				   "Content-Type: application/x-www-form-urlencoded;"
 				   "charset=utf-8\r\n"
 				   "User-Agent: IIC2.0/PC "PROTO_VERSION"\r\n"
@@ -170,7 +170,7 @@ int fetion_directsms_send_subscribe(User *user , const char *code , char **error
 	tcp = tcp_connection_new();
 	tcp_connection_connect(tcp , ip , 80);
 	tcp_connection_send(tcp , http , strlen(http));
-	bzero(http , sizeof(http));
+	memset(http, 0, sizeof(http));
 	tcp_connection_recv(tcp , http , sizeof(http));
 	printf("%s\n" , http);
 	return parse_subscribe_response(http , error);
@@ -186,7 +186,7 @@ int fetion_directsms_send_sms(User *user
 	int code;
 	
 	fetion_sip_set_type(sip , SIP_MESSAGE);
-	bzero(tostr , sizeof(tostr));
+	memset(tostr, 0, sizeof(tostr));
 	sprintf(tostr , "tel:%s" , to);
 	theader = fetion_sip_header_new("T" , tostr);
 	fetion_sip_add_header(sip , theader);
@@ -197,7 +197,7 @@ int fetion_directsms_send_sms(User *user
 	res = fetion_sip_to_string(sip , msg);
 	tcp_connection_send(sip->tcp , res , strlen(res));
 	printf("%s\n" , res);
-	bzero(rep , sizeof(rep));
+	memset(rep, 0, sizeof(rep));
 	int ret = tcp_connection_recv(sip->tcp , rep , sizeof(rep));
 	printf("%d\n" , ret);
 	printf("%s\n" , rep);

@@ -168,13 +168,13 @@ int tcp_connection_connect_with_proxy(FetionConnection* connection
 	memset(authorization, 0, sizeof(authorization));
 	if(strlen(proxy->proxyUser) != 0 && strlen(proxy->proxyPass) != 0)
 	{
-		bzero(authen , sizeof(authen));
+		memset(authen, 0, sizeof(authen));
 		sprintf(authen , "%s:%s" , proxy->proxyUser , proxy->proxyPass);
 		EVP_EncodeBlock(authentication , (unsigned char*)authen , strlen(authen));
 		sprintf(authorization , "Proxy-Authorization: Basic %s\r\n" , (char*)authentication);
 	}
 
-	bzero(http , sizeof(http));
+	memset(http, 0, sizeof(http));
 	snprintf(http , 1023 , "CONNECT %s:%d HTTP/1.1\r\n"
 				   "Host: %s:%d\r\n%s"
 				   "User-Agent: OpenFetion\r\n\r\n"
@@ -193,7 +193,7 @@ int tcp_connection_connect_with_proxy(FetionConnection* connection
 
 	pos = strstr(http , " ") + 1;
 	n = strlen(pos) - strlen(strstr(pos , " "));
-	bzero(code , sizeof(code));
+	memset(code, 0, sizeof(code));
 	strncpy(code , pos , n);
 	free(ip); ip = NULL;
 
@@ -355,7 +355,7 @@ int http_connection_get_body_length(const char* http)
 		return 0;
 	pos += 16;
 	len = strlen(pos) - strlen(strstr(pos , "\r\n"));
-	bzero(length , sizeof(length));
+	memset(length, 0, sizeof(length));
 	strncpy(length , pos , len);
 	return atoi(length);
 }
@@ -427,7 +427,7 @@ char* http_connection_encode_url(const char* url)
 		else if(pos == '+'){
 			strcat(res , "%2b");
 		}else{
-			bzero(tmp , sizeof(tmp));
+			memset(tmp, 0, sizeof(tmp));
 			sprintf(tmp , "%c" , pos);
 			strcat(res , tmp);
 		}
@@ -468,14 +468,14 @@ char *hexip_to_dotip(const char *ip){
 	long res;
 
 	out = (char*)malloc(18);
-	bzero(out , 18);
-	bzero(tmp , sizeof(tmp));
+	memset(out, 0, 18);
+	memset(tmp, 0, sizeof(tmp));
 
 	for(i = 0 ; i < strlen(ip) ; i ++){
 		tmp[j++] = ip[i]; 	
 		if(j == 2){
 			res = strtol(tmp , NULL , 16);
-			bzero(tmp1 , sizeof(tmp1));
+			memset(tmp1, 0, sizeof(tmp1));
 			sprintf(tmp1 , "%ld" , res);
 			strcat(out , tmp1);
 			if(i != 7){

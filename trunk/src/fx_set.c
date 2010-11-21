@@ -96,7 +96,7 @@ static void fx_set_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 		gtk_text_buffer_get_end_iter(buffer , &endIter);
 		autoReplyMsg = gtk_text_buffer_get_text(buffer , &startIter , &endIter , TRUE);
 
-		bzero(config->autoReplyMessage , sizeof(config->autoReplyMessage));
+		memset(config->autoReplyMessage, 0, sizeof(config->autoReplyMessage));
 
 		if(autoReplyMsg != NULL)
 			strcpy(config->autoReplyMessage , autoReplyMsg);
@@ -105,15 +105,15 @@ static void fx_set_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 	else
 	{
 		nickname = gtk_entry_get_text(GTK_ENTRY(fxset->nick_entry));
-		if(strlen(nickname) == 0)
+		if(*nickname == '\0')
 		{
 			fx_util_popup_warning(fxset->fxmain , _("Nick can not be empty!"));
 			return;
 		}
 		impression = gtk_entry_get_text(GTK_ENTRY(fxset->impre_entry));
-		bzero(user->nickname , sizeof(user->nickname));
+		memset(user->nickname, 0, sizeof(user->nickname));
 		strcpy(user->nickname , nickname);
-		bzero(user->impression , sizeof(user->impression));
+		memset(user->impression, 0, sizeof(user->impression));
 		strcpy(user->impression , impression);
 
 		genderModel = gtk_combo_box_get_model(GTK_COMBO_BOX(fxset->gender_combo));
@@ -132,7 +132,7 @@ static void fx_set_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 			gtk_label_set_text(GTK_LABEL(fxset->fxmain->headPanel->impre_label)
 					, strlen(user->impression) == 0 ? _("Click here to input signature") : user->impression);
 
-			bzero(fxset->fxmain->headPanel->oldimpression , sizeof(fxset->fxmain->headPanel->oldimpression));
+			memset(fxset->fxmain->headPanel->oldimpression, 0, sizeof(fxset->fxmain->headPanel->oldimpression));
 			strcpy(fxset->fxmain->headPanel->oldimpression
 				, (strlen(user->impression) == 0 || user->impression == NULL)
 				? _("Click here to input signature") : user->impression);

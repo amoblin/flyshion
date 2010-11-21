@@ -553,9 +553,7 @@ failed:
 
 void fx_conn_offline(FxMain *fxmain)
 {
-	FxHead           *fxhead;
 	FxTree           *fxtree;
-	User             *user;
 	GtkTreeView      *treeview;
 	GtkTreeModel     *model;
 	GtkTreeIter       rootiter;
@@ -566,9 +564,6 @@ void fx_conn_offline(FxMain *fxmain)
 	FxList           *sip_cur;
 	FxList           *tmp_cur;
 	FxChat           *fxchat;
-
-	fxhead = fxmain->headPanel;
-	user = fxmain->user;
 
 	/* set state image to be offline */
 	fx_head_set_state_image(fxmain, P_OFFLINE);

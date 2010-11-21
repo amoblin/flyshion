@@ -117,7 +117,7 @@ add_contact(gpointer data)
 	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"online.svg",
 				   22 , 22 , NULL);
 	number = gtk_entry_get_text(GTK_ENTRY(fxdsms->numberEntry));
-	if(strlen(number) == 0)
+	if(*number == '\0')
 		return;
 	gtk_tree_store_append(GTK_TREE_STORE(model) , &iter , NULL);
 	gtk_tree_store_set(GTK_TREE_STORE(model) , &iter
@@ -240,8 +240,7 @@ fx_dsms_on_text_buffer_changed(GtkTextBuffer *buffer , gpointer data)
 
 	if(count <= 180)
 	{
-		bzero(text , sizeof(text));
-		sprintf(text , _("%d/180, will split to %d") , count
+		snprintf(text, sizeof(text) - 1 , _("%d/180, will split to %d") , count
 				, (count % 60) ? (count / 60 + 1) : (count / 60 ));
 		gtk_label_set_markup(GTK_LABEL(fxdsms->countLabel) , text);
 	}
@@ -313,7 +312,7 @@ fx_dsms_send_thread(void *data)
 	gtk_text_buffer_get_start_iter(buffer , &begin);
 	gtk_text_buffer_get_end_iter(buffer , &end);
 	message = gtk_text_buffer_get_text(buffer , &begin , &end , TRUE);
-	bzero(msg , sizeof(msg));
+	memset(msg, 0, sizeof(msg));
 	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxdsms->checkBtn))){
 		sprintf(msg , "%s:%s"
 				, gtk_entry_get_text(GTK_ENTRY(fxdsms->sigEntry))
@@ -329,13 +328,13 @@ fx_dsms_send_thread(void *data)
 				, NUMBER_COL , &to , -1);
 		ret = fetion_directsms_send_sms(user , to , msg);
 		if(ret == SEND_SMS_SUCCESS){
-			bzero(text , sizeof(text));
+			memset(text, 0, sizeof(text));
 			sprintf(text , _("Mesage has been send to %s successfully.") , to);
 			gdk_threads_enter();
 			fx_dsms_add_information(fxdsms , text);
 			gdk_threads_leave();
 		}else if(ret == SEND_SMS_OTHER_ERROR){
-			bzero(text , sizeof(text));
+			memset(text, 0, sizeof(text));
 			sprintf(text , _("Mesage didn't send to %s. Please check the phone number of the contact.") , to);
 			gdk_threads_enter();
 			fx_dsms_add_information(fxdsms , text);
@@ -349,7 +348,7 @@ picreload:
 			fx_code_initialize(fxcode);
 			ret = gtk_dialog_run(GTK_DIALOG(fxcode->dialog));
 			if(ret == GTK_RESPONSE_CANCEL){
-				bzero(text , sizeof(text));
+				memset(text, 0, sizeof(text));
 				strcpy(text , _("Send message failed"));
 				fx_dsms_add_information(fxdsms , text);
 				gtk_widget_destroy(fxcode->dialog);
@@ -373,7 +372,7 @@ picreload:
 					fx_confirm_initialize(fxconfirm);
 					ret2 = gtk_dialog_run(GTK_DIALOG(fxconfirm->dialog));
 					if(ret2 == GTK_RESPONSE_CANCEL){
-						bzero(text , sizeof(text));
+						memset(text, 0, sizeof(text));
 						strcpy(text , _("Message sent failed"));
 						fx_dsms_add_information(fxdsms , text);
 						gtk_widget_destroy(fxconfirm->dialog);
@@ -382,8 +381,8 @@ picreload:
 						user->verification = NULL;
 						break;
 					}else{
-						bzero(user->verification->guid
-								, strlen(user->verification->guid) + 1);	
+						memset(user->verification->guid,
+								0, strlen(user->verification->guid) + 1);	
 						strcpy(user->verification->guid , user->mobileno);
 						code = gtk_entry_get_text(GTK_ENTRY(fxconfirm->codeEntry));
 						ret3 = fetion_directsms_send_option(user , code);
@@ -398,7 +397,7 @@ picreload:
 				}
 			}
 		}
-		bzero(text , sizeof(text));
+		memset(text, 0, sizeof(text));
 		fx_dsms_add_information(fxdsms , text);
 		free(to);
 	}while(gtk_tree_model_iter_next(model , &iter));
@@ -438,9 +437,9 @@ fx_dsms_send_message(FxDSMS *fxdsms)
 	gtk_text_buffer_get_end_iter(buffer1 , &end);
 
 	message = gtk_text_buffer_get_text(buffer1 , &begin , &end , TRUE);
-	if(strlen(message) == 0)
+	if(*message == '\0')
 		return;
-	bzero(msg , sizeof(msg));
+	memset(msg, 0, sizeof(msg));
 	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxdsms->checkBtn))){
 		sprintf(msg , "%s:%s"
 				, gtk_entry_get_text(GTK_ENTRY(fxdsms->sigEntry))
@@ -641,8 +640,7 @@ void fx_dsms_initialize(FxDSMS *fxdsms)
 	portraitFrame = gtk_frame_new(NULL);
 	gtk_frame_set_shadow_type(GTK_FRAME(portraitFrame) , GTK_SHADOW_ETCHED_IN);
 	gtk_widget_set_usize(portraitFrame , 160 , 160);
-	bzero(path , sizeof(path));
-	sprintf(path , "%s/%s.jpg" , config->iconPath , user->sId);
+	snprintf(path, sizeof(path) - 1 , "%s/%s.jpg" , config->iconPath , user->sId);
 	pb = gdk_pixbuf_new_from_file_at_size(path , 140 , 140 , NULL);
 	portrait = gtk_image_new_from_pixbuf(pb);
 	g_object_unref(pb);

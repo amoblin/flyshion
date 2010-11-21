@@ -85,9 +85,7 @@ typedef enum
 
 } PGGroupCols;
 
-typedef
-struct args
-{
+typedef struct tree_args {
 	FxMain* fxmain;
 	GtkTreeIter iter;
 	char s[256];

@@ -62,7 +62,7 @@ static char* generate_share_request_body(Share *share)
 	xmlNewProp(fnode , BAD_CAST "session-id" , BAD_CAST share->sessionid);
 	fnode = xmlNewChild(node , NULL , BAD_CAST "file" , NULL);
 	xmlNewProp(fnode , BAD_CAST "name" , BAD_CAST share->filename);
-	bzero(size , sizeof(size));
+	memset(size, 0, sizeof(size));
 	xmlNewProp(fnode , BAD_CAST "size" , BAD_CAST size);
 	xmlNewProp(fnode , BAD_CAST "url" , BAD_CAST "");
 	xmlNewProp(fnode , BAD_CAST "md5" , BAD_CAST share->md5);
@@ -89,9 +89,8 @@ static void fetion_start_transfer(FetionSip *sip){
 	fetion_sip_add_header(sip , theader);
 	res = fetion_sip_to_string(sip , NULL);
 	tcp_connection_send(sip->tcp , res , strlen(res));
-	printf("%s\n" , res);
 	free(res);
-	bzero(buf , sizeof(buf));
+	memset(buf, 0, sizeof(buf));
 	tcp_connection_recv(sip->tcp , buf , sizeof(buf));
 	printf("%s\n" , buf);
 }
@@ -113,9 +112,8 @@ void fetion_share_request(FetionSip *sip , Share *share)
 	body = generate_share_request_body(share);
 	res = fetion_sip_to_string(sip , body);
 	tcp_connection_send(sip->tcp , res , strlen(res));
-	printf("%s\n" , res);
 	free(res);
-	bzero(buf , sizeof(buf));
+	memset(buf, 0, sizeof(buf));
 	tcp_connection_recv(sip->tcp , buf , sizeof(buf));
 	printf("%s\n" , buf);
 
@@ -141,7 +139,7 @@ char* fetion_share_compute_md5(const char *absolutePath)
 		MD5_Update(&ctx , input , n);
 	}
 	MD5_Final(output , &ctx);
-	bzero(res , 33);
+	memset(res, 0, 33);
 	while(i < 16)
 	{
 		sprintf(res + i * 2 , "%02x" , output[i]);

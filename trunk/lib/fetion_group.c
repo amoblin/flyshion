@@ -504,7 +504,6 @@ Contact* pg_group_parse_contact_info(const char* xml)
 	xmlChar* res;
 	xmlDocPtr doc;
 	xmlNodePtr node;
-	int n;
 	char *pos;
 	contact = fetion_contact_new();
 	doc = xmlParseMemory(xml , strlen(xml));
@@ -560,6 +559,7 @@ Contact* pg_group_parse_contact_info(const char* xml)
 	}
 	if(xmlHasProp(node , BAD_CAST "carrier-region"))
 	{
+		int n;
 		res = xmlGetProp(node , BAD_CAST "carrier-region");
 		pos = (char*)res;
 		n = strlen(pos) - strlen(strstr(pos , "."));
@@ -714,7 +714,7 @@ static char* generate_contact_info_by_no_body(const char* no)
 	xmlNodePtr node;
 	char uri[32];
 	char body[] = "<args></args>";
-	bzero(uri , sizeof(uri));
+	memset(uri, 0, sizeof(uri));
 	sprintf(uri , "sip:%s" , no);
 	doc = xmlParseMemory(body , strlen(body));
 	node = xmlDocGetRootElement(doc);

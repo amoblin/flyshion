@@ -78,7 +78,7 @@ void fx_edit_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 	GtkTreeIter iter = fxedit->iter;
 	const char* name = gtk_entry_get_text(GTK_ENTRY(fxedit->remark_entry));
 
-	if(strlen(name) == 0)
+	if(*name == '\0')
 		return;
 	if(fetion_contact_set_displayname(user , fxedit->userid , name) > 0)
 	{

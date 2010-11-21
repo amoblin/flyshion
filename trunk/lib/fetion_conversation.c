@@ -120,7 +120,7 @@ int fetion_conversation_send_sms_to_phone(Conversation* conversation,
 	eheader  = fetion_sip_event_header_new(SIP_EVENT_SENDCATMESSAGE);
 	fetion_sip_add_header(sip , toheader);
 	if(user->verification != NULL){
-		bzero(astr , sizeof(astr));
+		memset(astr, 0, sizeof(astr));
 		sprintf(astr , "Verify algorithm=\"picc\",chid=\"%s\",response=\"%s\""
 				, user->verification->guid
 				, user->verification->code);
@@ -132,7 +132,7 @@ int fetion_conversation_send_sms_to_phone(Conversation* conversation,
 	debug_info("Sent a message to (%s)`s mobile phone" , sipuri);
 	tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
-	bzero(rep , sizeof(rep));
+	memset(rep, 0, sizeof(rep));
 	tcp_connection_recv(sip->tcp , rep , sizeof(rep));
 	code = fetion_sip_get_code(rep);
 	if(code == 420 || code == 421){

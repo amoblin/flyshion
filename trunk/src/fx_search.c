@@ -61,7 +61,7 @@ static void row_activate_func(GtkTreeView *view , GtkTreePath *path
 	}
 	if(serviceStatus == BASIC_SERVICE_ABNORMAL && 
 		(carrierStatus == CARRIER_STATUS_CLOSED ||
-		 (strlen(carrier) != 0 && strlen(mobileno) == 0)))
+		 (*carrier != '\0' && *mobileno == '\0')))
 	{
 		fx_util_popup_warning(fxmain , _("User has shut his fetion service"
 			", so you can not send a message to him"));
@@ -90,12 +90,9 @@ static gboolean button_press_func(GtkWidget* tree
 		, GdkEventButton* event , gpointer data)
 {
 	GtkTreePath* path = NULL;
-	GtkTreeModel* model = NULL;
 
 	if(event->type == GDK_BUTTON_PRESS && event->button == 1)
 	{
-
-		model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
 		gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(tree) 
 				, (gint)event->x , (gint)event->y , &path , NULL , NULL , NULL);
 		row_activate_func(GTK_TREE_VIEW(tree) , path , NULL , data);
@@ -129,7 +126,7 @@ static void text_cell_data_func(GtkTreeViewColumn *UNUSED(col),
 	int carrierStatus , relationStatus , serviceStatus;
 
 	/* render friend list text*/
-	bzero(text , sizeof(text));
+	memset(text, 0, sizeof(text));
 	gtk_tree_model_get(model         , iter
 					, B_NAME_COL       , &name
 					, B_SIPURI_COL     , &sipuri
@@ -145,7 +142,7 @@ static void text_cell_data_func(GtkTreeViewColumn *UNUSED(col),
 					, -1);
 
 	stateStr = fx_util_get_state_name(presence);
-	bzero(statusStr , sizeof(statusStr));
+	memset(statusStr, 0, sizeof(statusStr));
 	if(relationStatus == RELATION_STATUS_UNAUTHENTICATED){
 		sprintf(statusStr , "<span color='#d4b4b4'>[Unverified]</span>");
 	}else if(serviceStatus == BASIC_SERVICE_ABNORMAL){
@@ -154,7 +151,7 @@ static void text_cell_data_func(GtkTreeViewColumn *UNUSED(col),
 		}else{
 			if(carrier != NULL || strlen(carrier) != 0){
 				sprintf(statusStr , "<span color='#d4b4b4'>[Online with SMS]</span>");
-				if(mobileno == NULL || strlen(mobileno) == 0){
+				if(mobileno == NULL || *mobileno == '\0'){
 					sprintf(statusStr , "<span color='#d4b4b4'>[Has shut fetion service]</span>");
 				}
 			}else{
@@ -162,7 +159,7 @@ static void text_cell_data_func(GtkTreeViewColumn *UNUSED(col),
 			}
 		}
 	}else if(carrierStatus == CARRIER_STATUS_DOWN){
-		if(strlen(carrier) != 0){
+		if(*carrier != '\0'){
 			sprintf(statusStr , "<span color='#d4b4b4'>[Out of service]</span>");
 		}
 	}
@@ -170,14 +167,14 @@ static void text_cell_data_func(GtkTreeViewColumn *UNUSED(col),
 		return;
 	}
 	sid = fetion_sip_get_sid_by_sipuri(sipuri);
-	bzero(stateStr1 , sizeof(stateStr1));
+	memset(stateStr1, 0, sizeof(stateStr1));
 	sprintf(stateStr1 , "<span color='#0099FF'>%s</span>" , stateStr);
 	if( size < 30)
 	{
 		sprintf(text , "<b>%s</b>%s%s"
 					   "(%s)  <span color='#838383'>%s</span>"
 					   , name == NULL ? "" : g_markup_escape_text(name , strlen(name))
-					   , (strlen(statusStr) == 0 ? (presence == 0 ? "" : stateStr1) : statusStr)
+					   , (*statusStr == '\0' ? (presence == 0 ? "" : stateStr1) : statusStr)
 					   , (device != NULL && strcmp(device , "PC") != 0) ? "[Login with cell phone]" : "" , sid
 					   , impression == NULL ? "" : g_markup_escape_text(impression , strlen(impression)));
 	}
@@ -186,7 +183,7 @@ static void text_cell_data_func(GtkTreeViewColumn *UNUSED(col),
 		sprintf(text , "<b>%s</b>%s%s"
 					   "(%s) \n <span color='#838383'>%s</span>"
 					   , name == NULL ? "" : g_markup_escape_text(name , strlen(name))
-					   , (strlen(statusStr) == 0 ? (presence == 0 ? "" : stateStr1) : statusStr)
+					   , (*statusStr == '\0' ? (presence == 0 ? "" : stateStr1) : statusStr)
 					   , (device != NULL &&strcmp(device , "PC") != 0) ? "[Login with cell phone]" : "" , sid
 					   , impression == NULL ? "" : g_markup_escape_text(impression , strlen(impression)));
 	}
@@ -261,7 +258,7 @@ static GtkTreeModel* create_model(GtkTreeModel *model , const char *str)
 							 , G_TYPE_INT
 							 , G_TYPE_INT);
 
-	if(str == NULL || strlen(str) == 0)
+	if(str == NULL || *str == '\0')
 		return GTK_TREE_MODEL(store);
 
 	gtk_tree_model_get_iter_first(model , &iter);

@@ -111,7 +111,7 @@ void fx_chat_add_message(FxChat* fxchat , const char* msg
 			if(strstr(pos , "#") != NULL){
 				n = strlen(pos) - strlen(strstr(pos , "#"));
 				if(n == 1 || n == 2 ){
-					bzero(num , sizeof(num));
+					memset(num, 0, sizeof(num));
 					strncpy(num , pos , n);
 					if(atoi(num) > 0 && atoi(num) < 53){
 						gtk_text_buffer_insert_with_tags_by_name(buffer
@@ -660,7 +660,7 @@ void* fx_chat_send_message_thread(void *data)
 	gtk_text_buffer_get_end_iter(fxchat->send_buffer , &end);
 	text = gtk_text_buffer_get_text(fxchat->send_buffer , &begin , &end , TRUE);
 
-	if(strlen(text) == 0){
+	if(*text == '\0'){
 		fx_chat_add_information(fxchat,
 				_("Empty messages are not allowed."));
 		return NULL;
@@ -728,7 +728,7 @@ void fx_chat_send_message(FxChat* fxchat)
 	text = gtk_text_buffer_get_text(fxchat->send_buffer,
 			&begin, &end, TRUE);
 
-	if(strlen(text) == 0)
+	if(*text == '\0')
 		return;
 
 
@@ -739,7 +739,7 @@ void fx_chat_send_message(FxChat* fxchat)
 		text = gtk_text_buffer_get_text(fxchat->send_buffer,
 				&begin, &end, TRUE);
 
-		if(strlen(text) == 0){
+		if(*text == '\0'){
 			fx_chat_add_information(fxchat,
 					_("Empty messages are not allowed."));
 			return;
@@ -773,7 +773,7 @@ send:
 			if(ret == GTK_RESPONSE_OK){
 				code = gtk_entry_get_text(GTK_ENTRY(fxcode->codeentry));
 				user->verification->code = (char*)malloc(strlen(code) + 1);
-				bzero(user->verification->code , strlen(code) + 1);
+				memset(user->verification->code, 0, strlen(code) + 1);
 				strcpy(user->verification->code , code);
 				gtk_widget_destroy(fxcode->dialog);
 			}else{
@@ -952,7 +952,7 @@ static void fx_chat_on_tophone_clicked(GtkWidget* widget , gpointer data)
 		fxchat->sendtophone = TRUE;
 
 		if(user->boundToMobile == BOUND_MOBILE_DISABLE){
-			bzero(text , sizeof(text));
+			memset(text, 0, sizeof(text));
 			if(user->smsDayLimit == user->smsDayCount
 			|| user->smsMonthLimit == user->smsMonthCount){
 				strcpy(text , _("Run out of your quota,"

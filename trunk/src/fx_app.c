@@ -70,7 +70,7 @@ void fx_app_initialize(FxApp* fxapp)
 	foreach_list(phraseList , pl_cur){
 		phrase = (Phrase*)pl_cur->data;
 		if(fxapp->phraseid == phrase->phraseid){
-			bzero(text , sizeof(text));
+			memset(text, 0, sizeof(text));
 			sprintf(text , _("Hello ,I am %s , %s") , fxapp->desc , phrase->content);
 		}
 		fetion_phrase_free(phrase);
@@ -270,9 +270,8 @@ void* fx_app_ok_thread(void* data)
 void fx_app_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	FxApp *fxapp = (FxApp*)data;
-	GThread *thread;
 
-	thread = g_thread_create(fx_app_ok_thread , data , TRUE , NULL);
+	g_thread_create(fx_app_ok_thread , data , TRUE , NULL);
 
 	gtk_dialog_response(GTK_DIALOG(fxapp->dialog) , GTK_RESPONSE_OK);
 }

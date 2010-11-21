@@ -92,7 +92,7 @@ void fx_sysmsg_bind(FxSysmsg *sysmsg
 	gtk_text_buffer_insert(buffer , &iter , msg , strlen(msg));
 
 	pos = (char*)malloc(strlen(url) + 1);
-	bzero(pos , strlen(pos));
+	memset(pos, 0, strlen(pos));
 
 	strcpy(pos , url);
 	g_signal_connect(sysmsg->moreBtn , "clicked" , G_CALLBACK(fx_on_more_clicked) , pos);

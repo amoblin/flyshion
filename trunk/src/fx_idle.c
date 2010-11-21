@@ -59,14 +59,14 @@ void idle_autoaway(FxMain *fxmain)
 	typedef struct {
 		FxMain* fxmain;
 		StateType type;
-	} Args;
+	} Args1;
 	User   *user = fxmain->user;
 	Config *config = user->config;
-	Args   *args;
+	Args1   *args;
 	gint    os;
 
 	if(config->autoAway == AUTO_AWAY_ENABLE){
- 		args = (Args*)malloc(sizeof(Args));
+ 		args = (Args1*)malloc(sizeof(Args1));
 		args->fxmain = fxmain;
 
 		if(user->state > 0 && user->state != P_AWAY &&

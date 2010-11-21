@@ -19,7 +19,6 @@
  ***************************************************************************/
 
 #include "fx_include.h"
-#include "time.h"
 /*private*/
 
 static GtkTreeModel* create_model(User* groupList);
@@ -100,7 +99,7 @@ static void show_search(GtkEntry *entry , gpointer data)
 
 	text = gtk_entry_get_text(entry);
 
-	if(text == NULL || strlen(text) == 0)
+	if(text == NULL || *text == '\0')
 		return;
 
 	if(has_gb(text)){
@@ -627,7 +626,7 @@ static void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* UNUSED(tree)
 		chatargs = fx_args_new(fxmain , iter , sipuri , 0);
 		fx_tree_create_menu(_("Send IM mesages") , SKIN_DIR"myselfsms.png" , menu
 						  , ((serviceStatus == BASIC_SERVICE_ABNORMAL
-								  && (carrierStatus == CARRIER_STATUS_CLOSED || (strlen(carrier)!= 0 && strlen(mobileno) == 0)))
+								  && (carrierStatus == CARRIER_STATUS_CLOSED || (*carrier != '\0' && *mobileno == '\0')))
 						  || relationStatus == RELATION_STATUS_UNAUTHENTICATED || user->state == P_OFFLINE)
 						  ? FALSE : TRUE
 						  , fx_tree_on_chatmenu_clicked , chatargs);
@@ -635,7 +634,7 @@ static void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* UNUSED(tree)
 		fx_tree_create_menu(_("view contact's information") , SKIN_DIR"profile.png"
 						, menu , (serviceStatus == BASIC_SERVICE_ABNORMAL
 						  && (carrierStatus == CARRIER_STATUS_CLOSED ||
-							  (strlen(carrier)!= 0 && strlen(mobileno) == 0))) ?
+							  (*carrier != '\0' && *mobileno == '\0'))) ?
 						FALSE : TRUE , fx_tree_on_profilemenu_clicked , profileargs);
 #if 0
 		fx_tree_create_menu("FILE" , SKIN_DIR"sendfile.png"
@@ -824,7 +823,7 @@ static void fx_tree_text_cell_data_func(GtkTreeViewColumn *UNUSED(col),
 	/* render friend list text*/
 	if(gtk_tree_path_get_depth(path) > 1)
 	{
-		bzero(text , sizeof(text));
+		memset(text, 0, sizeof(text));
 		gtk_tree_model_get(model         , iter
 						, B_NAME_COL       , &name
 						, B_SIPURI_COL     , &sipuri
@@ -852,7 +851,7 @@ static void fx_tree_text_cell_data_func(GtkTreeViewColumn *UNUSED(col),
 				if(carrier != NULL || strlen(carrier) != 0){
 					snprintf(statusStr , sizeof(statusStr) - 1,
 								 _("<span color='#d4b4b4'>[Online with SMS]</span>"));
-					if(mobileno == NULL || strlen(mobileno) == 0){
+					if(mobileno == NULL || *mobileno == '\0'){
 						snprintf(statusStr , sizeof(statusStr) - 1,
 									 _("<span color='#d4b4b4'>[Has shut fetion service]</span>"));
 					}
@@ -862,7 +861,7 @@ static void fx_tree_text_cell_data_func(GtkTreeViewColumn *UNUSED(col),
 				}
 			}
 		}else if(carrierStatus == CARRIER_STATUS_DOWN){
-			if(strlen(carrier) != 0){
+			if(*carrier != '\0'){
 				snprintf(statusStr , sizeof(statusStr) - 1,
 							   	_("<span color='#d4b4b4'>[Out of service]</span>"));
 			}
@@ -882,7 +881,7 @@ static void fx_tree_text_cell_data_func(GtkTreeViewColumn *UNUSED(col),
         snprintf(text , sizeof(text) - 1 , "<b>%s</b>%s%s"
                        "(%s) %s <span color='#838383'>%s</span>"
                        , name == NULL ? "" : name
-                       , (strlen(statusStr) == 0 ? (presence == 0 ? "" : stateStr1) : statusStr)
+                       , (*statusStr == '\0' ? (presence == 0 ? "" : stateStr1) : statusStr)
                        , (device != NULL && strcmp(device , "PC") != 0) ? _("[Login with cell phone]") : "", sid, newline
                        , impression == NULL ? "" : impression);
 		g_object_set(renderer, "markup", text, NULL);
@@ -899,7 +898,7 @@ static void fx_tree_text_cell_data_func(GtkTreeViewColumn *UNUSED(col),
 	/*render group list text*/
 	else
 	{
-		bzero(text , sizeof(text));
+		memset(text, 0, sizeof(text));
 		gtk_tree_model_get(model              , iter
 						 , G_NAME_COL         , &buddylistName
 						 , G_ALL_COUNT_COL    , &allCount
@@ -1141,7 +1140,7 @@ static void fx_tree_on_double_click(GtkTreeView *treeview
 		}
 		if(serviceStatus == BASIC_SERVICE_ABNORMAL &&
 			(carrierStatus == CARRIER_STATUS_CLOSED ||
-			 (strlen(carrier) != 0 && strlen(mobileno) == 0)))
+			 (*carrier != '\0' && *mobileno == '\0')))
 		{
 			fx_util_popup_warning(fxmain , _("This user have shut fetion service,so you cannot send mesage to him/her"));
 			return;
@@ -1160,10 +1159,11 @@ static gboolean fx_tree_on_rightbutton_click(GtkWidget* UNUSED(tree)
 	GtkTreeModel *model = NULL;
 	FxMain       *fxmain = NULL;
 	FxTree       *fxtree = NULL;
-	int depth;
 
 	if(event->type == GDK_BUTTON_PRESS)
 	{
+		int depth;
+
 		fxmain = (FxMain*)data;
 		fxtree = fxmain->mainPanel;
 		model = gtk_tree_view_get_model(GTK_TREE_VIEW(fxtree->treeView));
@@ -1677,22 +1677,22 @@ static gboolean fx_tree_on_show_tooltip(GtkWidget* widget
 					 , B_RELATIONSTATUS_COL , &relationStatus
 					 , -1);
 	sid = fetion_sip_get_sid_by_sipuri(sipuri);
-	bzero(phonetext , sizeof(phonetext));
+	memset(phonetext, 0, sizeof(phonetext));
 	if(carrierStatus == CARRIER_STATUS_DOWN){
 
-		if(strlen(carrier) == 0)
+		if(*carrier == '\0')
 			snprintf(phonetext, sizeof(phonetext) - 1,
 					_("<span color='#0088bf'>Not bind to a phone number.</span>"));
 		else
 			snprintf(phonetext, sizeof(phonetext) - 1,
 					_("<span color='#0088bf'>%s</span>(<b>Out of service</b>)")
-					, strlen(mobileno) == 0 ? _("Phone number not be published.") : mobileno);
+					, *mobileno == '\0' ? _("Phone number not be published.") : mobileno);
 
 	}else if (carrierStatus == CARRIER_STATUS_NORMAL){
 		snprintf(phonetext, sizeof(phonetext) - 1,
 				"<span color='#0088bf'>%s</span>"
-				, (carrier == NULL || strlen(carrier) == 0) ? _("Not bind to a phone number.")
-				: (mobileno == NULL || strlen(mobileno) == 0 ? _("Phone number not be published.") : mobileno));
+				, (carrier == NULL || *carrier == '\0') ? _("Not bind to a phone number.")
+				: (mobileno == NULL || *mobileno == '\0' ? _("Phone number not be published.") : mobileno));
 	}
 	snprintf(text , sizeof(text) - 1 ,
 				   	_(" <span color='#808080'>Nickname:</span>  <b>%s</b>\n"
@@ -1750,13 +1750,12 @@ static void pg_on_double_click(GtkTreeView *treeview
 		, GtkTreePath *path , GtkTreeViewColumn  *UNUSED(col) , gpointer data)
 {
 	FxMain* fxmain = (FxMain*)data;
-    	FxPGGroup *fxpg;
 	GtkTreeIter iter;
 	char *pguri;
 	GtkTreeModel* model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
 	gtk_tree_model_get_iter(model , &iter , path);
 	gtk_tree_model_get(model , &iter , PG_URI_COL , &pguri , -1);
-	fxpg = pg_create_window(fxmain , pguri);
+	pg_create_window(fxmain , pguri);
 	free(pguri);
 }
 

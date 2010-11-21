@@ -217,7 +217,7 @@ void fx_myself_on_send_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 	gtk_text_buffer_get_end_iter(fxmyself->send_buffer , &end);
 	text = gtk_text_buffer_get_text(fxmyself->send_buffer , &begin , &end , TRUE);
 
-	if(strlen(text) == 0 )
+	if(*text == '\0' )
 		return;
 	fetion_conversation_send_sms_to_myself(fxmyself->conv , text);
 	fx_myself_add_message(fxmyself , text);

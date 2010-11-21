@@ -206,7 +206,7 @@ void fx_addbuddy_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 			return;
 		}
 	}
-	if(strlen(no) == 0)
+	if(*no == '\0')
 		return;
 	desc = gtk_entry_get_text(GTK_ENTRY(fxadd->myname_entry));
 	model = gtk_combo_box_get_model(GTK_COMBO_BOX(fxadd->group_combo));
@@ -275,7 +275,7 @@ addbuddy:
 			ret = gtk_dialog_run(GTK_DIALOG(fxcode->dialog));
 			if(ret == GTK_RESPONSE_OK)
 			{
-				bzero(code , sizeof(code));
+				memset(code, 0, sizeof(code));
 				strcpy(code , gtk_entry_get_text(GTK_ENTRY(fxcode->codeentry)));
 				fetion_user_set_verification_code(user , code);
 				gtk_widget_destroy(fxcode->dialog);

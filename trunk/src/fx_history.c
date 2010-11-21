@@ -43,7 +43,7 @@ FxHistory* fx_history_new(FxMain* fxmain , const char* userid , const char* name
 
 void fx_history_initialize(FxHistory* fxhistory)
 {
-	char title[96];
+	char title[128];
 	GdkPixbuf* pb;
 	GtkWidget *label1 , *label2 , *refresh_icon , *today_icon;
 	GtkWidget *yest_icon , *month_icon , *all_icon , *exp_icon;
@@ -54,10 +54,8 @@ void fx_history_initialize(FxHistory* fxhistory)
 	FxList *list;
 	Config* config = fxhistory->fxmain->user->config;
 
-	bzero(title , sizeof(title));
-
 	fxhistory->dialog = gtk_dialog_new();
-	sprintf(title , _("View logs with [%s]") , fxhistory->name );
+	snprintf(title, sizeof(title) - 1 , _("View logs with [%s]") , fxhistory->name );
 	gtk_window_set_title(GTK_WINDOW(fxhistory->dialog) , title);
 	gtk_widget_set_usize(fxhistory->dialog , 750 , 550);
 	pb = gdk_pixbuf_new_from_file(SKIN_DIR"history.png" , NULL);

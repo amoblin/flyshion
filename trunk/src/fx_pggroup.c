@@ -73,7 +73,6 @@ void fx_pggroup_initialize(FxPGGroup *fxpggroup )
 	GtkWidget *lbox;
 	GtkWidget *rbox;
 	GdkPixbuf *pixbuf;
-	GtkWidget *toolButton;
 	GtkWidget *halign1;
 	GtkWidget *action_area;
 	GtkWidget *close_button;
@@ -178,7 +177,7 @@ void fx_pggroup_initialize(FxPGGroup *fxpggroup )
 	pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"home.png" , 16 , 16 , NULL);
 	toolImage = gtk_image_new_from_pixbuf(pixbuf);
 	g_object_unref(pixbuf);
-	toolButton = gtk_toolbar_append_item(GTK_TOOLBAR(fxpggroup->toolbar)
+	gtk_toolbar_append_item(GTK_TOOLBAR(fxpggroup->toolbar)
 					, _("Access group space") , _("Access group space") , NULL , toolImage
 					, G_CALLBACK(pggroup_on_space_clicked) , fxpggroup);
 	gtk_toolbar_append_space(GTK_TOOLBAR(fxpggroup->toolbar));
@@ -394,7 +393,7 @@ static void text_cell_data_func(GtkTreeViewColumn *UNUSED(col),
 	sid = fetion_sip_get_sid_by_sipuri(sipuri);
 
 	sprintf(text , "<b>%s</b> %s(%s)"
-	       	, strlen(nickname) == 0 ? sid : g_markup_escape_text(nickname , strlen(nickname))
+	       	, *nickname == '\0' ? sid : g_markup_escape_text(nickname , strlen(nickname))
 		, identity == 2 ? _("<span color='#0099ff'>[Administrator]</span>")
 	       		: ( identity == 1 ?_("<span color='#0099ff'>[Super Administrator]</span>") : "")
 		, sid);
@@ -529,7 +528,7 @@ static void pggroup_send_message(FxPGGroup *fxpg)
 	gtk_text_buffer_get_end_iter(buffer , &eiter);
 	value = gtk_text_buffer_get_text(buffer , &biter , &eiter , TRUE);
 
-	if(strlen(value) == 0)
+	if(*value == '\0')
 	    return;
 	pg_add_message(fxpg , value , now , NULL);
 	gtk_text_buffer_delete(buffer , &biter , &eiter);

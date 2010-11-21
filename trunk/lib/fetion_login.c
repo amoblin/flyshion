@@ -52,8 +52,8 @@ char* generate_response(const char* nouce , const char* userid
 
 	key = NULL;
 
-	bzero(modulus , sizeof(modulus));
-	bzero(exponent , sizeof(exponent));
+	memset(modulus, 0, sizeof(modulus));
+	memset(exponent, 0, sizeof(exponent));
 
 	memcpy(modulus , publickey , 256);
 	memcpy(exponent , publickey + 256 , 6);
@@ -83,6 +83,10 @@ char* generate_response(const char* nouce , const char* userid
 			res , out, r, RSA_PKCS1_PADDING);
 	if (ret < 0){
 		debug_info("Encrypt response failed!");
+		free(res); 
+		free(aeskey);
+		free(psd);
+		free(nonce);
 		return NULL;
 	}
 	RSA_free(r);
@@ -141,7 +145,7 @@ void generate_pic_code(User* user)
 	debug_info("Generating verification code picture");
 	pic = decode_base64(code , &piclen);
 	free(code);
-	bzero(codePath , sizeof(codePath));
+	memset(codePath, 0, sizeof(codePath));
 	sprintf(codePath , "%s/code.gif" , user->config->globalPath);
 	picfd = fopen(codePath , "wb+");
 	n = 0;
@@ -159,16 +163,15 @@ char* ssi_auth_action(User* user)
 	char verifyUri[256];
 	char *password , *ssi_ip , *res;
 	int passwordType;
-	int ret;
 	
 	debug_info("Initialize ssi authentication action");
 	password = hash_password_v4(user->userId , user->password);
-	bzero(noUri , sizeof(noUri));
+	memset(noUri, 0, sizeof(noUri));
 	if(user->loginType == LOGIN_TYPE_MOBILENO)
 		sprintf(noUri , "mobileno=%s" , user->mobileno);
 	else
 		sprintf(noUri , "sid=%s" , user->sId);
-	bzero(verifyUri , sizeof(verifyUri));
+	memset(verifyUri, 0, sizeof(verifyUri));
 	if(user->verification != NULL && user->verification->code != NULL)
 	{
 		sprintf(verifyUri , "&pid=%s&pic=%s&algorithm=%s"
@@ -189,6 +192,7 @@ char* ssi_auth_action(User* user)
 	ssl = tcp_connection_new();
 
 	if(user->config->proxy != NULL && user->config->proxy->proxyEnabled){
+		int ret;
 		ret = tcp_connection_connect_with_proxy(ssl , ssi_ip , 443 , user->config->proxy);
 		if(ret < 0)
 			return NULL;
@@ -286,13 +290,13 @@ void parse_ssi_auth_response(const char* ssi_response , User* user)
 	xmlNodePtr node;
 	char* pos;
 	char* xml = strstr(ssi_response , "\r\n\r\n") + 4;
-	int n;
 
 	if(strstr(ssi_response , "ssic=")){
+		int n;
 		pos = strstr(ssi_response , "ssic=") + 5;
 		n = strlen(pos) - strlen(strstr(pos , ";"));
 		user->ssic = (char*)malloc(n + 1);
-		bzero(user->ssic , n + 1);
+		memset(user->ssic, 0, n + 1);
 		strncpy(user->ssic , pos , n);
 	}
 
@@ -496,7 +500,6 @@ static void parse_personal_info(xmlNodePtr node , User* user)
 {
 	xmlChar *buf;
 	char *pos;
-	int n;
 	
 	buf = xmlGetProp(node , BAD_CAST "version");
 	strcpy(user->personalVersion , (char*)buf);
@@ -550,6 +553,7 @@ static void parse_personal_info(xmlNodePtr node , User* user)
 	}
 	if(xmlHasProp(node , BAD_CAST "carrier-region"))
 	{
+		int n;
 		buf = xmlGetProp(node , BAD_CAST "carrier-region");
 		pos = (char*)buf;
 		n = strlen(pos) - strlen(strstr(pos , "."));
@@ -837,7 +841,7 @@ static char* hash_password_v4(const char* userid , const char* password)
 	res = hash_password_v1(udomain , strlen(domain) , upassword , strlen(password));
 	free(udomain);
 	free(upassword);
-	if(userid == NULL || strlen(userid) == 0)
+	if(userid == NULL || *userid == '\0')
 	{
 		return res;
 	}

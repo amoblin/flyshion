@@ -332,7 +332,7 @@ int fetion_config_download_configuration(User* user)
 				   "User-Agent: IIC2.0/PC "PROTO_VERSION"\r\n"
 				   "Host: %s\r\n"
 				   "Connection: Close\r\n"
-				   "Content-Length: %ld\r\n\r\n%s"
+				   "Content-Length: %d\r\n\r\n%s"
 				 , uri , strlen(body) , body);
 	ret = tcp_connection_send(conn , http , strlen(http));
 	if(ret < 0)
@@ -350,8 +350,7 @@ int fetion_config_download_configuration(User* user)
 int fetion_config_initialize(Config* config , const char* userid)
 {
 
-	DIR *userdir , *icondir;
-
+//	DIR *userdir , *icondir;
 	snprintf(config->userPath, sizeof(config->userPath), "%s/%s" , config->globalPath , userid);
 	snprintf(config->iconPath, sizeof(config->iconPath), "%s/icons" , config->userPath );
 
@@ -566,8 +565,8 @@ int fetion_config_save(User *user)
 	char path[256];
 	char sql[4096];
 	char sql1[4096];
-	sqlite3 *db;
 	int count = 0;
+	sqlite3 *db;
 	Config *config = user->config;
 
 	snprintf(path, sizeof(path), "%s/data.db" , config->userPath);
