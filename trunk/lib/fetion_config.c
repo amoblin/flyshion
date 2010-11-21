@@ -35,7 +35,8 @@ Config* fetion_config_new()
 	config = (Config*)malloc(sizeof(Config));
 	memset(config , 0 , sizeof(Config));
 
-	snprintf(config->globalPath, sizeof(config->globalPath), "%s/.openfetion" , homepath);
+	snprintf(config->globalPath, sizeof(config->globalPath)-1, "%s/.openfetion" , homepath);
+	config->globalPath[sizeof(config->globalPath)-1] = '\0';
 	int e;
 	e = mkdir(config->globalPath, S_IRWXU|S_IRWXO|S_IRWXG);
 	if(e && access(config->globalPath,R_OK|W_OK)){
@@ -61,13 +62,13 @@ FxList* fetion_config_get_phrase(Config* config)
 
 	list = fx_list_new(NULL);
 
-	snprintf(path, sizeof(path), "%s/data.db" , config->userPath);
+	snprintf(path, sizeof(path)-1, "%s/data.db" , config->userPath);
 	if(sqlite3_open(path, &db)){
 		debug_error("failed to load user list");
 		return list;
 	}
 
-	snprintf(sql, sizeof(sql), "select * from phrases order by id desc;");
+	snprintf(sql, sizeof(sql)-1, "select * from phrases order by id desc;");
 	if(sqlite3_get_table(db, sql, &sqlres, &nrows, &ncols, NULL)){
 		debug_error("read phrases :%s",	sqlite3_errmsg(db));
 		sqlite3_close(db);
@@ -138,13 +139,13 @@ void fetion_user_list_save(Config* config , struct userlist* ul)
 	struct userlist *pos;
 
 	memset(path , 0 , sizeof(path));
-	snprintf(path, sizeof(path), "%s/data.db" , config->globalPath);
+	snprintf(path, sizeof(path)-1, "%s/data.db" , config->globalPath);
 	if(sqlite3_open(path, &db)){
 		debug_error("failed to save user list");
 		return;
 	}
 
-	snprintf(sql, sizeof(sql), "delete from userlist;");
+	snprintf(sql, sizeof(sql)-1, "delete from userlist;");
 	if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
 		debug_error("delete userlist failed:%s", sqlite3_errmsg(db));
 		sqlite3_close(db);
@@ -153,9 +154,9 @@ void fetion_user_list_save(Config* config , struct userlist* ul)
 
 
 	foreach_userlist(ul, pos){
-		snprintf(password, sizeof(password), "%s", pos->password);
+		snprintf(password, sizeof(password)-1, "%s", pos->password);
 		escape_sql(password);
-		snprintf(sql, sizeof(sql), "insert into userlist values"
+		snprintf(sql, sizeof(sql)-1, "insert into userlist values"
 					"('%s','%s',%d,%d,'%s','%s')",
 					pos->no, password,
 					pos->laststate, pos->islastuser,
@@ -212,13 +213,13 @@ struct userlist* fetion_user_list_load(Config* config)
 
 	res = fetion_user_list_new(NULL, NULL, NULL, NULL, 0, 0);
 
-	snprintf(path, sizeof(path), "%s/data.db" , config->globalPath);
+	snprintf(path, sizeof(path)-1, "%s/data.db" , config->globalPath);
 	if(sqlite3_open(path, &db)){
 		debug_error("failed to load user list");
 		return res;
 	}
 
-	snprintf(sql, sizeof(sql), "select sid from userlist;");
+	snprintf(sql, sizeof(sql)-1, "select sid from userlist;");
 	if(sqlite3_get_table(db, sql, &sqlres, &nrows, &ncols, NULL)){
 create_ul_table:
 		if(create_userlist_table(db)){

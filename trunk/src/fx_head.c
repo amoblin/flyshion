@@ -186,7 +186,7 @@ void fx_head_bind(FxMain* fxmain)
 
 	strcpy(fxhead->oldimpression
 		, (strlen(user->impression) == 0 || user->impression == NULL)
-		? "Click here to input signature" : user->impression);
+		? _("Click here to input signature") : user->impression);
 
 	sprintf(tooltip, "<b>%s</b>", g_markup_escape_text(user->impression, strlen(user->impression)));
 	gtk_widget_set_tooltip_markup(fxhead->impre_label, tooltip);

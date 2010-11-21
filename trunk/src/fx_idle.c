@@ -85,6 +85,6 @@ void idle_autoaway(FxMain *fxmain)
 			return;
 		}
 
-		g_free(args);
+		free(args);
 	}
 }

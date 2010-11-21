@@ -756,8 +756,8 @@ send:
 						" messages cannot be sent any more today."));
 				return;
 			}
-			sprintf(reason , _("You have %d free SMS can send "
-					" (include this one). Free SMS: %d per month")
+			sprintf(reason , _("%d free SMS messages can be sent(include this "
+					"one). Free SMS messages: %d per month")
 					, user->smsDayLimit - user->smsMonthCount
 					, user->smsMonthLimit );
 			sprintf(tips,

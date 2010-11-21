@@ -91,6 +91,7 @@ void fx_confirm_initialize(FxConfirm *fxconfirm)
 			, G_CALLBACK(fx_confirm_on_cancel_clicked) , fxconfirm);
 
 	gtk_widget_show_all(fxconfirm->dialog);
+
 }
 
 FxDSMS* fx_dsms_new(FxMain *fxmain)
