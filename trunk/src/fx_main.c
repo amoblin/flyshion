@@ -1469,7 +1469,8 @@ void* fx_main_listen_thread_func(void* data)
 		if(msg)
 			fetion_sip_message_free(msg);
 	}
-
+	
+	free(data);
 	return NULL;
 }
 void fx_main_message_func(GtkWidget *UNUSED(widget) , gpointer data)

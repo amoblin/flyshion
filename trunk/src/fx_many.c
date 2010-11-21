@@ -228,7 +228,7 @@ static void fx_many_item_toggled(GtkCellRendererToggle *UNUSED(cell)
 
 	gtk_tree_path_free(path);
 	bzero(labeltext , sizeof(labeltext));
-	sprintf(labeltext , _("Choosed [<span color=\"red\">%d</span>] contacts\n"
+	sprintf(labeltext , _("Choosed [<span color=\"red\">%d</span>] contacts, "
 						"[<span color=\"red\">%d</span>] more available")
 					  , fxmany->chooseCount , 10000 - fxmany->chooseCount);
 	gtk_label_set_markup(GTK_LABEL(fxmany->label) , labeltext);
@@ -426,8 +426,8 @@ void fx_many_initialize(FxMany* fxmany)
 	/*right area*/
 	fxmany->label = gtk_label_new("");
 	gtk_label_set_markup(GTK_LABEL(fxmany->label)
-					  , "已选择好友[<span color=\"red\">0</span>]人"
-					    "还可选择[<span color=\"red\">10000</span>]人");
+					  , _("Choosed [<span color=\"red\">0</span>] contacts, "
+						"[<span color=\"red\">10000</span>] more available"));
 	gtk_box_pack_start(GTK_BOX(rbox) , fxmany->label , FALSE , FALSE , 5);
 	gtk_widget_set_usize(fxmany->label , 200 , 20);
 	fxmany->recv_scroll = gtk_scrolled_window_new(NULL , NULL);
