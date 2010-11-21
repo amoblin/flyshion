@@ -123,7 +123,7 @@ void fx_code_code_event_func(GtkWidget* UNUSED(widget) , GdkEventButton* event ,
 	{
 		case GDK_BUTTON_PRESS :
 			generate_pic_code(user);
-			bzero(codePath , sizeof(codePath));
+			memset(codePath, 0, sizeof(codePath));
 			sprintf(codePath , "%s/code.gif" , fxcode->fxmain->user->config->globalPath);
 			pb = gdk_pixbuf_new_from_file_at_size(codePath , 130 , 36 , NULL);
 			gtk_image_set_from_pixbuf(GTK_IMAGE(fxcode->codepic) , pb);

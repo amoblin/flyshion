@@ -67,7 +67,6 @@ static void fx_main_position_func(GtkWidget *UNUSED(widget) , GdkEventConfigure 
 
 void fx_main_initialize(FxMain* fxmain)
 {
-	int window_width , window_height;
 	Config    *config;
 
 	fxmain->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -79,6 +78,7 @@ void fx_main_initialize(FxMain* fxmain)
 	config = fetion_config_new();
 	fetion_config_load_size(config);
 	if(config->window_width == 0){
+		int window_width , window_height;
 		window_width = gdk_screen_get_width(current_screen);
 		window_height = gdk_screen_get_height(current_screen);
 		window_pos_x = window_width - WINDOW_WIDTH - 200;
@@ -971,10 +971,10 @@ end:
 }
 void* fx_main_process_addbuddyapplication_thread(void* data)
 {
-	struct Args {
+	struct args1 {
 		FxMain *fxmain;
 		gchar   sipmsg[2048];
-	} *args = (struct Args*)data;
+	} *args = (struct args1*)data;
 	gchar *userid;
 	gchar *sipuri;
 	gchar *desc;
@@ -998,12 +998,12 @@ void* fx_main_process_addbuddyapplication_thread(void* data)
 }
 void fx_main_process_addbuddyapplication(FxMain* fxmain , const char* sipmsg)
 {
-	struct Args{
+	struct args1 {
 		FxMain* fxmain;
 		char sipmsg[2048];
-	} *args = (struct Args*)malloc(sizeof(struct Args));
+	} *args = (struct args1*)malloc(sizeof(struct args1));
 
-	memset(args , 0 , sizeof(struct args));
+	memset(args , 0 , sizeof(struct args1));
 	args->fxmain = fxmain;
 	strcpy(args->sipmsg , sipmsg);
 	g_thread_create(fx_main_process_addbuddyapplication_thread , args , FALSE , NULL);
@@ -1024,7 +1024,6 @@ gboolean fx_main_delete(GtkWidget *widget , GdkEvent *UNUSED(event) , gpointer d
 	FxClose *fxclose;
 	Config *config;
 
-	int ret;
 
 	int     window_width;
 	int     window_height;
@@ -1045,6 +1044,8 @@ gboolean fx_main_delete(GtkWidget *widget , GdkEvent *UNUSED(event) , gpointer d
 
 	if(fxmain->user){
 		if(config->closeAlert == CLOSE_ALERT_ENABLE){
+			int ret;
+
 			fxclose = fx_close_new(fxmain);
 			fx_close_initialize(fxclose);
 			ret = gtk_dialog_run(GTK_DIALOG(fxclose->dialog));
@@ -1200,8 +1201,8 @@ void fx_main_tray_popmenu_func(
 	typedef struct {
 		FxMain* fxmain;
 		StateType type;
-	} Args;
-	Args      *args;
+	} Args1;
+	Args1      *args;
 
 	fxmain = (FxMain*)data;
 	user = fxmain->user;
@@ -1265,7 +1266,7 @@ void fx_main_tray_popmenu_func(
 
 		submenu = gtk_menu_new();
 		for(i = 0 ; presence[i].type != -1 ; i++){
-			args = (Args*)malloc(sizeof(Args));
+			args = (Args1*)malloc(sizeof(Args1));
 			args->fxmain = fxmain;
 			args->type = presence[i].type;
 
@@ -1344,7 +1345,7 @@ static void chat_listen_thread_end(FxMain *fxmain, const char *sipuri)
 
 	clist = fxmain->clist;
 
-	if(!sipuri || strlen(sipuri) == 0)
+	if(!sipuri || *sipuri == '\0')
 		return;
 
 	fx_list_remove_sip_by_sipuri(fxmain->slist , sipuri);
@@ -1804,9 +1805,7 @@ void fx_main_add_history(FxMain *fxmain, const char *name,
 {
 	History   *history;
 	struct tm *now;
-	User      *user;
 
-	user = fxmain->user;
 	now = get_currenttime();
 
 	history = fetion_history_message_new(name

@@ -177,9 +177,9 @@ void fx_head_bind(FxMain* fxmain)
 	char* statename = NULL;
 	GdkPixbuf* portrait_pix = NULL;
 
-	bzero(fxhead->oldimpression , sizeof(fxhead->oldimpression));
+	memset(fxhead->oldimpression, 0, sizeof(fxhead->oldimpression));
 
-	sprintf(name , "<b>%s</b>"
+	snprintf(name, sizeof(name) - 1 , "<b>%s</b>"
 			, user->nickname == NULL ? user->sId : g_markup_escape_text(user->nickname, -1) );
 
 	gtk_label_set_markup(GTK_LABEL(fxhead->name_label), name );
@@ -319,15 +319,14 @@ void fx_head_popup_statemenu_func(GtkWidget* widget
 }
 void fx_head_create_presence_item(int type , const char* message , GtkWidget* menu , FxMain* fxmain)
 {
-	typedef struct 
-	{
-		FxMain* fxmain;
-		StateType type;
-	} Args;
+	typedef struct {
+		FxMain    *fxmain;
+		StateType  type;
+	} Args1;
 	GtkWidget* item = gtk_image_menu_item_new_with_label(message);
 	GtkWidget* item_img = NULL;
 	GdkPixbuf *pixbuf;
-	Args *args = (Args*)malloc(sizeof(Args));
+	Args1 *args = (Args1*)malloc(sizeof(Args1));
 	args->fxmain = fxmain;
 	args->type = type;
 	g_signal_connect(item , "activate" , G_CALLBACK(fx_head_change_state_func) , args);
@@ -415,9 +414,9 @@ gboolean fx_head_impre_activate_func(GtkWidget* widget , gpointer data)
 	if(fetion_user_set_moodphrase(fxmain->user , impression) > 0)
 	{
 		gtk_label_set_text(GTK_LABEL(fxhead->impre_label) , impression);
-		bzero(fxhead->oldimpression , sizeof(fxhead->oldimpression));
+		memset(fxhead->oldimpression, 0, sizeof(fxhead->oldimpression));
 		strcpy(fxhead->oldimpression , impression);
-		bzero(tooltip , sizeof(tooltip));
+		memset(tooltip, 0, sizeof(tooltip));
 		sprintf(tooltip , "<b>%s</b>" , g_markup_escape_text(impression, -1));
 		gtk_widget_set_tooltip_markup(fxhead->impre_label , tooltip);
 	}
@@ -429,8 +428,8 @@ static void* reconnection_func(void *data)
 	typedef struct {
 		FxMain    *fxmain;
 		StateType  type;
-	} Args;
-	Args     *args = (Args*)data;
+	} Args1;
+	Args1    *args = (Args1*)data;
 	FxMain   *fxmain = args->fxmain;
 	FxHead   *fxhead = fxmain->headPanel;
 
@@ -449,8 +448,8 @@ void fx_head_change_state_func(GtkWidget* UNUSED(widget) , gpointer data)
 	typedef struct {
 		FxMain    *fxmain;
 		StateType  type;
-	} Args;
-	Args   *args = (Args*)data;
+	} Args1;
+	Args1  *args = (Args1*)data;
 	FxMain *fxmain = args->fxmain;
 	User   *user = fxmain->user;
 
@@ -481,10 +480,10 @@ void fx_head_change_portrait_func(GtkWidget* widget , GdkEventButton* event , gp
 	GdkPixbufAnimation *anim_pixbuf = NULL;
 	GtkWidget* filechooser = NULL;
 	GdkCursor* cursor = NULL;
-	struct Args{
+	struct Args1{
 		FxMain* fxmain;
-		char filename[1024];
-	} *args = (struct Args*)malloc(sizeof(struct Args));
+		char    filename[1024];
+	} *args = (struct Args1*)malloc(sizeof(struct Args1));
 	int response;
 
 	if(event->type == GDK_ENTER_NOTIFY)
@@ -517,7 +516,7 @@ void fx_head_change_portrait_func(GtkWidget* widget , GdkEventButton* event , gp
 			anim_pixbuf = gdk_pixbuf_animation_new_from_file(SKIN_DIR"LoadingImage.gif", NULL); 
 			gtk_image_set_from_animation(GTK_IMAGE(fxmain->headPanel->portrait) , anim_pixbuf);
 			args->fxmain = fxmain;
-			bzero(args->filename , sizeof(args->filename));
+			memset(args->filename, 0, sizeof(args->filename));
 			strcpy(args->filename , filename);
 			g_thread_create(fx_head_change_portrait_thread , args , FALSE , NULL);
 		}
@@ -527,10 +526,10 @@ void fx_head_change_portrait_func(GtkWidget* widget , GdkEventButton* event , gp
 }
 void* fx_head_change_portrait_thread(void* data)
 {
-	struct Args {
+	struct Args1 {
 		FxMain* fxmain;
 		char filename[1024];
-	} *args = (struct Args*)data;
+	} *args = (struct Args1*)data;
 	FxMain     *fxmain;
 	FxHead     *fxhead;
 	Config     *config;

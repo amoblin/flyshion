@@ -640,7 +640,7 @@ void parse_set_displayname_response(User* user , const char* userid , const char
 	node = xmlDocGetRootElement(doc);
 	node = node->xmlChildrenNode;
 	res = xmlGetProp(node , BAD_CAST "version");
-	bzero(user->contactVersion , sizeof(user->contactVersion));
+	memset(user->contactVersion, 0, sizeof(user->contactVersion));
 	strcpy(user->contactVersion , (char*)res);
 	xmlFree(res);
 	node = node->xmlChildrenNode;
@@ -660,7 +660,7 @@ void parse_set_mobileno_permission_response(User* user , const char* sipmsg)
 	node = xmlDocGetRootElement(doc);
 	node = node->xmlChildrenNode;
 	res = xmlGetProp(node , BAD_CAST "contact-list-version");
-	bzero(user->contactVersion , sizeof(user->contactVersion));
+	memset(user->contactVersion, 0, sizeof(user->contactVersion));
 	strcpy(user->contactVersion , (char*)res);
 	xmlFree(res);
 	xmlFreeDoc(doc);
@@ -672,7 +672,6 @@ Contact* parse_contact_info_by_no_response(const char* sipmsg)
 	xmlChar* res;
 	xmlDocPtr doc;
 	xmlNodePtr node;
-	int n;
 	contact = fetion_contact_new();
 	pos = strstr(sipmsg , "\r\n\r\n") + 4;
 	doc = xmlParseMemory(pos , strlen(pos));
@@ -728,6 +727,7 @@ Contact* parse_contact_info_by_no_response(const char* sipmsg)
 	}
 	if(xmlHasProp(node , BAD_CAST "carrier-region"))
 	{
+		int n;
 		res = xmlGetProp(node , BAD_CAST "carrier-region");
 		pos = (char*)res;
 		n = strlen(pos) - strlen(strstr(pos , "."));
@@ -878,17 +878,17 @@ void parse_add_buddy_verification(User* user , const char* str)
 	ver = (Verification*)malloc(sizeof(Verification));
 	memset(ver , 0 , sizeof(sizeof(Verification)));
 
-	bzero(w , sizeof(w));
+	memset(w, 0, sizeof(w));
 	fetion_sip_get_attr(str , "W" , w);
 	xml = strstr(w , "algorithm=") + 11;
 	n = strlen(xml) - strlen(strstr(xml , "\""));
 	ver->algorithm = (char*)malloc(n + 1);
-	bzero(ver->algorithm , n + 1);
+	memset(ver->algorithm, 0, n + 1);
 	strncpy(ver->algorithm , xml , n);
 	xml = strstr(w , "type=") + 6;
 	n = strlen(xml) - strlen(strstr(xml , "\""));
 	ver->type = (char*)malloc(n + 1);
-	bzero(ver->type , n +1);
+	memset(ver->type, 0, n +1);
 	strncpy(ver->type , xml , n);
 
 	xml = strstr(str , "\r\n\r\n");
@@ -898,13 +898,13 @@ void parse_add_buddy_verification(User* user , const char* str)
 	res = xmlGetProp(node , BAD_CAST "text");
 	n = xmlStrlen(res) + 1;
 	ver->text = (char*)malloc(n);
-	bzero(ver->text , n);
+	memset(ver->text, 0, n);
 	strncpy(ver->text , (char*)res , n - 1);
 	xmlFree(res);
 	res = xmlGetProp(node , BAD_CAST "tips");
 	n = xmlStrlen(res) + 1;
 	ver->tips = (char*)malloc(n);
-	bzero(ver->tips , n);
+	memset(ver->tips, 0, n);
 	strncpy(ver->tips , (char*)res , n - 1);
 	xmlFree(res);
 	user->verification = ver;

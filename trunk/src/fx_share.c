@@ -71,7 +71,7 @@ void fx_share_initialize(FxShare *fxshare)
 	gtk_box_pack_start_defaults(GTK_BOX(vbox) , fixed);
 
 	fxshare->uLabel = gtk_label_new(NULL);
-	bzero(text , sizeof(text));
+	memset(text, 0, sizeof(text));
 
 	sprintf(text , _("Transporting files <b>OS Revolution.mkv </b> to <b>%s</b>...")
 			, fxshare->contact->nickname);

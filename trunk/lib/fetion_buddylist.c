@@ -127,7 +127,7 @@ char* generate_create_buddylist_body(const char* name)
 char* generate_edit_buddylist_body(int id , const char* name)
 {
 	char args[] = "<args></args>";
-	char ids[5];
+	char ids[128];
 	xmlChar *res;
 	xmlDocPtr doc;
 	xmlNodePtr node;
@@ -137,8 +137,8 @@ char* generate_edit_buddylist_body(int id , const char* name)
 	node = xmlNewChild(node , NULL , BAD_CAST "buddy-lists" , NULL);
 	node = xmlNewChild(node , NULL , BAD_CAST "buddy-list" , NULL);
 	xmlNewProp(node , BAD_CAST "name" , BAD_CAST name);
-	bzero(ids , sizeof(ids));
-	sprintf(ids , "%d" , id);
+	memset(ids, 0, sizeof(ids));
+	snprintf(ids, sizeof(ids) - 1 , "%d" , id);
 	xmlNewProp(node , BAD_CAST "id" , BAD_CAST ids);
 	xmlDocDumpMemory(doc , &res , NULL);
 	xmlFreeDoc(doc);
@@ -149,7 +149,7 @@ char* generate_delete_buddylist_body(int id)
 {
 	char args[] = "<args></args>";
 	char ida[4];
-	bzero(ida , sizeof(ida));
+	memset(ida, 0, sizeof(ida));
 	sprintf(ida , "%d" , id);
 	xmlChar *res;
 	xmlDocPtr doc;

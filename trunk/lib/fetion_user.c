@@ -325,13 +325,17 @@ int fetion_user_upload_portrait(User* user , const char* filename)
 	int ret;
 	while((n = fread(buf , 1 , sizeof(buf) , f))){
 		ret = tcp_connection_send(tcp , buf , n) ;
+		if(ret == -1){
+			fclose(f);
+			return -1;
+		}
 		memset(buf , 0 , sizeof(buf));
 	}
 	fclose(f);
 
-	bzero(res , sizeof(res));
+	memset(res, 0, sizeof(res));
 	tcp_connection_recv(tcp , res , sizeof(res));
-	bzero(code , sizeof(code));
+	memset(code, 0, sizeof(code));
 	strncpy(code , res + 9 , 3);
 	if(strcmp(code , "200") == 0){
 		debug_info("Upload portrait success");
@@ -406,7 +410,7 @@ int fetion_user_download_portrait_with_uri(User *user , const char *sipuri
 		debug_error("Parse server ip address failed , %s" , server);
 		return -1;
 	}
-	if(! sipuri || strlen(sipuri) == 0)
+	if(! sipuri || *sipuri == '\0')
 		return -1;
 	friendSid = fetion_sip_get_sid_by_sipuri(sipuri);
 	if(friendSid == NULL)
@@ -720,7 +724,7 @@ Contact* fetion_user_parse_presence_body(const char* body , User* user)
 		if(xmlHasProp(cnode , BAD_CAST "dt"))
 		{
 			pos = xmlGetProp(cnode , BAD_CAST "dt");
-			strcpy(currentContact->devicetype ,  strlen((char*)pos) == 0 ? "PC" : (char*)pos);
+			strcpy(currentContact->devicetype ,  *((char*)pos) == '\0' ? "PC" : (char*)pos);
 			xmlFree(pos);
 		}
 		if(xmlHasProp(cnode , BAD_CAST "b"))
@@ -915,7 +919,7 @@ void fetion_user_load(User *user)
 
 static char* generate_set_state_body(StateType state)	
 {
-	char s[5];
+	char s[16];
 	char data[] = "<args></args>";
 	xmlChar* res;
 	xmlDocPtr doc;
@@ -924,8 +928,7 @@ static char* generate_set_state_body(StateType state)
 	node = xmlDocGetRootElement(doc);
 	node = xmlNewChild(node , NULL , BAD_CAST "presence" , NULL);
 	node = xmlNewChild(node , NULL , BAD_CAST "basic" , NULL);
-	bzero(s , sizeof(s));
-	sprintf(s , "%d" , state);
+	snprintf(s, sizeof(s) - 1 , "%d" , state);
 	xmlNewProp(node , BAD_CAST "value" , BAD_CAST s);
 	xmlDocDumpMemory(doc , &res , NULL);
 	xmlFreeDoc(doc);
@@ -1000,22 +1003,22 @@ static void parse_set_moodphrase_response(User* user , const char* sipmsg)
 	node = xmlDocGetRootElement(doc);
 	node = node->xmlChildrenNode->xmlChildrenNode;
 	res = xmlGetProp(node , BAD_CAST "version");
-	bzero(user->personalVersion , sizeof(user->personalVersion));
+	memset(user->personalVersion, 0, sizeof(user->personalVersion));
 	strcpy(user->personalVersion , (char*)res);
 	xmlFree(res);
 	res = xmlGetProp(node , BAD_CAST "impresa");
-	bzero(user->impression , sizeof(user->impression));
+	memset(user->impression, 0, sizeof(user->impression));
 	strcpy(user->impression , (char*)res);
 	xmlFree(res);
 	node = node->next;
 	res = xmlGetProp(node , BAD_CAST "version");
-	bzero(user->customConfigVersion , sizeof(user->customConfigVersion));
+	memset(user->customConfigVersion, 0, sizeof(user->customConfigVersion));
 	strcpy(user->customConfigVersion , (char*)res);	
 	xmlFree(res);
 	res = xmlNodeGetContent(node);
 	free(user->customConfig);
 	user->customConfig = (char*)malloc(strlen((char*)res) + 1);
-	bzero(user->customConfig , strlen((char*)res) + 1);
+	memset(user->customConfig, 0, strlen((char*)res) + 1);
 	strcpy(user->customConfig , (char*)res);
 	xmlFree(res);
 	xmlFreeDoc(doc);

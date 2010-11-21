@@ -73,9 +73,8 @@ void fx_lookupres_bind(FxLookupres* fxlookupres)
 		free(res);
 	}
 
-	bzero(portrait , sizeof(portrait));
 	sid = fetion_sip_get_sid_by_sipuri(contact->sipuri);
-	sprintf(portrait , "%s/%s.jpg" , config->iconPath , sid);
+	snprintf(portrait, sizeof(portrait) - 1 , "%s/%s.jpg" , config->iconPath , sid);
 	free(sid);
 
 	if(contact->birthday != NULL)

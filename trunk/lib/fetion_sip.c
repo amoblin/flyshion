@@ -233,7 +233,7 @@ char* fetion_sip_to_string(FetionSip* sip , const char* body)
 			break;
 	};
 
-	if(strlen(type) == 0){
+	if(*type == '\0'){
 		free(res);
 		return NULL;
 	}
@@ -262,7 +262,7 @@ char* fetion_sip_to_string(FetionSip* sip , const char* body)
 		free(tmp);
 	}
 	if(body){
-		sprintf(buf , "L: %ld\r\n\r\n" , strlen(body));
+		sprintf(buf , "L: %d\r\n\r\n" , strlen(body));
 		strcat(res , buf);
 		strcat(res , body);
 	}else{
@@ -378,7 +378,7 @@ int fetion_sip_get_type(const char* sip)
 char* fetion_sip_get_response(FetionSip* sip)
 {
 	char *res;
-	unsigned int len , n , c , c1;
+	unsigned int len , n , c;
 	char buf[4096];
 
 	memset(buf , 0 , sizeof(buf));
@@ -401,7 +401,8 @@ char* fetion_sip_get_response(FetionSip* sip)
 		return NULL;
 	memset(res , 0 , len + 1);
 	strcpy(res , buf);
-	if(c < len)
+	if(c < len){
+		unsigned int c1;
 	   	for(;;){
 			memset(buf , 0 , sizeof(buf));
 			c1 = tcp_connection_recv(sip->tcp , buf
@@ -416,6 +417,7 @@ char* fetion_sip_get_response(FetionSip* sip)
 			if(c >= len)
 				break;
 		}
+	}
 	return res;
 }
 void fetion_sip_set_connection(FetionSip* sip , FetionConnection* conn)
@@ -477,7 +479,7 @@ SipMsg *fetion_sip_listen(FetionSip *sip, int *error)
 			body_len = fetion_sip_get_length(holder);
 		}
 
-		if(cur == NULL || strlen(cur) == 0)
+		if(cur == NULL || *cur == '\0')
 			return list;
 
 		if(body_len == 0 && pos){
@@ -543,176 +545,6 @@ SipMsg *fetion_sip_listen(FetionSip *sip, int *error)
 		}
 	}
 
-}
-
-SipMsg* fetion_sip_listen1(FetionSip* sip)
-{
-	char *buf , *pos , *missingStr = NULL , *tmp = NULL;
-	char *strBeforeSpt = NULL;
-	char buffer[1025];
-	unsigned int strBeforeSptLen = 0;
-	unsigned int len , msglen , missingLen , rereceiveLen , msgCurrentLen;
-	int bodyLen;
-	SipMsg *msglist = NULL;
-	SipMsg* msg; 
-	memset(buffer , 0 , sizeof(buffer));
-	bodyLen = tcp_connection_recv_dont_wait(sip->tcp , buffer , 1024);
-	buf = buffer;
-	if( bodyLen == 0 || bodyLen == -1 )
-		return NULL;
-	while(1)
-	{	
-		msg = (SipMsg*)malloc(sizeof(SipMsg));
-		memset(msg , 0 , sizeof(SipMsg));
-		msg->next = NULL;
-		bodyLen = fetion_sip_get_length(buf);
-		pos = strstr(buf , "\r\n\r\n");
-		/* ensure the bodyLength is read from 
-		 * the first chunk before '\r\n\r\n' */
-		if(pos != NULL)
-		{
-			strBeforeSptLen = strlen(buf) - strlen(pos) + 1;
-			strBeforeSpt = (char*)malloc(strBeforeSptLen);
-			memset(strBeforeSpt , 0 , strBeforeSptLen);
-			strncpy(strBeforeSpt , buf , strBeforeSptLen - 1);
-			bodyLen = fetion_sip_get_length(strBeforeSpt);
-			free(strBeforeSpt);
-		}
-		/* if read to the end of buffer , just return */
-		if(buf == NULL || strlen(buf) == 0 )
-			return msglist;
-
-		/**
-		 * chunk contains an entire sip head
-		 * but has no attribute of length 
-		 * such as a reply message :
-		 *
-		 * SIP-C/4.0 200 OK
-		 * I: 3
-		 * Q: 2 SUB
-		 */
-		if(bodyLen == 0 && pos != NULL)
-		{
-			len = strlen(buf) - strlen(pos) + 4;
-			msg->message = (char*)malloc(len + 1);
-			memset(msg->message, 0 , len + 1);
-			strncpy(msg->message , buf , len);
-			if(msglist == NULL)
-				msglist = msg;
-			else
-				fetion_sip_message_append(msglist , msg);
-			buf = pos + 4;
-			continue;
-		}
-		/**
-		 * chunk does not contan an entire sip header
-		 * and even has no attribute of length , such as:
-		 *
-		 * BN 572003969 SIP-C/4.0
-		 * N: PresenceV4
-		 * I: 2\r\n
-		 */
-		if(bodyLen == 0 && pos == NULL)
-		{
-			if(tmp != NULL){
-				free(tmp);
-				tmp = NULL;
-			}
-			tmp = (char*)malloc(strlen(buf) + sizeof(buffer));
-			memset(tmp , 0 , strlen(buf) + sizeof(buffer));
-			strcpy(tmp , buf);
-			memset(buffer , 0 , sizeof(buffer));
-			tcp_connection_recv(sip->tcp , buffer , sizeof(buffer) - 1);
-			strcat(tmp , buffer);
-			buf = tmp;
-			continue;
-		}
-		/**
-		 * chunk contanns an entire sip header at least
-		 * and has attribute of length
-		 */
-		if(bodyLen != 0 && pos == NULL)
-		{
-			if(tmp != NULL && strlen(tmp) != 0)
-			{
-				free(tmp);
-				tmp = NULL;
-			}
-			tmp = (char*)malloc(strlen(buf) + sizeof(buffer));
-			memset(tmp , 0 , strlen(buf) + sizeof(buffer));
-			strcpy(tmp , buf);
-			memset(buffer , 0 , sizeof(buffer));
-			tcp_connection_recv(sip->tcp , buffer , sizeof(buffer) - 1);
-			strcat(tmp , buffer);
-			buf = tmp;
-			continue;
-		}
-		else
-		{
-			len = strlen(buf) - strlen(pos);
-			msglen = len + 4 + bodyLen;
-			msg->message = (char*)malloc(msglen + 1);
-			memset(msg->message, 0, msglen + 1);
-			strncpy(msg->message , buf , len + 4);
-			pos += 4;
-			if(strlen(pos) == (unsigned int)bodyLen)
-			{
-				strcpy(msg->message + len + 4 , pos);
-				if(msglist == NULL)
-					msglist = msg;
-				else
-					fetion_sip_message_append(msglist , msg);
-				if(tmp != NULL && strlen(tmp) != 0)
-				{
-					free(tmp);
-					tmp = NULL;
-				}
-				return msglist;
-			}
-			if(strlen(pos) < (unsigned int)bodyLen)
-			{
-				msgCurrentLen = len + 4;
-				strcpy(msg->message + msgCurrentLen , pos);
-				msgCurrentLen += strlen(pos);
-				missingLen = bodyLen - strlen(pos);
-
-			readmissing:	
-				missingStr = (char*)malloc(missingLen + 1);
-				memset(missingStr, 0, missingLen + 1);
-				rereceiveLen = tcp_connection_recv(sip->tcp , missingStr , missingLen);
-				strcpy(msg->message + msgCurrentLen , missingStr);
-				free(missingStr);
-				msgCurrentLen += rereceiveLen;
-				if(rereceiveLen < missingLen)
-				{
-					missingLen = missingLen - rereceiveLen;
-					goto readmissing;
-				}
-				if(msglist == NULL)
-					msglist = msg;
-				else
-					fetion_sip_message_append(msglist , msg);
-#if 0
-				if(tmp != NULL && strlen(tmp) != 0)
-				{
-					free(tmp);
-					tmp = NULL;
-				}
-#endif
-				return msglist;
-			}
-			else
-			{
-				strncpy(msg->message + len + 4 , pos , bodyLen);
-				if(msglist == NULL)
-					msglist = msg;
-				else
-					fetion_sip_message_append(msglist , msg);
-				pos += bodyLen;
-				buf = pos;
-			}
-		}
-	}
 }
 int fetion_sip_keep_alive(FetionSip* sip)
 {
@@ -1123,7 +955,7 @@ int fetion_sip_parse_shareaccept(FetionSip *sip
 					   "F: %s\r\n"
 					   "I: %s\r\n"
 					   "Q: %s\r\n"
-					   "L: %ld\r\n\r\n%s"
+					   "L: %d\r\n\r\n%s"
 					 , from , callid , seq , strlen(pos) , pos);
 	free(pos);
 	pos = NULL;

@@ -89,8 +89,7 @@ void fetion_history_add(FetionHistory* fhistory , History* history)
 			history->message, history->sendtime,
 			history->issend);
 
-	int ret;
-	if((ret = sqlite3_exec(db, sql, 0, 0, NULL))){
+	if(sqlite3_exec(db, sql, 0, 0, NULL)){
 		snprintf(sql1, sizeof(sql1),"create table history ("
 				"id INTEGER PRIMARY KEY AUTOINCREMENT,"
 				"name TEXT,userid TEXT,message TEXT,"
@@ -256,6 +255,7 @@ int fetion_history_export(Config *config , const char *myid
 	if(sqlite3_open(path, &db)){
 		debug_error("open data.db:%s",
 					sqlite3_errmsg(db));
+		fclose(f);
 		return -1;
 	}
 
@@ -266,6 +266,7 @@ int fetion_history_export(Config *config , const char *myid
 
 	if(sqlite3_get_table(db, sql, &res, &nrows, &ncols, NULL)){
 		sqlite3_close(db);
+		fclose(f);
 		return -1;
 	}
 

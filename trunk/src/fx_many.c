@@ -227,10 +227,10 @@ static void fx_many_item_toggled(GtkCellRendererToggle *UNUSED(cell)
 					 , -1);
 
 	gtk_tree_path_free(path);
-	bzero(labeltext , sizeof(labeltext));
-	sprintf(labeltext , _("Choosed [<span color=\"red\">%d</span>] contacts, "
-						"[<span color=\"red\">%d</span>] more available")
-					  , fxmany->chooseCount , 10000 - fxmany->chooseCount);
+	snprintf(labeltext, sizeof(labeltext) - 1 ,
+			_("Choosed [<span color=\"red\">%d</span>] contacts, "
+			"[<span color=\"red\">%d</span>] more available"),
+		     fxmany->chooseCount , 10000 - fxmany->chooseCount);
 	gtk_label_set_markup(GTK_LABEL(fxmany->label) , labeltext);
 
 }
@@ -522,7 +522,7 @@ static void* fx_many_sms_send_func(void* data)
 	gtk_text_buffer_get_end_iter(fxmany->send_buffer , &end);
 	text = gtk_text_buffer_get_text(fxmany->send_buffer , &begin , &end , TRUE);
 
-	if(strlen(text) == 0){
+	if(*text == '\0') {
 		gdk_threads_enter();
 		fx_many_add_information(fxmany , _("Please input the contents of message"));
 		gdk_threads_leave();

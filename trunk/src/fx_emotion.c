@@ -132,7 +132,7 @@ void fx_emotion_initialize(FxEmotion *fxemotion , int x , int y)
 		for( i = 0 ; i < 10 ; i ++){
 			subframe = gtk_frame_new(NULL);
 			gtk_frame_set_shadow_type(GTK_FRAME(subframe) , GTK_SHADOW_ETCHED_IN);
-			bzero(path , sizeof(path));
+			memset(path, 0, sizeof(path));
 			if( k < 52 ){
 				sprintf(path , SKIN_DIR"face_images/%d.gif" , (k++) + 1);
 				img = gtk_image_new_from_file(path);

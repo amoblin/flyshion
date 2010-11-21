@@ -55,17 +55,17 @@ gboolean fx_login_proxy_button_func(GtkWidget *UNUSED(widget)
 	FxProxy *fxproxy = NULL;
 	gchar    text[1024];
 
-	bzero(text , sizeof(text));
+	memset(text, 0, sizeof(text));
 
 	switch(event->type)
 	{
 		case GDK_ENTER_NOTIFY :
-			sprintf(text , _("<span color='#3465a4'><small> Proxy[%s]</small></span>")
+			snprintf(text, sizeof(text) - 1 , _("<span color='#3465a4'><small> Proxy[%s]</small></span>")
 					, (proxy == NULL || !proxy->proxyEnabled) ? _("Off") : _("On"));
 			gtk_label_set_markup(GTK_LABEL(fxlogin->proxyLabel) , text);
 			break;
 		case GDK_LEAVE_NOTIFY :
-			sprintf(text , _("<span color='#204a87'><small> Proxy[%s]</small></span>")
+			snprintf(text, sizeof(text) - 1, _("<span color='#204a87'><small> Proxy[%s]</small></span>")
 					, (proxy == NULL || !proxy->proxyEnabled) ? _("Off") : _("On"));
 			gtk_label_set_markup(GTK_LABEL(fxlogin->proxyLabel) , text);
 			break;
@@ -141,7 +141,6 @@ void fx_login_initialize(FxMain *fxmain)
 	GtkCellRenderer  *renderer = NULL;
 	GtkWidget        *img = NULL;
 	GtkWidget        *frame;
-	GtkWidget        *noentry = NULL;
 	Config           *config = NULL;
 	GtkTreeModel     *model = NULL;
 	GtkWidget        *proxyHbox = NULL;
@@ -176,7 +175,6 @@ void fx_login_initialize(FxMain *fxmain)
 
 
 	fxlogin->username = gtk_combo_box_entry_new_with_model(model , 0);
-	noentry = gtk_bin_get_child(GTK_BIN(fxlogin->username));
 	gtk_widget_set_size_request(GTK_WIDGET(fxlogin->username) , 207 , 25);
 
 	g_signal_connect(fxlogin->username, "changed",
@@ -296,9 +294,9 @@ void fx_login_initialize(FxMain *fxmain)
 					GTK_COMBO_BOX(fxlogin->username));
 	psd = gtk_entry_get_text(
 					GTK_ENTRY(fxlogin->password));
-	if(!no || strlen(no) == 0)
+	if(!no || *no == '\0')
 		gtk_widget_grab_focus(fxlogin->username);
-	else if(!psd || strlen(psd) == 0)
+	else if(!psd || *psd == '\0')
 		gtk_widget_grab_focus(fxlogin->password);
 	else
 		gtk_widget_grab_focus(fxlogin->loginbutton);
@@ -451,7 +449,7 @@ void fx_login_set_last_login_user(FxLogin* fxlogin)
 			gtk_combo_box_set_active_iter(combo , &iter);
 			gtk_entry_set_text(GTK_ENTRY(fxlogin->password) , pwd);
 			fx_login_set_last_login_state(fxlogin , state);	
-			if(strlen(pwd) != 0)
+			if(*pwd != '\0')
 				gtk_toggle_button_set_active(
 						GTK_TOGGLE_BUTTON(fxlogin->remember) , TRUE);
 			g_free(no);
@@ -516,7 +514,7 @@ void fx_login_user_change_func(GtkWidget* widget , gpointer data)
 	gtk_entry_set_text(GTK_ENTRY(fxlogin->password) , pwd);
 	fx_login_set_last_login_state(fxlogin , state);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxlogin->remember)
-							   , strlen(pwd) == 0 ? FALSE : TRUE);
+							   , *pwd == '\0' ? FALSE : TRUE);
 
 	g_free(pwd);
 	g_free(no);
