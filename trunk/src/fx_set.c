@@ -455,42 +455,42 @@ void fx_set_initialize_system(FxSet* fxset)
 
 	label1 = gtk_label_new("");
 	gtk_label_set_markup(GTK_LABEL(label1) , _("<b>Appearance</b>"));
-	gtk_fixed_put(GTK_FIXED(fixed) , label1 , 20 , 20);
+	gtk_fixed_put(GTK_FIXED(fixed) , label1 , 20 , 10);
 	
 	fxset->iconBtn = gtk_check_button_new_with_label(_("Minimize to Tray"));
-	gtk_fixed_put(GTK_FIXED(fixed) , fxset->iconBtn , 40 , 42);
+	gtk_fixed_put(GTK_FIXED(fixed) , fxset->iconBtn , 40 , 32);
 
 	fxset->smallBtn = gtk_check_button_new_with_label(_("Close to Tray"));
-	gtk_fixed_put(GTK_FIXED(fixed) , fxset->smallBtn , 230 , 42);
+	gtk_fixed_put(GTK_FIXED(fixed) , fxset->smallBtn , 230 , 32);
 	
 	fxset->ppCb = gtk_check_button_new_with_label(_("Auto popup message"));
-	gtk_fixed_put(GTK_FIXED(fixed) , fxset->ppCb , 40 , 67);
+	gtk_fixed_put(GTK_FIXED(fixed) , fxset->ppCb , 40 , 57);
 
 	fxset->alertBtn = gtk_check_button_new_with_label(_("Disable Message Notification"));
-	gtk_fixed_put(GTK_FIXED(fixed) , fxset->alertBtn , 230 , 67);
+	gtk_fixed_put(GTK_FIXED(fixed) , fxset->alertBtn , 230 , 57);
 
 	fxset->muteBtn = gtk_check_button_new_with_label(_("Mute"));
-	gtk_fixed_put(GTK_FIXED(fixed) , fxset->muteBtn , 40 , 92);
+	gtk_fixed_put(GTK_FIXED(fixed) , fxset->muteBtn , 40 , 82);
 
 	fxset->autoAwayBtn = gtk_check_button_new_with_label(_("Auto away when idle"));
-	gtk_fixed_put(GTK_FIXED(fixed) , fxset->autoAwayBtn , 230 , 92);
+	gtk_fixed_put(GTK_FIXED(fixed) , fxset->autoAwayBtn , 230 , 82);
 
 	fxset->onlineNotifyBtn = gtk_check_button_new_with_label(_("Online notification enabled"));
-	gtk_fixed_put(GTK_FIXED(fixed) , fxset->onlineNotifyBtn , 40 , 117);
+	gtk_fixed_put(GTK_FIXED(fixed) , fxset->onlineNotifyBtn , 40 , 107);
 
 	fxset->closeSysMsgBtn = gtk_check_button_new_with_label(_("Disable System Message"));
-	gtk_fixed_put(GTK_FIXED(fixed), fxset->closeSysMsgBtn, 230, 117);
+	gtk_fixed_put(GTK_FIXED(fixed), fxset->closeSysMsgBtn, 230, 107);
 
 	fxset->closeShowBtn = gtk_check_button_new_with_label(_("Disable Fetion Show"));
-	gtk_fixed_put(GTK_FIXED(fixed), fxset->closeShowBtn, 40, 139);
+	gtk_fixed_put(GTK_FIXED(fixed), fxset->closeShowBtn, 40, 132);
 
 	label2 = gtk_label_new("");
 	gtk_label_set_markup(GTK_LABEL(label2) , _("<b>Auto Reply</b>"));
-	gtk_fixed_put(GTK_FIXED(fixed) , label2 , 20 , 167);
+	gtk_fixed_put(GTK_FIXED(fixed) , label2 , 20 , 162);
 
 	fxset->apBtn = gtk_check_button_new_with_label(_("Enable"));
 	g_signal_connect(fxset->apBtn , "toggled" , G_CALLBACK(fx_set_on_autoreply_toggled) , fxset);
-	gtk_fixed_put(GTK_FIXED(fixed) , fxset->apBtn , 140 , 167);
+	gtk_fixed_put(GTK_FIXED(fixed) , fxset->apBtn , 140 , 162);
 
 	fxset->apEty = gtk_text_view_new();
 	gtk_widget_set_sensitive(fxset->apEty , FALSE);
@@ -502,17 +502,17 @@ void fx_set_initialize_system(FxSet* fxset)
 								 , GTK_POLICY_NEVER);
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(apScr)
 									  , GTK_SHADOW_ETCHED_IN);
-	gtk_fixed_put(GTK_FIXED(fixed) , apScr , 40 , 192);
+	gtk_fixed_put(GTK_FIXED(fixed) , apScr , 40 , 187);
 
 	label3 = gtk_label_new("");
 	gtk_label_set_markup(GTK_LABEL(label3) , _("<b>Send Message</b>"));
-	gtk_fixed_put(GTK_FIXED(fixed) , label3 , 20 , 222);
+	gtk_fixed_put(GTK_FIXED(fixed) , label3 , 20 , 217);
 
 	fxset->etBtn = gtk_radio_button_new_with_label(NULL , _("Press Enter to Send"));
-	gtk_fixed_put(GTK_FIXED(fixed) , fxset->etBtn , 40 , 240);
+	gtk_fixed_put(GTK_FIXED(fixed) , fxset->etBtn , 40 , 235);
 	gl = gtk_radio_button_get_group(GTK_RADIO_BUTTON(fxset->etBtn));
 	fxset->ctBtn = gtk_radio_button_new_with_label(gl , _("Press CTRL + Enter to Send"));
-	gtk_fixed_put(GTK_FIXED(fixed) , fxset->ctBtn , 40 , 260);
+	gtk_fixed_put(GTK_FIXED(fixed) , fxset->ctBtn , 40 , 255);
 
 	gtk_box_pack_start_defaults(GTK_BOX(fxset->ssetting) , fixed);
 
