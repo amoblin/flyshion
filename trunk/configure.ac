@@ -26,8 +26,6 @@ AM_GNU_GETTEXT([external])
 AC_DEFINE([GETTEXT_PACKAGE], [PACKAGE_TARNAME], [Define to the gettext
 package name.])
 
-AC_CHECK_LIB([notify], [notify_init])
-
 AC_CHECK_LIB([ssl], [SSL_library_init])
 
 AC_CHECK_LIB([crypto], [RSA_new])
