@@ -58,9 +58,6 @@
 /* Define to 1 if you have the `crypto' library (-lcrypto). */
 #undef HAVE_LIBCRYPTO
 
-/* Define to 1 if you have the `notify' library (-lnotify). */
-#undef HAVE_LIBNOTIFY
-
 /* Define to 1 if you have the `pthread' library (-lpthread). */
 #undef HAVE_LIBPTHREAD
 
