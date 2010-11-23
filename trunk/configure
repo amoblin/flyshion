@@ -15115,12 +15115,12 @@ if test -n "$PKG_CONFIG"; then
         pkg_cv_DBUS_CFLAGS="$DBUS_CFLAGS"
     else
         if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"dbus-1 >= 1.0\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "dbus-1 >= 1.0") 2>&5
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"dbus-glib-1 >= 0.74\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "dbus-glib-1 >= 0.74") 2>&5
   ac_status=$?
   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
-  pkg_cv_DBUS_CFLAGS=`$PKG_CONFIG --cflags "dbus-1 >= 1.0" 2>/dev/null`
+  pkg_cv_DBUS_CFLAGS=`$PKG_CONFIG --cflags "dbus-glib-1 >= 0.74" 2>/dev/null`
 else
   pkg_failed=yes
 fi
@@ -15133,12 +15133,12 @@ if test -n "$PKG_CONFIG"; then
         pkg_cv_DBUS_LIBS="$DBUS_LIBS"
     else
         if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"dbus-1 >= 1.0\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "dbus-1 >= 1.0") 2>&5
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"dbus-glib-1 >= 0.74\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "dbus-glib-1 >= 0.74") 2>&5
   ac_status=$?
   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
-  pkg_cv_DBUS_LIBS=`$PKG_CONFIG --libs "dbus-1 >= 1.0" 2>/dev/null`
+  pkg_cv_DBUS_LIBS=`$PKG_CONFIG --libs "dbus-glib-1 >= 0.74" 2>/dev/null`
 else
   pkg_failed=yes
 fi
@@ -15157,14 +15157,14 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        DBUS_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "dbus-1 >= 1.0"`
+	        DBUS_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "dbus-glib-1 >= 0.74"`
         else
-	        DBUS_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "dbus-1 >= 1.0"`
+	        DBUS_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "dbus-glib-1 >= 0.74"`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$DBUS_PKG_ERRORS" >&5
 
-	as_fn_error "Package requirements (dbus-1 >= 1.0) were not met:
+	as_fn_error "Package requirements (dbus-glib-1 >= 0.74) were not met:
 
 $DBUS_PKG_ERRORS
 

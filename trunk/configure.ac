@@ -162,7 +162,7 @@ PKG_CHECK_MODULES(NETWORKMANAGER, [NetworkManager >= 0.5.0], [
 			exit -1
 			])
 
-PKG_CHECK_MODULES(DBUS, [dbus-1 >= 1.0], [
+PKG_CHECK_MODULES(DBUS, [dbus-glib-1 >= 0.74], [
 			AC_DEFINE(USE_DBUS, 1, [Use DBus for NetworkManager])
 			AC_SUBST(DBUS_CFLAGS)
 			AC_SUBST(DBUS_LIBS)
