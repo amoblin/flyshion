@@ -6,6 +6,12 @@ libofetion_la_CPPFLAGS= $(LIBXML_CFLAGS) $(LIBSSL_CFLAGS) $(SQLITE3_CFLAGS)\
 
 libofetion_la_LDFLAGS= $(LIBXML_LIBS) $(LIBSSL_LIBS) $(SQLITE3_LIBS)
 
+if HAVE_LD_VERSION_SCRIPT
+libofetion_la_LDFLAGS += -Wl,--version-script=libofetion.map
+# else
+# libofetion_la_LDFLAGS += -export-symbols libofetion.sym
+endif
+
 libofetion_la_SOURCES = fetion_buddylist.c \
 						fetion_connection.c \
 						fetion_conversation.c \
