@@ -35,6 +35,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+@HAVE_LD_VERSION_SCRIPT_TRUE@am__append_1 = -Wl,--version-script=libofetion.map
 subdir = lib
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(srcdir)/ofetion.pc.in
@@ -210,6 +211,8 @@ PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
+PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
+PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
 POFILES = @POFILES@
 POSUB = @POSUB@
 PO_IN_DATADIR_FALSE = @PO_IN_DATADIR_FALSE@
@@ -283,7 +286,10 @@ libofetion_la_CPPFLAGS = $(LIBXML_CFLAGS) $(LIBSSL_CFLAGS) $(SQLITE3_CFLAGS)\
 						-g -Wall -I../include/openfetion -I ../. \
 						-DRESOURCE_DIR=\"$(pkgdatadir)/resource/\"
 
-libofetion_la_LDFLAGS = $(LIBXML_LIBS) $(LIBSSL_LIBS) $(SQLITE3_LIBS)
+libofetion_la_LDFLAGS = $(LIBXML_LIBS) $(LIBSSL_LIBS) $(SQLITE3_LIBS) \
+	$(am__append_1)
+# else
+# libofetion_la_LDFLAGS += -export-symbols libofetion.sym
 libofetion_la_SOURCES = fetion_buddylist.c \
 						fetion_connection.c \
 						fetion_conversation.c \
@@ -301,7 +307,7 @@ libofetion_la_SOURCES = fetion_buddylist.c \
 						fetion_group.c
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = ofetion.pc
+pkgconfig_DATA = ofetion.pc libofetion.map
 all: all-am
 
 .SUFFIXES:

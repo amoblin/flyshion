@@ -1,3 +1,12 @@
+2010-11-24 levin <wzssyqa@gmail.com>
+	* 修复了多个内存泄露的问题
+	* 修复了对话框使界面锁死的问题
+	* libofetion 不输出内部符号，加了版本号
+	* 去掉了 AC_CHECK_LIB(notify)，避免 libofetion
+	  依赖 libnotify
+	* 将 nm 的依赖从 dbus-1 改为 dbus-glib-1，修复了禁用
+	  notify 的时候编译失败
+
 2010-10-24 levin <levin108@gmail.com>
 
 	* 修复了登录和运行时的崩溃问题
@@ -10,7 +19,7 @@
 	* 优化了登录过程，登录速度更快
 	* 更换了新版图标，更美观
 
-2010-9-25 levin <levin108@gmail.com>
+2010-09-25 levin <levin108@gmail.com>
 
 	* 修复了旧版本登录过程中出现的各种崩溃的问题
 	* 修复了查看聊天记录崩溃的问题
