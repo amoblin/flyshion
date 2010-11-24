@@ -28,4 +28,4 @@ libofetion_la_SOURCES = fetion_buddylist.c \
 						fetion_user.c \
 						fetion_group.c
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = ofetion.pc
+pkgconfig_DATA = ofetion.pc libofetion.map
