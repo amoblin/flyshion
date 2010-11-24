@@ -440,7 +440,7 @@ static void sipmsg_set_msg(SipMsg *sipmsg, const char *msg, int n)
 	strncpy(sipmsg->message, msg, n);
 }
 
-#define BUFFER_SIZE (1024 * 20)
+#define BUFFER_SIZE (1024 * 100)
 
 /* the following code is hard to read,forgive me! */
 SipMsg *fetion_sip_listen(FetionSip *sip, int *error)
