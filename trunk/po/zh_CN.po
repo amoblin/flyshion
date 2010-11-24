@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenFetion 1.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-21 23:20+0800\n"
-"PO-Revision-Date: 2010-11-21 16:43+0800\n"
+"POT-Creation-Date: 2010-11-24 22:34+0800\n"
+"PO-Revision-Date: 2010-11-24 22:39+0800\n"
 "Last-Translator: YunQiang Su <wzssyqa@gmail.com>\n"
 "Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
 "Language: \n"
@@ -59,6 +59,7 @@ msgstr "您好，我是"
 #: ../src/fx_add_group.c:84 ../src/fx_dsms.c:81 ../src/fx_gedit.c:59
 #: ../src/fx_set.c:207 ../src/fx_app.c:116 ../src/fx_close.c:79
 #: ../src/fx_edit.c:57 ../src/fx_proxy.c:121 ../src/fx_smsstat.c:97
+#: ../src/fx_share.c:96
 msgid "OK"
 msgstr "确定"
 
@@ -66,7 +67,7 @@ msgstr "确定"
 #: ../src/fx_add_group.c:88 ../src/fx_dsms.c:82 ../src/fx_gedit.c:63
 #: ../src/fx_set.c:211 ../src/fx_app.c:119 ../src/fx_close.c:81
 #: ../src/fx_edit.c:61 ../src/fx_head.c:508 ../src/fx_lookup.c:62
-#: ../src/fx_proxy.c:124 ../src/fx_smsstat.c:101
+#: ../src/fx_proxy.c:124 ../src/fx_smsstat.c:101 ../src/fx_share.c:100
 msgid "Cancel"
 msgstr "取消"
 
@@ -1567,6 +1568,29 @@ msgstr "贡献者"
 #: ../src/fx_about.c:408
 msgid "License"
 msgstr "许可协议"
+
+#: ../src/fx_share.c:66
+msgid "Transport files by Fetion"
+msgstr "使用飞信传输文件"
+
+#: ../src/fx_share.c:76
+#, c-format
+msgid "Transporting files <b>OS Revolution.mkv </b> to <b>%s</b>..."
+msgstr "正在向 <b>%s</b> 传输 <b>OS Revolution.mkv </b>..."
+
+#: ../src/fx_share.c:83
+msgid "<b>Progress: </b>"
+msgstr "<b>进度：</b>"
+
+#: ../src/fx_share.c:93
+msgid "<span color='#838383'>Establishing Connection...</span>"
+msgstr "<span color='#838383'>正在建立连接...</span>"
+
+#: ../src/fx_share.c:141
+msgid ""
+"<span color='#838383'>Contact acccept your request of transporting files. "
+"Transporting...</span>"
+msgstr "<span color='#838383'>好友接受了传送文件的请求。正在传输...</span>"
 
 #~ msgid ""
 #~ "Choosed [<span color=\"red\">0</span>] buddy\n"
