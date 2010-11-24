@@ -5,6 +5,7 @@ AC_PREREQ([2.63])
 AC_INIT([OpenFetion], [2.0.3], [http://basiccoder.com/openfetion])
 AC_CONFIG_SRCDIR([src/fx_main.c])
 AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_MACRO_DIR([m4])
 
 AM_INIT_AUTOMAKE
 
@@ -16,6 +17,20 @@ AC_PROG_INSTALL
 # libtools
 AC_PROG_RANLIB
 AC_PROG_LIBTOOL
+
+# ld version script
+AC_MSG_CHECKING([if libraries can be versioned])
+GLD=`$LD --help < /dev/null 2>/dev/null | grep version-script`
+if test "$GLD"; then
+    have_ld_version_script=yes
+    AC_MSG_RESULT(yes)
+else
+    have_ld_version_script=no
+    AC_MSG_RESULT(no)
+    AC_MSG_WARN(*** You have not enabled versioned symbols.)
+fi
+AM_CONDITIONAL(HAVE_LD_VERSION_SCRIPT, test "$have_ld_version_script" = "yes")
+
 
 #gettext
 IT_PROG_INTLTOOL([0.40.0])
