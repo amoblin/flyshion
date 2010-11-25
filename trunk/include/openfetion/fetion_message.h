@@ -23,11 +23,11 @@
 
 extern Message* fetion_message_new();
 
-extern void fetion_message_set_sipuri(Message* msg , const char* sipuri);
+extern int fetion_message_set_sipuri(Message* msg , const char* sipuri);
 
-extern void fetion_message_set_pguri(Message* msg , const char* sipuri);
+extern int fetion_message_set_pguri(Message* msg , const char* sipuri);
 
-extern void fetion_message_set_message(Message* msg , const char* message);
+extern int fetion_message_set_message(Message* msg , const char* message);
 
 extern void fetion_message_set_time(Message* msg , struct tm sendtime);
 
