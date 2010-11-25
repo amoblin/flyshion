@@ -29,11 +29,17 @@ static void pg_group_prepend(PGGroup *head , PGGroup *n);
 static PGGroup *pg_group_new(const char *pguri , int identity)
 {
 	PGGroup *pggroup = (PGGroup*)malloc(sizeof(PGGroup));
-
+	if(pggroup == NULL){
+		return NULL;
+	}
 	memset(pggroup , 0 , sizeof(PGGroup));
 	if(pguri)
 	    strcpy(pggroup->pguri , pguri);
 	pggroup->member = pg_group_member_new();
+	if(pggroup->member == NULL){
+		free(pggroup);
+		return NULL;
+	}
 	pggroup->identity = identity;
 	pggroup->next = pggroup->pre = pggroup;
 
@@ -70,6 +76,9 @@ PGGroup *pg_group_parse_list(const char *in)
 	    return NULL;
 
 	pggroup = pg_group_new(NULL , 0);
+	if(pggroup == NULL){
+		return NULL;
+	}
 	while(node){
 	    	newpg = pg_group_new(NULL , 0);
 		res = xmlGetProp(node , BAD_CAST "uri");
@@ -91,7 +100,7 @@ PGGroup *pg_group_parse_list(const char *in)
 	return pggroup;
 }
 
-void pg_group_get_list(User *user)
+int pg_group_get_list(User *user)
 {
 	FetionSip *sip;
 	SipHeader *eheader;
@@ -101,17 +110,25 @@ void pg_group_get_list(User *user)
 
 	sip = user->sip;
 
-	fetion_sip_set_type(sip , SIP_SERVICE);	
 	eheader = fetion_sip_event_header_new(SIP_EVENT_PGGETGROUPLIST);
+	if(eheader == NULL){
+		return -1;
+	}
+	
+	fetion_sip_set_type(sip , SIP_SERVICE);	
 	fetion_sip_add_header(sip , eheader);
 
 	user->pgGroupCallId = callid;
 
 	res = fetion_sip_to_string(sip , body);
+	if(res == NULL){
+		return -1;
+	}
 
-	tcp_connection_send(sip->tcp , res , strlen(res));
+	int ret = tcp_connection_send(sip->tcp , res , strlen(res));
 
 	free(res);
+	return ret;
 }
 
 static char *generate_get_info_body(PGGroup *pg)
@@ -137,7 +154,7 @@ static char *generate_get_info_body(PGGroup *pg)
 	return xml_convert(buf);
 }
 
-void pg_group_get_info(User *user , PGGroup *pg)
+int pg_group_get_info(User *user , PGGroup *pg)
 {
 	FetionSip *sip;
 	SipHeader *eheader;
@@ -146,23 +163,32 @@ void pg_group_get_info(User *user , PGGroup *pg)
 	extern int callid;
 
 	sip = user->sip;
-
-	fetion_sip_set_type(sip , SIP_SERVICE);
+	
 	eheader = fetion_sip_event_header_new(SIP_EVENT_PGGETGROUPINFO);
+	if(eheader == NULL){
+		return -1;
+	}
 	fetion_sip_add_header(sip , eheader);
-
+	
+	fetion_sip_set_type(sip , SIP_SERVICE);
 	user->groupInfoCallId = callid;
 
 	body = generate_get_info_body(pg);
+	if(body == NULL){
+		return -1;
+	}
 	res = fetion_sip_to_string(sip , body);
+	if(res == NULL){
+		return -1;
+	}
 	free(body);
 
-	tcp_connection_send(sip->tcp , res , strlen(res));
+	int ret = tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
-	
+	return ret;
 }
 
-void pg_group_parse_info(PGGroup *pg , const char *sipmsg)
+int pg_group_parse_info(PGGroup *pg , const char *sipmsg)
 {
 	xmlDocPtr doc;
 	xmlNodePtr node;
@@ -177,7 +203,7 @@ void pg_group_parse_info(PGGroup *pg , const char *sipmsg)
 	node = xmlDocGetRootElement(doc);
 	node = xml_goto_node(node , "group");
 	if(!node)
-	    return;
+	    return -1;
 	while(node != NULL){
 		res = xmlGetProp(node , BAD_CAST "uri");		
 		foreach_pg_group(pg , pgcur){
@@ -241,6 +267,7 @@ void pg_group_parse_info(PGGroup *pg , const char *sipmsg)
 		}
 		node = node->next;
 	}
+	return 0;
 }
 
 static char *generate_pg_subscribe_body(PGGroup *pg)
@@ -274,7 +301,7 @@ static char *generate_pg_subscribe_body(PGGroup *pg)
 	return xml_convert(buf);
 }
 
-void pg_group_subscribe(User *user , PGGroup *pg)
+int pg_group_subscribe(User *user , PGGroup *pg)
 {
 	FetionSip *sip;
 	SipHeader *eheader;
@@ -282,21 +309,31 @@ void pg_group_subscribe(User *user , PGGroup *pg)
 	char *body;
 
 	sip = user->sip;
-
-	fetion_sip_set_type(sip , SIP_SUBSCRIPTION);
+	
 	eheader = fetion_sip_event_header_new(SIP_EVENT_PGPRESENCE);
+	if(eheader == NULL){
+		return -1;
+	}
 	fetion_sip_add_header(sip , eheader);
-
+	
+	fetion_sip_set_type(sip , SIP_SUBSCRIPTION);
 	body = generate_pg_subscribe_body(pg);
+	if(body == NULL){
+		return -1;
+	}
 	res = fetion_sip_to_string(sip , body);
+	if(res == NULL){
+		free(body);
+		return -1;
+	}
 	free(body);
 	
-	tcp_connection_send(sip->tcp , res , strlen(res));
+	int ret = tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
-
+	return ret;
 }
 
-void pg_group_get_group_members(User *user , PGGroup *pg)
+int pg_group_get_group_members(User *user , PGGroup *pg)
 {
 	FetionSip *sip;
 	SipHeader *nheader;
@@ -304,20 +341,31 @@ void pg_group_get_group_members(User *user , PGGroup *pg)
 	char *res;
 
 	sip = user->sip;
-
-	fetion_sip_set_type(sip , SIP_SERVICE);
+	
 	nheader = fetion_sip_event_header_new(SIP_EVENT_PGGETGROUPMEMBERS);
+	if(nheader == NULL){
+		return -1;
+	}
 	fetion_sip_add_header(sip , nheader);
+	fetion_sip_set_type(sip , SIP_SERVICE);
 	pg->getMembersCallId = sip->callid;
+	
 	body = generate_get_members_body(pg->pguri);
+	if(body == NULL){
+		return -1;
+	}
 	res = fetion_sip_to_string(sip , body);
-
-	tcp_connection_send(sip->tcp , res , strlen(res));
+	if(res == NULL){
+		free(body);
+		return -1;
+	}
+	int ret = tcp_connection_send(sip->tcp , res , strlen(res));
 
 	free(res);
+	return ret;
 }
 
-void pg_group_parse_member_list(PGGroup *pggroup , const char *sipmsg)
+int pg_group_parse_member_list(PGGroup *pggroup , const char *sipmsg)
 {
 	xmlDocPtr doc;
 	xmlNodePtr node;
@@ -329,13 +377,20 @@ void pg_group_parse_member_list(PGGroup *pggroup , const char *sipmsg)
 
 	if(strstr(sipmsg , "\r\n\r\n") == NULL){
 		fprintf(stderr , "FATAL ERROR\n");
-		return;
+		return -1;
 	}
 
 	pos = strstr(sipmsg , "\r\n\r\n") + 4;
 
 	doc = xmlParseMemory(pos , strlen(pos));
+	if(doc == NULL){
+		return -1;
+	}
 	node = xmlDocGetRootElement(doc);
+	if(node == NULL){
+		xmlFreeDoc(doc);
+		return -1;
+	}
 	node = node->xmlChildrenNode->xmlChildrenNode;
 	while(node != NULL){
 		if(xmlHasProp(node , BAD_CAST "uri")){
@@ -345,7 +400,8 @@ void pg_group_parse_member_list(PGGroup *pggroup , const char *sipmsg)
 				    break;
 			}	    
 		}else{
-			return;
+			xmlFreeDoc(doc);
+			return -1;
 		}
 		cnode = node->xmlChildrenNode;
 		while(cnode != NULL){
@@ -376,12 +432,15 @@ void pg_group_parse_member_list(PGGroup *pggroup , const char *sipmsg)
 		node = node->next;
 	}
 	xmlFreeDoc(doc);
+	return 0;
 }
 
 PGGroupMember *pg_group_member_new()
 {
 	PGGroupMember *pgmem = (PGGroupMember*)malloc(sizeof(PGGroupMember));
-
+	if(pgmem == NULL){
+		return NULL;
+	}
 	memset(pgmem , 0 , sizeof(PGGroupMember));
 	pgmem->contact = NULL;
 	pgmem->next = pgmem->pre = pgmem;
@@ -406,7 +465,7 @@ static void pg_group_member_prepend(PGGroupMember *head , PGGroupMember *newmem)
 }
 #endif
 
-void pg_group_parse_member(PGGroup *pg , const char *sipmsg)
+int pg_group_parse_member(PGGroup *pg , const char *sipmsg)
 {
 	xmlDocPtr doc;
 	xmlNodePtr node;
@@ -459,9 +518,10 @@ void pg_group_parse_member(PGGroup *pg , const char *sipmsg)
 		node = node->next;
 	}
 	xmlFreeDoc(doc);
+	return 0;
 }
 
-void pg_group_update_group_info(User *user , PGGroup *pg)
+int pg_group_update_group_info(User *user , PGGroup *pg)
 {
 	FetionSip* sip = user->sip;
 	SipHeader* eheader;
@@ -469,24 +529,43 @@ void pg_group_update_group_info(User *user , PGGroup *pg)
 	char *sid;
 	extern int callid;
 	PGGroupMember *memcur;
+	int ret;
 
 	if(pg == NULL || pg_group_get_member_count(pg) == 0)
-		return;
+		return 0;
 	pg->hasDetails = 1;
-	foreach_pg_member(pg->member , memcur){
+	foreach_pg_member(pg->member , memcur){		
+		eheader = fetion_sip_event_header_new(SIP_EVENT_GETCONTACTINFO);
+		if(eheader == NULL){
+			return -1;
+		}
+		fetion_sip_add_header(sip , eheader);
 		
 		fetion_sip_set_type(sip , SIP_SERVICE);
-		eheader = fetion_sip_event_header_new(SIP_EVENT_GETCONTACTINFO);
-		fetion_sip_add_header(sip , eheader);
 		memcur->getContactInfoCallId = callid;
 		sid = fetion_sip_get_sid_by_sipuri(memcur->sipuri);
+		if(sid == NULL){
+			return -1;
+		}
 		body = generate_contact_info_by_no_body(sid);
+		if(body == NULL){
+			free(sid);
+			return -1;
+		}
 		free(sid);
 		res = fetion_sip_to_string(sip , body);
+		if(res == NULL){
+			free(body);
+			return -1;
+		}
 		free(body);
-		tcp_connection_send(sip->tcp , res , strlen(res));
-		free(res); res = NULL; 
+		ret = tcp_connection_send(sip->tcp , res , strlen(res));
+		free(res); res = NULL;
+		if(ret == -1){
+			return -1;
+		}
 	}
+	return 0;
 }
 
 int pg_group_get_member_count(PGGroup *pg)
@@ -506,6 +585,9 @@ Contact* pg_group_parse_contact_info(const char* xml)
 	xmlNodePtr node;
 	char *pos;
 	contact = fetion_contact_new();
+	if(contact == NULL){
+		return NULL;
+	}
 	doc = xmlParseMemory(xml , strlen(xml));
 	node = xmlDocGetRootElement(doc);
 	node = node->xmlChildrenNode;
@@ -582,7 +664,7 @@ Contact* pg_group_parse_contact_info(const char* xml)
 	return contact;
 }
 
-void pg_group_send_invitation(User *user , PGGroup *pg)
+int pg_group_send_invitation(User *user , PGGroup *pg)
 {
 	FetionSip *sip = user->sip;
 	SipHeader *theader;
@@ -597,11 +679,29 @@ void pg_group_send_invitation(User *user , PGGroup *pg)
 	
 	fetion_sip_set_type(sip , SIP_INVITATION);
 	theader = fetion_sip_header_new("T" , pg->pguri);
+	if(theader == NULL){
+		goto theader_error;
+	}
 	kheader1 = fetion_sip_header_new("K" , "text/html-fragment");
+	if(kheader1 == NULL){
+		goto kheader1_error;
+	}
 	kheader2 = fetion_sip_header_new("K" , "multiparty");
+	if(kheader1 == NULL){
+		goto kheader2_error;
+	}
 	kheader3 = fetion_sip_header_new("K" , "nudge");
+	if(kheader1 == NULL){
+		goto kheader3_error;
+	}
 	kheader4 = fetion_sip_header_new("K" , "share-background");
+	if(kheader1 == NULL){
+		goto kheader4_error;
+	}
 	kheader5 = fetion_sip_header_new("K" , "fetion-show");
+	if(kheader1 == NULL){
+		goto kheader5_error;
+	}
 
 	pg->inviteCallId = callid;	
 
@@ -613,12 +713,28 @@ void pg_group_send_invitation(User *user , PGGroup *pg)
 	fetion_sip_add_header(sip , kheader5);
 
 	res = fetion_sip_to_string(sip , body);
+	if(res == NULL){
+		return -1;
+	}
 
-	tcp_connection_send(sip->tcp , res , strlen(res));
-
+	int ret = tcp_connection_send(sip->tcp , res , strlen(res));
+	return ret;
+	
+kheader5_error:
+	free(kheader4);
+kheader4_error:
+	free(kheader3);
+kheader3_error:
+	free(kheader2);
+kheader2_error:
+	free(kheader1);
+kheader1_error:
+	free(theader);
+theader_error:
+	return -1;
 }
 
-void pg_group_send_invite_ack(User *user , const char *sipmsg)
+int pg_group_send_invite_ack(User *user , const char *sipmsg)
 {
 	FetionSip *sip = user->sip;
 	SipHeader *theader;
@@ -633,18 +749,23 @@ void pg_group_send_invite_ack(User *user , const char *sipmsg)
 
 	fetion_sip_set_type(sip , SIP_ACKNOWLEDGE);
 	theader = fetion_sip_header_new("T" , touri);
+	if(theader == NULL){
+		return -1;
+	}
 	fetion_sip_set_callid(sip , atoi(callid));
 	fetion_sip_add_header(sip , theader);
 
 	res = fetion_sip_to_string(sip , NULL);
-
-	tcp_connection_send(sip->tcp , res , strlen(res));
+	if(res == NULL){
+		return -1;
+	}
+	int ret = tcp_connection_send(sip->tcp , res , strlen(res));
 
 	free(res);
-
+	return ret;
 }
 
-void pg_group_send_message(User *user , PGGroup *pg , const char *message)
+int pg_group_send_message(User *user , PGGroup *pg , const char *message)
 {
 	FetionSip *sip = user->sip;
 	SipHeader *theader;
@@ -652,11 +773,19 @@ void pg_group_send_message(User *user , PGGroup *pg , const char *message)
 	SipHeader *kheader;
 	char *res;
 
-
 	fetion_sip_set_type(sip , SIP_MESSAGE);
 	theader = fetion_sip_header_new("T" , pg->pguri);
+	if(theader == NULL){
+		goto theader_error;
+	}
 	cheader = fetion_sip_header_new("C" , "text/html-fragment");
+	if(cheader == NULL){
+		goto cheader_error;
+	}
 	kheader = fetion_sip_header_new("K" , "SaveHistory");
+	if(kheader == NULL){
+		goto kheader_error;
+	}
 
 	fetion_sip_add_header(sip , theader);
 	fetion_sip_add_header(sip , cheader);
@@ -665,12 +794,23 @@ void pg_group_send_message(User *user , PGGroup *pg , const char *message)
 	fetion_sip_set_callid(sip , pg->inviteCallId);
 
 	res = fetion_sip_to_string(sip , message);
-	tcp_connection_send(sip->tcp , res , strlen(res));
+	if(res == NULL){
+		return -1;
+	}
+	int ret = tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
+	return ret;
 
+
+kheader_error:
+	free(cheader);
+cheader_error:
+	free(theader);
+theader_error:
+	return -1;
 }
 
-void pg_group_send_sms(User *user , PGGroup *pg , const char *message)
+int pg_group_send_sms(User *user , PGGroup *pg , const char *message)
 {
 	FetionSip *sip = user->sip;
 	SipHeader *theader;
@@ -680,14 +820,30 @@ void pg_group_send_sms(User *user , PGGroup *pg , const char *message)
 
 	fetion_sip_set_type(sip , SIP_MESSAGE);
 	theader = fetion_sip_header_new("T" , pg->pguri);
+	if(theader == NULL){
+		goto theader_error;
+	}
 	eheader = fetion_sip_event_header_new(SIP_EVENT_PGSENDCATSMS);
+	if(eheader == NULL){
+		goto eheader_error;
+	}
 
 	fetion_sip_add_header(sip , theader);
 	fetion_sip_add_header(sip , eheader);
 
 	res = fetion_sip_to_string(sip , message);
-	tcp_connection_send(sip->tcp , res , strlen(res));
+	if(res == NULL){
+		return -1;
+	}
+	int ret = tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
+	return ret;
+
+
+eheader_error:
+	free(theader);
+theader_error:
+	return -1;
 }
 
 static char* generate_get_members_body(const char *pguri)
@@ -704,6 +860,9 @@ static char* generate_get_members_body(const char *pguri)
 	xmlNewProp(node , BAD_CAST "uri" , BAD_CAST pguri);
 	xmlDocDumpMemory(doc , &buf , NULL);
 	xmlFreeDoc(doc);
+	if(buf == NULL){
+		return NULL;
+	}
 	return xml_convert(buf);
 }
 
@@ -721,6 +880,9 @@ static char* generate_contact_info_by_no_body(const char* no)
 	node = xmlNewChild(node , NULL , BAD_CAST "contact" , NULL);
 	xmlNewProp(node , BAD_CAST "uri" , BAD_CAST uri);
 	xmlDocDumpMemory(doc , &buf , NULL);
+	if(buf == NULL){
+		return NULL;
+	}
 	xmlFreeDoc(doc);
 	return xml_convert(buf);
 }
