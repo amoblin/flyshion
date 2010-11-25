@@ -66,11 +66,21 @@ int tcp_keep_alive(int socketfd)
 
 FetionConnection* tcp_connection_new(void)
 {
-	FetionConnection* conn = (FetionConnection*)malloc(sizeof(FetionConnection));
-	memset(conn , 0 , sizeof(FetionConnection));
-	conn->socketfd = socket(AF_INET , SOCK_STREAM , 0);
+	int sfd;
+	sfd = socket(AF_INET , SOCK_STREAM , 0);
+	if(sfd == -1){
+		return NULL;
+	}
 //	if(tcp_keep_alive(conn->socketfd) == -1)
 //		return NULL;
+	
+	FetionConnection* conn = (FetionConnection*)malloc(sizeof(FetionConnection));
+	if(conn == NULL){
+		return NULL;
+	}
+	memset(conn , 0 , sizeof(FetionConnection));
+	
+	conn->socketfd = sfd;
 	conn->ssl = NULL;
 	conn->ssl_ctx = NULL;
 	return conn;
@@ -78,55 +88,62 @@ FetionConnection* tcp_connection_new(void)
 
 FetionConnection* tcp_connection_new_with_port(const int port)
 {
-	int ret;
 	struct sockaddr_in addr;
-	FetionConnection* conn = NULL;
 	
-	conn = (FetionConnection*)malloc(sizeof(FetionConnection));
-	memset(conn , 0 , sizeof(FetionConnection));
-	conn->socketfd = socket(AF_INET , SOCK_STREAM , 0);
-	if(tcp_keep_alive(conn->socketfd) == -1){
-		free(conn);
+	int sfd = socket(AF_INET , SOCK_STREAM , 0);
+	if(tcp_keep_alive(sfd) == -1){
 		return NULL;
 	}
-	conn->local_port = port;
+	
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = INADDR_ANY;
 	addr.sin_port = htons(port);
-	ret = bind(conn->socketfd , (struct sockaddr*)(&addr) , sizeof(struct sockaddr));
+	int ret = bind(sfd , (struct sockaddr*)(&addr) , sizeof(struct sockaddr));
 	if(ret == -1){
+		close(sfd);
 		printf("Failed to bind");
-		free(conn);
 		return NULL;
 	}
+	
+	FetionConnection* conn = NULL;
+	conn = (FetionConnection*)malloc(sizeof(FetionConnection));
+	if(conn == NULL){
+		close(sfd);
+		return NULL;
+	}
+	memset(conn , 0 , sizeof(FetionConnection));
+	conn->local_port = port;
+	conn->socketfd = sfd;
 	return conn;
 }
 
 FetionConnection* tcp_connection_new_with_ip_and_port(const char* ipaddress , const int port)
 {
-	int ret;
 	struct sockaddr_in addr;
-	FetionConnection* conn = NULL;
-	
-	conn = (FetionConnection*)malloc(sizeof(FetionConnection));
-	memset(conn , 0 , sizeof(FetionConnection));
-	conn->socketfd = socket(AF_INET , SOCK_STREAM , 0);
-	if(tcp_keep_alive(conn->socketfd) == -1){
-		free(conn);
+	int sfd = socket(AF_INET , SOCK_STREAM , 0);
+	if(tcp_keep_alive(sfd) == -1){
 		return NULL;
 	}
-	strcpy(conn->local_ipaddress , ipaddress);
-	conn->local_port = port;
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = inet_addr(ipaddress);
 	addr.sin_port = htons(port);
-	ret = bind(conn->socketfd , (struct sockaddr*)(&addr) , sizeof(struct sockaddr));
+	int ret = bind(sfd , (struct sockaddr*)(&addr) , sizeof(struct sockaddr));
 	if(ret == -1)
 	{	
-		free(conn);
+		close(sfd);
 		printf("Failed to bind");
 		return NULL;
 	}
+	
+	FetionConnection* conn = NULL;
+	conn = (FetionConnection*)malloc(sizeof(FetionConnection));
+	if(conn == NULL){
+		close(sfd);
+		return NULL;
+	}
+	memset(conn , 0 , sizeof(FetionConnection));
+	conn->socketfd = sfd;	
+	strcpy(conn->local_ipaddress , ipaddress);
 	return conn;
 }
 int tcp_connection_connect(FetionConnection* connection , const char* ipaddress , const int port)
@@ -140,7 +157,10 @@ int tcp_connection_connect(FetionConnection* connection , const char* ipaddress 
 	connection->remote_port = port;
 
 	n = MAX_RECV_BUF_SIZE;
-	setsockopt(connection->socketfd , SOL_SOCKET , SO_RCVBUF , (const char*)&n , sizeof(n));
+	int s = setsockopt(connection->socketfd , SOL_SOCKET , SO_RCVBUF , (const char*)&n , sizeof(n));
+	if(s == -1){
+		return -1;
+	}
 	return connect(connection->socketfd , (struct sockaddr*)&addr , sizeof(struct sockaddr));
 }
 
@@ -148,23 +168,30 @@ int tcp_connection_connect_with_proxy(FetionConnection* connection
 		, const char* ipaddress , const int port , Proxy *proxy)
 {
 	struct sockaddr_in addr;
-	int n;
-	char http[1024] , code[5] , *pos = NULL;
-	unsigned char authentication[1024];
-	char authen[1024];
-	char authorization[1024];
+	
 	char *ip = get_ip_by_name(proxy->proxyHost);
-
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = inet_addr(ip);
+	free(ip);
 	addr.sin_port = htons(proxy->proxyPort);
 	strcpy(connection->remote_ipaddress , ipaddress);
 	connection->remote_port = port;
 
-	n = MAX_RECV_BUF_SIZE;
-	setsockopt(connection->socketfd , SOL_SOCKET , SO_RCVBUF , (const char*)&n , sizeof(n));
-	connect(connection->socketfd , (struct sockaddr*)&addr , sizeof(struct sockaddr));
-
+	int n = MAX_RECV_BUF_SIZE;
+	int ret = setsockopt(connection->socketfd , SOL_SOCKET , SO_RCVBUF , (const char*)&n , sizeof(n));
+	if(ret == -1){
+		return -1;
+	}
+	ret = connect(connection->socketfd , (struct sockaddr*)&addr , sizeof(struct sockaddr));
+	if(ret == -1){
+		return -1;
+	}
+	
+	char http[1024] , code[5] , *pos = NULL;
+	unsigned char authentication[1024];
+	char authen[1024];
+	char authorization[1024];
+	
 	memset(authorization, 0, sizeof(authorization));
 	if(strlen(proxy->proxyUser) != 0 && strlen(proxy->proxyPass) != 0)
 	{
@@ -175,15 +202,10 @@ int tcp_connection_connect_with_proxy(FetionConnection* connection
 	}
 
 	memset(http, 0, sizeof(http));
-	snprintf(http , 1023 , "CONNECT %s:%d HTTP/1.1\r\n"
+	snprintf(http , sizeof(http)-1 , "CONNECT %s:%d HTTP/1.1\r\n"
 				   "Host: %s:%d\r\n%s"
 				   "User-Agent: OpenFetion\r\n\r\n"
 				 , ipaddress , port , ipaddress , port , authorization);
-
-#if 0
-	debug_info("Connecting to %s:%d through proxy server %s:%d"
-			, ipaddress , port , ip , proxy->proxyPort);
-#endif
 
 	tcp_connection_send(connection , http , strlen(http));
 
@@ -191,11 +213,15 @@ int tcp_connection_connect_with_proxy(FetionConnection* connection
 
 	tcp_connection_recv(connection , http , sizeof(http));
 
-	pos = strstr(http , " ") + 1;
+	pos = strstr(http , " ");
+	if(pos == NULL){
+		return -1;
+	}
+	pos++;
 	n = strlen(pos) - strlen(strstr(pos , " "));
 	memset(code, 0, sizeof(code));
-	strncpy(code , pos , n);
-	free(ip); ip = NULL;
+	strncpy(code , pos , (sizeof(code)-1<n)?(sizeof(code)-1):n);
+	code[sizeof(code)-1]='\0';
 
 	if(strcmp(code , "200") != 0)
 		return -1;
@@ -294,6 +320,9 @@ char* ssl_connection_get(FetionConnection* conn , const char* buf)
 	char* ret;
 	
 	ret = (char*)malloc(1025);
+	if(ret == NULL){
+		return NULL;
+	}
 	memset(ret , 0 , 1025);
 
 	SSL_write(conn->ssl, buf, strlen(buf));
@@ -329,6 +358,9 @@ char* http_connection_get_response(FetionConnection* conn)
 	n = strlen(pos);
 
 	res = (char*)malloc(len + 1);
+	if(res == NULL){
+		return NULL;
+	}
 	memset(res , 0 , len + 1);
 	strcpy(res , pos);
 
@@ -337,10 +369,10 @@ char* http_connection_get_response(FetionConnection* conn)
 		c = tcp_connection_recv(conn , buf , sizeof(buf) - 1);
 		if(c <= 0)
 			break;
-		strcpy(res + n, buf);
 		n += c;
 		if(n >= len)
 			break;
+		strcpy(res + n, buf);
 	}
 
 	return res;
@@ -356,14 +388,15 @@ int http_connection_get_body_length(const char* http)
 	pos += 16;
 	len = strlen(pos) - strlen(strstr(pos , "\r\n"));
 	memset(length, 0, sizeof(length));
-	strncpy(length , pos , len);
+	strncpy(length , pos , (len<9)?len:9);
 	return atoi(length);
 }
 int http_connection_get_head_length(const char* http)
 {
-	if(strstr(http , "\r\n\r\n") == NULL)
+	char *tmp = strstr(http , "\r\n\r\n");
+	if(tmp == NULL)
 		return -1;
-	return strlen(http) - strlen(strstr(http , "\r\n\r\n"));
+	return strlen(http) - strlen(tmp);
 }
 void tcp_connection_free(FetionConnection* conn)
 {
@@ -410,6 +443,9 @@ char* http_connection_encode_url(const char* url)
 	char tmp[2];
 	int i = 1;
 	res = (char*)malloc(2048);
+	if(res == NULL){
+		return NULL;
+	}
 	pos = url[0];
 	memset(res , 0 , 2048);
 	while(pos != '\0')
@@ -468,6 +504,9 @@ char *hexip_to_dotip(const char *ip){
 	long res;
 
 	out = (char*)malloc(18);
+	if(out == NULL){
+		return NULL;
+	}
 	memset(out, 0, 18);
 	memset(tmp, 0, sizeof(tmp));
 
