@@ -24,6 +24,9 @@
 Message* fetion_message_new()
 {
 	Message* msg = (Message*)malloc(sizeof(Message));
+	if(msg == NULL){
+		return NULL;
+	}
 	memset(msg , 0 , sizeof(Message));
 	msg->sipuri = NULL;
 	msg->pguri = NULL;
@@ -31,38 +34,53 @@ Message* fetion_message_new()
 	return msg;
 }
 
-void fetion_message_set_pguri(Message* msg , const char* sipuri)
+int fetion_message_set_pguri(Message* msg , const char* sipuri)
 {
 	if(msg == NULL){
 		debug_error("Message is NULL , at(fetion_message_set_sipuri)");
-		return;
+		return -1;
 	}
-	msg->pguri = (char*)malloc(strlen(sipuri) + 1);
+	char *tmp = (char*)malloc(strlen(sipuri) + 1);
+	if(tmp == NULL){
+		return -1;
+	}
+	msg->pguri = tmp;
 	memset(msg->pguri , 0 , strlen(sipuri) + 1);
 	strcpy(msg->pguri , sipuri);
+	return 0;
 }
 
-void fetion_message_set_sipuri(Message* msg , const char* sipuri)
+int fetion_message_set_sipuri(Message* msg , const char* sipuri)
 {
 	if(msg == NULL){
 		debug_error("Message is NULL , at(fetion_message_set_sipuri)");
-		return;
+		return -1;
 	}
-	msg->sipuri = (char*)malloc(strlen(sipuri) + 1);
+	char *tmp = (char*)malloc(strlen(sipuri) + 1);
+	if(tmp == NULL){
+		return -1;
+	}
+	msg->sipuri = tmp;
 	memset(msg->sipuri , 0 , strlen(sipuri) + 1);
 	strcpy(msg->sipuri , sipuri);
+	return 0;
 }
 
-void fetion_message_set_message(Message* msg , const char* message)
+int fetion_message_set_message(Message* msg , const char* message)
 {
 	if(msg == NULL)
 	{
 		debug_error("Message is NULL , at(fetion_message_set_message)");
-		return;
+		return -1;
 	}
-	msg->message = (char*)malloc(strlen(message) + 1);
+	char *tmp = (char*)malloc(strlen(message) + 1);
+	if(tmp == NULL){
+		return -1;
+	}
+	msg->message = tmp;
 	memset(msg->message , 0 , strlen(message) + 1);
 	strcpy(msg->message , message);
+	return 0;
 }
 
 void fetion_message_set_time(Message* msg , struct tm sendtime)
@@ -101,6 +119,9 @@ struct unacked_list *unacked_list_new(Message *message)
 {
 	struct unacked_list *list =
 			(struct unacked_list*)malloc(sizeof(struct unacked_list));
+	if(list == NULL){
+		return NULL;
+	}
 	list->timeout = 0;
 	list->message = message;
 	list->next = list->pre = list;
