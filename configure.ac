@@ -171,8 +171,8 @@ PKG_CHECK_MODULES(NETWORKMANAGER, [NetworkManager >= 0.5.0], [
 			echo "configure: error: "
 			echo "NetworkManager development headers not found."
 			echo "Use --disable-nm if you do not need it."
-			echo "If you're using debian or ubuntu,install it by "
-			echo "\"sudo apt-get install libnm-glib-dev\""
+			echo "If you're using debian or ubuntu, install it by "
+			echo "\"sudo apt-get install libnm-glib-dev NetworkManager-devel\""
 			echo ""
 			exit -1
 			])
