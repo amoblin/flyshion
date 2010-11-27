@@ -443,17 +443,20 @@ int parse_sipc_auth_response(const char* auth_response , User* user, int *group_
 char* generate_aes_key()
 {
 	char* key = (char*)malloc(65);
+	if(key == NULL){
+		return NULL;
+	}
 	memset( key , 0 , 65 );
-	sprintf( key , "%04x%04x%04x%04x%04x%04x%04x"
-			"%04x%04x%04x%04x%04x%04x%04x%04x%04x" , 
-			rand() & 0xFFFF , rand() & 0xFFFF , 
-			rand() & 0xFFFF , rand() & 0xFFFF , 
-			rand() & 0xFFFF , rand() & 0xFFFF , 
-			rand() & 0xFFFF , rand() & 0xFFFF , 
-			rand() & 0xFFFF , rand() & 0xFFFF , 
-			rand() & 0xFFFF , rand() & 0xFFFF ,
-			rand() & 0xFFFF , rand() & 0xFFFF,
-			rand() & 0xFFFF , rand() & 0xFFFF );
+	FILE* rand_fd = fopen("/dev/urandom", "r");
+	if(rand_fd == NULL){
+		free(key);
+		return NULL;
+	}
+	int ret = fread(key, 64, 1, rand_fd);
+	if(ret != 1){
+		free(key);
+		return NULL;
+	}
 	return key;
 }
 static char* generate_auth_body(User* user)

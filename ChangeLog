@@ -1,3 +1,6 @@
+2010-11-27 YunQiang Su <wzssyqa@gmail.com>
+	* 修复 aes 密码产生函数的安全问题。
+
 2010-11-25 YunQiang Su <wzssyqa@gmail.com>
 	* 在编译系统中去掉了 fx_share.c，避免 make check 失败。
 
