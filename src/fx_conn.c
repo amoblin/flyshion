@@ -371,6 +371,9 @@ login:
 	g_free(pos);
 
 	aeskey = generate_aes_key();
+	if(aeskey == NULL){
+		goto failed;
+	}
 	response = generate_response(nonce, user->userId,
 				   	user->password, key, aeskey);
 	g_free(nonce);
@@ -695,6 +698,9 @@ int fx_conn_reconnect(FxMain *fxmain, int state)
 
 	/* generate sipc authencation response string */
 	aeskey = generate_aes_key();
+	if(aeskey == NULL){
+		goto failed2;
+	}
 	response = generate_response(nonce, user->userId,
 				   	user->password, key, aeskey);
 	g_free(nonce);
