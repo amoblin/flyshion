@@ -369,10 +369,16 @@ char* http_connection_get_response(FetionConnection* conn)
 		c = tcp_connection_recv(conn , buf , sizeof(buf) - 1);
 		if(c <= 0)
 			break;
-		strcpy(res + n, buf);
 		n += c;
-		if(n >= len)
+		if(n > len){
+			free(res);
+			res = NULL;
 			break;
+		}
+		strcpy(res + n -c, buf);
+		if(n == len){
+			break;
+		}
 	}
 
 	return res;
