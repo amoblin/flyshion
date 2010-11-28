@@ -137,7 +137,7 @@ static void create_intro(GtkTextView *view)
 	GtkTextTag    *tag;
 	GtkTextTag    *tag1;
 	GtkTextIter    iter;
-	const char title[] = "Openfetion 2.0.2\n\n";
+	const char title[] = "Openfetion 2.0.7\n\n";
 	const char intro[] = "OpenFetion is a Fetion client for linux based on GTK+2.0,"
 						"implementing Fetion Protocol Version 4.\n\n"
 						"It supports most features of Fetion. \n\n"
