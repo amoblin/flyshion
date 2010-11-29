@@ -115,17 +115,17 @@ void fx_logining_show(FxMain *fxmain)
 	gtk_label_set_justify(GTK_LABEL(label),
 					GTK_JUSTIFY_CENTER);
 	gtk_label_set_markup(GTK_LABEL(label),
-			"<b>Welcome to OpenFetion</b>");
+			_("<b>Welcome to OpenFetion</b>"));
 	gtk_fixed_put(GTK_FIXED(fxlogin->fixed1),
 					label, 0, 350);
 
 	label = gtk_label_new(NULL);
 	gtk_label_set_markup(GTK_LABEL(label),
-			"<small>OpenFetion a fetion client for linux"
+			_("<small>OpenFetion a fetion client for linux"
 			" based on GTK+2.0, using Fetion Protocol"
 			" Version 4.\nOpenFetion is a non-profit software,"
 			" aiming at making linux users convenient "
-			"to use fetion.</small>");
+			"to use fetion.</small>"));
 	gtk_widget_set_usize(label, WINDOW_WIDTH - 40, 0);
 	gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
 	gtk_fixed_put(GTK_FIXED(fxlogin->fixed1),

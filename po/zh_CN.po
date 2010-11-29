@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenFetion 1.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-24 22:34+0800\n"
-"PO-Revision-Date: 2010-11-24 22:39+0800\n"
+"POT-Creation-Date: 2010-11-29 23:43+0800\n"
+"PO-Revision-Date: 2010-11-29 23:45+0800\n"
 "Last-Translator: YunQiang Su <wzssyqa@gmail.com>\n"
 "Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
 "Language: \n"
@@ -59,7 +59,6 @@ msgstr "您好，我是"
 #: ../src/fx_add_group.c:84 ../src/fx_dsms.c:81 ../src/fx_gedit.c:59
 #: ../src/fx_set.c:207 ../src/fx_app.c:116 ../src/fx_close.c:79
 #: ../src/fx_edit.c:57 ../src/fx_proxy.c:121 ../src/fx_smsstat.c:97
-#: ../src/fx_share.c:96
 msgid "OK"
 msgstr "确定"
 
@@ -67,7 +66,7 @@ msgstr "确定"
 #: ../src/fx_add_group.c:88 ../src/fx_dsms.c:82 ../src/fx_gedit.c:63
 #: ../src/fx_set.c:211 ../src/fx_app.c:119 ../src/fx_close.c:81
 #: ../src/fx_edit.c:61 ../src/fx_head.c:508 ../src/fx_lookup.c:62
-#: ../src/fx_proxy.c:124 ../src/fx_smsstat.c:101 ../src/fx_share.c:100
+#: ../src/fx_proxy.c:124 ../src/fx_smsstat.c:101
 msgid "Cancel"
 msgstr "取消"
 
@@ -375,8 +374,8 @@ msgstr "导出"
 msgid "Cleanup"
 msgstr "清空"
 
-#: ../src/fx_history.c:146 ../src/fx_myself.c:183 ../src/fx_chat.c:563
-#: ../src/fx_dsms.c:670 ../src/fx_sysmsg.c:76 ../src/fx_many.c:471
+#: ../src/fx_history.c:146 ../src/fx_myself.c:184 ../src/fx_chat.c:563
+#: ../src/fx_dsms.c:670 ../src/fx_sysmsg.c:76 ../src/fx_many.c:477
 #: ../src/fx_pggroup.c:206 ../src/fx_about.c:421
 msgid "Close"
 msgstr "关闭"
@@ -442,8 +441,8 @@ msgstr "城市："
 msgid "Sending sms to myself"
 msgstr "正在给自己发短信"
 
-#: ../src/fx_myself.c:188 ../src/fx_chat.c:568 ../src/fx_dsms.c:666
-#: ../src/fx_many.c:476 ../src/fx_pggroup.c:211
+#: ../src/fx_myself.c:189 ../src/fx_chat.c:568 ../src/fx_dsms.c:666
+#: ../src/fx_many.c:482 ../src/fx_pggroup.c:211
 msgid "Send"
 msgstr "发送"
 
@@ -745,6 +744,21 @@ msgstr "开启"
 #, c-format
 msgid "<span color='#204a87'><small> Proxy[%s]</small></span>"
 msgstr "<span color='#204a87'><small> 网络代理[%s]</small></span>"
+
+#: ../src/fx_login.c:118
+msgid "<b>Welcome to OpenFetion</b>"
+msgstr "<b>欢迎使用 OpenFetion</b>"
+
+#: ../src/fx_login.c:124
+msgid ""
+"<small>OpenFetion a fetion client for linux based on GTK+2.0, using Fetion "
+"Protocol Version 4.\n"
+"OpenFetion is a non-profit software, aiming at making linux users convenient "
+"to use fetion.</small>"
+msgstr ""
+"<small>OpenFetion 是一个使用 GTK+2 编写，实现了第四版飞信协议的 Linux 飞信客"
+"户端。\n"
+"OpenFetion 是非营利软件，主要目标是方便 Linux 用户使用飞信。</small>"
 
 #: ../src/fx_login.c:190
 msgid "Cell number or fetion number:"
@@ -1069,20 +1083,20 @@ msgstr ""
 "已选择好友[<span color=\"red\">%d</span>]人，还可选择[<span color=\"red\">"
 "%d</span>]人"
 
-#: ../src/fx_many.c:372
+#: ../src/fx_many.c:376
 msgid "SMS To Many"
 msgstr "短信群发"
 
 #. left top area
-#: ../src/fx_many.c:386
+#: ../src/fx_many.c:389
 msgid "Choose Contacts"
 msgstr "请选择好友"
 
-#: ../src/fx_many.c:422
+#: ../src/fx_many.c:425
 msgid "Contacts Selected"
 msgstr "已选择的好友"
 
-#: ../src/fx_many.c:429
+#: ../src/fx_many.c:432
 msgid ""
 "Choosed [<span color=\"red\">0</span>] contacts, [<span color=\"red\">10000</"
 "span>] more available"
@@ -1090,22 +1104,22 @@ msgstr ""
 "已选择好友[<span color=\"red\">0</span>]人，还可选择[<span color=\"red"
 "\">10000</span>]人"
 
-#: ../src/fx_many.c:498
+#: ../src/fx_many.c:504
 msgid "You have not selected contacts"
 msgstr "您还没有选择好友"
 
-#: ../src/fx_many.c:527
+#: ../src/fx_many.c:533
 msgid "Please input the contents of message"
 msgstr "请输入消息内容"
 
-#: ../src/fx_many.c:546
+#: ../src/fx_many.c:552
 #, c-format
 msgid ""
 "Mesage \"%s\" has been sent to \"%s\". You have sent %d today and %d this "
 "month\n"
 msgstr "消息“%s”成功发送至“%s”，今天已发送短信息%d条，本月已发送%d条\n"
 
-#: ../src/fx_many.c:552
+#: ../src/fx_many.c:558
 #, c-format
 msgid "Mesage \"%s\" did not send to \"%s\"\n"
 msgstr "消息“%s”未发送至“%s”\n"
@@ -1459,17 +1473,17 @@ msgstr "正在获取头像"
 msgid "Login successful"
 msgstr "登录成功"
 
-#: ../src/fx_conn.c:220 ../src/fx_conn.c:872
+#: ../src/fx_conn.c:220 ../src/fx_conn.c:878
 msgid "Preparing for login"
 msgstr "正在准备登录"
 
 #: ../src/fx_conn.c:224 ../src/fx_conn.c:236 ../src/fx_conn.c:366
-#: ../src/fx_conn.c:385 ../src/fx_conn.c:672 ../src/fx_conn.c:687
-#: ../src/fx_conn.c:712 ../src/fx_conn.c:876
+#: ../src/fx_conn.c:388 ../src/fx_conn.c:675 ../src/fx_conn.c:690
+#: ../src/fx_conn.c:718 ../src/fx_conn.c:882
 msgid "Login failed"
 msgstr "登录失败"
 
-#: ../src/fx_conn.c:245 ../src/fx_conn.c:407
+#: ../src/fx_conn.c:245 ../src/fx_conn.c:410
 msgid "Getting code picture，please wait..."
 msgstr "正在获取验证码，请稍候..."
 
@@ -1512,32 +1526,32 @@ msgid "Registering to SIPC Server"
 msgstr "正在注册到 SIPC 服务器"
 
 #. start sipc authentication using the response created just now
-#: ../src/fx_conn.c:381
+#: ../src/fx_conn.c:384
 msgid "SIPC Indentify"
 msgstr "正在进行 SIPC 身份验证"
 
-#: ../src/fx_conn.c:392 ../src/fx_conn.c:399 ../src/fx_conn.c:721
-#: ../src/fx_conn.c:734 ../src/fx_conn.c:864
+#: ../src/fx_conn.c:395 ../src/fx_conn.c:402 ../src/fx_conn.c:727
+#: ../src/fx_conn.c:740 ../src/fx_conn.c:870
 msgid "Authenticate failed."
 msgstr "身份验证失败，手机号或密码错误"
 
-#: ../src/fx_conn.c:468 ../src/fx_conn.c:493
+#: ../src/fx_conn.c:471 ../src/fx_conn.c:496
 msgid "Initializing main panel"
 msgstr "正在初始化主界面"
 
-#: ../src/fx_conn.c:474
+#: ../src/fx_conn.c:477
 msgid "Login sucessful"
 msgstr "登录成功"
 
-#: ../src/fx_conn.c:482
+#: ../src/fx_conn.c:485
 msgid "Ungrouped"
 msgstr "未分组"
 
-#: ../src/fx_conn.c:490
+#: ../src/fx_conn.c:493
 msgid "Strangers"
 msgstr "陌生人"
 
-#: ../src/fx_conn.c:609
+#: ../src/fx_conn.c:612
 msgid ""
 "\n"
 "Connection has been shutdown\n"
@@ -1545,13 +1559,98 @@ msgstr ""
 "\n"
 "连接已断开\n"
 
-#: ../src/fx_conn.c:858
+#: ../src/fx_conn.c:864
 msgid "No local information stored"
 msgstr "没有本地信息"
 
-#: ../src/fx_conn.c:953
+#: ../src/fx_conn.c:959
 msgid "The action can't be performed in offline state"
 msgstr "离线状态下该操作不能执行"
+
+#: ../src/fx_about.c:140
+msgid "Openfetion "
+msgstr "OpenFetion "
+
+#: ../src/fx_about.c:141
+msgid ""
+"OpenFetion is a Fetion client for linux based on GTK+2.0, implementing "
+"Fetion Protocol Version 4.\n"
+"\n"
+"It supports most features of Fetion. \n"
+"\n"
+"What's more, it's lightweight and efficient with intuitive interface.\n"
+"\n"
+"Project homepage: "
+msgstr ""
+"OpenFetion 是一个使用 GTK+2 编写，实现了第四版飞信协议的 Linux 飞信客户端。\n"
+"\n"
+"支持飞信的大多数功能。\n"
+"\n"
+"更重要的是，很轻量、高效，界面直观。\n"
+"\n"
+"项目主页："
+
+#: ../src/fx_about.c:176
+msgid ""
+"\n"
+"Page on author's blog: "
+msgstr ""
+"\n"
+"作者的博客："
+
+#: ../src/fx_about.c:186
+msgid ""
+"Graduate student at Beijing University of Post & Telecommunication.Love "
+"Linux,Love OpenSource.Started this project in order to help linux users "
+"including myself to get a better way to use fetion.\n"
+"\n"
+"Blog:"
+msgstr ""
+"北京邮电大学研究生。喜爱 Linux，热爱开源。启动这个项目是为了帮助包括自己在内"
+"的 Linux 用户获得更好的飞信使用体验。\n"
+"\n"
+"博客："
+
+#: ../src/fx_about.c:267
+msgid ""
+"The Main Contributors\n"
+"\n"
+msgstr ""
+"主要贡献者\n"
+"\n"
+
+#: ../src/fx_about.c:303
+msgid ""
+"Make deb package for debian/ubuntu users,maintainer of the PPA of "
+"openfetion.\n"
+"Blog:"
+msgstr ""
+"为 Debian/Ubuntu 打包，维护 openfetion 的 PPA。\n"
+"博客："
+
+#: ../src/fx_about.c:312
+msgid ""
+"Main translater of openfetion,accomplish the internationalisation(i18n) of "
+"openfetion"
+msgstr "Openfetion 的主要翻译者，完成了 openfetion 的国际化。"
+
+#: ../src/fx_about.c:319
+msgid ""
+"Contributed to the UI development,and fixed some bugs of the UI.\n"
+"Follow him:"
+msgstr ""
+"为界面开发做出了贡献，修改了界面的很多问题。\n"
+"关注他："
+
+#: ../src/fx_about.c:327
+msgid ""
+"A good designer,designed a logo and some icons for openfetion,and also "
+"contributed to the UI design.\n"
+"Follow him:"
+msgstr ""
+"一位优秀的设计师，为 OpenFetion 设计了 logo 和一些图标，也对界面设计有贡"
+"献。\n"
+"关注他："
 
 #: ../src/fx_about.c:375
 msgid "Introduction"
@@ -1569,28 +1668,22 @@ msgstr "贡献者"
 msgid "License"
 msgstr "许可协议"
 
-#: ../src/fx_share.c:66
-msgid "Transport files by Fetion"
-msgstr "使用飞信传输文件"
+#~ msgid "Transport files by Fetion"
+#~ msgstr "使用飞信传输文件"
 
-#: ../src/fx_share.c:76
-#, c-format
-msgid "Transporting files <b>OS Revolution.mkv </b> to <b>%s</b>..."
-msgstr "正在向 <b>%s</b> 传输 <b>OS Revolution.mkv </b>..."
+#~ msgid "Transporting files <b>OS Revolution.mkv </b> to <b>%s</b>..."
+#~ msgstr "正在向 <b>%s</b> 传输 <b>OS Revolution.mkv </b>..."
 
-#: ../src/fx_share.c:83
-msgid "<b>Progress: </b>"
-msgstr "<b>进度：</b>"
+#~ msgid "<b>Progress: </b>"
+#~ msgstr "<b>进度：</b>"
 
-#: ../src/fx_share.c:93
-msgid "<span color='#838383'>Establishing Connection...</span>"
-msgstr "<span color='#838383'>正在建立连接...</span>"
+#~ msgid "<span color='#838383'>Establishing Connection...</span>"
+#~ msgstr "<span color='#838383'>正在建立连接...</span>"
 
-#: ../src/fx_share.c:141
-msgid ""
-"<span color='#838383'>Contact acccept your request of transporting files. "
-"Transporting...</span>"
-msgstr "<span color='#838383'>好友接受了传送文件的请求。正在传输...</span>"
+#~ msgid ""
+#~ "<span color='#838383'>Contact acccept your request of transporting files. "
+#~ "Transporting...</span>"
+#~ msgstr "<span color='#838383'>好友接受了传送文件的请求。正在传输...</span>"
 
 #~ msgid ""
 #~ "Choosed [<span color=\"red\">0</span>] buddy\n"

@@ -137,12 +137,12 @@ static void create_intro(GtkTextView *view)
 	GtkTextTag    *tag;
 	GtkTextTag    *tag1;
 	GtkTextIter    iter;
-	const char title[] = "Openfetion "FETION_VERSION"\n\n";
-	const char intro[] = "OpenFetion is a Fetion client for linux based on GTK+2.0,"
+	const char title[] = N_("Openfetion "FETION_VERSION"\n\n");
+	const char intro[] = N_("OpenFetion is a Fetion client for linux based on GTK+2.0, "
 						"implementing Fetion Protocol Version 4.\n\n"
 						"It supports most features of Fetion. \n\n"
 						"What's more, it's lightweight and efficient with intuitive interface.\n\n"
-						"Project homepage: ";
+						"Project homepage: ");
 
 	gtk_text_view_set_editable(view,FALSE);
 	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(view), GTK_WRAP_WORD_CHAR);
@@ -173,7 +173,7 @@ static void create_intro(GtkTextView *view)
 		   	intro, -1, tag1, NULL);
 	insert_link(buffer, &iter, "http://code.google.com/p/ofetion/");
 	gtk_text_buffer_insert_with_tags(buffer, &iter,
-		   	"\nPage on author's blog: ", -1, tag1, NULL);
+		   	_("\nPage on author's blog: "), -1, tag1, NULL);
 	insert_link(buffer, &iter, "http://basiccoder.com/openfetion");
 }
 
@@ -183,10 +183,10 @@ static void create_author(GtkTextView *view)
 	GtkTextTag    *tag1;
 	GtkTextIter    iter;
 	const char title[] = "Levin\n\n";
-	const char *intro = "Graduate student at Beijing University of Post & Telecommunication."
+	const char *intro = _("Graduate student at Beijing University of Post & Telecommunication."
 						"Love Linux,Love OpenSource.Started this project in order to help "
 						"linux users including myself to get a better way to use fetion.\n\n"
-						"Blog:";
+						"Blog:");
 
 	gtk_text_view_set_editable(view,FALSE);
 	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(view), GTK_WRAP_WORD_CHAR);
@@ -264,7 +264,7 @@ static void create_contri(GtkTextView *view)
 	GtkTextTag    *tag1;
 	GtkTextTag    *tag2;
 	GtkTextIter    iter;
-	const char title[] = "The Main Contributors\n\n";
+	const char title[] = N_("The Main Contributors\n\n");
 	const char *intro;
 
 	gtk_text_view_set_editable(view,FALSE);
@@ -300,34 +300,34 @@ static void create_contri(GtkTextView *view)
 
 	gtk_text_buffer_insert_with_tags(buffer, &iter,
 		   	"happyaron: ", -1, tag2, NULL);
-	intro = "Make dep package for debian/ubuntu users,"
-			"maintainer of the PPA of openfetion.\nBlog:";
+	intro = N_("Make deb package for debian/ubuntu users,"
+			"maintainer of the PPA of openfetion.\nBlog:");
 	gtk_text_buffer_insert_with_tags(buffer, &iter,
-		   	intro, -1, tag1, NULL);
+		   	_(intro), -1, tag1, NULL);
 	insert_link(buffer, &iter, "http://blogs.gnome.org/happyaron/");
 
 	
 	gtk_text_buffer_insert_with_tags(buffer, &iter,
 		   	"\n\nwzssyqa: ", -1, tag2, NULL);
-	intro = "Main translater of openfetion,accomplish"
-		" the internationalisation(i18n) of openfetion";
+	intro = N_("Main translater of openfetion,accomplish"
+		" the internationalisation(i18n) of openfetion");
 	gtk_text_buffer_insert_with_tags(buffer, &iter,
-		   	intro, -1, tag1, NULL);
+		   	_(intro), -1, tag1, NULL);
 
 	gtk_text_buffer_insert_with_tags(buffer, &iter,
 		   	"\n\nxhacker: ", -1, tag2, NULL);
-	intro = "Contributed to the UI development,and fixed some "
-			"bugs of the UI.\nFollow him:";
+	intro = N_("Contributed to the UI development,and fixed some "
+			"bugs of the UI.\nFollow him:");
 	gtk_text_buffer_insert_with_tags(buffer, &iter,
-		   	intro, -1, tag1, NULL);
+		   	_(intro), -1, tag1, NULL);
 	insert_link(buffer, &iter, "http://twitter.com/xhacker");
 
 	gtk_text_buffer_insert_with_tags(buffer, &iter,
 		   	"\n\nriku: ", -1, tag2, NULL);
-	intro = "A good designer,designed a logo and some icons for "
-			"openfetion,and also contributed to the UI design.\nFollow him:";
+	intro = N_("A good designer,designed a logo and some icons for "
+			"openfetion,and also contributed to the UI design.\nFollow him:");
 	gtk_text_buffer_insert_with_tags(buffer, &iter,
-		   	intro, -1, tag1, NULL);
+		   	_(intro), -1, tag1, NULL);
 	insert_link(buffer, &iter, "http://twitter.com/riku");
 }
 
