@@ -47,10 +47,10 @@ void fx_myself_bind(FxMyself* fxmyself)
 				NULL); 
 	if(pb != NULL) {
 		gtk_image_set_from_pixbuf(GTK_IMAGE(fxmyself->headimage) , pb);
-		gtk_window_set_icon(GTK_WINDOW(fxmyself->dialog) , pb);
+		gtk_window_set_icon(GTK_WINDOW(fxmyself->window) , pb);
 		g_object_unref(pb);
 	}
-	gtk_window_set_title(GTK_WINDOW(fxmyself->dialog) ,
+	gtk_window_set_title(GTK_WINDOW(fxmyself->window) ,
 			_("Sending sms to myself"));
 
    	sprintf(name , "%s(%s)" , user->nickname ,
@@ -101,23 +101,22 @@ void fx_myself_initialize(FxMyself* fxmyself)
 	GtkWidget* close_button;
 	GtkWidget* send_button;
 	GtkWidget* vbox;
-	GtkWidget* action_area;
+	GtkWidget *action_area;
 
-	fxmyself->dialog = gtk_dialog_new(); 
-	vbox = GTK_DIALOG(fxmyself->dialog)->vbox;
-	action_area = GTK_DIALOG(fxmyself->dialog)->action_area;
-	gtk_window_set_modal(GTK_WINDOW(fxmyself->dialog) , FALSE);
-	gtk_widget_set_usize(fxmyself->dialog , 550 , 490);
-	gtk_dialog_set_has_separator(GTK_DIALOG(fxmyself->dialog) , FALSE);
-	g_signal_connect(fxmyself->dialog , "key-press-event"
+	fxmyself->window = gtk_window_new(GTK_WINDOW_TOPLEVEL); 
+	vbox = gtk_vbox_new (FALSE, 0);
+	gtk_container_add (GTK_CONTAINER (fxmyself->window), vbox);
+	gtk_window_set_modal(GTK_WINDOW(fxmyself->window) , FALSE);
+	gtk_widget_set_usize(fxmyself->window , 550 , 490);
+	g_signal_connect(fxmyself->window , "key-press-event"
 			, G_CALLBACK(key_press_func) , fxmyself);
-	gtk_container_set_border_width(GTK_CONTAINER(fxmyself->dialog) , 10);
+	gtk_container_set_border_width(GTK_CONTAINER(fxmyself->window) , 10);
 
 	fxmyself->headbox = gtk_table_new(2 , 10 , FALSE );
 
 	fxmyself->headpix = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" ,
 			40 , 40 , NULL);
-	gtk_window_set_icon(GTK_WINDOW(fxmyself->dialog) , fxmyself->headpix);
+	gtk_window_set_icon(GTK_WINDOW(fxmyself->window) , fxmyself->headpix);
 	fxmyself->headimage = gtk_image_new_from_pixbuf(fxmyself->headpix);
 	gtk_table_attach(GTK_TABLE(fxmyself->headbox) , fxmyself->headimage
 								, 0 , 1 , 0 , 2
@@ -179,31 +178,32 @@ void fx_myself_initialize(FxMyself* fxmyself)
 
  	fxmyself->send_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(fxmyself->send_text));
 	gtk_text_buffer_get_iter_at_offset(fxmyself->send_buffer , &(fxmyself->send_iter) , 0);
-
+	
+	action_area = gtk_hbox_new(FALSE , 0);
+	gtk_box_pack_start(GTK_BOX(vbox) , action_area , FALSE , FALSE , 10);
 	close_button = gtk_button_new_with_label(_("Close"));
 	gtk_widget_set_usize(close_button , 100 , 30);
-	gtk_box_pack_start(GTK_BOX(action_area) , close_button , FALSE , TRUE , 2);
+	gtk_box_pack_end(GTK_BOX(action_area) , close_button , FALSE , TRUE , 2);
 	g_signal_connect(close_button , "clicked" , G_CALLBACK(fx_myself_on_close_clicked) , fxmyself);
 
 	send_button = gtk_button_new_with_label(_("Send"));
 	gtk_widget_set_usize(send_button , 100 , 30);
-	gtk_box_pack_start(GTK_BOX(action_area) , send_button , FALSE , TRUE , 2);
+	gtk_box_pack_end(GTK_BOX(action_area) , send_button , FALSE , TRUE , 2);
 	g_signal_connect(send_button , "clicked" , G_CALLBACK(fx_myself_on_send_clicked) , fxmyself);
 
-	gtk_window_set_position(GTK_WINDOW(fxmyself->dialog) , GTK_WIN_POS_CENTER);
-	//gtk_window_set_opacity(GTK_WINDOW(fxmyself->dialog) , 0.9);
+	gtk_window_set_position(GTK_WINDOW(fxmyself->window) , GTK_WIN_POS_CENTER);
 	fx_myself_bind(fxmyself);
 
 	GTK_WIDGET_SET_FLAGS(fxmyself->send_text, GTK_CAN_FOCUS);
 	gtk_widget_grab_focus(fxmyself->send_text);
 
-	gtk_widget_show_all(fxmyself->dialog);
+	gtk_widget_show_all(fxmyself->window);
 }
 void fx_myself_on_close_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 {
 	FxMyself* fxmyself = (FxMyself*)data;
 
-	gtk_dialog_response(GTK_DIALOG(fxmyself->dialog) , GTK_RESPONSE_OK);
+	gtk_widget_destroy(fxmyself->window);
 }
 
 void fx_myself_on_send_clicked(GtkWidget *UNUSED(widget) , gpointer data)
@@ -265,8 +265,7 @@ static gboolean key_press_func(GtkWidget *widget , GdkEventKey *event
 	if(event->keyval == GDK_w){
 		if(event->state & GDK_CONTROL_MASK){
 			fxmyself = (FxMyself*)data;
-			gtk_dialog_response(GTK_DIALOG(fxmyself->dialog)
-					, GTK_RESPONSE_OK);
+			gtk_widget_destroy(fxmyself->window);
 			return TRUE;
 		}else{
 			return FALSE;

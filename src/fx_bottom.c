@@ -171,8 +171,6 @@ void fx_bottom_on_sendtome_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 
 	if(fx_conn_check_action(fxmain)){
 		fx_myself_initialize(fxmyself);
-		gtk_dialog_run(GTK_DIALOG(fxmyself->dialog));
-		gtk_widget_destroy(fxmyself->dialog);
 	}
 }
 
@@ -188,9 +186,6 @@ void fx_bottom_on_sendtomany_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 
 	if(fx_conn_check_action(fxmain)){
 		fx_many_initialize(fxmany);
-		gtk_dialog_run(GTK_DIALOG(fxmany->dialog));
-		gtk_widget_destroy(fxmany->dialog);
-		free(fxmany);
 	}
 }
 

@@ -270,7 +270,7 @@ typedef struct
 {
 	FxMain* fxmain;
 	Conversation* conv;
-	GtkWidget* dialog;
+	GtkWidget* window;
 	GtkWidget* headbox;
 	GdkPixbuf* headpix;
 	GtkWidget* headimage;
@@ -303,7 +303,7 @@ typedef struct
 {
 	FxMain* fxmain;	
 	int chooseCount;
-	GtkWidget* dialog;
+	GtkWidget* window;
 	/*left*/
 	GtkWidget* hbox;
 	GtkWidget* tree;
