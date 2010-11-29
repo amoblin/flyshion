@@ -173,7 +173,7 @@ void fx_myself_initialize(FxMyself* fxmyself)
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(fxmyself->send_scroll)
 									  , GTK_SHADOW_ETCHED_IN);
 	fxmyself->send_text = gtk_text_view_new();
-	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(fxmyself->recv_text) , GTK_WRAP_CHAR);
+	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(fxmyself->send_text) , GTK_WRAP_CHAR);
 	g_signal_connect(fxmyself->send_text , "key_press_event" , G_CALLBACK(fx_myself_on_enter_pressed) , fxmyself);
 	gtk_container_add(GTK_CONTAINER(fxmyself->send_scroll) , fxmyself->send_text);
 

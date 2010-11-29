@@ -461,7 +461,7 @@ void fx_many_initialize(FxMany* fxmany)
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(fxmany->send_scroll)
 									  , GTK_SHADOW_ETCHED_IN);
 	fxmany->send_text = gtk_text_view_new();
-	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(fxmany->recv_text) , GTK_WRAP_CHAR);
+	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(fxmany->send_text) , GTK_WRAP_CHAR);
 //	g_signal_connect(send_text , "key_press_event" , G_CALLBACK(ctrlpressed) , pthis);
 	gtk_container_add(GTK_CONTAINER(fxmany->send_scroll) , fxmany->send_text);
 

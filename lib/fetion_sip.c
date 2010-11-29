@@ -1061,3 +1061,9 @@ void fetion_sip_get_auth_attr(const char* auth , char** ipaddress , int* port , 
 	pos = strstr(pos , "credential=\"") + 12;
 	strncpy(*credential , pos , strlen(pos) - 1);
 }
+
+inline void 
+fetion_sip_set_conn(FetionSip *sip, FetionConnection *conn)
+{
+	sip->tcp = conn;
+}
