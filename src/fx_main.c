@@ -124,8 +124,7 @@ void fx_main_initialize(FxMain* fxmain)
 			SKIN_DIR"offline.svg");
 	gtk_status_icon_set_tooltip(fxmain->trayIcon, "OpenFetion");
 #ifdef USE_LIBNOTIFY
-	fxmain->notify = notify_notification_new_with_status_icon("welcome"
-			, "" , NULL , fxmain->trayIcon);
+	fxmain->notify = notify_notification_new("welcome", "", SKIN_DIR"offline.svg", NULL);
 	notify_notification_set_timeout(fxmain->notify , 2500);
 #endif
 
@@ -318,7 +317,7 @@ static void popup_online_notify(FxMain *fxmain, Contact *contact)
 				  "Signature: %s")
 				, contact->mobileno == NULL ||
 					strlen(contact->mobileno) == 0 ?
-					"未知" : contact->mobileno
+					_("unknown") : contact->mobileno
 				, contact->sId
 				, contact->impression );
 		pixbuf = gdk_pixbuf_new_from_file_at_size(
