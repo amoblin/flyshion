@@ -14855,12 +14855,12 @@ if test -n "$LIBNOTIFY_CFLAGS"; then
     pkg_cv_LIBNOTIFY_CFLAGS="$LIBNOTIFY_CFLAGS"
  elif test -n "$PKG_CONFIG"; then
     if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libnotify\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "libnotify") 2>&5
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libnotify < 0.7\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libnotify < 0.7") 2>&5
   ac_status=$?
   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
-  pkg_cv_LIBNOTIFY_CFLAGS=`$PKG_CONFIG --cflags "libnotify" 2>/dev/null`
+  pkg_cv_LIBNOTIFY_CFLAGS=`$PKG_CONFIG --cflags "libnotify < 0.7" 2>/dev/null`
 else
   pkg_failed=yes
 fi
@@ -14871,12 +14871,12 @@ if test -n "$LIBNOTIFY_LIBS"; then
     pkg_cv_LIBNOTIFY_LIBS="$LIBNOTIFY_LIBS"
  elif test -n "$PKG_CONFIG"; then
     if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libnotify\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "libnotify") 2>&5
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libnotify < 0.7\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libnotify < 0.7") 2>&5
   ac_status=$?
   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
-  pkg_cv_LIBNOTIFY_LIBS=`$PKG_CONFIG --libs "libnotify" 2>/dev/null`
+  pkg_cv_LIBNOTIFY_LIBS=`$PKG_CONFIG --libs "libnotify < 0.7" 2>/dev/null`
 else
   pkg_failed=yes
 fi
@@ -14896,35 +14896,229 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        LIBNOTIFY_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors "libnotify" 2>&1`
+	        LIBNOTIFY_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors "libnotify < 0.7" 2>&1`
         else
-	        LIBNOTIFY_PKG_ERRORS=`$PKG_CONFIG --print-errors "libnotify" 2>&1`
+	        LIBNOTIFY_PKG_ERRORS=`$PKG_CONFIG --print-errors "libnotify < 0.7" 2>&1`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$LIBNOTIFY_PKG_ERRORS" >&5
 
 
-			echo ""
-			echo "configure: error: "
-			echo "libnotify development headers not found."
-			echo "Use --disable-libnotify if you do not need it."
-			echo "If you're using debian or ubuntu,install it by "
-			echo "\"sudo apt-get install libnotify-dev\""
-			echo ""
-			exit -1
+
+pkg_failed=no
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for LIBNOTIFY" >&5
+$as_echo_n "checking for LIBNOTIFY... " >&6; }
+
+if test -n "$LIBNOTIFY_CFLAGS"; then
+    pkg_cv_LIBNOTIFY_CFLAGS="$LIBNOTIFY_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libnotify >= 0.7\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libnotify >= 0.7") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_LIBNOTIFY_CFLAGS=`$PKG_CONFIG --cflags "libnotify >= 0.7" 2>/dev/null`
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$LIBNOTIFY_LIBS"; then
+    pkg_cv_LIBNOTIFY_LIBS="$LIBNOTIFY_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libnotify >= 0.7\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libnotify >= 0.7") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_LIBNOTIFY_LIBS=`$PKG_CONFIG --libs "libnotify >= 0.7" 2>/dev/null`
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        LIBNOTIFY_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors "libnotify >= 0.7" 2>&1`
+        else
+	        LIBNOTIFY_PKG_ERRORS=`$PKG_CONFIG --print-errors "libnotify >= 0.7" 2>&1`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$LIBNOTIFY_PKG_ERRORS" >&5
+
+	as_fn_error $? "Package requirements (libnotify >= 0.7) were not met:
+
+$LIBNOTIFY_PKG_ERRORS
+
+Consider adjusting the PKG_CONFIG_PATH environment variable if you
+installed software in a non-standard prefix.
+
+Alternatively, you may set the environment variables LIBNOTIFY_CFLAGS
+and LIBNOTIFY_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details." "$LINENO" 5
+elif test $pkg_failed = untried; then
+     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	{ { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "The pkg-config script could not be found or is too old.  Make sure it
+is in your PATH or set the PKG_CONFIG environment variable to the full
+path to pkg-config.
+
+Alternatively, you may set the environment variables LIBNOTIFY_CFLAGS
+and LIBNOTIFY_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details.
+
+To get pkg-config, see <http://pkg-config.freedesktop.org/>.
+See \`config.log' for more details" "$LINENO" 5 ; }
+else
+	LIBNOTIFY_CFLAGS=$pkg_cv_LIBNOTIFY_CFLAGS
+	LIBNOTIFY_LIBS=$pkg_cv_LIBNOTIFY_LIBS
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+
+
+$as_echo "#define USE_LIBNOTIFY 1" >>confdefs.h
+
+
+
+
+
+						echo ""
+						echo "configure: error: "
+						echo "libnotify development headers not found."
+						echo "Use --disable-libnotify if you do not need it."
+						echo "If you're using debian or ubuntu,install it by "
+						echo "\"sudo apt-get install libnotify-dev\""
+						echo ""
+						exit -1
+
+fi
 
 elif test $pkg_failed = untried; then
      	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
 
-			echo ""
-			echo "configure: error: "
-			echo "libnotify development headers not found."
-			echo "Use --disable-libnotify if you do not need it."
-			echo "If you're using debian or ubuntu,install it by "
-			echo "\"sudo apt-get install libnotify-dev\""
-			echo ""
-			exit -1
+
+pkg_failed=no
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for LIBNOTIFY" >&5
+$as_echo_n "checking for LIBNOTIFY... " >&6; }
+
+if test -n "$LIBNOTIFY_CFLAGS"; then
+    pkg_cv_LIBNOTIFY_CFLAGS="$LIBNOTIFY_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libnotify >= 0.7\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libnotify >= 0.7") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_LIBNOTIFY_CFLAGS=`$PKG_CONFIG --cflags "libnotify >= 0.7" 2>/dev/null`
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$LIBNOTIFY_LIBS"; then
+    pkg_cv_LIBNOTIFY_LIBS="$LIBNOTIFY_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libnotify >= 0.7\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libnotify >= 0.7") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_LIBNOTIFY_LIBS=`$PKG_CONFIG --libs "libnotify >= 0.7" 2>/dev/null`
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        LIBNOTIFY_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors "libnotify >= 0.7" 2>&1`
+        else
+	        LIBNOTIFY_PKG_ERRORS=`$PKG_CONFIG --print-errors "libnotify >= 0.7" 2>&1`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$LIBNOTIFY_PKG_ERRORS" >&5
+
+	as_fn_error $? "Package requirements (libnotify >= 0.7) were not met:
+
+$LIBNOTIFY_PKG_ERRORS
+
+Consider adjusting the PKG_CONFIG_PATH environment variable if you
+installed software in a non-standard prefix.
+
+Alternatively, you may set the environment variables LIBNOTIFY_CFLAGS
+and LIBNOTIFY_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details." "$LINENO" 5
+elif test $pkg_failed = untried; then
+     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	{ { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "The pkg-config script could not be found or is too old.  Make sure it
+is in your PATH or set the PKG_CONFIG environment variable to the full
+path to pkg-config.
+
+Alternatively, you may set the environment variables LIBNOTIFY_CFLAGS
+and LIBNOTIFY_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details.
+
+To get pkg-config, see <http://pkg-config.freedesktop.org/>.
+See \`config.log' for more details" "$LINENO" 5 ; }
+else
+	LIBNOTIFY_CFLAGS=$pkg_cv_LIBNOTIFY_CFLAGS
+	LIBNOTIFY_LIBS=$pkg_cv_LIBNOTIFY_LIBS
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+
+
+$as_echo "#define USE_LIBNOTIFY 1" >>confdefs.h
+
+
+
+
+
+						echo ""
+						echo "configure: error: "
+						echo "libnotify development headers not found."
+						echo "Use --disable-libnotify if you do not need it."
+						echo "If you're using debian or ubuntu,install it by "
+						echo "\"sudo apt-get install libnotify-dev\""
+						echo ""
+						exit -1
+
+fi
 
 else
 	LIBNOTIFY_CFLAGS=$pkg_cv_LIBNOTIFY_CFLAGS
@@ -14934,6 +15128,9 @@ $as_echo "yes" >&6; }
 
 
 $as_echo "#define USE_LIBNOTIFY 1" >>confdefs.h
+
+
+$as_echo "#define LIBNOTIFY_OLD 1" >>confdefs.h
 
 
 

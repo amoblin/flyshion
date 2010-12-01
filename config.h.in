@@ -137,6 +137,9 @@
 /* Define to 1 if `vfork' works. */
 #undef HAVE_WORKING_VFORK
 
+/* Use 0.5 or older version of libnotify for notification */
+#undef LIBNOTIFY_OLD
+
 /* Define to the sub-directory in which libtool stores uninstalled libraries.
    */
 #undef LT_OBJDIR

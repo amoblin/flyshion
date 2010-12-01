@@ -124,7 +124,11 @@ void fx_main_initialize(FxMain* fxmain)
 			SKIN_DIR"offline.svg");
 	gtk_status_icon_set_tooltip(fxmain->trayIcon, "OpenFetion");
 #ifdef USE_LIBNOTIFY
-	fxmain->notify = notify_notification_new("welcome", "", SKIN_DIR"offline.svg", NULL);
+	#ifdef LIBNOTIFY_OLD
+		fxmain->notify = notify_notification_new("welcome", "", SKIN_DIR"offline.svg", NULL);
+	#else
+		fxmain->notify = notify_notification_new("welcome", "", SKIN_DIR"offline.svg");
+	#endif
 	notify_notification_set_timeout(fxmain->notify , 2500);
 #endif
 
