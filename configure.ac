@@ -126,18 +126,17 @@ fi
 
 # checks for libnotify
 if test "x$enable_libnotify" = "xyes"; then
-PKG_CHECK_MODULES(LIBNOTIFY, [libnotify < 0.7], [
+PKG_CHECK_MODULES(LIBNOTIFY, [libnotify >= 0.7], [
 			AC_DEFINE(USE_LIBNOTIFY, 1, [Use libnotify for notification])
-			AC_DEFINE(LIBNOTIFY_OLD, 1, [Use 0.5 or older version of libnotify for notification])
 			AC_SUBST(LIBNOTIFY_CFLAGS)
 			AC_SUBST(LIBNOTIFY_LIBS)
 		] , [
-				PKG_CHECK_MODULES(LIBNOTIFY, [libnotify >= 0.7], [
+				PKG_CHECK_MODULES(LIBNOTIFY, [libnotify < 0.7], [
 						AC_DEFINE(USE_LIBNOTIFY, 1, [Use libnotify for notification])
+						AC_DEFINE(LIBNOTIFY_OLD, 1, [Use 0.5 or older version of libnotify for notification])
 						AC_SUBST(LIBNOTIFY_CFLAGS)
 						AC_SUBST(LIBNOTIFY_LIBS)
-					]
-					[
+					], [
 						echo ""
 						echo "configure: error: "
 						echo "libnotify development headers not found."
