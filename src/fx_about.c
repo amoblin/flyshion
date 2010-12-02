@@ -227,16 +227,19 @@ static void create_gpl(GtkTextView *view)
 {
 	GtkTextTag    *tag;
 	GtkTextIter    iter;
-	FILE          *fd;
-	char           buf[BUFLEN];
+	char           *buf1 = N_("This program is free software; you can redistribute it and/or modify "
+				"it under the terms of the GNU General Public License as published by "
+				"the Free Software Foundation; either version 2 of the License, or "
+				"(at your option) any later version.\n\n");
+	char           *buf2 = N_("This program is distributed in the hope that it will be useful, "
+				"but WITHOUT ANY WARRANTY; without even the implied warranty of "
+				"MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the "
+				"GNU General Public License for more details.\n\n");
+	char           *buf3 = N_("You should have received a copy of the GNU General Public License "
+				"along with this program; if not, see \n<http://www.gnu.org/licenses/gpl-2.0.txt>.\n");
 
-	fd = fopen(RESOURCE_DIR"license.txt", "r");
-	if(!fd){
-		perror("read license.txt failed");
-		return;
-	}
-
-	gtk_text_view_set_editable(view,FALSE);
+	gtk_text_view_set_editable(view, FALSE);
+	gtk_text_view_set_wrap_mode(view, GTK_WRAP_WORD);
 	g_signal_connect (view, "motion-notify-event", 
 			G_CALLBACK (motion_notify_event), NULL);
 
@@ -249,13 +252,10 @@ static void create_gpl(GtkTextView *view)
 
 	gtk_text_buffer_get_start_iter(buffer, &iter);
   
-	memset(buf, 0, sizeof(buf));
-	while(fgets(buf, sizeof(buf), fd)){
-		gtk_text_buffer_insert_with_tags(buffer, &iter,
-		   		buf, -1, tag, NULL);
-		memset(buf, 0, sizeof(buf));
-	}
-	fclose(fd);
+	gtk_text_buffer_insert_with_tags(buffer, &iter, _(buf1), -1, tag, NULL);
+	gtk_text_buffer_insert_with_tags(buffer, &iter, _(buf2), -1, tag, NULL);
+	gtk_text_buffer_insert_with_tags(buffer, &iter, _(buf3), -1, tag, NULL);
+	
 }
 
 static void create_contri(GtkTextView *view)

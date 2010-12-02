@@ -455,8 +455,10 @@ char* generate_aes_key()
 	int ret = fread(key, 64, 1, rand_fd);
 	if(ret != 1){
 		free(key);
+		fclose(rand_fd);
 		return NULL;
 	}
+	fclose(rand_fd);
 	return key;
 }
 static char* generate_auth_body(User* user)
