@@ -35,9 +35,13 @@ const char* global_ssi_uri = "https://uid.fetion.com.cn/ssiportal/SSIAppSignInV4
 int tcp_keep_alive(int socketfd)
 {
 	int keepAlive = 1;
-#ifdef OS_LINUX
+#ifdef TCP_KEEPIDEL
 	int keepIdle = 10;
+#endif
+#ifdef TCP_KEEPINTVL
 	int keepInterval = 10;
+#endif
+#ifdef TCP_KEEPCNT
 	int keepCount = 10;
 #endif
 
@@ -47,19 +51,23 @@ int tcp_keep_alive(int socketfd)
 		return -1;
 	}
 
-#ifdef OS_LINUX
+#ifdef TCP_KEEPIDEL
 	if(setsockopt(socketfd , SOL_TCP , TCP_KEEPIDLE 
 				,(void *)&keepIdle,sizeof(keepIdle)) == -1){
 		debug_info("set TCP_KEEPIDEL failed\n");
 		return -1;
 	}
+#endif
 
+#ifdef TCP_KEEPINTVL
 	if(setsockopt(socketfd , SOL_TCP , TCP_KEEPINTVL
 				,(void *)&keepInterval,sizeof(keepInterval)) == -1){
 		debug_info("set TCP_KEEPINTVL failed\n");
 		return -1;
 	}
+#endif
 
+#ifdef TCP_KEEPCNF
 	if(setsockopt(socketfd , SOL_TCP , TCP_KEEPCNT
 				,(void *)&keepCount,sizeof(keepCount)) == -1){
 		debug_info("set TCP_KEEPCNT failed\n");
