@@ -22,6 +22,7 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
+#include <sys/socket.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <arpa/inet.h>
@@ -34,9 +35,11 @@ const char* global_ssi_uri = "https://uid.fetion.com.cn/ssiportal/SSIAppSignInV4
 int tcp_keep_alive(int socketfd)
 {
 	int keepAlive = 1;
+#ifdef OS_LINUX
 	int keepIdle = 10;
 	int keepInterval = 10;
 	int keepCount = 10;
+#endif
 
 	if(setsockopt(socketfd , SOL_SOCKET , SO_KEEPALIVE 
 				,(void*)&keepAlive,sizeof(keepAlive)) == -1){
@@ -44,6 +47,7 @@ int tcp_keep_alive(int socketfd)
 		return -1;
 	}
 
+#ifdef OS_LINUX
 	if(setsockopt(socketfd , SOL_TCP , TCP_KEEPIDLE 
 				,(void *)&keepIdle,sizeof(keepIdle)) == -1){
 		debug_info("set TCP_KEEPIDEL failed\n");
@@ -61,6 +65,7 @@ int tcp_keep_alive(int socketfd)
 		debug_info("set TCP_KEEPCNT failed\n");
 		return -1;
 	}
+#endif
 	return 1;
 }
 
