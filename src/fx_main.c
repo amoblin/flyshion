@@ -1090,6 +1090,7 @@ gboolean fx_main_delete(GtkWidget *widget , GdkEvent *UNUSED(event) , gpointer d
 	}
 	return FALSE;
 }
+
 gboolean fx_main_window_state_func(GtkWidget *widget
 		, GdkEventWindowState *event , gpointer data)
 {
@@ -1114,6 +1115,7 @@ gboolean fx_main_window_state_func(GtkWidget *widget
 	}
 	return FALSE;
 }
+
 void fx_main_tray_activate_func(GtkWidget *UNUSED(widget) , gpointer data)
 {
 	FxMain *fxmain;
@@ -1848,6 +1850,7 @@ static void fx_main_process_pgpresencechanged(FxMain *fxmain , const char *sipms
 static gboolean key_press_func(GtkWidget *widget , GdkEventKey *event
 		, gpointer data)
 {
+
 	if(event->keyval == GDK_w){
 		if(event->state & GDK_CONTROL_MASK){
 			gtk_window_iconify(GTK_WINDOW(widget));
@@ -1857,7 +1860,11 @@ static gboolean key_press_func(GtkWidget *widget , GdkEventKey *event
 		}
 	}
 	if(event->keyval == GDK_q){
-		if(event->state & GDK_CONTROL_MASK){
+		if(event->state & GDK_CONTROL_MASK) {
+			fx_main_delete(widget , NULL , data);
+			return TRUE;
+		} else if (event->state == GDK_MOD1_MASK) {
+			/* press `command-q` to quit on Mac OS X */
 			fx_main_delete(widget , NULL , data);
 			return TRUE;
 		}else{
