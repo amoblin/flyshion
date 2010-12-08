@@ -1533,7 +1533,7 @@ static void fx_tree_on_movemenu_clicked(GtkWidget* UNUSED(widget) , gpointer dat
 	gint           gid , oldOnlineCount , oldAllCount , newOnlineCount , newAllCount;
 	GdkPixbuf     *pb = NULL;
 
-	if(fetion_contact_move_to_group(fxmain->user , userid , groupid) > 0)
+	if(fetion_contact_move_to_group(fxmain->user , userid , groupid) == 0)
 	{
 		gtk_tree_model_get_iter_root(model , &parentIter);
 		do

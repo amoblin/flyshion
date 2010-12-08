@@ -41,6 +41,9 @@ static int has_special_word(const char *in);
 Contact* fetion_contact_new()
 {
 	Contact* list = (Contact*)malloc(sizeof(Contact));
+	if(list == NULL){
+		return NULL;
+	}
 	memset(list , 0 , sizeof(Contact));
 	list->imageChanged = IMAGE_NOT_INITIALIZED;
 	list->state = P_HIDDEN;
@@ -120,14 +123,26 @@ int fetion_contact_subscribe_only(User* user)
 	sip = user->sip;
 	fetion_sip_set_type(sip , SIP_SUBSCRIPTION);
 	eheader = fetion_sip_event_header_new(SIP_EVENT_PRESENCE);
+	if(eheader == NULL){
+		return -1;
+	}
 	fetion_sip_add_header(sip , eheader);
 	body = generate_subscribe_body("0");
+	if(body == NULL){
+		free(eheader);
+		return -1;
+	}
 	res = fetion_sip_to_string(sip , body);
+	if(res == NULL){
+		free(eheader);
+		free(body);
+		return -1;
+	}
 	free(body);
 	debug_info("Start subscribe contact list");
 	tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
-	return 1;
+	return 0;
 }
 Contact* fetion_contact_get_contact_info(User* user , const char* userid)
 {
@@ -140,20 +155,34 @@ Contact* fetion_contact_get_contact_info(User* user , const char* userid)
 	xmlNodePtr node;
 	contact = fetion_contact_list_find_by_userid(user->contactList , userid);
 	body = generate_contact_info_body(userid);
+	if(body == NULL){
+		return NULL;
+	}
 	fetion_sip_set_type(sip , SIP_SERVICE);
 	SipHeader* eheader = fetion_sip_event_header_new(SIP_EVENT_GETCONTACTINFO);
+	if(eheader == NULL){
+		free(body);
+		return NULL;
+	}
 	fetion_sip_add_header(sip , eheader);
 	res = fetion_sip_to_string(sip , body);
+	free(body);
+	if(res == NULL){	
+		free(res);
+		return NULL;
+	}
 	tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
 	res = fetion_sip_get_response(sip);
-	if(res == NULL)
+	if(res == NULL){
 		return NULL;
+	}
 
 	pos = strstr(res , "\r\n\r\n") + 4;
 	doc = xmlParseMemory(pos , strlen(pos));
-	if(!doc)
+	if(!doc){
 		return NULL;
+	}
 	node = xmlDocGetRootElement(doc);
 	node = node->xmlChildrenNode;
 	if(xmlHasProp(node , BAD_CAST "carrier-region")){
@@ -205,19 +234,32 @@ Contact* fetion_contact_get_contact_info_by_no(User* user , const char* no , Num
 	int ret;
 	fetion_sip_set_type(sip , SIP_SERVICE);
 	eheader = fetion_sip_event_header_new(SIP_EVENT_GETCONTACTINFO);
+	if(eheader == NULL){
+		return NULL;
+	}
 	fetion_sip_add_header(sip , eheader);
 	body = generate_contact_info_by_no_body(no , nt);
+	if(body == NULL){
+		return NULL;
+	}
 	res = fetion_sip_to_string(sip , body);
 	free(body);
+	if(res == NULL){
+		return NULL;
+	}
 	ret = tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res); res = NULL; 
 	if(ret < 0)
 		return NULL;
 
 	res = fetion_sip_get_response(sip);
+	if(res == NULL){
+		return NULL;
+	}
 	ret = fetion_sip_get_code(res);
+	
 	if(ret == 200){
-		contact = parse_contact_info_by_no_response(res);
+ 		contact = parse_contact_info_by_no_response(res);
 		free(res);
 		debug_info("Get user information by mobile number success");
 		return contact;
@@ -235,28 +277,39 @@ int fetion_contact_set_mobileno_permission(User* user , const char* userid , int
 	int ret;
 	fetion_sip_set_type(sip , SIP_SERVICE);
 	eheader = fetion_sip_event_header_new(SIP_EVENT_SETCONTACTINFO);
+	if(eheader == NULL){
+		return -1;
+	}
 	fetion_sip_add_header(sip , eheader);
 	body = generate_set_mobileno_perssion(userid , show);
+	if(body == NULL){
+		return -1;
+	}
 	res = fetion_sip_to_string(sip , body);
 	free(body);
+	if(res == NULL){
+		return -1;
+	}
 	ret = tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res) ; 
 	if(ret < 0)
 		return -1;
 
 	res = fetion_sip_get_response(sip);
+	if(res == NULL){
+		return -1;
+	}
 	ret = fetion_sip_get_code(res);
 	if(ret == 200){
 		parse_set_mobileno_permission_response(user , res);
 		free(res);
 		debug_info("Get user information by mobile number success");
-		return 1;
+		return 0;
 	}else{
 		free(res);
 		debug_error("Get user information by mobile number failed , errno :" , ret);
 		return -1;
-	}
-
+ 	}
 }
 int fetion_contact_set_displayname(User* user , const char* userid , const char* name)
 {
@@ -266,21 +319,33 @@ int fetion_contact_set_displayname(User* user , const char* userid , const char*
 	int ret;
 	fetion_sip_set_type(sip , SIP_SERVICE);
 	eheader = fetion_sip_event_header_new(SIP_EVENT_SETCONTACTINFO);
+	if(eheader == NULL){
+		return -1;
+	}
 	fetion_sip_add_header(sip , eheader);
 	body = generate_set_displayname_body(userid , name);
+	if(body == NULL){
+		return -1;
+	}
 	res = fetion_sip_to_string(sip , body);
 	free(body);
+	if(res == NULL){
+		return -1;
+	}
 	ret = tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
 	if(ret < 0)
 		return -1;
 	res = fetion_sip_get_response(sip);
+	if(res == NULL){
+		return -1;
+	}
 	ret = fetion_sip_get_code(res);
 	free(res);
 
 	if(ret == 200){
 		debug_info("Set buddy(%s)`s localname to %s success" , userid , name);
-		return 1;
+		return 0;
 	}else{
 		debug_info("Set buddy(%s)`s localname to %s failed" , userid , name);
 		return -1;
@@ -294,10 +359,19 @@ int fetion_contact_move_to_group(User* user , const char* userid , int buddylist
 	int ret;
 	fetion_sip_set_type(sip , SIP_SERVICE);
 	eheader = fetion_sip_event_header_new(SIP_EVENT_SETCONTACTINFO);
+	if(eheader == NULL){
+		return -1;
+	}
 	fetion_sip_add_header(sip , eheader);
 	body = generate_move_to_group_body(userid , buddylist);
+	if(body == NULL){
+		return -1;
+	}
 	res = fetion_sip_to_string(sip , body);
 	free(body);
+	if(res == NULL){
+		return -1;
+	}
 	ret = tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
 
@@ -305,12 +379,15 @@ int fetion_contact_move_to_group(User* user , const char* userid , int buddylist
 		return -1;
 
 	res = fetion_sip_get_response(sip);
+	if(res == NULL){
+		return -1;
+	}
 	ret = fetion_sip_get_code(res);
 	free(res);
 
 	if(ret == 200){
 		debug_info("Move buddy(%s) to group %d success" , userid , buddylist);
-		return 1;
+		return 0;
 	}else{
 		debug_info("Move buddy(%s) to group %d failed" , userid , buddylist);
 		return -1;
@@ -324,10 +401,19 @@ int fetion_contact_delete_buddy(User* user , const char* userid)
 	int ret;
 	fetion_sip_set_type(sip , SIP_SERVICE);
 	eheader = fetion_sip_event_header_new(SIP_EVENT_DELETEBUDDY);
+	if(eheader == NULL){
+		return -1;
+	}
 	fetion_sip_add_header(sip , eheader);
 	body = generate_delete_buddy_body(userid);
+	if(body == NULL){
+		return -1;
+	}
 	res = fetion_sip_to_string(sip , body);
 	free(body);
+	if(res == NULL){
+		return -1;
+	}
 #if 0
 	if(fetion_contact_del_localbuddy(user, userid) == -1)
 		return -1;
@@ -340,13 +426,16 @@ int fetion_contact_delete_buddy(User* user , const char* userid)
 		return -1;
 
 	res = fetion_sip_get_response(sip);
+	if(res == NULL){
+		return -1;
+	}
 	ret = fetion_sip_get_code(res);
 	free(res);
 
 	if(ret == 200){
 		fetion_contact_list_remove_by_userid(user->contactList , userid);
 		debug_info("Delete buddy(%s) success" , userid);
-		return 1;
+		return 0;
 	}else{
 		debug_info("Delete buddy(%s) failed" , userid);
 		return -1;
@@ -366,6 +455,9 @@ Contact* fetion_contact_add_buddy(User* user , const char* no
 	Contact* contact;
 	fetion_sip_set_type(sip , SIP_SERVICE);
 	eheader = fetion_sip_event_header_new(SIP_EVENT_ADDBUDDY);
+	if(eheader == NULL){
+		return NULL;
+	}
 	fetion_sip_add_header(sip , eheader);
 	if(user->verification != NULL && user->verification->algorithm != NULL)	
 	{
@@ -373,17 +465,30 @@ Contact* fetion_contact_add_buddy(User* user , const char* no
 											, user->verification->algorithm
 											, user->verification->type
 											, user->verification->guid);
+		if(ackheader == NULL){
+			return NULL;
+		}
 		fetion_sip_add_header(sip , ackheader);
 	}
 	body = generate_add_buddy_body(no , notype , buddylist , localname , desc , phraseid);
+	if(body == NULL){
+		return NULL;
+	}
 
 	res = fetion_sip_to_string(sip , body);
 	free(body);
+	if(res == NULL){
+		return NULL;
+	}
 	tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
 	res = fetion_sip_get_response(sip);
+	if(res == NULL){
+		return NULL;
+	}
 	ret = fetion_sip_get_code(res);
 	*statuscode = ret;
+	int rtv;
 	switch(ret)
 	{
 		case 200 :
@@ -391,12 +496,21 @@ Contact* fetion_contact_add_buddy(User* user , const char* no
 			fetion_verification_free(user->verification);
 			user->verification = NULL;
 			free(res);
+			if(contact == NULL){
+				debug_info("Add buddy(%s) failed" , no);
+				return NULL;
+			}
 			fetion_contact_list_append(user->contactList , contact);
 			debug_info("Add buddy(%s) success" , no);
 			return contact;
 		case 421 : 
 		case 420 :
-			parse_add_buddy_verification(user , res);
+			rtv = parse_add_buddy_verification(user , res);
+			free(res);
+			if(rtv != 0){
+				debug_info("Add buddy(%s) falied , need verification, but parse error" , no);
+				return NULL;
+			}
 			debug_info("Add buddy(%s) falied , need verification" , no);
 			return NULL;
 		default:
@@ -417,19 +531,35 @@ Contact* fetion_contact_handle_contact_request(User* user
 	Contact* contact;
 	fetion_sip_set_type(sip , SIP_SERVICE);
 	eheader = fetion_sip_event_header_new(SIP_EVENT_HANDLECONTACTREQUEST);
+	if(eheader == NULL){
+		return NULL;
+	}
 	fetion_sip_add_header(sip , eheader);
 	body = generate_handle_contact_request_body(sipuri , userid , localname , buddylist , result);
+	if(body == NULL){
+		return NULL;
+	}
 	res = fetion_sip_to_string(sip , body);
 	free(body);
+	if(res == NULL){
+		return NULL;
+	}
 	tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
 	res = fetion_sip_get_response(sip);
+	if(res == NULL){
+		return NULL;
+	}
 	ret = fetion_sip_get_code(res);
 	switch(ret)
 	{
 		case 200 :
 			contact = parse_handle_contact_request_response(res);
 			free(res);
+			if(contact == NULL){
+				debug_info("handle contact request from (%s) failed" , userid);
+				return NULL;
+			}
 			fetion_contact_list_append(user->contactList , contact);
 			debug_info("handle contact request from (%s) success" , userid);
 			return contact;
@@ -649,7 +779,7 @@ void parse_set_displayname_response(User* user , const char* userid , const char
 	xmlFree(res);
 	xmlFreeDoc(doc);
 }
-void parse_set_mobileno_permission_response(User* user , const char* sipmsg)
+int parse_set_mobileno_permission_response(User* user , const char* sipmsg)
 {
 	char *pos;
 	xmlChar* res;
@@ -664,6 +794,7 @@ void parse_set_mobileno_permission_response(User* user , const char* sipmsg)
 	strcpy(user->contactVersion , (char*)res);
 	xmlFree(res);
 	xmlFreeDoc(doc);
+	return 0;
 }
 Contact* parse_contact_info_by_no_response(const char* sipmsg)
 {
@@ -865,7 +996,7 @@ Contact* parse_handle_contact_request_response(const char* sipmsg)
 	xmlFreeDoc(doc);
 	return contact;
 }
-void parse_add_buddy_verification(User* user , const char* str)
+int parse_add_buddy_verification(User* user , const char* str)
 {
 	char* xml = NULL;
 	char w[128];
@@ -908,6 +1039,7 @@ void parse_add_buddy_verification(User* user , const char* str)
 	strncpy(ver->tips , (char*)res , n - 1);
 	xmlFree(res);
 	user->verification = ver;
+	return 0;
 }
 
 void fetion_contact_load(User *user, int *gcount, int *bcount)
@@ -1171,7 +1303,7 @@ int fetion_contact_del_localbuddy(User *user, const char *userid)
 		debug_error("failed to delete localbuddy:%s",sqlite3_errmsg(db));
 		return -1;
 	}
-	return 1;
+	return 0;
 }
 
 int fetion_contact_del_localgroup(User *user, const char *userid)
@@ -1193,7 +1325,7 @@ int fetion_contact_del_localgroup(User *user, const char *userid)
 		debug_error("failed to delete localgroup:%s",sqlite3_errmsg(db));
 		return -1;
 	}
-	return 1;
+	return 0;
 }
 
 static int has_special_word(const char *in)

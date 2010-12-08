@@ -164,11 +164,11 @@ extern Contact* fetion_contact_handle_contact_request(User* user, const char* si
 
 extern void parse_set_displayname_response(User* user , const char* userid , const char* sipmsg);
 
-extern void parse_set_mobileno_permission_response(User* user , const char* sipmsg);
+extern int parse_set_mobileno_permission_response(User* user , const char* sipmsg);
 
 extern Contact* parse_contact_info_by_no_response(const char* sipmsg);
 
-extern void parse_add_buddy_verification(User* user , const char* str);
+extern int parse_add_buddy_verification(User* user , const char* str);
 
 extern void fetion_contact_load(User *user, int *gcount, int *bcount);
 
