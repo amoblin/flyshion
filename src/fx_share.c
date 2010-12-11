@@ -33,7 +33,7 @@ FxShare *fx_share_new(FxMain *fxmain , const char *sipuri)
 	FxShare *fxshare = (FxShare*)malloc(sizeof(FxShare));
 	User *user = fxmain->user;
 
-	DEBUG_FOOTPRINT();
+// 	DEBUG_FOOTPRINT();
 
 	memset(fxshare , 0 , sizeof(FxShare));
 
@@ -56,7 +56,7 @@ void fx_share_initialize(FxShare *fxshare)
 	GdkPixbuf *pb;
 	char text[1024];
 
-	DEBUG_FOOTPRINT();
+// 	DEBUG_FOOTPRINT();
 
 	fxshare->dialog = gtk_dialog_new();
 
@@ -109,7 +109,7 @@ FxShare *fx_share_find_by_sipuri(FxList *fxlist , const char *sipuri)
 	FxShare *fxshare;
 	FxList *pos = fxlist;
 
-	DEBUG_FOOTPRINT();
+// 	DEBUG_FOOTPRINT();
 
 	while(pos != NULL){
 		fxshare = (FxShare*)(pos->data);
@@ -135,7 +135,7 @@ void fx_share_start_transfer(FxShare *fxshare)
 	unsigned char buf[1024];
 	int i;
 
-	DEBUG_FOOTPRINT();
+// 	DEBUG_FOOTPRINT();
 
 	gtk_label_set_markup(GTK_LABEL(fxshare->iLabel)
 			, _("<span color='#838383'>Contact acccept your request of transporting files. Transporting...</span>"));
