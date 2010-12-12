@@ -17,6 +17,9 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #ifndef OPENFETION_H
 #define OPENFETION_H
@@ -54,4 +57,8 @@
 #include <fetion_share.h>
 #include <fetion_directsms.h>
 #include <fetion_group.h>
+#endif
+
+#ifdef __cplusplus
+}
 #endif
