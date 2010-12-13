@@ -139,10 +139,10 @@ static void create_intro(GtkTextView *view)
 	GtkTextIter    iter;
 	const char title[] = N_("Openfetion "FETION_VERSION"\n\n");
 	const char intro[] = N_("OpenFetion is a Fetion client for linux based on GTK+2.0, "
-						"implementing Fetion Protocol Version 4.\n\n"
-						"It supports most features of Fetion. \n\n"
-						"What's more, it's lightweight and efficient with intuitive interface.\n\n"
-						"Project homepage: ");
+				"implementing Fetion Protocol Version 4.\n"
+				"It supports most features of Fetion. \n"
+				"What's more, it's lightweight and efficient with intuitive interface.\n\n"
+				"Project homepage: ");
 
 	gtk_text_view_set_editable(view,FALSE);
 	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(view), GTK_WRAP_WORD_CHAR);
@@ -170,10 +170,14 @@ static void create_intro(GtkTextView *view)
 	gtk_text_buffer_insert_with_tags(buffer, &iter,
 		   	title, -1, tag, NULL);
 	gtk_text_buffer_insert_with_tags(buffer, &iter,
-		   	intro, -1, tag1, NULL);
+		   	_(intro), -1, tag1, NULL);
 	insert_link(buffer, &iter, "http://code.google.com/p/ofetion/");
 	gtk_text_buffer_insert_with_tags(buffer, &iter,
-		   	_("\nPage on author's blog: "), -1, tag1, NULL);
+		   	_("\nBug report: "), -1, tag1, NULL);
+	insert_link(buffer, &iter, "http://code.google.com/p/ofetion/issues/");
+	
+	gtk_text_buffer_insert_with_tags(buffer, &iter,
+		   	_("\n\nPage on author's blog: "), -1, tag1, NULL);
 	insert_link(buffer, &iter, "http://basiccoder.com/openfetion");
 }
 
@@ -236,7 +240,7 @@ static void create_gpl(GtkTextView *view)
 				"MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the "
 				"GNU General Public License for more details.\n\n");
 	char           *buf3 = N_("You should have received a copy of the GNU General Public License "
-				"along with this program; if not, see \n<http://www.gnu.org/licenses/gpl-2.0.txt>.\n");
+				"along with this program; if not, see \n");
 
 	gtk_text_view_set_editable(view, FALSE);
 	gtk_text_view_set_wrap_mode(view, GTK_WRAP_WORD);
@@ -255,7 +259,7 @@ static void create_gpl(GtkTextView *view)
 	gtk_text_buffer_insert_with_tags(buffer, &iter, _(buf1), -1, tag, NULL);
 	gtk_text_buffer_insert_with_tags(buffer, &iter, _(buf2), -1, tag, NULL);
 	gtk_text_buffer_insert_with_tags(buffer, &iter, _(buf3), -1, tag, NULL);
-	
+	insert_link(buffer, &iter, "http://www.gnu.org/licenses/gpl-2.0.txt");
 }
 
 static void create_contri(GtkTextView *view)

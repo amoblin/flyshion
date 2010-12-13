@@ -7,8 +7,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenFetion\n"
-"Report-Msgid-Bugs-To: http://basiccoder.com/openfetion\n"
-"POT-Creation-Date: 2010-11-30 13:21+0800\n"
+"Report-Msgid-Bugs-To: http://code.google.com/p/ofetion/issues/list\n"
+"POT-Creation-Date: 2010-12-13 15:11+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,13 +17,34 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: src/fx_about.c:140
+msgid "Openfetion "
+msgstr ""
+
+#: src/fx_about.c:141
+msgid ""
+"OpenFetion is a Fetion client for linux based on GTK+2.0, implementing "
+"Fetion Protocol Version 4.\n"
+"It supports most features of Fetion. \n"
+"What's more, it's lightweight and efficient with intuitive interface.\n"
+"\n"
+"Project homepage: "
+msgstr ""
+
 #: src/fx_about.c:176
 msgid ""
+"\n"
+"Bug report: "
+msgstr ""
+
+#: src/fx_about.c:180
+msgid ""
+"\n"
 "\n"
 "Page on author's blog: "
 msgstr ""
 
-#: src/fx_about.c:186
+#: src/fx_about.c:190
 msgid ""
 "Graduate student at Beijing University of Post & Telecommunication.Love "
 "Linux,Love OpenSource.Started this project in order to help linux users "
@@ -32,27 +53,83 @@ msgid ""
 "Blog:"
 msgstr ""
 
-#: src/fx_about.c:362 src/fx_main.c:1228
+#: src/fx_about.c:234
+msgid ""
+"This program is free software; you can redistribute it and/or modify it "
+"under the terms of the GNU General Public License as published by the Free "
+"Software Foundation; either version 2 of the License, or (at your option) "
+"any later version.\n"
+"\n"
+msgstr ""
+
+#: src/fx_about.c:238
+msgid ""
+"This program is distributed in the hope that it will be useful, but WITHOUT "
+"ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or "
+"FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for "
+"more details.\n"
+"\n"
+msgstr ""
+
+#: src/fx_about.c:242
+msgid ""
+"You should have received a copy of the GNU General Public License along with "
+"this program; if not, see \n"
+msgstr ""
+
+#: src/fx_about.c:271
+msgid ""
+"The Main Contributors\n"
+"\n"
+msgstr ""
+
+#: src/fx_about.c:307
+msgid ""
+"Make deb package for debian/ubuntu users,maintainer of the PPA of "
+"openfetion.\n"
+"Blog:"
+msgstr ""
+
+#: src/fx_about.c:316
+msgid ""
+"Main translater of openfetion,accomplish the internationalisation(i18n) of "
+"openfetion"
+msgstr ""
+
+#: src/fx_about.c:323
+msgid ""
+"Contributed to the UI development,and fixed some bugs of the UI.\n"
+"Follow him:"
+msgstr ""
+
+#: src/fx_about.c:331
+msgid ""
+"A good designer,designed a logo and some icons for openfetion,and also "
+"contributed to the UI design.\n"
+"Follow him:"
+msgstr ""
+
+#: src/fx_about.c:366 src/fx_main.c:1233
 msgid "About OpenFetion"
 msgstr ""
 
-#: src/fx_about.c:375
+#: src/fx_about.c:379
 msgid "Introduction"
 msgstr ""
 
-#: src/fx_about.c:386
+#: src/fx_about.c:390
 msgid "About the author"
 msgstr ""
 
-#: src/fx_about.c:397
+#: src/fx_about.c:401
 msgid "Contributor"
 msgstr ""
 
-#: src/fx_about.c:408
+#: src/fx_about.c:412
 msgid "License"
 msgstr ""
 
-#: src/fx_about.c:421 src/fx_chat.c:563 src/fx_dsms.c:670 src/fx_history.c:146
+#: src/fx_about.c:425 src/fx_chat.c:563 src/fx_dsms.c:670 src/fx_history.c:146
 #: src/fx_many.c:477 src/fx_myself.c:184 src/fx_pggroup.c:206
 #: src/fx_sysmsg.c:76
 msgid "Close"
@@ -81,7 +158,7 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-#: src/fx_addbuddy.c:44 src/fx_bottom.c:95
+#: src/fx_addbuddy.c:44 src/fx_bottom.c:93
 msgid "Add Buddy"
 msgstr ""
 
@@ -166,32 +243,32 @@ msgstr ""
 msgid "Lookup failed, unknown identity, unknown reason"
 msgstr ""
 
-#: src/fx_bottom.c:87 src/fx_main.c:1294 src/fx_set.c:195
+#: src/fx_bottom.c:85 src/fx_main.c:1299 src/fx_set.c:195
 msgid "Personal Settings"
 msgstr ""
 
-#: src/fx_bottom.c:103
+#: src/fx_bottom.c:101
 msgid "Send a message to myself"
 msgstr ""
 
-#: src/fx_bottom.c:110 src/fx_main.c:1283
+#: src/fx_bottom.c:108 src/fx_main.c:1288
 msgid "SMS to many"
 msgstr ""
 
-#: src/fx_bottom.c:117 src/fx_dsms.c:540 src/fx_main.c:1285
+#: src/fx_bottom.c:115 src/fx_dsms.c:540 src/fx_main.c:1290
 msgid "SMS directly"
 msgstr ""
 
-#: src/fx_bottom.c:126
+#: src/fx_bottom.c:124
 msgid "Fetion Group"
 msgstr ""
 
-#: src/fx_bottom.c:131 src/fx_lookup.c:41
+#: src/fx_bottom.c:129 src/fx_lookup.c:41
 msgid "View information of any user (attribution etc)"
 msgstr ""
 
-#: src/fx_bottom.c:138
-msgid "Get help or give advice at Open Fetion homepage"
+#: src/fx_bottom.c:136
+msgid "Show OpenFetion About dialog"
 msgstr ""
 
 #: src/fx_chat.c:79
@@ -432,6 +509,14 @@ msgstr ""
 msgid "Login sucessful"
 msgstr ""
 
+#: src/fx_conn.c:485
+msgid "Ungrouped"
+msgstr ""
+
+#: src/fx_conn.c:493
+msgid "Strangers"
+msgstr ""
+
 #: src/fx_conn.c:612
 msgid ""
 "\n"
@@ -529,6 +614,215 @@ msgstr ""
 msgid "Please input note name:"
 msgstr ""
 
+#: src/fx_emotion.c:5
+msgid "Smile"
+msgstr ""
+
+#: src/fx_emotion.c:6
+msgid "Laugh"
+msgstr ""
+
+#: src/fx_emotion.c:7
+msgid "Wink"
+msgstr ""
+
+#: src/fx_emotion.c:8
+msgid "Surprised"
+msgstr ""
+
+#: src/fx_emotion.c:9
+msgid "Tongue smile"
+msgstr ""
+
+#: src/fx_emotion.c:10
+msgid "Warm smile"
+msgstr ""
+
+#: src/fx_emotion.c:11
+msgid "Angry"
+msgstr ""
+
+#: src/fx_emotion.c:12
+msgid "Sad"
+msgstr ""
+
+#: src/fx_emotion.c:13
+msgid "Cry"
+msgstr ""
+
+#: src/fx_emotion.c:14
+msgid "Awkward"
+msgstr ""
+
+#: src/fx_emotion.c:15
+msgid "Irony"
+msgstr ""
+
+#: src/fx_emotion.c:16
+msgid "Illed"
+msgstr ""
+
+#: src/fx_emotion.c:17
+msgid "Gritting my teeth"
+msgstr ""
+
+#: src/fx_emotion.c:18
+msgid "Tired"
+msgstr ""
+
+#: src/fx_emotion.c:19 src/fx_lookupres.c:48 src/fx_profile.c:174
+#: src/fx_set.c:421 src/fx_set.c:422 src/fx_set.c:532
+msgid "Secrecy"
+msgstr ""
+
+#: src/fx_emotion.c:20
+msgid "Googly eyes"
+msgstr ""
+
+#: src/fx_emotion.c:21
+msgid "Sleeping Moon"
+msgstr ""
+
+#: src/fx_emotion.c:22
+msgid "Rain"
+msgstr ""
+
+#: src/fx_emotion.c:23
+msgid "Clock"
+msgstr ""
+
+#: src/fx_emotion.c:24
+msgid "Red Heart"
+msgstr ""
+
+#: src/fx_emotion.c:25
+msgid "Broken Heart"
+msgstr ""
+
+#: src/fx_emotion.c:26
+msgid "Face of Cat"
+msgstr ""
+
+#: src/fx_emotion.c:27
+msgid "Face of Dog"
+msgstr ""
+
+#: src/fx_emotion.c:28
+msgid "Snail"
+msgstr ""
+
+#: src/fx_emotion.c:29
+msgid "Star"
+msgstr ""
+
+#: src/fx_emotion.c:30
+msgid "Sun"
+msgstr ""
+
+#: src/fx_emotion.c:31
+msgid "Rainbow"
+msgstr ""
+
+#: src/fx_emotion.c:32
+msgid "Hug left"
+msgstr ""
+
+#: src/fx_emotion.c:33
+msgid "Hug right"
+msgstr ""
+
+#: src/fx_emotion.c:34
+msgid "Red Lips"
+msgstr ""
+
+#: src/fx_emotion.c:35
+msgid "Red Rose"
+msgstr ""
+
+#: src/fx_emotion.c:36
+msgid "Withered Rose"
+msgstr ""
+
+#: src/fx_emotion.c:37
+msgid "Gift Box"
+msgstr ""
+
+#: src/fx_emotion.c:38
+msgid "Birthday Cake"
+msgstr ""
+
+#: src/fx_emotion.c:39
+msgid "Music"
+msgstr ""
+
+#: src/fx_emotion.c:40
+msgid "Bulb"
+msgstr ""
+
+#: src/fx_emotion.c:41
+msgid "Idea"
+msgstr ""
+
+#: src/fx_emotion.c:42
+msgid "Coffee"
+msgstr ""
+
+#: src/fx_emotion.c:43
+msgid "Umbrella"
+msgstr ""
+
+#: src/fx_emotion.c:44
+msgid "Mobile Phone"
+msgstr ""
+
+#: src/fx_emotion.c:45
+msgid "Computer"
+msgstr ""
+
+#: src/fx_emotion.c:46
+msgid "Disappointed"
+msgstr ""
+
+#: src/fx_emotion.c:47
+msgid "Confused"
+msgstr ""
+
+#: src/fx_emotion.c:48
+msgid "Worried"
+msgstr ""
+
+#: src/fx_emotion.c:49
+msgid "Drinks"
+msgstr ""
+
+#: src/fx_emotion.c:50
+msgid "Goblet"
+msgstr ""
+
+#: src/fx_emotion.c:51
+msgid "Angel"
+msgstr ""
+
+#: src/fx_emotion.c:52
+msgid "Thinking"
+msgstr ""
+
+#: src/fx_emotion.c:53
+msgid "Great"
+msgstr ""
+
+#: src/fx_emotion.c:54
+msgid "Naughty"
+msgstr ""
+
+#: src/fx_emotion.c:55
+msgid "Idiot"
+msgstr ""
+
+#: src/fx_emotion.c:56
+msgid "Sunglasses"
+msgstr ""
+
 #: src/fx_gedit.c:43 src/fx_tree.c:711
 msgid "Edit name of a group"
 msgstr ""
@@ -541,43 +835,43 @@ msgstr ""
 msgid "Click here to input signature"
 msgstr ""
 
-#: src/fx_head.c:276
+#: src/fx_head.c:276 src/fx_login.c:320 src/fx_main.c:1220
 msgid "Online"
 msgstr ""
 
-#: src/fx_head.c:277
+#: src/fx_head.c:277 src/fx_login.c:321 src/fx_main.c:1221
 msgid "Leave"
 msgstr ""
 
-#: src/fx_head.c:278
+#: src/fx_head.c:278 src/fx_login.c:322 src/fx_main.c:1222
 msgid "Busy"
 msgstr ""
 
-#: src/fx_head.c:279
+#: src/fx_head.c:279 src/fx_login.c:323 src/fx_main.c:1223
 msgid "Hide"
 msgstr ""
 
-#: src/fx_head.c:280
+#: src/fx_head.c:280 src/fx_login.c:324
 msgid "Offline"
 msgstr ""
 
-#: src/fx_head.c:285
+#: src/fx_head.c:285 src/fx_login.c:325 src/fx_main.c:1224
 msgid "Eating out"
 msgstr ""
 
-#: src/fx_head.c:286
+#: src/fx_head.c:286 src/fx_login.c:326 src/fx_main.c:1225
 msgid "Do Not Disturb"
 msgstr ""
 
-#: src/fx_head.c:287
+#: src/fx_head.c:287 src/fx_login.c:328 src/fx_main.c:1227
 msgid "Meeting"
 msgstr ""
 
-#: src/fx_head.c:288
+#: src/fx_head.c:288 src/fx_login.c:329 src/fx_main.c:1228
 msgid "Calling"
 msgstr ""
 
-#: src/fx_head.c:293 src/fx_main.c:1248
+#: src/fx_head.c:293 src/fx_main.c:1253
 msgid "Receive SMS"
 msgstr ""
 
@@ -585,7 +879,7 @@ msgstr ""
 msgid "Modify Profile"
 msgstr ""
 
-#: src/fx_head.c:308 src/fx_main.c:1300
+#: src/fx_head.c:308 src/fx_main.c:1305
 msgid "Exit OpenFetion "
 msgstr ""
 
@@ -709,6 +1003,10 @@ msgstr ""
 msgid "Remember password"
 msgstr ""
 
+#: src/fx_login.c:327 src/fx_main.c:1226
+msgid "Back Soon"
+msgstr ""
+
 #: src/fx_lookup.c:49
 msgid "Please input the user's phone number or fetion number:"
 msgstr ""
@@ -721,17 +1019,12 @@ msgstr ""
 msgid "Query failed, please input vaild phone number of China Mobile"
 msgstr ""
 
-#: src/fx_lookupres.c:48 src/fx_profile.c:174
+#: src/fx_lookupres.c:48 src/fx_profile.c:174 src/fx_set.c:531
 msgid "Female"
 msgstr ""
 
-#: src/fx_lookupres.c:48 src/fx_profile.c:174
+#: src/fx_lookupres.c:48 src/fx_profile.c:174 src/fx_set.c:530
 msgid "Male"
-msgstr ""
-
-#: src/fx_lookupres.c:48 src/fx_profile.c:174 src/fx_set.c:421
-#: src/fx_set.c:422
-msgid "Secrecy"
 msgstr ""
 
 #: src/fx_lookupres.c:60 src/fx_profile.c:186
@@ -768,12 +1061,12 @@ msgstr ""
 msgid "City:"
 msgstr ""
 
-#: src/fx_main.c:314
+#: src/fx_main.c:317
 #, c-format
 msgid "%s , now ONLINE"
 msgstr ""
 
-#: src/fx_main.c:316
+#: src/fx_main.c:319
 #, c-format
 msgid ""
 "Phone Number: %s\n"
@@ -781,44 +1074,48 @@ msgid ""
 "Signature: %s"
 msgstr ""
 
-#: src/fx_main.c:545
+#: src/fx_main.c:324
+msgid "unknown"
+msgstr ""
+
+#: src/fx_main.c:548
 #, c-format
 msgid "%s(%s) said:"
 msgstr ""
 
-#: src/fx_main.c:822
+#: src/fx_main.c:825
 msgid "Receive a window jitter"
 msgstr ""
 
-#: src/fx_main.c:928
+#: src/fx_main.c:931
 msgid "Your fetion login elsewhere. You are forced quit."
 msgstr ""
 
-#: src/fx_main.c:1235
+#: src/fx_main.c:1240
 msgid "Close sound"
 msgstr ""
 
-#: src/fx_main.c:1260
+#: src/fx_main.c:1265
 msgid "Information query"
 msgstr ""
 
-#: src/fx_main.c:1264
+#: src/fx_main.c:1269
 msgid "Edit statement"
 msgstr ""
 
-#: src/fx_main.c:1280
+#: src/fx_main.c:1285
 msgid "Message Function"
 msgstr ""
 
-#: src/fx_main.c:1288
+#: src/fx_main.c:1293
 msgid "SMS myself"
 msgstr ""
 
-#: src/fx_main.c:1292
+#: src/fx_main.c:1297
 msgid "Add contact"
 msgstr ""
 
-#: src/fx_main.c:1296 src/fx_set.c:201
+#: src/fx_main.c:1301 src/fx_set.c:201
 msgid "System Settings"
 msgstr ""
 
