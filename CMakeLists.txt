@@ -34,7 +34,7 @@ set(PACKAGE_VERSION "${OFETION_VERSION_MAJOR}.${OFETION_VERSION_MINER}.${OFETION
 set(PACKAGE_NAME "OpenFetion")
 set(PACKAGE_TARNAME "openfetion")
 set(PACKAGE_STRING "${PACKAGE_NAME} ${PACKAGE_VERSION}")
-set(PACKAGE_BUGREPORT "http://basiccoder.com/openfetion")
+set(PACKAGE_BUGREPORT "http://code.google.com/p/ofetion/issues/list")
 
 # compile option switch
 option(WITH_LIBNOTIFY "Libnotify support" ON)
@@ -43,27 +43,34 @@ option(WITH_LIBXSS "LibXScrnSaver support" ON)
 option(WITH_NETWORKMANAGER "NetworkManager support" ON)
 
 # libofetion build requirements
-find_package(LibXml2 REQUIRED)
-find_package(OpenSSL REQUIRED)
-find_package(Sqlite REQUIRED)
+find_package(PkgConfig REQUIRED)
+if(NOT DISABLE_NLS)
+	find_package(Gettext)
+endif(NOT DISABLE_NLS)
+
+pkg_check_modules(LIBXML2 REQUIRED libxml-2.0)
+pkg_check_modules(OPENSSL REQUIRED openssl)
+pkg_check_modules(SQLITE3 REQUIRED sqlite3)
 
 # openfetion build requirements
+pkg_check_modules(GTK2 REQUIRED gtk+-2.0)
+pkg_check_modules(GDKPIXBUF REQUIRED gdk-pixbuf-2.0)
+pkg_check_modules(GLIB2 REQUIRED glib-2.0)
+
 if(WITH_LIBNOTIFY)
-    find_package(Libnotify)
+    pkg_check_modules(LIBNOTIFY libnotify)
 endif(WITH_LIBNOTIFY)
 if(WITH_GSTREAMER)
-    find_package(GStreamer)
+    pkg_check_modules(GSTREAMER gstreamer-0.10)
 endif(WITH_GSTREAMER)
 if(WITH_LIBXSS)
-    find_package(X11)
+    pkg_check_modules(LIBXSS xscrnsaver)
 endif(WITH_LIBXSS)
 if(WITH_NETWORKMANAGER)
-    find_package(NetworkManager)
+    pkg_check_modules(NETWORKMANAGER NetworkManager)
+    pkg_check_modules(DBUSGLIB dbus-glib-1)
 endif(WITH_NETWORKMANAGER)
-find_package(GTK2 REQUIRED)
-find_package(GDKPixBuf REQUIRED)
-find_package(GLIB2 REQUIRED)
-find_package(Gettext REQUIRED)
+
 
 # gnu ld version script
 set(_link_flags)
@@ -78,33 +85,35 @@ endif(CMAKE_COMPILER_IS_GNUCXX)
 
 ##########################################################################
 message("==========================================")
-if(WITH_LIBNOTIFY AND LIBNOTIFY_FOUND AND (HAVE_LIBNOTIFY_0_4 OR HAVE_LIBNOTIFY_0_7))
+if(WITH_LIBNOTIFY AND LIBNOTIFY_FOUND)
     set(USE_LIBNOTIFY 1)
-    if(HAVE_LIBNOTIFY_0_4)
-        set(LIBNOTIFY_OLD 1)
-    endif(HAVE_LIBNOTIFY_0_4)
-    message(STATUS "Libnotify support:        YES" )
-else(WITH_LIBNOTIFY AND LIBNOTIFY_FOUND AND (HAVE_LIBNOTIFY_0_4 OR HAVE_LIBNOTIFY_0_7))
+    if(LIBNOTIFY_VERSION LESS 0.7)
+    	set(LIBNOTIFY_OLD 1)
+    	message(STATUS "Libnotify support:        OLD" )
+    else(LIBNOTIFY_VERSION LESS 0.7)
+    	message(STATUS "Libnotify support:        NEW" )
+    endif(LIBNOTIFY_VERSION LESS 0.7)
+else(WITH_LIBNOTIFY AND LIBNOTIFY_FOUND)
     message(STATUS "Libnotify support:        NO" )
-endif(WITH_LIBNOTIFY AND LIBNOTIFY_FOUND AND (HAVE_LIBNOTIFY_0_4 OR HAVE_LIBNOTIFY_0_7))
+endif(WITH_LIBNOTIFY AND LIBNOTIFY_FOUND)
 if(WITH_GSTREAMER AND GSTREAMER_FOUND)
     set(USE_GSTREAMER 1)
     message(STATUS "GStreamer support:        YES" )
 else(WITH_GSTREAMER AND GSTREAMER_FOUND)
     message(STATUS "GStreamer support:        NO" )
 endif(WITH_GSTREAMER AND GSTREAMER_FOUND)
-if(WITH_LIBXSS AND X11_Xscreensaver_FOUND)
+if(WITH_LIBXSS AND LIBXSS_FOUND)
     set(USE_LIBXSS 1)
     message(STATUS "Xscreensaver support:     YES" )
-else(WITH_LIBXSS AND X11_Xscreensaver_FOUND)
+else(WITH_LIBXSS AND LIBXSS_FOUND)
     message(STATUS "Xscreensaver support:     NO" )
-endif(WITH_LIBXSS AND X11_Xscreensaver_FOUND)
-if(WITH_NETWORKMANAGER AND NETWORKMANAGER_FOUND)
+endif(WITH_LIBXSS AND LIBXSS_FOUND)
+if(WITH_NETWORKMANAGER AND NETWORKMANAGER_FOUND AND DBUSGLIB_FOUND)
     set(USE_NETWORKMANAGER 1)
     message(STATUS "NetworkManager support:   YES" )
-else(WITH_NETWORKMANAGER AND NETWORKMANAGER_FOUND)
+else(WITH_NETWORKMANAGER AND NETWORKMANAGER_FOUND AND DBUSGLIB_FOUND)
     message(STATUS "NetworkManager support:   NO" )
-endif(WITH_NETWORKMANAGER AND NETWORKMANAGER_FOUND)
+endif(WITH_NETWORKMANAGER AND NETWORKMANAGER_FOUND AND DBUSGLIB_FOUND)
 message("==========================================")
 
 configure_file(config-ofetion.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
@@ -114,14 +123,7 @@ if(NOT DEFINED BIN_INSTALL_DIR)
     set(BIN_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/bin")
 endif(NOT DEFINED BIN_INSTALL_DIR)
 if(NOT DEFINED LIB_INSTALL_DIR)
-    if(NOT DEFINED LIB_SUFFIX)
-        if((CMAKE_SIZEOF_VOID_P EQUAL 4) OR APPLE)
-            set(LIB_SUFFIX "")
-        else((CMAKE_SIZEOF_VOID_P EQUAL 4) OR APPLE)
-            set(LIB_SUFFIX 64)
-        endif((CMAKE_SIZEOF_VOID_P EQUAL 4) OR APPLE)
-    endif(NOT DEFINED LIB_SUFFIX)
-    set(LIB_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}")
+    set(LIB_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/lib")
 endif(NOT DEFINED LIB_INSTALL_DIR)
 if(NOT DEFINED DATA_INSTALL_DIR)
     set(DATA_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/share")
@@ -132,25 +134,24 @@ endif(NOT DEFINED INCLUDE_INSTALL_DIR)
 
 ##########################################################################
 add_definitions(-Wall -Wextra)
-add_definitions(-DGETTEXT_PACKAGE="${PACKAGE_TARNAME}")
+if(NOT DEFINED DISABLE_NLS AND GETTEXT_FOUND)
+	add_definitions(-DGETTEXT_PACKAGE="${PACKAGE_TARNAME}")
+	add_definitions(-DENABLE_NLS="1")
+endif(NOT DEFINED DISABLE_NLS AND GETTEXT_FOUND)
 add_definitions(-DRESOURCE_DIR="${DATA_INSTALL_DIR}/openfetion/resource/")
 add_definitions(-DSKIN_DIR="${DATA_INSTALL_DIR}/openfetion/skin/")
 add_definitions(-DLOCALE_DIR="${DATA_INSTALL_DIR}/locale/")
-# add_definitions(-DDEBUG_FOOTPRINT="//  ")
 
 ##########################################################################
 
 include_directories(
-    ${LIBXML2_INCLUDE_DIR}
-    ${OPENSSL_INCLUDE_DIR}
-    ${SQLITE_INCLUDE_DIR}
+    ${LIBXML2_INCLUDE_DIRS}
+    ${OPENSSL_INCLUDE_DIRS}
+    ${SQLITE3_INCLUDE_DIRS}
     ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/include/openfetion
 )
 
-add_definitions(${LIBXML2_DEFINITIONS})
-add_definitions(${OPENSSL_DEFINITIONS})
-add_definitions(${SQLITE_DEFINITIONS})
 
 set(libofetion_SRC
     lib/fetion_buddylist.c
@@ -171,7 +172,7 @@ set(libofetion_SRC
 )
 
 add_library(ofetion SHARED ${libofetion_SRC})
-target_link_libraries(ofetion ${LIBXML2_LIBRARIES} ${OPENSSL_LIBRARIES} ${SQLITE_LIBRARIES})
+target_link_libraries(ofetion ${LIBXML2_LIBRARIES} ${OPENSSL_LIBRARIES} ${SQLITE3_LIBRARIES})
 
 set_target_properties(ofetion PROPERTIES
     VERSION ${LIBOFETION_SO_VERION_STRING}
@@ -187,25 +188,23 @@ install(FILES ${ofetion_INCLUDES} DESTINATION ${INCLUDE_INSTALL_DIR} COMPONENT D
 
 include_directories(
     ${GTK2_INCLUDE_DIRS}
-    ${GDKPIXBUF_INCLUDE_DIR}
-    ${GLIB2_INCLUDE_DIR}
+    ${GDKPIXBUF_INCLUDE_DIRS}
+    ${GLIB2_INCLUDE_DIRS}
     ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 if(WITH_LIBNOTIFY AND LIBNOTIFY_FOUND)
-    include_directories(${LIBNOTIFY_INCLUDE_DIR})
-    add_definitions(${LIBNOTIFY_DEFINITIONS})
+    include_directories(${LIBNOTIFY_INCLUDE_DIRS})
 endif(WITH_LIBNOTIFY AND LIBNOTIFY_FOUND)
 
 if(WITH_GSTREAMER AND GSTREAMER_FOUND)
-    include_directories(${GSTREAMER_INCLUDE_DIR})
-    add_definitions(${GSTREAMER_DEFINITIONS})
+    include_directories(${GSTREAMER_INCLUDE_DIRS})
 endif(WITH_GSTREAMER AND GSTREAMER_FOUND)
 
 if(WITH_NETWORKMANAGER AND NETWORKMANAGER_FOUND)
     include_directories(${NETWORKMANAGER_INCLUDE_DIRS})
-    add_definitions(${NETWORKMANAGER_CFLAGS})
+    include_directories(${DBUSGLIB_INCLUDE_DIRS})
 endif(WITH_NETWORKMANAGER AND NETWORKMANAGER_FOUND)
 
 set(openfetion_SRC
@@ -253,12 +252,13 @@ endif(WITH_LIBNOTIFY AND LIBNOTIFY_FOUND)
 if(WITH_GSTREAMER AND GSTREAMER_FOUND)
     target_link_libraries(openfetion ${GSTREAMER_LIBRARIES})
 endif(WITH_GSTREAMER AND GSTREAMER_FOUND)
-if(WITH_LIBXSS AND X11_Xscreensaver_FOUND)
-    target_link_libraries(openfetion ${X11_Xscreensaver_LIB})
-endif(WITH_LIBXSS AND X11_Xscreensaver_FOUND)
-if(WITH_NETWORKMANAGER AND NETWORKMANAGER_FOUND)
+if(WITH_LIBXSS AND LIBXSS_FOUND)
+    target_link_libraries(openfetion ${LIBXSS_LIBRARIES})
+endif(WITH_LIBXSS AND LIBXSS_FOUND)
+if(WITH_NETWORKMANAGER AND NETWORKMANAGER_FOUND AND DBUSGLIB_FOUND)
     target_link_libraries(openfetion ${NETWORKMANAGER_LIBRARIES})
-endif(WITH_NETWORKMANAGER AND NETWORKMANAGER_FOUND)
+    target_link_libraries(openfetion ${DBUSGLIB_LIBRARIES})
+endif(WITH_NETWORKMANAGER AND NETWORKMANAGER_FOUND AND DBUSGLIB_FOUND)
 
 install(TARGETS openfetion RUNTIME DESTINATION ${BIN_INSTALL_DIR})
 
@@ -268,16 +268,17 @@ file(GLOB openfetion_FACEIMAGES "skin/face_images/*.gif")
 install(FILES ${openfetion_SKINIMAGES} DESTINATION ${DATA_INSTALL_DIR}/openfetion/skin)
 install(FILES ${openfetion_FACEIMAGES} DESTINATION ${DATA_INSTALL_DIR}/openfetion/skin/face_images)
 install(
-    FILES resource/city.xml resource/province.xml resource/newmessage.wav resource/license.txt
+    FILES resource/city.xml resource/province.xml resource/newmessage.wav
     DESTINATION ${DATA_INSTALL_DIR}/openfetion/resource
 )
 install(FILES skin/fetion.svg DESTINATION ${DATA_INSTALL_DIR}/pixmaps)
 install(FILES resource/openfetion.desktop DESTINATION ${DATA_INSTALL_DIR}/applications)
 
-if(NOT WIN32)
-    configure_file(lib/ofetion.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/ofetion.pc)
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ofetion.pc DESTINATION ${LIB_INSTALL_DIR}/pkgconfig)
-endif(NOT WIN32)
 
-file(GLOB POFILES "${CMAKE_CURRENT_SOURCE_DIR}/po/*.po")
-gettext_create_translations("${CMAKE_CURRENT_SOURCE_DIR}/po/openfetion.pot" ALL ${POFILES})
+configure_file(lib/ofetion.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/ofetion.pc)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ofetion.pc DESTINATION ${LIB_INSTALL_DIR}/pkgconfig)
+
+if(NOT DEFINED DISABLE_NLS AND GETTEXT_FOUND)
+	file(GLOB POFILES "${CMAKE_CURRENT_SOURCE_DIR}/po/*.po")
+	gettext_create_translations("${CMAKE_CURRENT_SOURCE_DIR}/po/openfetion.pot" ALL ${POFILES})
+endif(NOT DEFINED DISABLE_NLS AND GETTEXT_FOUND)

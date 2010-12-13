@@ -24,8 +24,8 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <net/if.h>
 #include <sys/socket.h>
+#include <net/if.h>
 #include <netdb.h>
 
 FxShare *fx_share_new(FxMain *fxmain , const char *sipuri)

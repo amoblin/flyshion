@@ -1310,14 +1310,14 @@ void fx_main_tray_popmenu_func(
 }
 int main(int argc , char* argv[])
 {
-
-	FxMain* fxmain = fx_main_new();
-
+#ifdef ENABLE_NLS
 	setlocale(LC_ALL, "");
 	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
 	bindtextdomain(GETTEXT_PACKAGE , LOCALE_DIR);
 	textdomain(GETTEXT_PACKAGE);
-
+#endif	
+	FxMain* fxmain = fx_main_new();
+	
 	if(!g_thread_supported())
 		g_thread_init(NULL);
 	gdk_threads_init();
