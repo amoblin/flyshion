@@ -39,6 +39,8 @@ extern Conversation* fetion_conversation_new(User* user , const char* sipuri , F
  */
 extern void fetion_conversation_send_sms(Conversation* conv , const char* msg);
 
+extern int fetion_conversation_send_sms_with_reply(Conversation *conv, const char *msg);
+
 /**
  *  send a sms to yourself
  */

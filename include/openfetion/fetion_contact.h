@@ -51,7 +51,12 @@ extern void fetion_contact_list_append(Contact* cl , Contact* contact);
 /**
  * find the contact in the contact list by the specified userid
  */
-extern Contact* fetion_contact_list_find_by_userid(Contact* contactlist , const char* userid);
+extern Contact *fetion_contact_list_find_by_userid(Contact* contactlist , const char* userid);
+
+/**
+ * find the contact in the contact list by the specified userid
+ */
+extern Contact *fetion_contact_list_find_by_mobileno(Contact *contactlist, const char *mobileno);
 
 /**
  * find the contact in the contact list by the specified sipuri

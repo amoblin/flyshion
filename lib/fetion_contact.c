@@ -61,6 +61,7 @@ void fetion_contact_list_append(Contact* cl , Contact* contact)
 	contact->pre = cl;
 	cl->next = contact;
 }
+
 Contact* fetion_contact_list_find_by_userid(Contact* contactlist , const char* userid)
 {
 	Contact* cl_cur;
@@ -70,6 +71,7 @@ Contact* fetion_contact_list_find_by_userid(Contact* contactlist , const char* u
 	}
 	return NULL;
 }
+
 Contact* fetion_contact_list_find_by_sipuri(Contact* contactlist , const char* sipuri)
 {
 	Contact *cl_cur;
@@ -87,6 +89,17 @@ Contact* fetion_contact_list_find_by_sipuri(Contact* contactlist , const char* s
 	}
 	return NULL;
 }
+
+Contact *fetion_contact_list_find_by_mobileno(Contact *contactlist, const char *mobileno)
+{
+	Contact *cl_cur;
+	foreach_contactlist(contactlist, cl_cur) {
+		if(strcmp(cl_cur->mobileno, mobileno) == 0)
+			return cl_cur;
+	}
+	return NULL;
+}
+
 void fetion_contact_list_remove_by_userid(Contact* contactlist , const char* userid)
 {
 	Contact *cl_cur;

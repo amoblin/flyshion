@@ -27,6 +27,7 @@
 #include <net/if.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <fx_server.h>
 
 int old_state;
 extern gint presence_count;
@@ -156,6 +157,19 @@ static void popup_startup_msg(FxMain *fxmain)
 	gdk_threads_leave();
 	g_object_unref(pixbuf);
 #endif
+}
+
+static void *fx_server_func(void *data)
+{
+	FxMain *fxmain = (FxMain*)data;
+	int   fifo;
+
+	if((fifo = init_server(fxmain)) == -1) {
+		fprintf(stderr, "init openfetion server failed\n");
+		return (void*)0;
+	}
+	start_server(fxmain, fifo);
+	return (void*)0;
 }
 
 int fx_conn_connect(FxMain *fxmain)
@@ -541,6 +555,7 @@ auth:
 	/* start sending keep alive request periodically */
 	g_timeout_add_seconds(70 , (GSourceFunc)fx_main_register_func , user);
 	g_timeout_add_seconds(5 , (GSourceFunc)fx_main_check_func , fxmain);
+	g_thread_create(fx_server_func, fxmain, FALSE, NULL);
 
 	g_thread_exit(0);
 failed:

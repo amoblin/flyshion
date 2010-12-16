@@ -26,6 +26,7 @@
 #include <sys/select.h>
 #include <locale.h>
 #include <glib.h>
+#include <fx_server.h>
 
 fd_set  fd_read;
 gint presence_count = 0;
