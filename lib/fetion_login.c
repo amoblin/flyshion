@@ -225,7 +225,7 @@ char* sipc_reg_action(User* user)
 
 	fetion_sip_set_type(sip , SIP_REGISTER);
 	SipHeader* cheader = fetion_sip_header_new("CN" , cnouce);
-	SipHeader* client = fetion_sip_header_new("CL" , "type=\"pc\" ,version=\"PROTO_VERSION\"");
+	SipHeader* client = fetion_sip_header_new("CL" , "type=\"pc\" ,version=\""PROTO_VERSION"\"");
 	fetion_sip_add_header(sip , cheader);
 	fetion_sip_add_header(sip , client);
 	free(cnouce);

@@ -36,6 +36,9 @@ static char* generate_handle_contact_request_body(const char* sipuri
 								, int buddylist , int result );
 static Contact* parse_handle_contact_request_response(const char* sipmsg);
 static Contact* parse_add_buddy_response(const char* sipmsg , int* statuscode);
+static void parse_set_displayname_response(User* user , const char* userid , const char* sipmsg);
+static int parse_set_mobileno_permission_response(User* user , const char* sipmsg);
+static Contact* parse_contact_info_by_no_response(const char* sipmsg);
 static int has_special_word(const char *in);
 
 Contact* fetion_contact_new()
@@ -752,7 +755,7 @@ char* generate_add_buddy_body(const char* no
 	xmlFreeDoc(doc);
 	return xml_convert(res);
 }
-void parse_set_displayname_response(User* user , const char* userid , const char* sipmsg)
+static void parse_set_displayname_response(User* user , const char* userid , const char* sipmsg)
 {
 	char *pos;
 	Contact* contact;
@@ -779,7 +782,7 @@ void parse_set_displayname_response(User* user , const char* userid , const char
 	xmlFree(res);
 	xmlFreeDoc(doc);
 }
-int parse_set_mobileno_permission_response(User* user , const char* sipmsg)
+static int parse_set_mobileno_permission_response(User* user , const char* sipmsg)
 {
 	char *pos;
 	xmlChar* res;
@@ -796,7 +799,7 @@ int parse_set_mobileno_permission_response(User* user , const char* sipmsg)
 	xmlFreeDoc(doc);
 	return 0;
 }
-Contact* parse_contact_info_by_no_response(const char* sipmsg)
+static Contact* parse_contact_info_by_no_response(const char* sipmsg)
 {
 	char *pos;
 	Contact* contact;
@@ -1306,7 +1309,7 @@ int fetion_contact_del_localbuddy(User *user, const char *userid)
 	return 0;
 }
 
-int fetion_contact_del_localgroup(User *user, const char *userid)
+int fetion_contact_del_localgroup(User *user, const char *groupid)
 {
 	char path[256];
 	char sql[4096];
@@ -1320,7 +1323,7 @@ int fetion_contact_del_localgroup(User *user, const char *userid)
 	}
 
 	sprintf(sql, "delete from groups where "
-			"id='%s';", userid);
+			"id='%s';", groupid);
 	if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
 		debug_error("failed to delete localgroup:%s",sqlite3_errmsg(db));
 		return -1;

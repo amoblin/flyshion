@@ -33,7 +33,7 @@ void debug_info(const char* format , ...)
 	va_list ap;
 	struct tm* t = get_currenttime();
 	strftime(t_str , sizeof(t_str) , "%T" , t );
-	sprintf(fmt , "[%s]  %s\n" , t_str , format);
+	sprintf(fmt , "[\e[32m\e[1m%s\e[0m]  %s\n" , t_str , format);
 	va_start(ap, format);
 	vfprintf(stdout , fmt , ap);
 	va_end(ap);

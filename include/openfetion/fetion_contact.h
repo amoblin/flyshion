@@ -161,23 +161,33 @@ extern Contact* fetion_contact_handle_contact_request(User* user, const char* si
 					   , const char* userid , const char* localname
 					   , int buddylist , int result);
 
-
-extern void parse_set_displayname_response(User* user , const char* userid , const char* sipmsg);
-
-extern int parse_set_mobileno_permission_response(User* user , const char* sipmsg);
-
-extern Contact* parse_contact_info_by_no_response(const char* sipmsg);
-
-extern int parse_add_buddy_verification(User* user , const char* str);
-
+/**
+ * load contact list from local database
+ * @param gcount to be filled with count of group stored in local database
+ * @param bcount to be filled with count of buddy count stored in local database
+ */
 extern void fetion_contact_load(User *user, int *gcount, int *bcount);
 
+/**
+ * save contact list into local database
+ */
 extern void fetion_contact_save(User *user);
 
+/**
+ * update a specified contact information in the database
+ */
 extern void fetion_contact_update(User *user, Contact *contact);
 
+/**
+ * delete buddy information with specified userid from local database
+ */
 extern int fetion_contact_del_localbuddy(User *user, const char *userid);
 
-extern int fetion_contact_del_localgroup(User *user, const char *userid);
+/**
+ * delete group information with specified groupid from local database;
+ */
+extern int fetion_contact_del_localgroup(User *user, const char *groupid);
+
+extern int parse_add_buddy_verification(User* user , const char* str);
 
 #endif

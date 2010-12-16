@@ -21,16 +21,19 @@
 #ifndef FETION_USER_H
 #define FETION_USER_H
 
-#define STATE_ONLINE 400 
-#define STATE_RIGHTBACK 300
-#define STATE_AWAY 100
-#define STATE_BUSY   600
-#define STATE_OUTFORLUNCH 500
-#define STATE_ONTHEPHONE 150
-#define STATE_MEETING 850
+#define STATE_ONLINE       400 
+#define STATE_RIGHTBACK    300
+#define STATE_AWAY         100
+#define STATE_BUSY         600
+#define STATE_OUTFORLUNCH  500
+#define STATE_ONTHEPHONE   150
+#define STATE_MEETING      850
 #define STATE_DONOTDISTURB 800
-#define STATE_HIDDEN 0
+#define STATE_HIDDEN       0
 #define STATE_NOTAPRESENCE -1
+
+#define USER_AUTH_NEED_CONFIRM(u) ((u)->loginStatus == 421 || (u)->loginStatus == 420)
+#define USER_AUTH_ERROR(u)        ((u)->loginStatus == 401 || (u)->loginStatus == 400 || (u)->loginStatus == 404)
 
 /**
  * create a User object and initialize it with number and password
@@ -66,6 +69,7 @@ extern int fetion_user_upload_portrait(User* user , const char* filename);
  * download portrait of specified user
  * @param user Global User object
  * @param sipuri sip uri of the user whose portrait will be downloaded
+ * @return 1 if success, or else -1
  */
 extern int fetion_user_download_portrait(User* user , const char* sipuri);
 
@@ -120,19 +124,36 @@ extern int fetion_user_keep_alive(User* user);
 #define foreach_grouplist(head , gl) \
 	for(gl = head ; (gl = gl->next) != head ;)
 
+/**
+ * construct a double-linked list to store the group information
+ */
 extern Group* fetion_group_new();
 
+/**
+ * append a new group to the group list
+ */
 extern void fetion_group_list_append(Group* head , Group* group);
 
+/**
+ * prepend a new group to the group list
+ */
 extern void fetion_group_list_prepend(Group* head , Group* group);
 
+/**
+ * remove a specified group from the group list
+ * @param group the group to be removed
+ */
 extern void fetion_group_list_remove(Group *group);
 
+/**
+ * remove a group from the list with the specified group id
+ */
 extern void fetion_group_remove(Group* head , int groupid);
 
+/**
+ * find a group from the list with the specified group id
+ */
 extern Group* fetion_group_list_find_by_id(Group* head , int id);
-
-//extern void fetion_group_list_free(Contact* grouplist);
 
 extern Verification* fetion_verification_new();
 

@@ -238,7 +238,7 @@ login:
 	}
 	parse_ssi_auth_response(pos , user);
 	g_free(pos);
-	if(user->loginStatus == 421 || user->loginStatus == 420){
+	if(USER_AUTH_NEED_CONFIRM(user)){
 		debug_info(user->verification->text);
 		debug_info(user->verification->tips);
 		fx_login_show_msg(fxlogin,
@@ -267,9 +267,8 @@ login:
 		debug_info("Input verfication code:%s" , code);
 		goto login;
 	}
-	if(user->loginStatus == 401 ||
-	  	user->loginStatus == 400 ||
-	   	user->loginStatus == 404){
+
+	if(USER_AUTH_ERROR(user)){
 		debug_info("password ERROR!!!");
 		fx_login_show_err(fxlogin,
 			_("Login failed. \nIncorrect cell phone number or password"));
@@ -397,13 +396,13 @@ auth:
 	}
 	g_free(pos); pos = NULL;
 
-	if(user->loginStatus == 401 || user->loginStatus == 400){
+	if(USER_AUTH_ERROR(user)){
 		debug_info("Password error , login failed!!!");
 		fx_login_show_err(fxlogin , _("Authenticate failed."));
 		goto failed;
 	}
 
-	if(user->loginStatus == 421 || user->loginStatus == 420){
+	if(USER_AUTH_NEED_CONFIRM(user)){
 		debug_info(user->verification->text);
 		debug_info(user->verification->tips);
 		fx_login_show_msg(fxlogin,
