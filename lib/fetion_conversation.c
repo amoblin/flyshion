@@ -37,8 +37,10 @@ Conversation* fetion_conversation_new(User* user,
 				fetion_contact_list_find_by_sipuri(user->contactList , sipuri);
 	else
 		conversation->currentContact = NULL;
-	if(sipuri != NULL && conversation->currentContact == NULL)
+	if(sipuri != NULL && conversation->currentContact == NULL){
+		free(conversation);
 		return NULL;
+	}
 	conversation->currentSip = sip;
 	return conversation;
 }
