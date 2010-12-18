@@ -149,6 +149,36 @@ void fetion_conversation_send_sms_to_myself(Conversation* conversation,
 	res = fetion_sip_get_response(sip);
 	free(res);
 }
+
+int fetion_conversation_send_sms_to_myself_with_reply(Conversation* conversation,
+			   	const char* message)
+{
+	SipHeader *toheader = NULL;
+	SipHeader *eheader = NULL;
+	char       *res = NULL;
+	char        rep[1024];
+	int         code;
+	FetionSip  *sip = conversation->currentUser->sip;
+
+	fetion_sip_set_type(sip , SIP_MESSAGE);
+	toheader = fetion_sip_header_new("T" , conversation->currentUser->sipuri);
+	eheader  = fetion_sip_event_header_new(SIP_EVENT_SENDCATMESSAGE);
+	fetion_sip_add_header(sip , toheader);
+	fetion_sip_add_header(sip , eheader);
+	res = fetion_sip_to_string(sip , message);
+	debug_info("Sent a message to myself" , conversation->currentContact->sipuri);
+	tcp_connection_send(sip->tcp , res , strlen(res));
+	free(res);
+	memset(rep, 0, sizeof(rep));
+	tcp_connection_recv(sip->tcp , rep , sizeof(rep));
+	code = fetion_sip_get_code(rep);
+	if(code == 200 || code == 280){
+		return 1;
+	}else{
+		return -1;
+	}
+}
+
 int fetion_conversation_send_sms_to_phone(Conversation* conversation,
 			   	const char* message)
 {

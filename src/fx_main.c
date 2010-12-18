@@ -1016,9 +1016,15 @@ void fx_main_destroy(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	FxMain *fxmain = (FxMain*)data;
 	User   *user = fxmain->user;
+	char    server_fifo[128];
 	if(user){
 		Config *config = user->config;
 		fetion_config_save_size(config);
+		extern int idlefifo;
+		/* delete fifo file */
+		close(idlefifo);
+		snprintf(server_fifo, sizeof(server_fifo) - 1, OPENFETION_FIFO_FILE, user->mobileno);
+		unlink(server_fifo);
 	}
 	gtk_main_quit();
 }
@@ -1317,6 +1323,14 @@ int main(int argc , char* argv[])
 	bindtextdomain(GETTEXT_PACKAGE , LOCALE_DIR);
 	textdomain(GETTEXT_PACKAGE);
 #endif	
+
+	/* cli mode */
+	if(argc != 1) {
+		if(fx_cli_opt(argc, argv))
+			return 1;
+		return fx_cli_exec();
+	}
+
 	FxMain* fxmain = fx_main_new();
 	
 	if(!g_thread_supported())

@@ -46,6 +46,9 @@ extern int fetion_conversation_send_sms_with_reply(Conversation *conv, const cha
  */
 extern void fetion_conversation_send_sms_to_myself(Conversation* conversation , const char* message);
 
+int fetion_conversation_send_sms_to_myself_with_reply(Conversation* conversation,
+			   	const char* message);
+
 /**
  * send a message directly to the user`s phone in the specified conversation
  * @param conversation To specify the user to whom the message will be sent

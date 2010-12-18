@@ -40,14 +40,11 @@ void debug_info(const char* format , ...)
 }
 void debug_error(const char* format , ...)
 {
-	char t_str[32] = { 0 };
 	char fmt[4096] = { 0 };
 	va_list ap;
-	struct tm* t = get_currenttime();
-	strftime(t_str , sizeof(t_str) , "%T" , t );
-	sprintf(fmt , "[%s] ***ERROR*** %s\n" , t_str , format);
+	sprintf(fmt , "[\e[31m\e[1mFAIL\e[0m] %s\n" , format);
 	va_start(ap, format);
-	vfprintf(stdout , fmt , ap);
+	vfprintf(stderr , fmt , ap);
 	va_end(ap);
 }
 
