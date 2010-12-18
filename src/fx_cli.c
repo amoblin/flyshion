@@ -45,24 +45,16 @@ int fx_cli_opt(int argc, char **argv)
 	memset(from_no, 0, sizeof(from_no));
 	memset(to_no, 0, sizeof(to_no));
 
-	while((ch = getopt(argc, argv, "dfghHmpt")) != -1) {
+	while((ch = getopt(argc, argv, "d:f:g:hHmpt:")) != -1) {
 		switch(ch) {
 			case 'd':
-				if(optind > argc -1)
-					return usage();
-
-				strcpy(msg_body, argv[optind]);
+				strcpy(msg_body, optarg);
 				break;
 			case 'f':
-				if(optind > argc - 1)
-					return usage();
-
-				strcpy(from_no, argv[optind]);
+				strcpy(from_no, optarg);
 				break;
 			case 'g':
-				if(optind > argc - 1)
-					return usage();
-				strcpy(to_no, argv[optind]);
+				strcpy(to_no, optarg);
 				cli_get_info = 1;
 				break;
 			case 'h':case 'H':
@@ -74,17 +66,13 @@ int fx_cli_opt(int argc, char **argv)
 				cli_to_phone = 1;
 				break;
 			case 't':
-				if(optind > argc -1)
-					return usage();
-
 				cli_to_other = 1;
-				strcpy(to_no, argv[optind]);
+				strcpy(to_no, optarg);
 				break;
 			default:
 				break;
 		}
 	}
-
 	return 0;
 }
 
@@ -117,7 +105,7 @@ int fx_cli_exec()
 		return 1;
 	}
 
-	if(*to_no != '\0' && strlen(to_no) != 11) {
+	if(to_no[0] != '\0' && strlen(to_no) != 11) {
 		debug_error("mobile number error");
 		return 1;
 	}

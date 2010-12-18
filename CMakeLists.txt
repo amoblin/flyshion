@@ -242,6 +242,8 @@ set(openfetion_SRC
     src/fx_sysmsg.c
     src/fx_tree.c
     src/fx_util.c
+    src/fx_server.c
+    src/fx_cli.c
 )
 
 add_executable(openfetion ${openfetion_SRC})
