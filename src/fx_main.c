@@ -927,11 +927,21 @@ void fx_main_process_sipc(FxMain* fxmain , const gchar* sipmsg)
 
 void fx_main_process_deregistration(FxMain* fxmain)
 {
-
 	gdk_threads_enter();
-	fx_util_popup_warning(fxmain , _("Your fetion login elsewhere. You are forced quit."));
+#ifdef USE_LIBNOTIFY
+	GdkPixbuf    *pixbuf;
+
+	pixbuf = gdk_pixbuf_new_from_file_at_size(
+				SKIN_DIR"fetion.svg",
+				NOTIFY_IMAGE_SIZE,
+				NOTIFY_IMAGE_SIZE, NULL);
+	notify_notification_update(fxmain->notify , "Sorry.."
+			, _("Your fetion login elsewhere. You are forced quit."), NULL);
+	notify_notification_set_icon_from_pixbuf(fxmain->notify , pixbuf);
+	notify_notification_show(fxmain->notify , NULL);
+	g_object_unref(pixbuf);
+#endif
 	gdk_threads_leave();
-	gtk_main_quit();
 }
 void fx_main_process_syncuserinfo(FxMain* fxmain , const gchar* xml)
 {
@@ -1039,6 +1049,11 @@ gboolean fx_main_delete(GtkWidget *widget , GdkEvent *UNUSED(event) , gpointer d
 	int     window_height;
 	int     window_x;
 	int     window_y;
+
+	printf("fx_main_delete\n");
+
+	if(!fxmain->window)
+		return TRUE;
 
 	if(fxmain->user){
 		config = fxmain->user->config;

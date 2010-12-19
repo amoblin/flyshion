@@ -55,6 +55,8 @@ extern void fetion_user_set_config(User* user , Config* config);
 
 extern void fetion_user_set_verification_code(User* user , const char* code);
 
+extern int fetion_user_init_config(User *user);
+
 extern void fetion_user_free(User* user);
 
 /**

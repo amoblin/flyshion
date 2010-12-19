@@ -94,6 +94,15 @@ void fetion_user_set_verification_code(User* user , const char* code)
 	memset(user->verification->code , 0 , strlen(code) + 1);
 	strcpy(user->verification->code , code);
 }
+
+int fetion_user_init_config(User *user)
+{
+	assert(user != NULL);
+	assert(user->config != NULL);
+	assert(*(user->userId) != '\0');
+	return fetion_config_initialize(user->config, user->userId);
+}
+
 void fetion_user_free(User* user)
 {
 	if(user->ssic != NULL)
@@ -102,6 +111,10 @@ void fetion_user_free(User* user)
 		free(user->customConfig);
 	if(user->verification != NULL)
 		fetion_verification_free(user->verification);
+	if(user->sip != NULL) 
+		fetion_sip_free(user->sip);
+	if(user->config != NULL)
+		fetion_config_free(user->config);
 	free(user);
 }
 int fetion_user_set_state(User* user , StateType state)

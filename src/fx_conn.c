@@ -283,7 +283,7 @@ login:
 	}
 
 	if(USER_AUTH_ERROR(user)){
-		debug_info("password ERROR!!!");
+		debug_error("password ERROR!!!");
 		fx_login_show_err(fxlogin,
 			_("Login failed. \nIncorrect cell phone number or password"));
 		goto failed;
@@ -292,7 +292,11 @@ login:
 	fx_login_show_err(fxlogin,
 				 _("Loading local user information"));
 
-	fetion_config_initialize(config , user->userId);
+	if(fetion_user_init_config(user) == -1) {
+		debug_error("initialize config failed");
+		fx_login_show_err(fxlogin , _("Login failed"));
+		goto failed;
+	}
 
 	/* initialize history */
 	fx_main_history_init(fxmain);
@@ -527,9 +531,11 @@ auth:
 	gdk_threads_enter();
 	gtk_window_set_resizable(GTK_WINDOW(fxmain->window) , TRUE);
 	fetion_config_load_size(config);
-	gtk_window_resize(GTK_WINDOW(fxmain->window),
-		   	config->window_width,
-			config->window_height);
+
+	if(config->window_width > 0 && config->window_height >0)
+		gtk_window_resize(GTK_WINDOW(fxmain->window),
+				config->window_width,
+				config->window_height);
 	gdk_threads_leave();
 
 	/* set tooltip of status icon */
@@ -902,7 +908,11 @@ int fx_conn_offline_login(FxMain *fxmain)
 	/* set the config structure to user */
 	fetion_user_set_config(user , config);
 
-	fetion_config_initialize(config , user->userId);
+	if(fetion_user_init_config(user)) {
+		fx_login_show_err(fxlogin , _("Login failed"));
+		debug_error("initialize config failed");
+		goto failed1;
+	}
 	/* initialize history */
 	fx_main_history_init(fxmain);
 

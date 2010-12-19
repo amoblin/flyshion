@@ -45,7 +45,7 @@ Conversation* fetion_conversation_new(User* user,
 	return conversation;
 }
 
-void fetion_conversation_send_sms(Conversation* conversation , const char* msg)
+int fetion_conversation_send_sms(Conversation* conversation , const char* msg)
 {
 	FetionSip* sip = conversation->currentSip == NULL ?
 		   	conversation->currentUser->sip : conversation->currentSip;
@@ -78,10 +78,12 @@ void fetion_conversation_send_sms(Conversation* conversation , const char* msg)
 
 	res = fetion_sip_to_string(sip , msg);
 	debug_info("Sent a message to %s" , conversation->currentContact->sipuri);
-	tcp_connection_send(sip->tcp , res , strlen(res));
+	if(tcp_connection_send(sip->tcp , res , strlen(res)) == -1){
+		free(res);
+		return -1;
+	}
 	free(res);
-
-	
+	return 1;
 }
 
 int fetion_conversation_send_sms_with_reply(Conversation *conv, const char *msg)
@@ -129,7 +131,7 @@ int fetion_conversation_send_sms_with_reply(Conversation *conv, const char *msg)
 	}
 }
 
-void fetion_conversation_send_sms_to_myself(Conversation* conversation,
+int fetion_conversation_send_sms_to_myself(Conversation* conversation,
 			   	const char* message)
 {
 	SipHeader *toheader = NULL;
@@ -144,10 +146,14 @@ void fetion_conversation_send_sms_to_myself(Conversation* conversation,
 	fetion_sip_add_header(sip , eheader);
 	res = fetion_sip_to_string(sip , message);
 	debug_info("Sent a message to myself" , conversation->currentContact->sipuri);
-	tcp_connection_send(sip->tcp , res , strlen(res));
+	if(tcp_connection_send(sip->tcp , res , strlen(res)) == -1) {
+		free(res);
+		return -1;
+	}
 	free(res);
 	res = fetion_sip_get_response(sip);
 	free(res);
+	return 1;
 }
 
 int fetion_conversation_send_sms_to_myself_with_reply(Conversation* conversation,

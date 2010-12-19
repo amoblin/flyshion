@@ -53,8 +53,7 @@
 /**
  * some other buddylists
  */
-typedef enum
-{
+typedef enum {
 	BUDDY_LIST_NOT_GROUPED = 0 ,
 	BUDDY_LIST_STRANGER =   -1 ,
 	BUDDY_LIST_PGGROUP =      -2
@@ -63,8 +62,7 @@ typedef enum
 /**
  * Presence states
  */
-typedef enum
-{
+typedef enum {
 	P_ONLINE = 		 400 , 
 	P_RIGHTBACK = 	 300 ,
 	P_AWAY = 		 100 ,
@@ -80,8 +78,7 @@ typedef enum
 /**
  * Type used to indicate whether user`s portrait has been changed
  */
-typedef enum
-{
+typedef enum {
 	IMAGE_NOT_INITIALIZED = -1 ,		/* portrait has not been initialized */
 	IMAGE_NOT_CHANGED ,					/* portrait does not change 		 */
 	IMAGE_CHANGED ,						/* portrait has been changed 		 */
@@ -91,8 +88,7 @@ typedef enum
 /**
  * Type to indicate user`s service status 
  */
-typedef enum
-{
+typedef enum {
 	STATUS_NORMAL = 1 ,					/* normal status											 */
 	STATUS_OFFLINE ,					/* user offline , deleted you from his list or out of service*/
 	STATUS_NOT_AUTHENTICATED ,			/* user has not accept your add buddy request				 */
@@ -105,18 +101,16 @@ typedef enum
 /**
  * Two-way linked list that can contans any types
  */
-typedef struct fxlist
-{
-	struct fxlist* pre;
-	void* data;
-	struct fxlist* next;
+typedef struct fxlist {
+	struct fxlist *pre;
+	void          *data;
+	struct fxlist *next;
 } FxList;
 
 /**
  * Fetion Connection
  */
-typedef struct
-{
+typedef struct {
 	int socketfd;						/* socket file descriptor*/
 	char local_ipaddress[16];			/* local ip address      */
 	int local_port;						/* local port			 */
@@ -129,18 +123,16 @@ typedef struct
 /**
  * Sip header that in form of "name: value" such as "AK: ak-value"
  */
-typedef struct sipheader
-{
-	char name[5];						/* sip header namne*/
-	char* value;						/* sip header value*/
-	struct sipheader* next;				/* next sip header */
+typedef struct sipheader {
+	char              name[8];			/* sip header namne*/
+	char             *value;			/* sip header value*/
+	struct sipheader *next;				/* next sip header */
 } SipHeader;
 
 /**
  * Sip type include some common attributes
  */
-typedef struct
-{
+typedef struct {
 	int type;							/* sip message type						  */
 	char from[20];						/* sender`s fetion no ,in sip it`s "F: "  */
 	int callid;
@@ -154,17 +146,15 @@ typedef struct
 /**
  * Sip message list that parsed from received chunk 
  */
-typedef struct sipmsg
-{
-	char* message;
-	struct sipmsg* next;
+typedef struct sipmsg {
+	char          *message;
+	struct sipmsg *next;
 } SipMsg;
 
 /**
  * Contact lists information (Two-way linked list) 
  */
-typedef struct contact
-{
+typedef struct contact {
 	char userId[16];					/* userid used since v4 protocal      				*/
 	char sId[16];						/* fetion no					      				*/
 	char sipuri[48];					/* sipuri like 'sip:100@fetion.com.cn'				*/
@@ -197,8 +187,7 @@ typedef struct contact
 /**
  * Buddy lists information (Two-way linked list)
  */
-typedef struct group
-{
+typedef struct group {
 	char groupname[32];					/* current buddy list name  */
 	int groupid;						/* current buddy list Id	*/
 	int dirty;
@@ -206,7 +195,7 @@ typedef struct group
 	struct group *pre;
 } Group;
 
-typedef struct pggroupmember{
+typedef struct pggroupmember {
 	char sipuri[64];
 	char nickname[256];
 	char clientType[64];
@@ -219,7 +208,7 @@ typedef struct pggroupmember{
 	struct pggroupmember *pre;
 } PGGroupMember;
 
-typedef struct pggroup{
+typedef struct pggroup {
 	char pguri[64];
 	char name[256];
 	int statusCode;
@@ -250,21 +239,19 @@ typedef struct pggroup{
 /**
  * Verification information used for picture code confirm
  */
-typedef struct
-{
-	char* algorithm;
-	char* type;
-	char* text;
-	char* tips;
-	char* code;
-	char* guid;
+typedef struct {
+	char *algorithm;
+	char *type;
+	char *text;
+	char *tips;
+	char *code;
+	char *guid;
 } Verification;
 
 /**
  * User list store in local data file  (One-way linked list)
  */
-struct userlist
-{
+struct userlist {
 	char no[24];						/* fetion no or mobile no  		*/
 	char password[48];					/* password 			   		*/
 	char userid[48];
@@ -278,15 +265,12 @@ struct userlist
 /**
  * structure used to describe global proxy information
  */
-typedef struct
-{
-
+typedef struct {
 	int proxyEnabled;					/* whether http proxy is enable							  */
 	char proxyHost[48];					/* proxy host name or ip address						  */
 	int proxyPort;					/* port number of proxy server							  */
 	char proxyUser[48];					/* username for proxy authentication					  */
 	char proxyPass[48];					/* password for proxy authentication 					  */
-
 } Proxy;
 
 /* for close action */
@@ -298,8 +282,7 @@ typedef struct
 /**
  * Configuration information 
  */
-typedef struct
-{
+typedef struct {
 	char globalPath[256];				/* global path,default $(HOME)/.openfetion                */
 	char userPath[256];					/* user path , directory name by user`s sid in globalPath */
 	char iconPath[256];					/* path stores user`s friend portraits in user`s path     */	
@@ -340,15 +323,14 @@ typedef struct
 /**
  * User`s personal information and some related structs 
  */
-typedef struct
-{
-	char sId[11];						/* fetion number 											*/
-	char userId[11];					/* user id													*/
-	char mobileno[13];					/* mobile phone number										*/
-	char password[42];					/* raw password not hashed									*/
+typedef struct {
+	char sId[16];						/* fetion number 											*/
+	char userId[16];					/* user id													*/
+	char mobileno[16];					/* mobile phone number										*/
+	char password[48];					/* raw password not hashed									*/
 	char sipuri[48];					/* sipuri like 'sip:100@fetion.com.cn'						*/
-	char publicIp[17];					/* public ip of current session								*/
-	char lastLoginIp[17];				/* public ip of last login									*/
+	char publicIp[32];					/* public ip of current session								*/
+	char lastLoginIp[32];				/* public ip of last login									*/
 	char lastLoginTime[48];				/* last login time , got after sipc authentication			*/
 
 	char personalVersion[16];			/* the version of personal information						*/
@@ -393,41 +375,37 @@ typedef struct
 /**
  * structure used to describe onversation information 
  */
-typedef struct
-{
-	Contact* currentContact;			 /* current friend who you a chating with					   */
-	User* currentUser;					 /* current user,ourselves									   */
-	FetionSip* currentSip;				 /* sip struct used to send message 
+typedef struct {
+	Contact    *currentContact;			 /* current friend who you a chating with					   */
+	User       *currentUser;			 /* current user,ourselves									   */
+	FetionSip  *currentSip;				 /* sip struct used to send message 
 										  * NULL if did not start a chat channel for this conversation */
 } Conversation;
 
 /**
  * structure used to describe message information 
  */
-typedef struct
-{
-	char* message;						 /* message content  		*/
-	char* sipuri;						 /* sender`s sip uri 		*/
-	char* pguri;
-	int callid;
-	int sysback;
-	struct tm sendtime;					 /* message sent time 		*/
+typedef struct {
+	char      *message;						 /* message content  		*/
+	char      *sipuri;						 /* sender`s sip uri 		*/
+	char      *pguri;
+	int        callid;
+	int        sysback;
+	struct tm  sendtime;					 /* message sent time 		*/
 } Message;
 
 /**
  * structure used to describe chat history
  */
-typedef struct
-{
+typedef struct {
 	char name[48];						 /* name of message sender	   */
 	char userid[16];					 /* userid of message sender   */
 	char sendtime[32];					 /* message sent time		   */
 	char message[4096];					 /* message content			   */
-	int issend;							 /* message is sent of received*/	
+	int  issend;						 /* message is sent of received*/	
 } History;
 
-typedef struct
-{
+typedef struct {
 	User* user;
 	sqlite3 *db;
 } FetionHistory;
@@ -438,7 +416,7 @@ typedef struct
 #define FILE_ACCEPTED 1
 #define FILE_DECLINED 2
 
-typedef struct{
+typedef struct {
 
 	FetionSip *sip;
 	int shareMode;

@@ -379,7 +379,7 @@ char* fetion_sip_get_response(FetionSip* sip)
 {
 	char *res;
 	unsigned int len , n , c;
-	char buf[4096];
+	char buf[1024 * 20];
 
 	memset(buf , 0 , sizeof(buf));
 

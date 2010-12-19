@@ -31,6 +31,7 @@ extern "C" {
 #include <ctype.h>
 #include <unistd.h>
 #define _XOPEN_SOURCE
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
