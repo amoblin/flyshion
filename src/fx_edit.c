@@ -80,7 +80,7 @@ void fx_edit_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 
 	if(*name == '\0')
 		return;
-	if(fetion_contact_set_displayname(user , fxedit->userid , name) > 0)
+	if(fetion_contact_set_displayname(user , fxedit->userid , name) == 0)
 	{
 		gtk_tree_store_set(GTK_TREE_STORE(model) , &iter
 						 , B_NAME_COL			 , name

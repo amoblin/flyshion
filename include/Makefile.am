@@ -35,4 +35,5 @@ EXTRA_DIST = fx_add_group.h \
 			 fx_pggroup.h \
 			 fx_pgprofile.h \
 			 fx_smsstat.h \
-			 fx_about.h
+			 fx_about.h \
+			 fx_server.h

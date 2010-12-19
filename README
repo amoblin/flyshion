@@ -25,7 +25,7 @@ sudo apt-get install libgtk2-dev
 
 sudo apt-get install libssl-dev
 
-apt-get install libxml2-dev
+sudo apt-get install libxml2-dev
 
 sudo apt-get install pkg-config
 
@@ -40,3 +40,25 @@ make
 sudo make install
 
 
+
+
+If you prefer using cmake, then:
+
+sudo apt-get install cmake
+
+Then you can start installing openfetion like this:
+
+mkdir build
+cd build
+cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=release ..
+
+You may need to set -DCMAKE_BUILD_TYPE=debug to build in debug mode.
+The following build switches you may need to adjust (default is TRUE)
+-DWITH_LIBNOTIFY=TRUE
+-DWITH_GSTREAMER=TRUE
+-DWITH_LIBXSS=TRUE
+-DWITH_NETWORKMANAGER=TRUE
+
+make
+
+sudo make install

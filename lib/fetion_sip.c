@@ -379,7 +379,7 @@ char* fetion_sip_get_response(FetionSip* sip)
 {
 	char *res;
 	unsigned int len , n , c;
-	char buf[4096];
+	char buf[1024 * 20];
 
 	memset(buf , 0 , sizeof(buf));
 
@@ -1060,4 +1060,10 @@ void fetion_sip_get_auth_attr(const char* auth , char** ipaddress , int* port , 
 	*port = atoi(port_str);
 	pos = strstr(pos , "credential=\"") + 12;
 	strncpy(*credential , pos , strlen(pos) - 1);
+}
+
+inline void 
+fetion_sip_set_conn(FetionSip *sip, FetionConnection *conn)
+{
+	sip->tcp = conn;
 }

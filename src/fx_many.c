@@ -365,23 +365,26 @@ void fx_many_initialize(FxMany* fxmany)
 	GtkWidget *action_area = NULL;
 	GdkPixbuf *pb = NULL;
 
-	fxmany->dialog = gtk_dialog_new();
+	fxmany->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	GtkWidget *vbox = gtk_vbox_new (FALSE, 0);
+	gtk_container_add (GTK_CONTAINER (fxmany->window), vbox);
 	pb = gdk_pixbuf_new_from_file(SKIN_DIR"groupsend.png" , NULL);
-	gtk_window_set_icon(GTK_WINDOW(fxmany->dialog) , pb);
-	g_object_unref(pb);
-	gtk_window_set_title(GTK_WINDOW(fxmany->dialog) , _("SMS To Many"));
-	gtk_widget_set_usize(fxmany->dialog , 660 , 520);
-	g_signal_connect(fxmany->dialog , "key-press-event"
+	if(pb != NULL){
+		gtk_window_set_icon(GTK_WINDOW(fxmany->window) , pb);
+		g_object_unref(pb);
+	}
+	gtk_window_set_title(GTK_WINDOW(fxmany->window) , _("SMS To Many"));
+	gtk_widget_set_usize(fxmany->window , 660 , 520);
+	g_signal_connect(fxmany->window , "key-press-event"
 			, G_CALLBACK(key_press_func) , fxmany);
-	gtk_container_set_border_width(GTK_CONTAINER(fxmany->dialog) , 5);
+	gtk_container_set_border_width(GTK_CONTAINER(fxmany->window) , 5);
 
 	fxmany->hbox = gtk_hbox_new(FALSE , 0);
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(fxmany->dialog)->vbox) , fxmany->hbox , TRUE , TRUE , 0);
+	gtk_box_pack_start(GTK_BOX(vbox) , fxmany->hbox , TRUE , TRUE , 0);
 	rbox = gtk_vbox_new(FALSE , 0);
 	lbox = gtk_vbox_new(FALSE , 0);
 	gtk_box_pack_start(GTK_BOX(fxmany->hbox) , rbox , TRUE , TRUE , 5);
 	gtk_box_pack_start(GTK_BOX(fxmany->hbox) , lbox , FALSE , FALSE , 5);
-	action_area = GTK_DIALOG(fxmany->dialog)->action_area;
 	/*left top area*/
 	lt_frame = gtk_frame_new(_("Choose Contacts"));
 	gtk_widget_set_usize(lt_frame , 180 , 0);
@@ -461,33 +464,36 @@ void fx_many_initialize(FxMany* fxmany)
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(fxmany->send_scroll)
 									  , GTK_SHADOW_ETCHED_IN);
 	fxmany->send_text = gtk_text_view_new();
-	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(fxmany->recv_text) , GTK_WRAP_CHAR);
+	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(fxmany->send_text) , GTK_WRAP_CHAR);
 //	g_signal_connect(send_text , "key_press_event" , G_CALLBACK(ctrlpressed) , pthis);
 	gtk_container_add(GTK_CONTAINER(fxmany->send_scroll) , fxmany->send_text);
 
  	fxmany->send_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(fxmany->send_text));
 	gtk_text_buffer_get_iter_at_offset(fxmany->send_buffer , &fxmany->send_iter , 0);
 
+	action_area = gtk_hbox_new(FALSE , 0);
+	gtk_box_pack_start(GTK_BOX(vbox) , action_area , FALSE , FALSE , 10);
+
 	close_button = gtk_button_new_with_label(_("Close"));
 	gtk_widget_set_usize(close_button , 100 , 30);
-	gtk_box_pack_start(GTK_BOX(action_area) , close_button , FALSE , TRUE , 2);
-	g_signal_connect(close_button , "clicked" , G_CALLBACK(fx_many_on_close_clicked) , fxmany->dialog);
+	gtk_box_pack_end(GTK_BOX(action_area) , close_button , FALSE , TRUE , 2);
+	g_signal_connect(close_button , "clicked" , G_CALLBACK(fx_many_on_close_clicked) , fxmany->window);
 
 	send_button = gtk_button_new_with_label(_("Send"));
 	gtk_widget_set_usize(send_button , 100 , 30);
-	gtk_box_pack_start(GTK_BOX(action_area) , send_button , FALSE , TRUE , 2);
+	gtk_box_pack_end(GTK_BOX(action_area) , send_button , FALSE , TRUE , 2);
 	g_signal_connect(send_button , "clicked" , G_CALLBACK(fx_many_on_send_clicked) , fxmany);
 
-	gtk_window_set_position(GTK_WINDOW(fxmany->dialog) , GTK_WIN_POS_CENTER);
+	gtk_window_set_position(GTK_WINDOW(fxmany->window) , GTK_WIN_POS_CENTER);
 
 	GTK_WIDGET_SET_FLAGS(fxmany->send_text, GTK_CAN_FOCUS);
 	gtk_widget_grab_focus(fxmany->send_text);
 
-	gtk_widget_show_all(fxmany->dialog);
+	gtk_widget_show_all(fxmany->window);
 }
 static void fx_many_on_close_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
-	gtk_dialog_response(GTK_DIALOG(data) , GTK_RESPONSE_CANCEL);
+	gtk_widget_destroy(GTK_WIDGET(data));
 }
 static void fx_many_on_send_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
@@ -571,8 +577,7 @@ static gboolean key_press_func(GtkWidget *UNUSED(widget) , GdkEventKey *event
 	if(event->keyval == GDK_w){
 		if(event->state & GDK_CONTROL_MASK){
 			fxmany = (FxMany*)data;
-			gtk_dialog_response(GTK_DIALOG(fxmany->dialog),
-					GTK_RESPONSE_OK);
+			gtk_widget_destroy(GTK_WIDGET(fxmany->window));
 			return TRUE;
 		}else{
 			return FALSE;

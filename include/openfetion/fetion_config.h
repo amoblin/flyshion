@@ -21,8 +21,7 @@
 #ifndef FETION_CONFIG_H
 #define FETION_CONFIG_H
 
-typedef struct
-{
+typedef struct {
 	char content[256];
 	int phraseid;
 } Phrase;

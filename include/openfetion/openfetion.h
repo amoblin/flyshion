@@ -20,12 +20,18 @@
 
 #ifndef OPENFETION_H
 #define OPENFETION_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <string.h>
 #include <stdarg.h>
 #include <ctype.h>
 #include <unistd.h>
 #define _XOPEN_SOURCE
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -54,4 +60,9 @@
 #include <fetion_share.h>
 #include <fetion_directsms.h>
 #include <fetion_group.h>
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.63])
-AC_INIT([OpenFetion], [2.0.6], [http://basiccoder.com/openfetion])
+AC_INIT([OpenFetion], [2.0.7], [http://basiccoder.com/openfetion])
 AC_CONFIG_SRCDIR([src/fx_main.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -126,20 +126,27 @@ fi
 
 # checks for libnotify
 if test "x$enable_libnotify" = "xyes"; then
-PKG_CHECK_MODULES(LIBNOTIFY, [libnotify], [
+PKG_CHECK_MODULES(LIBNOTIFY, [libnotify >= 0.7], [
 			AC_DEFINE(USE_LIBNOTIFY, 1, [Use libnotify for notification])
 			AC_SUBST(LIBNOTIFY_CFLAGS)
 			AC_SUBST(LIBNOTIFY_LIBS)
 		] , [
-			echo ""
-			echo "configure: error: "
-			echo "libnotify development headers not found."
-			echo "Use --disable-libnotify if you do not need it."
-			echo "If you're using debian or ubuntu,install it by "
-			echo "\"sudo apt-get install libnotify-dev\""
-			echo ""
-			exit -1
-			])
+				PKG_CHECK_MODULES(LIBNOTIFY, [libnotify < 0.7], [
+						AC_DEFINE(USE_LIBNOTIFY, 1, [Use libnotify for notification])
+						AC_DEFINE(LIBNOTIFY_OLD, 1, [Use 0.5 or older version of libnotify for notification])
+						AC_SUBST(LIBNOTIFY_CFLAGS)
+						AC_SUBST(LIBNOTIFY_LIBS)
+					], [
+						echo ""
+						echo "configure: error: "
+						echo "libnotify development headers not found."
+						echo "Use --disable-libnotify if you do not need it."
+						echo "If you're using debian or ubuntu,install it by "
+						echo "\"sudo apt-get install libnotify-dev\""
+						echo ""
+						exit -1
+					])
+		   	])
 fi
 
 # checks for gstreamer-0.10

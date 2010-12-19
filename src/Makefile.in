@@ -38,14 +38,7 @@ bin_PROGRAMS = openfetion$(EXEEXT)
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/m4/gettext.m4 \
-	$(top_srcdir)/m4/iconv.m4 $(top_srcdir)/m4/lib-ld.m4 \
-	$(top_srcdir)/m4/lib-link.m4 $(top_srcdir)/m4/lib-prefix.m4 \
-	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
-	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
-	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/m4/nls.m4 \
-	$(top_srcdir)/m4/po.m4 $(top_srcdir)/m4/progtest.m4 \
-	$(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
@@ -71,7 +64,8 @@ am_openfetion_OBJECTS = openfetion-fx_add_group.$(OBJEXT) \
 	openfetion-fx_close.$(OBJEXT) openfetion-fx_pggroup.$(OBJEXT) \
 	openfetion-fx_pgprofile.$(OBJEXT) \
 	openfetion-fx_smsstat.$(OBJEXT) openfetion-fx_idle.$(OBJEXT) \
-	openfetion-fx_conn.$(OBJEXT)
+	openfetion-fx_conn.$(OBJEXT) openfetion-fx_cli.$(OBJEXT) \
+	openfetion-fx_server.$(OBJEXT)
 openfetion_OBJECTS = $(am_openfetion_OBJECTS)
 am__DEPENDENCIES_1 =
 openfetion_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
@@ -198,8 +192,6 @@ PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
-PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
-PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
 POFILES = @POFILES@
 POSUB = @POSUB@
 PO_IN_DATADIR_FALSE = @PO_IN_DATADIR_FALSE@
@@ -312,7 +304,9 @@ openfetion_SOURCES = fx_add_group.c \
 					 fx_pgprofile.c \
 					 fx_smsstat.c \
 					 fx_idle.c \
-					 fx_conn.c
+					 fx_conn.c \
+					 fx_cli.c \
+					 fx_server.c
 
 all: all-am
 
@@ -407,6 +401,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_app.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_bottom.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_chat.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_cli.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_close.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_code.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_conn.Po@am__quote@
@@ -428,6 +423,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_profile.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_proxy.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_search.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_server.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_set.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_smsstat.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openfetion-fx_sound.Po@am__quote@
@@ -917,6 +913,34 @@ openfetion-fx_conn.obj: fx_conn.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='fx_conn.c' object='openfetion-fx_conn.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o openfetion-fx_conn.obj `if test -f 'fx_conn.c'; then $(CYGPATH_W) 'fx_conn.c'; else $(CYGPATH_W) '$(srcdir)/fx_conn.c'; fi`
+
+openfetion-fx_cli.o: fx_cli.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT openfetion-fx_cli.o -MD -MP -MF $(DEPDIR)/openfetion-fx_cli.Tpo -c -o openfetion-fx_cli.o `test -f 'fx_cli.c' || echo '$(srcdir)/'`fx_cli.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/openfetion-fx_cli.Tpo $(DEPDIR)/openfetion-fx_cli.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='fx_cli.c' object='openfetion-fx_cli.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o openfetion-fx_cli.o `test -f 'fx_cli.c' || echo '$(srcdir)/'`fx_cli.c
+
+openfetion-fx_cli.obj: fx_cli.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT openfetion-fx_cli.obj -MD -MP -MF $(DEPDIR)/openfetion-fx_cli.Tpo -c -o openfetion-fx_cli.obj `if test -f 'fx_cli.c'; then $(CYGPATH_W) 'fx_cli.c'; else $(CYGPATH_W) '$(srcdir)/fx_cli.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/openfetion-fx_cli.Tpo $(DEPDIR)/openfetion-fx_cli.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='fx_cli.c' object='openfetion-fx_cli.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o openfetion-fx_cli.obj `if test -f 'fx_cli.c'; then $(CYGPATH_W) 'fx_cli.c'; else $(CYGPATH_W) '$(srcdir)/fx_cli.c'; fi`
+
+openfetion-fx_server.o: fx_server.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT openfetion-fx_server.o -MD -MP -MF $(DEPDIR)/openfetion-fx_server.Tpo -c -o openfetion-fx_server.o `test -f 'fx_server.c' || echo '$(srcdir)/'`fx_server.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/openfetion-fx_server.Tpo $(DEPDIR)/openfetion-fx_server.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='fx_server.c' object='openfetion-fx_server.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o openfetion-fx_server.o `test -f 'fx_server.c' || echo '$(srcdir)/'`fx_server.c
+
+openfetion-fx_server.obj: fx_server.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT openfetion-fx_server.obj -MD -MP -MF $(DEPDIR)/openfetion-fx_server.Tpo -c -o openfetion-fx_server.obj `if test -f 'fx_server.c'; then $(CYGPATH_W) 'fx_server.c'; else $(CYGPATH_W) '$(srcdir)/fx_server.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/openfetion-fx_server.Tpo $(DEPDIR)/openfetion-fx_server.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='fx_server.c' object='openfetion-fx_server.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(openfetion_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o openfetion-fx_server.obj `if test -f 'fx_server.c'; then $(CYGPATH_W) 'fx_server.c'; else $(CYGPATH_W) '$(srcdir)/fx_server.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

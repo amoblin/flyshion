@@ -67,9 +67,7 @@ fx_bottom_on_pggroup_clicked(GtkWidget *widget , gpointer data)
 static void
 fx_bottom_on_help_clicked(GtkWidget* UNUSED(widget) , gpointer UNUSED(data))
 {
-	if(fork() == 0){
-		execlp("xdg-open" , "xdg-open" , "http://basiccoder.com/openfetion" , (char**)NULL);
-	}
+	show_about();
 }
 void fx_bottom_initialize(FxMain* fxmain)
 {
@@ -135,7 +133,7 @@ void fx_bottom_initialize(FxMain* fxmain)
 	icon = gtk_image_new_from_pixbuf(pb);
 	g_object_unref(pb);
 	gtk_toolbar_append_item(GTK_TOOLBAR(fxbottom->toolbar)
-						  , NULL , _("Get help or give advice at Open Fetion homepage")
+						  , NULL , _("Show OpenFetion About dialog")
 						  , NULL , icon , G_CALLBACK(fx_bottom_on_help_clicked) , NULL);
 }
 
@@ -171,8 +169,6 @@ void fx_bottom_on_sendtome_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 
 	if(fx_conn_check_action(fxmain)){
 		fx_myself_initialize(fxmyself);
-		gtk_dialog_run(GTK_DIALOG(fxmyself->dialog));
-		gtk_widget_destroy(fxmyself->dialog);
 	}
 }
 
@@ -188,9 +184,6 @@ void fx_bottom_on_sendtomany_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 
 	if(fx_conn_check_action(fxmain)){
 		fx_many_initialize(fxmany);
-		gtk_dialog_run(GTK_DIALOG(fxmany->dialog));
-		gtk_widget_destroy(fxmany->dialog);
-		free(fxmany);
 	}
 }
 

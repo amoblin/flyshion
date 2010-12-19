@@ -37,12 +37,17 @@ extern Conversation* fetion_conversation_new(User* user , const char* sipuri , F
  * @param conv To specify the conversation to send a sms to 
  * @param msg the message to be sent
  */
-extern void fetion_conversation_send_sms(Conversation* conv , const char* msg);
+extern int fetion_conversation_send_sms(Conversation* conv , const char* msg);
+
+extern int fetion_conversation_send_sms_with_reply(Conversation *conv, const char *msg);
 
 /**
  *  send a sms to yourself
  */
-extern void fetion_conversation_send_sms_to_myself(Conversation* conversation , const char* message);
+extern int fetion_conversation_send_sms_to_myself(Conversation* conversation , const char* message);
+
+int fetion_conversation_send_sms_to_myself_with_reply(Conversation* conversation,
+			   	const char* message);
 
 /**
  * send a message directly to the user`s phone in the specified conversation

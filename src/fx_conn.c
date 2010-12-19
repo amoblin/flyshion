@@ -27,6 +27,7 @@
 #include <net/if.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <fx_server.h>
 
 int old_state;
 extern gint presence_count;
@@ -158,6 +159,19 @@ static void popup_startup_msg(FxMain *fxmain)
 #endif
 }
 
+static void *fx_server_func(void *data)
+{
+	FxMain *fxmain = (FxMain*)data;
+	int   fifo;
+
+	if((fifo = init_server(fxmain)) == -1) {
+		fprintf(stderr, "init openfetion server failed\n");
+		return (void*)0;
+	}
+	start_server(fxmain, fifo);
+	return (void*)0;
+}
+
 int fx_conn_connect(FxMain *fxmain)
 {
 	FxLogin          *fxlogin = fxmain->loginPanel;
@@ -238,7 +252,7 @@ login:
 	}
 	parse_ssi_auth_response(pos , user);
 	g_free(pos);
-	if(user->loginStatus == 421 || user->loginStatus == 420){
+	if(USER_AUTH_NEED_CONFIRM(user)){
 		debug_info(user->verification->text);
 		debug_info(user->verification->tips);
 		fx_login_show_msg(fxlogin,
@@ -267,10 +281,9 @@ login:
 		debug_info("Input verfication code:%s" , code);
 		goto login;
 	}
-	if(user->loginStatus == 401 ||
-	  	user->loginStatus == 400 ||
-	   	user->loginStatus == 404){
-		debug_info("password ERROR!!!");
+
+	if(USER_AUTH_ERROR(user)){
+		debug_error("password ERROR!!!");
 		fx_login_show_err(fxlogin,
 			_("Login failed. \nIncorrect cell phone number or password"));
 		goto failed;
@@ -279,7 +292,11 @@ login:
 	fx_login_show_err(fxlogin,
 				 _("Loading local user information"));
 
-	fetion_config_initialize(config , user->userId);
+	if(fetion_user_init_config(user) == -1) {
+		debug_error("initialize config failed");
+		fx_login_show_err(fxlogin , _("Login failed"));
+		goto failed;
+	}
 
 	/* initialize history */
 	fx_main_history_init(fxmain);
@@ -397,13 +414,13 @@ auth:
 	}
 	g_free(pos); pos = NULL;
 
-	if(user->loginStatus == 401 || user->loginStatus == 400){
+	if(USER_AUTH_ERROR(user)){
 		debug_info("Password error , login failed!!!");
 		fx_login_show_err(fxlogin , _("Authenticate failed."));
 		goto failed;
 	}
 
-	if(user->loginStatus == 421 || user->loginStatus == 420){
+	if(USER_AUTH_NEED_CONFIRM(user)){
 		debug_info(user->verification->text);
 		debug_info(user->verification->tips);
 		fx_login_show_msg(fxlogin,
@@ -514,9 +531,11 @@ auth:
 	gdk_threads_enter();
 	gtk_window_set_resizable(GTK_WINDOW(fxmain->window) , TRUE);
 	fetion_config_load_size(config);
-	gtk_window_resize(GTK_WINDOW(fxmain->window),
-		   	config->window_width,
-			config->window_height);
+
+	if(config->window_width > 0 && config->window_height >0)
+		gtk_window_resize(GTK_WINDOW(fxmain->window),
+				config->window_width,
+				config->window_height);
 	gdk_threads_leave();
 
 	/* set tooltip of status icon */
@@ -542,6 +561,7 @@ auth:
 	/* start sending keep alive request periodically */
 	g_timeout_add_seconds(70 , (GSourceFunc)fx_main_register_func , user);
 	g_timeout_add_seconds(5 , (GSourceFunc)fx_main_check_func , fxmain);
+	g_thread_create(fx_server_func, fxmain, FALSE, NULL);
 
 	g_thread_exit(0);
 failed:
@@ -888,7 +908,11 @@ int fx_conn_offline_login(FxMain *fxmain)
 	/* set the config structure to user */
 	fetion_user_set_config(user , config);
 
-	fetion_config_initialize(config , user->userId);
+	if(fetion_user_init_config(user)) {
+		fx_login_show_err(fxlogin , _("Login failed"));
+		debug_error("initialize config failed");
+		goto failed1;
+	}
 	/* initialize history */
 	fx_main_history_init(fxmain);
 

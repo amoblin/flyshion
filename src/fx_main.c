@@ -26,6 +26,7 @@
 #include <sys/select.h>
 #include <locale.h>
 #include <glib.h>
+#include <fx_server.h>
 
 fd_set  fd_read;
 gint presence_count = 0;
@@ -124,8 +125,11 @@ void fx_main_initialize(FxMain* fxmain)
 			SKIN_DIR"offline.svg");
 	gtk_status_icon_set_tooltip(fxmain->trayIcon, "OpenFetion");
 #ifdef USE_LIBNOTIFY
-	fxmain->notify = notify_notification_new_with_status_icon("welcome"
-			, "" , NULL , fxmain->trayIcon);
+	#ifdef LIBNOTIFY_OLD
+		fxmain->notify = notify_notification_new("welcome", "", SKIN_DIR"offline.svg", NULL);
+	#else
+		fxmain->notify = notify_notification_new("welcome", "", SKIN_DIR"offline.svg");
+	#endif
 	notify_notification_set_timeout(fxmain->notify , 2500);
 #endif
 
@@ -318,7 +322,7 @@ static void popup_online_notify(FxMain *fxmain, Contact *contact)
 				  "Signature: %s")
 				, contact->mobileno == NULL ||
 					strlen(contact->mobileno) == 0 ?
-					"未知" : contact->mobileno
+					_("unknown") : contact->mobileno
 				, contact->sId
 				, contact->impression );
 		pixbuf = gdk_pixbuf_new_from_file_at_size(
@@ -923,11 +927,21 @@ void fx_main_process_sipc(FxMain* fxmain , const gchar* sipmsg)
 
 void fx_main_process_deregistration(FxMain* fxmain)
 {
-
 	gdk_threads_enter();
-	fx_util_popup_warning(fxmain , _("Your fetion login elsewhere. You are forced quit."));
+#ifdef USE_LIBNOTIFY
+	GdkPixbuf    *pixbuf;
+
+	pixbuf = gdk_pixbuf_new_from_file_at_size(
+				SKIN_DIR"fetion.svg",
+				NOTIFY_IMAGE_SIZE,
+				NOTIFY_IMAGE_SIZE, NULL);
+	notify_notification_update(fxmain->notify , "Sorry.."
+			, _("Your fetion login elsewhere. You are forced quit."), NULL);
+	notify_notification_set_icon_from_pixbuf(fxmain->notify , pixbuf);
+	notify_notification_show(fxmain->notify , NULL);
+	g_object_unref(pixbuf);
+#endif
 	gdk_threads_leave();
-	gtk_main_quit();
 }
 void fx_main_process_syncuserinfo(FxMain* fxmain , const gchar* xml)
 {
@@ -1012,9 +1026,15 @@ void fx_main_destroy(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	FxMain *fxmain = (FxMain*)data;
 	User   *user = fxmain->user;
+	char    server_fifo[128];
 	if(user){
 		Config *config = user->config;
 		fetion_config_save_size(config);
+		extern int idlefifo;
+		/* delete fifo file */
+		close(idlefifo);
+		snprintf(server_fifo, sizeof(server_fifo) - 1, OPENFETION_FIFO_FILE, user->mobileno);
+		unlink(server_fifo);
 	}
 	gtk_main_quit();
 }
@@ -1029,6 +1049,11 @@ gboolean fx_main_delete(GtkWidget *widget , GdkEvent *UNUSED(event) , gpointer d
 	int     window_height;
 	int     window_x;
 	int     window_y;
+
+	printf("fx_main_delete\n");
+
+	if(!fxmain->window)
+		return TRUE;
 
 	if(fxmain->user){
 		config = fxmain->user->config;
@@ -1087,6 +1112,7 @@ gboolean fx_main_delete(GtkWidget *widget , GdkEvent *UNUSED(event) , gpointer d
 	}
 	return FALSE;
 }
+
 gboolean fx_main_window_state_func(GtkWidget *widget
 		, GdkEventWindowState *event , gpointer data)
 {
@@ -1111,6 +1137,7 @@ gboolean fx_main_window_state_func(GtkWidget *widget
 	}
 	return FALSE;
 }
+
 void fx_main_tray_activate_func(GtkWidget *UNUSED(widget) , gpointer data)
 {
 	FxMain *fxmain;
@@ -1305,14 +1332,22 @@ void fx_main_tray_popmenu_func(
 }
 int main(int argc , char* argv[])
 {
-
-	FxMain* fxmain = fx_main_new();
-
+#ifdef ENABLE_NLS
 	setlocale(LC_ALL, "");
 	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
 	bindtextdomain(GETTEXT_PACKAGE , LOCALE_DIR);
 	textdomain(GETTEXT_PACKAGE);
+#endif	
 
+	/* cli mode */
+	if(argc != 1) {
+		if(fx_cli_opt(argc, argv))
+			return 1;
+		return fx_cli_exec();
+	}
+
+	FxMain* fxmain = fx_main_new();
+	
 	if(!g_thread_supported())
 		g_thread_init(NULL);
 	gdk_threads_init();
@@ -1845,6 +1880,7 @@ static void fx_main_process_pgpresencechanged(FxMain *fxmain , const char *sipms
 static gboolean key_press_func(GtkWidget *widget , GdkEventKey *event
 		, gpointer data)
 {
+
 	if(event->keyval == GDK_w){
 		if(event->state & GDK_CONTROL_MASK){
 			gtk_window_iconify(GTK_WINDOW(widget));
@@ -1854,7 +1890,11 @@ static gboolean key_press_func(GtkWidget *widget , GdkEventKey *event
 		}
 	}
 	if(event->keyval == GDK_q){
-		if(event->state & GDK_CONTROL_MASK){
+		if(event->state & GDK_CONTROL_MASK) {
+			fx_main_delete(widget , NULL , data);
+			return TRUE;
+		} else if (event->state == GDK_MOD1_MASK) {
+			/* press `command-q` to quit on Mac OS X */
 			fx_main_delete(widget , NULL , data);
 			return TRUE;
 		}else{

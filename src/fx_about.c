@@ -137,12 +137,12 @@ static void create_intro(GtkTextView *view)
 	GtkTextTag    *tag;
 	GtkTextTag    *tag1;
 	GtkTextIter    iter;
-	const char title[] = "Openfetion 2.0.2\n\n";
-	const char intro[] = "OpenFetion is a Fetion client for linux based on GTK+2.0,"
-						"implementing Fetion Protocol Version 4.\n\n"
-						"It supports most features of Fetion. \n\n"
-						"What's more, it's lightweight and efficient with intuitive interface.\n\n"
-						"Project homepage: ";
+	const char title[] = N_("Openfetion "FETION_VERSION"\n\n");
+	const char intro[] = N_("OpenFetion is a Fetion client for linux based on GTK+2.0, "
+				"implementing Fetion Protocol Version 4.\n"
+				"It supports most features of Fetion. \n"
+				"What's more, it's lightweight and efficient with intuitive interface.\n\n"
+				"Project homepage: ");
 
 	gtk_text_view_set_editable(view,FALSE);
 	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(view), GTK_WRAP_WORD_CHAR);
@@ -170,10 +170,14 @@ static void create_intro(GtkTextView *view)
 	gtk_text_buffer_insert_with_tags(buffer, &iter,
 		   	title, -1, tag, NULL);
 	gtk_text_buffer_insert_with_tags(buffer, &iter,
-		   	intro, -1, tag1, NULL);
+		   	_(intro), -1, tag1, NULL);
 	insert_link(buffer, &iter, "http://code.google.com/p/ofetion/");
 	gtk_text_buffer_insert_with_tags(buffer, &iter,
-		   	"\nPage on author's blog: ", -1, tag1, NULL);
+		   	_("\nBug report: "), -1, tag1, NULL);
+	insert_link(buffer, &iter, "http://code.google.com/p/ofetion/issues/");
+	
+	gtk_text_buffer_insert_with_tags(buffer, &iter,
+		   	_("\n\nPage on author's blog: "), -1, tag1, NULL);
 	insert_link(buffer, &iter, "http://basiccoder.com/openfetion");
 }
 
@@ -183,10 +187,10 @@ static void create_author(GtkTextView *view)
 	GtkTextTag    *tag1;
 	GtkTextIter    iter;
 	const char title[] = "Levin\n\n";
-	const char *intro = "Graduate student at Beijing University of Post & Telecommunication."
+	const char *intro = _("Graduate student at Beijing University of Post & Telecommunication."
 						"Love Linux,Love OpenSource.Started this project in order to help "
 						"linux users including myself to get a better way to use fetion.\n\n"
-						"Blog:";
+						"Blog:");
 
 	gtk_text_view_set_editable(view,FALSE);
 	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(view), GTK_WRAP_WORD_CHAR);
@@ -227,16 +231,19 @@ static void create_gpl(GtkTextView *view)
 {
 	GtkTextTag    *tag;
 	GtkTextIter    iter;
-	FILE          *fd;
-	char           buf[BUFLEN];
+	char           *buf1 = N_("This program is free software; you can redistribute it and/or modify "
+				"it under the terms of the GNU General Public License as published by "
+				"the Free Software Foundation; either version 2 of the License, or "
+				"(at your option) any later version.\n\n");
+	char           *buf2 = N_("This program is distributed in the hope that it will be useful, "
+				"but WITHOUT ANY WARRANTY; without even the implied warranty of "
+				"MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the "
+				"GNU General Public License for more details.\n\n");
+	char           *buf3 = N_("You should have received a copy of the GNU General Public License "
+				"along with this program; if not, see \n");
 
-	fd = fopen(RESOURCE_DIR"license.txt", "r");
-	if(!fd){
-		perror("read license.txt failed");
-		return;
-	}
-
-	gtk_text_view_set_editable(view,FALSE);
+	gtk_text_view_set_editable(view, FALSE);
+	gtk_text_view_set_wrap_mode(view, GTK_WRAP_WORD);
 	g_signal_connect (view, "motion-notify-event", 
 			G_CALLBACK (motion_notify_event), NULL);
 
@@ -249,13 +256,10 @@ static void create_gpl(GtkTextView *view)
 
 	gtk_text_buffer_get_start_iter(buffer, &iter);
   
-	memset(buf, 0, sizeof(buf));
-	while(fgets(buf, sizeof(buf), fd)){
-		gtk_text_buffer_insert_with_tags(buffer, &iter,
-		   		buf, -1, tag, NULL);
-		memset(buf, 0, sizeof(buf));
-	}
-	fclose(fd);
+	gtk_text_buffer_insert_with_tags(buffer, &iter, _(buf1), -1, tag, NULL);
+	gtk_text_buffer_insert_with_tags(buffer, &iter, _(buf2), -1, tag, NULL);
+	gtk_text_buffer_insert_with_tags(buffer, &iter, _(buf3), -1, tag, NULL);
+	insert_link(buffer, &iter, "http://www.gnu.org/licenses/gpl-2.0.txt");
 }
 
 static void create_contri(GtkTextView *view)
@@ -264,7 +268,7 @@ static void create_contri(GtkTextView *view)
 	GtkTextTag    *tag1;
 	GtkTextTag    *tag2;
 	GtkTextIter    iter;
-	const char title[] = "The Main Contributors\n\n";
+	const char title[] = N_("The Main Contributors\n\n");
 	const char *intro;
 
 	gtk_text_view_set_editable(view,FALSE);
@@ -300,34 +304,34 @@ static void create_contri(GtkTextView *view)
 
 	gtk_text_buffer_insert_with_tags(buffer, &iter,
 		   	"happyaron: ", -1, tag2, NULL);
-	intro = "Make dep package for debian/ubuntu users,"
-			"maintainer of the PPA of openfetion.\nBlog:";
+	intro = N_("Make deb package for debian/ubuntu users,"
+			"maintainer of the PPA of openfetion.\nBlog:");
 	gtk_text_buffer_insert_with_tags(buffer, &iter,
-		   	intro, -1, tag1, NULL);
+		   	_(intro), -1, tag1, NULL);
 	insert_link(buffer, &iter, "http://blogs.gnome.org/happyaron/");
 
 	
 	gtk_text_buffer_insert_with_tags(buffer, &iter,
 		   	"\n\nwzssyqa: ", -1, tag2, NULL);
-	intro = "Main translater of openfetion,accomplish"
-		" the internationalisation(i18n) of openfetion";
+	intro = N_("Main translater of openfetion,accomplish"
+		" the internationalisation(i18n) of openfetion");
 	gtk_text_buffer_insert_with_tags(buffer, &iter,
-		   	intro, -1, tag1, NULL);
+		   	_(intro), -1, tag1, NULL);
 
 	gtk_text_buffer_insert_with_tags(buffer, &iter,
 		   	"\n\nxhacker: ", -1, tag2, NULL);
-	intro = "Contributed to the UI development,and fixed some "
-			"bugs of the UI.\nFollow him:";
+	intro = N_("Contributed to the UI development,and fixed some "
+			"bugs of the UI.\nFollow him:");
 	gtk_text_buffer_insert_with_tags(buffer, &iter,
-		   	intro, -1, tag1, NULL);
+		   	_(intro), -1, tag1, NULL);
 	insert_link(buffer, &iter, "http://twitter.com/xhacker");
 
 	gtk_text_buffer_insert_with_tags(buffer, &iter,
 		   	"\n\nriku: ", -1, tag2, NULL);
-	intro = "A good designer,designed a logo and some icons for "
-			"openfetion,and also contributed to the UI design.\nFollow him:";
+	intro = N_("A good designer,designed a logo and some icons for "
+			"openfetion,and also contributed to the UI design.\nFollow him:");
 	gtk_text_buffer_insert_with_tags(buffer, &iter,
-		   	intro, -1, tag1, NULL);
+		   	_(intro), -1, tag1, NULL);
 	insert_link(buffer, &iter, "http://twitter.com/riku");
 }
 

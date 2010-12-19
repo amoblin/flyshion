@@ -225,7 +225,7 @@ char* sipc_reg_action(User* user)
 
 	fetion_sip_set_type(sip , SIP_REGISTER);
 	SipHeader* cheader = fetion_sip_header_new("CN" , cnouce);
-	SipHeader* client = fetion_sip_header_new("CL" , "type=\"pc\" ,version=\"PROTO_VERSION\"");
+	SipHeader* client = fetion_sip_header_new("CL" , "type=\"pc\" ,version=\""PROTO_VERSION"\"");
 	fetion_sip_add_header(sip , cheader);
 	fetion_sip_add_header(sip , client);
 	free(cnouce);
@@ -274,8 +274,6 @@ char* sipc_aut_action(User* user , const char* response)
 	}
 	sipmsg = fetion_sip_to_string(sip , xml);
 	debug_info("Start sipc authentication , with ak-value");
-//	debug_info("contact-version : %s , personal-version %s"
-//			 , user->contactVersion , user->personalVersion);
 
 	tcp_connection_send(sip->tcp , sipmsg , strlen(sipmsg));
 	res = fetion_sip_get_response(sip);
@@ -455,8 +453,10 @@ char* generate_aes_key()
 	int ret = fread(key, 64, 1, rand_fd);
 	if(ret != 1){
 		free(key);
+		fclose(rand_fd);
 		return NULL;
 	}
+	fclose(rand_fd);
 	return key;
 }
 static char* generate_auth_body(User* user)

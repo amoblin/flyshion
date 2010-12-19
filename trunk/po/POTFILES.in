@@ -1,0 +1,36 @@
+# List of source files which contain translatable strings.
+[encoding: UTF-8]
+src/fx_addbuddy.c
+src/fx_bottom.c
+src/fx_code.c
+src/fx_emotion.c
+src/fx_history.c
+src/fx_lookupres.c
+src/fx_myself.c
+src/fx_search.c
+src/fx_sound.c
+src/fx_util.c
+src/fx_add_group.c
+src/fx_chat.c
+src/fx_dsms.c
+src/fx_gedit.c
+src/fx_login.c
+src/fx_main.c
+src/fx_profile.c
+src/fx_set.c
+src/fx_sysmsg.c
+src/fx_app.c
+src/fx_close.c
+src/fx_edit.c
+src/fx_head.c
+src/fx_lookup.c
+src/fx_many.c
+src/fx_proxy.c
+src/fx_tree.c
+src/fx_pggroup.c
+src/fx_pgprofile.c
+src/fx_smsstat.c
+src/fx_idle.c
+src/fx_conn.c
+src/fx_about.c
+src/fx_share.c

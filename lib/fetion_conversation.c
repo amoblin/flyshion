@@ -37,13 +37,15 @@ Conversation* fetion_conversation_new(User* user,
 				fetion_contact_list_find_by_sipuri(user->contactList , sipuri);
 	else
 		conversation->currentContact = NULL;
-	if(sipuri != NULL && conversation->currentContact == NULL)
+	if(sipuri != NULL && conversation->currentContact == NULL){
+		free(conversation);
 		return NULL;
+	}
 	conversation->currentSip = sip;
 	return conversation;
 }
 
-void fetion_conversation_send_sms(Conversation* conversation , const char* msg)
+int fetion_conversation_send_sms(Conversation* conversation , const char* msg)
 {
 	FetionSip* sip = conversation->currentSip == NULL ?
 		   	conversation->currentUser->sip : conversation->currentSip;
@@ -76,12 +78,60 @@ void fetion_conversation_send_sms(Conversation* conversation , const char* msg)
 
 	res = fetion_sip_to_string(sip , msg);
 	debug_info("Sent a message to %s" , conversation->currentContact->sipuri);
+	if(tcp_connection_send(sip->tcp , res , strlen(res)) == -1){
+		free(res);
+		return -1;
+	}
+	free(res);
+	return 1;
+}
+
+int fetion_conversation_send_sms_with_reply(Conversation *conv, const char *msg)
+{
+	char       rep[1024];
+
+	FetionSip* sip = conv->currentSip == NULL ?
+		   	conv->currentUser->sip : conv->currentSip;
+	SipHeader *toheader , *cheader , *kheader , *nheader;
+	Message *message;
+	char* res;
+	struct tm *now;
+	struct tm now_copy;
+
+	fetion_sip_set_type(sip , SIP_MESSAGE);
+	nheader  = fetion_sip_event_header_new(SIP_EVENT_CATMESSAGE);
+	toheader = fetion_sip_header_new("T" , conv->currentContact->sipuri);
+	cheader  = fetion_sip_header_new("C" , "text/plain");
+	kheader  = fetion_sip_header_new("K" , "SaveHistory");
+	fetion_sip_add_header(sip , toheader);
+	fetion_sip_add_header(sip , cheader);
+	fetion_sip_add_header(sip , kheader);
+	fetion_sip_add_header(sip , nheader);
+	/* add message to list */
+	now = get_currenttime();
+	now_copy = *now;
+	message = fetion_message_new();
+	fetion_message_set_sipuri(message , conv->currentContact->sipuri);
+	fetion_message_set_time(message , now_copy);
+	fetion_message_set_message(message , msg);
+	fetion_message_set_callid(message , sip->callid);
+
+	res = fetion_sip_to_string(sip , msg);
+	debug_info("Sent a message to %s" , conv->currentContact->sipuri);
 	tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
 
-	
+	memset(rep , 0 , sizeof(rep));
+	tcp_connection_recv(sip->tcp , rep , sizeof(rep));
+
+	if(fetion_sip_get_code(rep) == 280 || fetion_sip_get_code(rep) == 200){
+		return 1;
+	}else{
+		return -1;
+	}
 }
-void fetion_conversation_send_sms_to_myself(Conversation* conversation,
+
+int fetion_conversation_send_sms_to_myself(Conversation* conversation,
 			   	const char* message)
 {
 	SipHeader *toheader = NULL;
@@ -96,11 +146,45 @@ void fetion_conversation_send_sms_to_myself(Conversation* conversation,
 	fetion_sip_add_header(sip , eheader);
 	res = fetion_sip_to_string(sip , message);
 	debug_info("Sent a message to myself" , conversation->currentContact->sipuri);
-	tcp_connection_send(sip->tcp , res , strlen(res));
+	if(tcp_connection_send(sip->tcp , res , strlen(res)) == -1) {
+		free(res);
+		return -1;
+	}
 	free(res);
 	res = fetion_sip_get_response(sip);
 	free(res);
+	return 1;
 }
+
+int fetion_conversation_send_sms_to_myself_with_reply(Conversation* conversation,
+			   	const char* message)
+{
+	SipHeader *toheader = NULL;
+	SipHeader *eheader = NULL;
+	char       *res = NULL;
+	char        rep[1024];
+	int         code;
+	FetionSip  *sip = conversation->currentUser->sip;
+
+	fetion_sip_set_type(sip , SIP_MESSAGE);
+	toheader = fetion_sip_header_new("T" , conversation->currentUser->sipuri);
+	eheader  = fetion_sip_event_header_new(SIP_EVENT_SENDCATMESSAGE);
+	fetion_sip_add_header(sip , toheader);
+	fetion_sip_add_header(sip , eheader);
+	res = fetion_sip_to_string(sip , message);
+	debug_info("Sent a message to myself" , conversation->currentContact->sipuri);
+	tcp_connection_send(sip->tcp , res , strlen(res));
+	free(res);
+	memset(rep, 0, sizeof(rep));
+	tcp_connection_recv(sip->tcp , rep , sizeof(rep));
+	code = fetion_sip_get_code(rep);
+	if(code == 200 || code == 280){
+		return 1;
+	}else{
+		return -1;
+	}
+}
+
 int fetion_conversation_send_sms_to_phone(Conversation* conversation,
 			   	const char* message)
 {

@@ -24,12 +24,18 @@
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <gdk/gdkkeysyms.h>
 #include <glib.h>
-#include <glib/gi18n.h>
 #include <config.h>
 #ifdef USE_LIBNOTIFY
  #include <libnotify/notify.h>
 #endif
 #include <openfetion.h>
+
+#ifdef ENABLE_NLS
+	#include "glib/gi18n.h"
+#else
+	#define  _(String) (String)
+	#define N_(String) (String)
+#endif
 #include "fx_types.h"
 #include "fx_util.h"
 #include "fx_sound.h"
