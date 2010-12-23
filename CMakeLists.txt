@@ -184,7 +184,9 @@ add_library(ofetion-static STATIC ${libofetion_SRC})
 SET_TARGET_PROPERTIES(ofetion-static PROPERTIES OUTPUT_NAME "ofetion")
 SET_TARGET_PROPERTIES(ofetion-static PROPERTIES PREFIX "lib")
 
-install(TARGETS ofetion LIBRARY DESTINATION ${LIB_INSTALL_DIR})
+install(TARGETS ofetion ofetion-static
+	LIBRARY DESTINATION ${LIB_INSTALL_DIR}
+	ARCHIVE DESTINATION ${LIB_INSTALL_DIR})
 file(GLOB ofetion_INCLUDES "include/openfetion/*.h")
 install(FILES ${ofetion_INCLUDES} DESTINATION ${INCLUDE_INSTALL_DIR} COMPONENT Devel)
 
