@@ -533,9 +533,9 @@ static void pggroup_send_message(FxPGGroup *fxpg)
 	pg_add_message(fxpg , value , now , NULL);
 	gtk_text_buffer_delete(buffer , &biter , &eiter);
 	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxpg->phoneButton)))
-	    pg_group_send_message(user , fxpg->pggroup , value);
-	else
 	    pg_group_send_sms(user , fxpg->pggroup , value);
+	else
+	    pg_group_send_message(user , fxpg->pggroup , value);
 }
 
 void pggroup_on_sendsms_clicked(GtkWidget *widget , gpointer data)
