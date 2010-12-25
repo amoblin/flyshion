@@ -1122,6 +1122,15 @@ static void fx_tree_on_double_click(GtkTreeView *treeview
 	gchar *sipuri , *mobileno , *carrier;
 	gint serviceStatus , relationStatus , carrierStatus;
 
+	FxList        *mlist;
+	FxList        *cur;
+	FxList        *tmp;
+	FxChat        *fxchat;
+	Message       *msg;
+
+	mlist = fxmain->mlist;
+	cur = mlist->pre;
+
 	if(depth > 1){
 		if(!fx_conn_check_action(fxmain))
 			return;
@@ -1145,6 +1154,31 @@ static void fx_tree_on_double_click(GtkTreeView *treeview
 			fx_util_popup_warning(fxmain , _("This user have shut fetion service,so you cannot send mesage to him/her"));
 			return;
 		}
+
+		while(cur != fxmain->mlist){
+			msg = (Message*)(cur->data);
+
+			/* ordinary message */
+			if(!msg->pguri && strcmp(sipuri, msg->sipuri) == 0){
+				fxchat = fx_main_create_chat_window(fxmain , msg->sipuri);
+
+				if(!fxchat){
+					g_print("Unknow Message\n");
+					g_print("%s:%s\n" , msg->sipuri ,  msg->message);
+					continue;
+				}
+				fx_chat_add_message(fxchat , msg->message,
+						&(msg->sendtime) , 0 , msg->sysback);
+				fetion_message_free(msg);
+				tmp = cur;
+				cur = cur->pre;
+				fx_list_remove(tmp);
+				g_free(tmp);
+			}else{
+				cur = cur->pre;
+			}
+		}
+
 		fx_main_create_chat_window(fxmain , sipuri);
 		g_free(sipuri);
 		g_free(mobileno);
