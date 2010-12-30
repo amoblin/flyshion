@@ -28,7 +28,6 @@
  *   combination shall include the source code for the parts of the        *
  *   OpenSSL library used as well as that of the covered work.             *
  ***************************************************************************/
- ***************************************************************************/
 
 #ifndef FETION_LOGIN_H
 #define FETION_LOGIN_H
