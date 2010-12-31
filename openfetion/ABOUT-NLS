@@ -1,0 +1,6 @@
+To disable NLS
+
+mkdir build
+cmake .. -DDISABLE_NLS="1" -DCMAKE_INSTALL_PREFIX=prefix
+make
+make install
