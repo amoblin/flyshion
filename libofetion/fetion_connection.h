@@ -77,7 +77,7 @@ extern void tcp_connection_free(FetionConnection* conn);
 
 extern char* get_ip_by_name(const char* hostname);
 
-extern char *get_loacl_ip();
+extern char *get_local_ip();
 
 extern char *hexip_to_dotip(const char *ip);
 

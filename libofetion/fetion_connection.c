@@ -502,7 +502,7 @@ char* http_connection_encode_url(const char* url)
 	return res;
 }
 
-char *get_loacl_ip(){
+char *get_local_ip(){
 #if 0
     struct ifreq req;
     int sock;
