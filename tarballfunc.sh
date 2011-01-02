@@ -124,6 +124,8 @@ gen_tarball(){
 copy_standalone_files(){
 	drc=$1-standalone-$2
 	cp -r $1 tarball/$drc
+    rm tarball/$drc/INSTALL.standalone
+    cp $1/INSTALL.standalone tarball/$drc/INSTALL
 	mkdir -p tarball/$drc/lib
 	cp libofetion/*.h tarball/$drc/lib
 	cp libofetion/*.c tarball/$drc/lib

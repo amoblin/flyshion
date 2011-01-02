@@ -30,8 +30,11 @@ sudo apt-get install pkg-config cmake libssl-dev libxml2-dev libsqlite3-dev
 
 Then you can start to build from outside of /path/to/your/libofetion
 
-mkdir build
-cd build/
-cmake -DCMAKE_INSTALL_PREFIX=/path/to/dest -DCMAKE_BUILD_TYPE=release ../libofetion/
-make
-sudo make install
+$ mkdir build
+$ cd build/
+$ cmake \
+        -DCMAKE_INSTALL_PREFIX=/path/to/dest \
+        -DCMAKE_BUILD_TYPE=release \
+        ../libofetion/
+$ make
+$ sudo make install
