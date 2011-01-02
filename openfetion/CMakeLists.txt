@@ -3,18 +3,15 @@ cmake_minimum_required(VERSION 2.6)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules)
 set(TARNAME openfetion)
 
-
-# program name, version etc
-
+# Program name, version, etc
 set(PACKAGE_VERSION "2.1.0")
 set(PACKAGE_NAME "OpenFetion")
 set(PACKAGE_TARNAME "${TARNAME}")
 set(PACKAGE_STRING "${PACKAGE_NAME} ${PACKAGE_VERSION}")
 set(PACKAGE_BUGREPORT "http://code.google.com/p/ofetion/issues/list")
 
-find_package(PkgConfig REQUIRED)
-
 ##########################################################################
+
 if(NOT DEFINED BIN_INSTALL_DIR)
     set(BIN_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/bin")
 endif(NOT DEFINED BIN_INSTALL_DIR)
@@ -28,10 +25,14 @@ if(NOT DEFINED INCLUDE_INSTALL_DIR)
     set(INCLUDE_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/include")
 endif(NOT DEFINED INCLUDE_INSTALL_DIR)
 
+##########################################################################
+
 add_definitions(-Wall -Wextra)
 add_definitions(-DRESOURCE_DIR="${DATA_INSTALL_DIR}/openfetion/resource/")
 add_definitions(-DSKIN_DIR="${DATA_INSTALL_DIR}/openfetion/skin/")
 add_definitions(-DLOCALE_DIR="${DATA_INSTALL_DIR}/locale/")
+
+##########################################################################
 
 # compile option switch
 option(NLS "Native language support" ON)
@@ -69,10 +70,10 @@ if(WITH_NETWORKMANAGER)
 endif(WITH_NETWORKMANAGER)
 
 ##########################################################################
+
 message("==========================================")
 if(NLS AND GETTEXT_FOUND)
-	add_definitions(-DGETTEXT_PACKAGE="${PACKAGE_TARNAME}")
-	add_definitions(-DENABLE_NLS="1")
+    set(ENABLE_NLS 1)
     message(STATUS "Native language support:  YES" )
 else(NLS AND GETTEXT_FOUND)
     message(STATUS "Native language support:  NO" )
@@ -200,7 +201,9 @@ endif(NLS AND GETTEXT_FOUND)
 install(TARGETS openfetion RUNTIME DESTINATION ${BIN_INSTALL_DIR})
 install(FILES ${openfetion_SKINIMAGES} DESTINATION ${DATA_INSTALL_DIR}/openfetion/skin)
 install(FILES ${openfetion_FACEIMAGES} DESTINATION ${DATA_INSTALL_DIR}/openfetion/skin/face_images)
-install(FILES resource/newmessage.wav DESTINATION ${DATA_INSTALL_DIR}/openfetion/resource)
+if(WITH_GSTREAMER AND GSTREAMER_FOUND)
+    install(FILES resource/newmessage.wav DESTINATION ${DATA_INSTALL_DIR}/openfetion/resource)
+endif(WITH_GSTREAMER AND GSTREAMER_FOUND)
 install(FILES resource/openfetion.desktop DESTINATION ${DATA_INSTALL_DIR}/applications)
 install(FILES skin/fetion.svg DESTINATION ${DATA_INSTALL_DIR}/pixmaps)
 install(FILES openfetion.1 DESTINATION ${DATA_INSTALL_DIR}/man/man1)

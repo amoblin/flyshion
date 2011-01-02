@@ -27,7 +27,7 @@ if(NOT DEFINED DATA_INSTALL_DIR)
     set(DATA_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/share")
 endif(NOT DEFINED DATA_INSTALL_DIR)
 set(RESOURCE_DIR
-    "${DATA_INSTALL_DIR}/${PACKAGE_NAME}-${LIBOFETION_ABI_MAJOR_VERSION}/resource/")
+    "${DATA_INSTALL_DIR}/${PACKAGE_TARNAME}-${LIBOFETION_ABI_MAJOR_VERSION}/resource/")
 
 ##########################################################################
 
