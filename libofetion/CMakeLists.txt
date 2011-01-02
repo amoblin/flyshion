@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.6)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules)
 set(TARNAME libofetion)
 
-# program name, version etc
+# Program name, version, etc
 set(LIBOFETION_API_VERSION "1.1.0")
 set(LIBOFETION_ABI_VERSION "1.0.0")
 set(LIBOFETION_ABI_MAJOR_VERSION "1")
@@ -26,14 +26,15 @@ endif(NOT DEFINED INCLUDE_INSTALL_DIR)
 if(NOT DEFINED DATA_INSTALL_DIR)
     set(DATA_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/share")
 endif(NOT DEFINED DATA_INSTALL_DIR)
-
-set(RESOURCE_DIR
-    "${DATA_INSTALL_DIR}/${PACKAGE_TARNAME}-${LIBOFETION_ABI_MAJOR_VERSION}/resource/")
+if(NOT DEFINED RESOURCE_INSTALL_DIR)
+    set(RESOURCE_INSTALL_DIR
+        "${DATA_INSTALL_DIR}/${PACKAGE_TARNAME}-${LIBOFETION_ABI_MAJOR_VERSION}/resource/")
+endif(NOT DEFINED RESOURCE_INSTALL_DIR)
 
 ##########################################################################
 
 add_definitions(-Wall -Wextra)
-add_definitions(-DRESOURCE_DIR="${RESOURCE_DIR}")
+add_definitions(-DRESOURCE_DIR="${RESOURCE_INSTALL_DIR}")
 
 ##########################################################################
 
@@ -97,7 +98,8 @@ set_target_properties(ofetion-static PROPERTIES
 
 ##########################################################################
 
-install(FILES resource/city.xml resource/province.xml DESTINATION ${RESOURCE_DIR})
+install(FILES resource/city.xml resource/province.xml DESTINATION
+    ${RESOURCE_INSTALL_DIR})
 
 file(GLOB ofetion_INCLUDES "./*.h")
 install(FILES ${ofetion_INCLUDES} DESTINATION ${INCLUDE_INSTALL_DIR} COMPONENT Devel)
