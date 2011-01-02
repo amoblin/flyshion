@@ -31,7 +31,7 @@ endif(NOT DEFINED DATA_INSTALL_DIR)
 ##########################################################################
 
 add_definitions(-Wall -Wextra)
-add_definitions(-DRESOURCE_DIR=${RESOURCE_DIR})
+add_definitions(-DRESOURCE_DIR="${RESOURCE_DIR}")
 
 ##########################################################################
 
@@ -99,7 +99,8 @@ file(GLOB ofetion_INCLUDES "./*.h")
 install(FILES ${ofetion_INCLUDES} DESTINATION ${INCLUDE_INSTALL_DIR} COMPONENT Devel)
 
 install(TARGETS ofetion ofetion-static
-	LIBRARY DESTINATION ${LIB_INSTALL_DIR}
-	ARCHIVE DESTINATION ${LIB_INSTALL_DIR})
+    LIBRARY DESTINATION ${LIB_INSTALL_DIR}
+    ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
+)
 configure_file(./ofetion.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/ofetion.pc)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ofetion.pc DESTINATION ${LIB_INSTALL_DIR}/pkgconfig)
