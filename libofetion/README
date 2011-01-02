@@ -38,3 +38,8 @@ $ cmake \
         ../libofetion/
 $ make
 $ sudo make install
+
+UNINSTALL
+=========
+To uninstall, run
+# xargs rm < install_manifest.txt
