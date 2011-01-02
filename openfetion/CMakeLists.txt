@@ -52,7 +52,7 @@ pkg_check_modules(GTK2 REQUIRED gtk+-2.0)
 pkg_check_modules(GDKPIXBUF REQUIRED gdk-pixbuf-2.0)
 pkg_check_modules(GLIB2 REQUIRED glib-2.0)
 #if use system ofetion, need check ofetion, 
-#if build localely, no need to check
+#if build locally, no need to check
 pkg_check_modules(OFETION REQUIRED ofetion)
 
 if(WITH_LIBNOTIFY)
@@ -135,7 +135,7 @@ if(WITH_NETWORKMANAGER AND NETWORKMANAGER_FOUND)
     include_directories(${DBUSGLIB_INCLUDE_DIRS})
 endif(WITH_NETWORKMANAGER AND NETWORKMANAGER_FOUND)
 
-set(openfetion_SRC
+set(OPENFETION_SRC
     src/fx_about.c
     src/fx_addbuddy.c
     src/fx_add_group.c
@@ -174,8 +174,10 @@ set(openfetion_SRC
     src/fx_cli.c
 )
 
-add_executable(openfetion ${openfetion_SRC})
-target_link_libraries(openfetion ${GTK2_LIBRARIES} ${GDKPIXBUF_LIBRARIES} ${GTHREAD2_LIBRARIES} ${OFETION_LIBRARIES})
+add_executable(openfetion ${OPENFETION_SRC})
+target_link_libraries(openfetion 
+    ${GTK2_LIBRARIES} ${GDKPIXBUF_LIBRARIES} ${GTHREAD2_LIBRARIES}
+    ${OFETION_LIBRARIES})
 if(WITH_LIBNOTIFY AND LIBNOTIFY_FOUND)
     target_link_libraries(openfetion ${LIBNOTIFY_LIBRARIES})
 endif(WITH_LIBNOTIFY AND LIBNOTIFY_FOUND)
@@ -191,18 +193,21 @@ if(WITH_NETWORKMANAGER AND NETWORKMANAGER_FOUND AND DBUSGLIB_FOUND)
 endif(WITH_NETWORKMANAGER AND NETWORKMANAGER_FOUND AND DBUSGLIB_FOUND)
 
 ##########################################################################
-file(GLOB openfetion_SKINIMAGES "skin/*.png" "skin/*.svg" "skin/*.gif")
-file(GLOB openfetion_FACEIMAGES "skin/face_images/*.gif")
+
+install(TARGETS openfetion RUNTIME DESTINATION ${BIN_INSTALL_DIR})
+
 if(NLS AND GETTEXT_FOUND)
 	file(GLOB POFILES "${CMAKE_CURRENT_SOURCE_DIR}/po/*.po")
 	gettext_create_translations("${CMAKE_CURRENT_SOURCE_DIR}/po/openfetion.pot" ALL ${POFILES})
 endif(NLS AND GETTEXT_FOUND)
 
-install(TARGETS openfetion RUNTIME DESTINATION ${BIN_INSTALL_DIR})
-install(FILES ${openfetion_SKINIMAGES} DESTINATION ${DATA_INSTALL_DIR}/openfetion/skin)
-install(FILES ${openfetion_FACEIMAGES} DESTINATION ${DATA_INSTALL_DIR}/openfetion/skin/face_images)
+file(GLOB OPENFETION_SKINIMAGES "skin/*.png" "skin/*.svg" "skin/*.gif")
+file(GLOB OPENFETION_FACEIMAGES "skin/face_images/*.gif")
+install(FILES ${OPENFETION_SKINIMAGES} DESTINATION ${SKIN_DIR})
+install(FILES ${OPENFETION_FACEIMAGES} DESTINATION ${SKIN_DIR}/face_images/)
+
 if(WITH_GSTREAMER AND GSTREAMER_FOUND)
-    install(FILES resource/newmessage.wav DESTINATION ${DATA_INSTALL_DIR}/openfetion/resource)
+    install(FILES resource/newmessage.wav DESTINATION ${RESOURCE_DIR})
 endif(WITH_GSTREAMER AND GSTREAMER_FOUND)
 install(FILES resource/openfetion.desktop DESTINATION ${DATA_INSTALL_DIR}/applications)
 install(FILES skin/fetion.svg DESTINATION ${DATA_INSTALL_DIR}/pixmaps)

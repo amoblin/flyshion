@@ -26,6 +26,7 @@ endif(NOT DEFINED INCLUDE_INSTALL_DIR)
 if(NOT DEFINED DATA_INSTALL_DIR)
     set(DATA_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/share")
 endif(NOT DEFINED DATA_INSTALL_DIR)
+
 set(RESOURCE_DIR
     "${DATA_INSTALL_DIR}/${PACKAGE_TARNAME}-${LIBOFETION_ABI_MAJOR_VERSION}/resource/")
 
@@ -61,7 +62,7 @@ include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-set(libofetion_SRC
+set(LIBOFETION_SRC
     ./fetion_buddylist.c
     ./fetion_config.c
     ./fetion_connection.c
@@ -79,18 +80,20 @@ set(libofetion_SRC
     ./fetion_user.c
 )
 
-add_library(ofetion SHARED ${libofetion_SRC})
-target_link_libraries(ofetion ${LIBXML2_LIBRARIES} ${OPENSSL_LIBRARIES} ${SQLITE3_LIBRARIES})
-
+add_library(ofetion SHARED ${LIBOFETION_SRC})
+target_link_libraries(ofetion 
+    ${LIBXML2_LIBRARIES} ${OPENSSL_LIBRARIES} ${SQLITE3_LIBRARIES})
 set_target_properties(ofetion PROPERTIES
     VERSION ${LIBOFETION_ABI_VERSION}
     SOVERSION ${LIBOFETION_ABI_MAJOR_VERSION}
     LINK_FLAGS ${_link_flags}
 )
 
-add_library(ofetion-static STATIC ${libofetion_SRC})
-set_target_properties(ofetion-static PROPERTIES OUTPUT_NAME "ofetion")
-set_target_properties(ofetion-static PROPERTIES PREFIX "lib")
+add_library(ofetion-static STATIC ${LIBOFETION_SRC})
+set_target_properties(ofetion-static PROPERTIES 
+    OUTPUT_NAME "ofetion"
+    PREFIX "lib"
+)
 
 ##########################################################################
 
@@ -103,5 +106,6 @@ install(TARGETS ofetion ofetion-static
     LIBRARY DESTINATION ${LIB_INSTALL_DIR}
     ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
 )
+
 configure_file(./ofetion.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/ofetion.pc)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ofetion.pc DESTINATION ${LIB_INSTALL_DIR}/pkgconfig)
