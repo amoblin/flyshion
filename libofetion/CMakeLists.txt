@@ -12,8 +12,7 @@ set(PACKAGE_NAME "${TARNAME}")
 set(PACKAGE_TARNAME "${TARNAME}")
 set(PACKAGE_STRING "${PACKAGE_NAME} ${PACKAGE_VERSION}")
 set(PACKAGE_BUGREPORT "http://code.google.com/p/ofetion/issues/list")
-set(RESOURCE_DIR
-    "${DATA_INSTALL_DIR}/${PACKAGE_NAME}-${LIBOFETION_ABI_MAJOR_VERSION}/resource/")
+
 find_package(PkgConfig REQUIRED)
 
 ##########################################################################
@@ -27,6 +26,8 @@ endif(NOT DEFINED INCLUDE_INSTALL_DIR)
 if(NOT DEFINED DATA_INSTALL_DIR)
     set(DATA_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/share")
 endif(NOT DEFINED DATA_INSTALL_DIR)
+set(RESOURCE_DIR
+    "${DATA_INSTALL_DIR}/${PACKAGE_NAME}-${LIBOFETION_ABI_MAJOR_VERSION}/resource/")
 
 ##########################################################################
 
