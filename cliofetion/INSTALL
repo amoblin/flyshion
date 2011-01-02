@@ -1,5 +1,4 @@
-This file tells how to build cliofetion on your system. This
-is a standalone version.
+This file tells how to build cliofetion on your system.
 
 PREPARE
 =======
@@ -7,14 +6,12 @@ You need the following things pre-installed on your system:
 
 a) pkg-config, the package config system;
 b) cmake, the make system;
-d) required library: libxml2, openssl, sqlite3
+d) required library: libofetion
 
 CONFIGURE
 =========
 The following options can be set via the following macros:
  BIN_INSTALL_DIR
- LIB_INSTALL_DIR
- INCLUDE_INSTALL_DIR
  DATA_INSTALL_DIR
  MAN_INSTALL_DIR
  RESOURCE_INSTALL_DIR
