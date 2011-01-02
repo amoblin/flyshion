@@ -1,64 +1,37 @@
-
 README
-
-OpenFetion a IM client based on GTK+2.0, using CHINA MOBILE's Fetion Protocol Version 4.
-
+======
+libofetion is an open source library which implements CHINA MOBILE's 
+Fetion Protocol Version 4.
 
 CONTACT
+=======
+If you have problems, questions, ideas or suggestions, please contact me 
+by sending email to levin108@gmail.com, or join the discussion in our 
+mailling list: ofetion@googlegroups.com
 
-If you have problems, questions, ideas or suggestions, please contact me
-by email to levin108@gmail.com .
+WEBSITE
+=======
+Visit libofetion code site: http://ofetion.googlecode.com/ for the latest
+news and downloads, also you can find useful information via the author's
+blog: http://basiccoder.com/openfetion/
 
-WEB SITE
+BUILD
+=====
+You need the following things pre-installed on your system:
 
-Visit the openfetion web site for the latest news and downloads:
+a) pkg-config, the package config system; 
+b) cmake, the make system; and 
+c) required libraries: openssl, libxml2, sqlite3
 
-http://basiccoder.com/openfetion
+In Ubuntu system, if you want to install them, you can execute the 
+following command:
 
-INSTALLATION
+sudo apt-get install pkg-config cmake libssl-dev libxml2-dev libsqlite3-dev
 
-It requires these library : openssl , libxml2 , gtk+2.0
-
-If there are no such libraries in your system You can install these library like this:
-
-sudo apt-get install libgtk2-dev
-
-sudo apt-get install libssl-dev
-
-sudo apt-get install libxml2-dev
-
-sudo apt-get install pkg-config
-
-Then you can start installing openfetion like this:
-
-autoreconf -fiv
-./configure --prefix=/usr
-or your can enable debug mode to trace the runing information with --enable-debug
-
-make
-
-sudo make install
-
-
-
-
-If you prefer using cmake, then:
-
-sudo apt-get install cmake
-
-Then you can start installing openfetion like this:
+Then you can start to build from outside of /path/to/your/libofetion
 
 mkdir build
-cd build
-cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=release ..
-
-You may need to set -DCMAKE_BUILD_TYPE=debug to build in debug mode.
-The following build switches you may need to adjust (default is TRUE)
--DWITH_LIBNOTIFY=TRUE
--DWITH_GSTREAMER=TRUE
--DWITH_LIBXSS=TRUE
--DWITH_NETWORKMANAGER=TRUE
-
+cd build/
+cmake -DCMAKE_INSTALL_PREFIX=/path/to/dest -DCMAKE_BUILD_TYPE=release ../libofetion/
 make
-
 sudo make install
