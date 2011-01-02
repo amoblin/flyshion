@@ -37,4 +37,4 @@ add_executable(cliofetion ${cliofetion_SRC})
 target_link_libraries(cliofetion ${OFETION_LIBRARIES})
 install(TARGETS cliofetion RUNTIME DESTINATION ${BIN_INSTALL_DIR})
 
-install(FILES cliofetion.1 DESTINATION ${DATA_INSTALL_DIR}/man1)
+install(FILES cliofetion.1 DESTINATION ${DATA_INSTALL_DIR}/man/man1)
