@@ -28,11 +28,13 @@ if(NOT DEFINED INCLUDE_INSTALL_DIR)
     set(INCLUDE_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/include")
 endif(NOT DEFINED INCLUDE_INSTALL_DIR)
 
+add_definitions(-Wall -Wextra)
 add_definitions(-DRESOURCE_DIR="${DATA_INSTALL_DIR}/openfetion/resource/")
-install(FILES resource/newmessage.wav DESTINATION ${DATA_INSTALL_DIR}/openfetion/resource)
-install(FILES resource/openfetion.desktop DESTINATION ${DATA_INSTALL_DIR}/applications)
+add_definitions(-DSKIN_DIR="${DATA_INSTALL_DIR}/openfetion/skin/")
+add_definitions(-DLOCALE_DIR="${DATA_INSTALL_DIR}/locale/")
 
 # compile option switch
+option(NLS "Native language support" ON)
 option(WITH_LIBNOTIFY "Libnotify support" ON)
 option(WITH_GSTREAMER "GStreamer support" ON)
 option(WITH_LIBXSS "LibXScrnSaver support" ON)
@@ -40,9 +42,9 @@ option(WITH_NETWORKMANAGER "NetworkManager support" ON)
 
 # openfetion build requirements
 find_package(PkgConfig REQUIRED)
-if(NOT DISABLE_NLS)
+if(NLS)
 	find_package(Gettext)
-endif(NOT DISABLE_NLS)
+endif(NLS)
 
 # openfetion build requirements
 pkg_check_modules(GTK2 REQUIRED gtk+-2.0)
@@ -68,6 +70,13 @@ endif(WITH_NETWORKMANAGER)
 
 ##########################################################################
 message("==========================================")
+if(NLS AND GETTEXT_FOUND)
+	add_definitions(-DGETTEXT_PACKAGE="${PACKAGE_TARNAME}")
+	add_definitions(-DENABLE_NLS="1")
+    message(STATUS "Native language support:  YES" )
+else(NLS AND GETTEXT_FOUND)
+    message(STATUS "Native language support:  NO" )
+endif(NLS AND GETTEXT_FOUND)
 if(WITH_LIBNOTIFY AND LIBNOTIFY_FOUND)
     set(USE_LIBNOTIFY 1)
     if(LIBNOTIFY_VERSION LESS 0.7)
@@ -100,18 +109,6 @@ endif(WITH_NETWORKMANAGER AND NETWORKMANAGER_FOUND AND DBUSGLIB_FOUND)
 message("==========================================")
 
 configure_file(config-ofetion.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
-
-
-
-##########################################################################
-add_definitions(-Wall -Wextra)
-if(NOT DEFINED DISABLE_NLS AND GETTEXT_FOUND)
-	add_definitions(-DGETTEXT_PACKAGE="${PACKAGE_TARNAME}")
-	add_definitions(-DENABLE_NLS="1")
-endif(NOT DEFINED DISABLE_NLS AND GETTEXT_FOUND)
-add_definitions(-DSKIN_DIR="${DATA_INSTALL_DIR}/openfetion/skin/")
-add_definitions(-DLOCALE_DIR="${DATA_INSTALL_DIR}/locale/")
-
 
 ##########################################################################
 
@@ -192,18 +189,18 @@ if(WITH_NETWORKMANAGER AND NETWORKMANAGER_FOUND AND DBUSGLIB_FOUND)
     target_link_libraries(openfetion ${DBUSGLIB_LIBRARIES})
 endif(WITH_NETWORKMANAGER AND NETWORKMANAGER_FOUND AND DBUSGLIB_FOUND)
 
-install(TARGETS openfetion RUNTIME DESTINATION ${BIN_INSTALL_DIR})
-
 ##########################################################################
 file(GLOB openfetion_SKINIMAGES "skin/*.png" "skin/*.svg" "skin/*.gif")
 file(GLOB openfetion_FACEIMAGES "skin/face_images/*.gif")
-install(FILES ${openfetion_SKINIMAGES} DESTINATION ${DATA_INSTALL_DIR}/openfetion/skin)
-install(FILES ${openfetion_FACEIMAGES} DESTINATION ${DATA_INSTALL_DIR}/openfetion/skin/face_images)
-
-install(FILES skin/fetion.svg DESTINATION ${DATA_INSTALL_DIR}/pixmaps)
-install(FILES openfetion.1 DESTINATION ${DATA_INSTALL_DIR}/man1)
-
-if(NOT DEFINED DISABLE_NLS AND GETTEXT_FOUND)
+if(NLS AND GETTEXT_FOUND)
 	file(GLOB POFILES "${CMAKE_CURRENT_SOURCE_DIR}/po/*.po")
 	gettext_create_translations("${CMAKE_CURRENT_SOURCE_DIR}/po/openfetion.pot" ALL ${POFILES})
-endif(NOT DEFINED DISABLE_NLS AND GETTEXT_FOUND)
+endif(NLS AND GETTEXT_FOUND)
+
+install(TARGETS openfetion RUNTIME DESTINATION ${BIN_INSTALL_DIR})
+install(FILES ${openfetion_SKINIMAGES} DESTINATION ${DATA_INSTALL_DIR}/openfetion/skin)
+install(FILES ${openfetion_FACEIMAGES} DESTINATION ${DATA_INSTALL_DIR}/openfetion/skin/face_images)
+install(FILES resource/newmessage.wav DESTINATION ${DATA_INSTALL_DIR}/openfetion/resource)
+install(FILES resource/openfetion.desktop DESTINATION ${DATA_INSTALL_DIR}/applications)
+install(FILES skin/fetion.svg DESTINATION ${DATA_INSTALL_DIR}/pixmaps)
+install(FILES openfetion.1 DESTINATION ${DATA_INSTALL_DIR}/man/man1)
