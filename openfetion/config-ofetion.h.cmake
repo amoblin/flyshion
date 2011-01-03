@@ -1,5 +1,6 @@
 #ifndef _CONFIG_H_
 #define _CONFIG_H_
+#cmakedefine PACKAGE_STRING     "@PACKAGE_STRING@"
 #cmakedefine ENABLE_NLS         1
 #cmakedefine USE_LIBNOTIFY      1
 #cmakedefine USE_GSTREAMER      1

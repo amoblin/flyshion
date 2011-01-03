@@ -42,8 +42,6 @@
 #	define UNUSED(x) x
 #endif
 
-#define FETION_NAME "OpenFetion"
-#define FETION_VERSION ""
 #define PROTO_VERSION "4.0.2510"
 #define NAVIGATION_URI "nav.fetion.com.cn"
 #define PGGROUP_SPACE_URI "http://group.feixin.10086.cn/space/Index/"
