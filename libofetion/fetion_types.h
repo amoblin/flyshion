@@ -42,9 +42,11 @@
 #	define UNUSED(x) x
 #endif
 
-#define PROTO_VERSION "4.0.2510"
-#define NAVIGATION_URI "nav.fetion.com.cn"
-#define PGGROUP_SPACE_URI "http://group.feixin.10086.cn/space/Index/"
+#define FETION_NAME                     PACKAGE_NAME
+#define FETION_VERSION                  PACKAGE_VERSION
+#define PROTO_VERSION                   "4.0.2510"
+#define NAVIGATION_URI                  "nav.fetion.com.cn"
+#define PGGROUP_SPACE_URI               "http://group.feixin.10086.cn/space/Index/"
 #define LOGIN_TYPE_FETIONNO    			1
 #define LOGIN_TYPE_MOBILENO    			0
 #define BOUND_MOBILE_ENABLE    			1

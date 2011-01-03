@@ -20,6 +20,9 @@ find_package(PkgConfig REQUIRED)
 if(NOT DEFINED LIB_INSTALL_DIR)
     set(LIB_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/lib")
 endif(NOT DEFINED LIB_INSTALL_DIR)
+if(NOT DEFINED BIN_INSTALL_DIR)
+    set(BIN_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/bin")
+endif(NOT DEFINED BIN_INSTALL_DIR)
 if(NOT DEFINED INCLUDE_INSTALL_DIR)
     set(INCLUDE_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/include/${PACKAGE_TARNAME}")
 endif(NOT DEFINED INCLUDE_INSTALL_DIR)
@@ -35,6 +38,8 @@ endif(NOT DEFINED RESOURCE_INSTALL_DIR)
 
 add_definitions(-Wall -Wextra)
 add_definitions(-DRESOURCE_DIR="${RESOURCE_INSTALL_DIR}")
+add_definitions(-DPACKAGE_NAME="${PACKAGE_NAME}")
+add_definitions(-DPACKAGE_VERSION="${PACKAGE_VERSION}")
 
 ##########################################################################
 

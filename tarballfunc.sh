@@ -53,8 +53,8 @@ process_version(){
 	sed -i -e "s,$tmp,set(PACKAGE_VERSION \"$OPENFETION_VERSION\"),g" openfetion/CMakeLists.txt
 	
 	#openfetion version define in openfetion/src/fx_about.h
-	tmp=`sed -n '/^#define OPENFETION_VERSION/p' openfetion/src/fx_about.h`
-	sed -i -e "s,$tmp,#define OPENFETION_VERSION \"$OPENFETION_VERSION\",g" openfetion/src/fx_about.h
+	#tmp=`sed -n '/^#define OPENFETION_VERSION/p' openfetion/src/fx_about.h`
+	#sed -i -e "s,$tmp,#define OPENFETION_VERSION \"$OPENFETION_VERSION\",g" openfetion/src/fx_about.h
 
 	#set version of libofetion CMakeLists.txt
 	tmp=`sed -n '/^set(LIBOFETION_API_VERSION/p' libofetion/CMakeLists.txt`
@@ -68,12 +68,12 @@ process_version(){
 	sed -i -e "s,$tmp,set(LIBOFETION_ABI_VERSION \"$ABI_VERSION\"),g" libofetion/CMakeLists.txt
 	
 	#libofetion version define in libofetion/fetion_types.h
-	tmp=`sed -n '/^#define FETION_VERSION/p' libofetion/fetion_types.h`
-	sed -i -e "s,$tmp,#define FETION_VERSION \"$LIBOETION_VERSION\",g" libofetion/fetion_types.h
+	#tmp=`sed -n '/^#define FETION_VERSION/p' libofetion/fetion_types.h`
+	#sed -i -e "s,$tmp,#define FETION_VERSION \"$LIBOETION_VERSION\",g" libofetion/fetion_types.h
 	
 	#ABI_VERSION in libofetion/libofetion.map
 	tmp=`sed -n '/^VERS_/p' libofetion/libofetion.map`
-	sed -i -e "s,$tmp,VERS_$OPENFETION_VERSION {,g" libofetion/fetion_types.h	
+	sed -i -e "s,$tmp,VERS_$tmp_ABI {,g" libofetion/libofetion.map
 }
 
 compress_tar(){
