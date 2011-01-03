@@ -74,7 +74,7 @@ process_version(){
 	
 	#ABI_VERSION in libofetion/libofetion.map
 	tmp=`sed -n '/^VERS_/p' libofetion/libofetion.map`
-	sed -i -e "s,$tmp,VERS_$OPENFETION_VERSION {,g" libofetion/fetion_types.h	
+	sed -i -e "s,$tmp,VERS_$ABI_VERSION {,g" libofetion/libofetion.map	
 }
 
 compress_tar(){
