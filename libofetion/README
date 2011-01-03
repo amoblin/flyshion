@@ -34,7 +34,7 @@ following command:
 
 sudo apt-get install pkg-config cmake libssl-dev libxml2-dev libsqlite3-dev
 
-Then you can start to build from outside of /path/to/your/libofetion
+Then you can start to build from /path/to/your/libofetion, execute:
 
 $ mkdir build
 $ cd build/

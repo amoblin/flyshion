@@ -20,7 +20,7 @@ The following options can be set via the following macros:
 
 BUILD
 =====
-Build from outside of /path/to/your/cliofetion, then
+Build from /path/to/your/cliofetion, execute:
 
 $ mkdir build
 $ cd build/

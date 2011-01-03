@@ -37,7 +37,7 @@ Other options can be set via the following macros:
 
 BUILD
 =====
-Build from outside of /path/to/your/openfetion, then
+Build from /path/to/your/openfetion, execute
 
 $ mkdir build
 $ cd build/
