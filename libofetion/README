@@ -1,22 +1,28 @@
+
 README
-======
-libofetion is an open source library which implements CHINA MOBILE's 
-Fetion Protocol Version 4.
+
+libofetion is an open source library which implements 
+CHINA MOBILE's Fetion Protocol Version 4.
+
 
 CONTACT
-=======
-If you have problems, questions, ideas or suggestions, please contact me 
-by sending email to levin108@gmail.com, or join the discussion in our 
-mailling list: ofetion@googlegroups.com
 
-WEBSITE
-=======
-Visit libofetion code site: http://ofetion.googlecode.com/ for the latest
-news and downloads, also you can find useful information via the author's
-blog: http://basiccoder.com/openfetion/
+If you have problems, questions, ideas or suggestions, please contact me
+by email to 
+	levin108@gmail.com ,
+or join the discussion in our mailling list: 
+	ofetion@googlegroups.com
 
-BUILD
-=====
+WEB SITE
+
+Visit ofetion code site: 
+	http://ofetion.googlecode.com 
+for the latest news and downloads, 
+also you can find useful information via the author's blog: 
+	http://basiccoder.com/openfetion/
+
+INSTALLATION
+
 You need the following things pre-installed on your system:
 
 a) pkg-config, the package config system; 
@@ -35,7 +41,7 @@ $ cd build/
 $ cmake \
         -DCMAKE_INSTALL_PREFIX=/path/to/dest \
         -DCMAKE_BUILD_TYPE=release \
-        ../libofetion/
+        ..
 $ make
 $ sudo make install
 

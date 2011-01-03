@@ -49,7 +49,7 @@ $ cmake \
         -DLIBNOTIFY=ON \
         -DLIBXSS=ON \
         -DNETWORKMANAGER=ON \
-        ../openfetion/
+        ..
 $ make
 $ sudo make install
 

@@ -1344,7 +1344,6 @@ void fx_main_tray_popmenu_func(
 int main(int argc , char* argv[])
 {
 #ifdef ENABLE_NLS
-#define GETTEXT_PACKAGE "openfetion"
 	setlocale(LC_ALL, "");
 	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
 	bindtextdomain(GETTEXT_PACKAGE , LOCALE_DIR);

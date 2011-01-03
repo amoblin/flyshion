@@ -15,6 +15,7 @@ The following options can be set via the following macros:
  DATA_INSTALL_DIR
  MAN_INSTALL_DIR
  RESOURCE_INSTALL_DIR
+ LOCALE_INSTALL_DIR
 
 BUILD
 =====
@@ -25,7 +26,7 @@ $ cd build/
 $ cmake \
         -DCMAKE_INSTALL_PREFIX=/path/to/dest \
         -DCMAKE_BUILD_TYPE=release \
-        ../cliofetion/
+        ..
 $ make
 $ sudo make install
 

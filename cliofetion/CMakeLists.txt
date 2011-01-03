@@ -3,7 +3,9 @@ cmake_minimum_required(VERSION 2.6)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules)
 set(TARNAME cliofetion)
 
-# Program name, version, etc
+
+# program name, version etc
+
 set(PACKAGE_VERSION "2.1.0")
 set(PACKAGE_NAME "cliofetion")
 set(PACKAGE_TARNAME "${TARNAME}")
@@ -23,27 +25,24 @@ if(NOT DEFINED MAN_INSTALL_DIR)
     set(MAN_INSTALL_DIR "${DATA_INSTALL_DIR}/man")
 endif(NOT DEFINED MAN_INSTALL_DIR)
 if(NOT DEFINED RESOURCE_INSTALL_DIR)
-    set(RESOURCE_INSTALL_DIR "${DATA_INSTALL_DIR}/openfetion/resource/")
+    set(RESOURCE_INSTALL_DIR "${DATA_INSTALL_DIR}/clifetion/resource/")
 endif(NOT DEFINED RESOURCE_INSTALL_DIR)
+if(NOT DEFINED LOCALE_INSTALL_DIR)
+    set(LOCALE_INSTALL_DIR "${DATA_INSTALL_DIR}/locale/")
+endif(NOT DEFINED LOCALE_INSTALL_DIR)
 
-##########################################################################
-
-add_definitions(-Wall -Wextra)
 add_definitions(-DRESOURCE_DIR="${RESOURCE_INSTALL_DIR}")
-
-##########################################################################
-
 pkg_check_modules(OFETION REQUIRED ofetion)
 
 include_directories(
     ${OFETION_INCLUDE_DIRS}
 )
 
-set(CLIOFETION_SRC
+set(cliofetion_SRC
     src/cliofetion.c
 )
 
-add_executable(cliofetion ${CLIOFETION_SRC})
+add_executable(cliofetion ${cliofetion_SRC})
 target_link_libraries(cliofetion ${OFETION_LIBRARIES})
 install(TARGETS cliofetion RUNTIME DESTINATION ${BIN_INSTALL_DIR})
 

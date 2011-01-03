@@ -3,21 +3,21 @@ cmake_minimum_required(VERSION 2.6)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules)
 set(TARNAME openfetion)
 
-# Program name, version, etc
+
+# program name, version etc
+
 set(PACKAGE_VERSION "2.1.0")
 set(PACKAGE_NAME "OpenFetion")
 set(PACKAGE_TARNAME "${TARNAME}")
 set(PACKAGE_STRING "${PACKAGE_NAME} ${PACKAGE_VERSION}")
 set(PACKAGE_BUGREPORT "http://code.google.com/p/ofetion/issues/list")
 
-##########################################################################
+find_package(PkgConfig REQUIRED)
 
+##########################################################################
 if(NOT DEFINED BIN_INSTALL_DIR)
     set(BIN_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/bin")
 endif(NOT DEFINED BIN_INSTALL_DIR)
-if(NOT DEFINED LIB_INSTALL_DIR)
-    set(LIB_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/lib")
-endif(NOT DEFINED LIB_INSTALL_DIR)
 if(NOT DEFINED DATA_INSTALL_DIR)
     set(DATA_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/share")
 endif(NOT DEFINED DATA_INSTALL_DIR)
@@ -34,14 +34,9 @@ if(NOT DEFINED LOCALE_INSTALL_DIR)
     set(LOCALE_INSTALL_DIR "${DATA_INSTALL_DIR}/locale/")
 endif(NOT DEFINED LOCALE_INSTALL_DIR)
 
-##########################################################################
-
-add_definitions(-Wall -Wextra)
 add_definitions(-DRESOURCE_DIR="${RESOURCE_INSTALL_DIR}")
-add_definitions(-DSKIN_DIR="${SKIN_INSTALL_DIR}")
-add_definitions(-DLOCALE_DIR="${LOCALE_INSTALL_DIR}")
-
-##########################################################################
+install(FILES resource/newmessage.wav DESTINATION ${RESOURCE_INSTALL_DIR})
+install(FILES resource/openfetion.desktop DESTINATION ${DATA_INSTALL_DIR}/applications)
 
 # compile option switch
 option(NLS "Native language support" ON)
@@ -60,8 +55,6 @@ endif(NLS)
 pkg_check_modules(GTK2 REQUIRED gtk+-2.0)
 pkg_check_modules(GDKPIXBUF REQUIRED gdk-pixbuf-2.0)
 pkg_check_modules(GLIB2 REQUIRED glib-2.0)
-#if use system ofetion, need check ofetion, 
-#if build locally, no need to check
 pkg_check_modules(OFETION REQUIRED ofetion)
 
 if(WITH_LIBNOTIFY)
@@ -79,14 +72,7 @@ if(WITH_NETWORKMANAGER)
 endif(WITH_NETWORKMANAGER)
 
 ##########################################################################
-
 message("==========================================")
-if(NLS AND GETTEXT_FOUND)
-    set(ENABLE_NLS 1)
-    message(STATUS "Native language support:  YES" )
-else(NLS AND GETTEXT_FOUND)
-    message(STATUS "Native language support:  NO" )
-endif(NLS AND GETTEXT_FOUND)
 if(WITH_LIBNOTIFY AND LIBNOTIFY_FOUND)
     set(USE_LIBNOTIFY 1)
     if(LIBNOTIFY_VERSION LESS 0.7)
@@ -120,6 +106,21 @@ message("==========================================")
 
 configure_file(config-ofetion.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
+
+
+##########################################################################
+add_definitions(-Wall -Wextra)
+if(NLS AND GETTEXT_FOUND)
+	add_definitions(-DGETTEXT_PACKAGE="${PACKAGE_TARNAME}")
+	add_definitions(-DENABLE_NLS="1")
+	message(STATUS "Native language support:  YES" )
+else(NLS AND GETTEXT_FOUND)
+	message(STATUS "Native language support:  NO" )
+endif(NLS AND GETTEXT_FOUND)
+add_definitions(-DSKIN_DIR="${SKIN_INSTALL_DIR}")
+add_definitions(-DLOCALE_DIR="${LOCALE_INSTALL_DIR}")
+
+
 ##########################################################################
 
 include_directories(
@@ -144,7 +145,7 @@ if(WITH_NETWORKMANAGER AND NETWORKMANAGER_FOUND)
     include_directories(${DBUSGLIB_INCLUDE_DIRS})
 endif(WITH_NETWORKMANAGER AND NETWORKMANAGER_FOUND)
 
-set(OPENFETION_SRC
+set(openfetion_SRC
     src/fx_about.c
     src/fx_addbuddy.c
     src/fx_add_group.c
@@ -183,10 +184,8 @@ set(OPENFETION_SRC
     src/fx_cli.c
 )
 
-add_executable(openfetion ${OPENFETION_SRC})
-target_link_libraries(openfetion 
-    ${GTK2_LIBRARIES} ${GDKPIXBUF_LIBRARIES} ${GTHREAD2_LIBRARIES}
-    ${OFETION_LIBRARIES})
+add_executable(openfetion ${openfetion_SRC})
+target_link_libraries(openfetion ${GTK2_LIBRARIES} ${GDKPIXBUF_LIBRARIES} ${GTHREAD2_LIBRARIES} ${OFETION_LIBRARIES})
 if(WITH_LIBNOTIFY AND LIBNOTIFY_FOUND)
     target_link_libraries(openfetion ${LIBNOTIFY_LIBRARIES})
 endif(WITH_LIBNOTIFY AND LIBNOTIFY_FOUND)
@@ -201,23 +200,18 @@ if(WITH_NETWORKMANAGER AND NETWORKMANAGER_FOUND AND DBUSGLIB_FOUND)
     target_link_libraries(openfetion ${DBUSGLIB_LIBRARIES})
 endif(WITH_NETWORKMANAGER AND NETWORKMANAGER_FOUND AND DBUSGLIB_FOUND)
 
-##########################################################################
-
 install(TARGETS openfetion RUNTIME DESTINATION ${BIN_INSTALL_DIR})
+
+##########################################################################
+file(GLOB openfetion_SKINIMAGES "skin/*.png" "skin/*.svg" "skin/*.gif")
+file(GLOB openfetion_FACEIMAGES "skin/face_images/*.gif")
+install(FILES ${openfetion_SKINIMAGES} DESTINATION ${SKIN_INSTALL_DIR})
+install(FILES ${openfetion_FACEIMAGES} DESTINATION ${SKIN_INSTALL_DIR}/face_images)
+
+install(FILES skin/fetion.svg DESTINATION ${DATA_INSTALL_DIR}/pixmaps)
+install(FILES openfetion.1 DESTINATION ${MAN_INSTALL_DIR}/man1)
 
 if(NLS AND GETTEXT_FOUND)
 	file(GLOB POFILES "${CMAKE_CURRENT_SOURCE_DIR}/po/*.po")
 	gettext_create_translations("${CMAKE_CURRENT_SOURCE_DIR}/po/openfetion.pot" ALL ${POFILES})
 endif(NLS AND GETTEXT_FOUND)
-
-file(GLOB OPENFETION_SKINIMAGES "skin/*.png" "skin/*.svg" "skin/*.gif")
-file(GLOB OPENFETION_FACEIMAGES "skin/face_images/*.gif")
-install(FILES ${OPENFETION_SKINIMAGES} DESTINATION ${SKIN_INSTALL_DIR})
-install(FILES ${OPENFETION_FACEIMAGES} DESTINATION ${SKIN_INSTALL_DIR}/face_images/)
-
-if(WITH_GSTREAMER AND GSTREAMER_FOUND)
-    install(FILES resource/newmessage.wav DESTINATION ${RESOURCE_INSTALL_DIR})
-endif(WITH_GSTREAMER AND GSTREAMER_FOUND)
-install(FILES resource/openfetion.desktop DESTINATION ${DATA_INSTALL_DIR}/applications)
-install(FILES skin/fetion.svg DESTINATION ${DATA_INSTALL_DIR}/pixmaps)
-install(FILES openfetion.1 DESTINATION ${MAN_INSTALL_DIR}/man1)

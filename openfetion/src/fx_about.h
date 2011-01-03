@@ -32,6 +32,8 @@
 #ifndef FX_ABOUT_H
 #define FX_ABOUT_H
 
+#define OPENFETION_VERSION "2.1.0"
+
 extern void show_about();
 
 #endif
