@@ -1308,7 +1308,7 @@ void fx_main_tray_popmenu_func(
 			args->fxmain = fxmain;
 			args->type = presence[i].type;
 
-			sprintf(stateMenu , "%s      " , presence[i].name);
+			sprintf(stateMenu , "%s      " , _(presence[i].name));
 			fx_main_create_menu(stateMenu , presence[i].icon
 							 , submenu , fx_main_set_state_clicked , args);
 		}
