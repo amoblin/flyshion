@@ -1,0 +1,384 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenFetion\n"
+"Report-Msgid-Bugs-To: http://code.google.com/p/ofetion/issues/list\n"
+"POT-Creation-Date: 2011-01-09 20:28+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: fx_buddy.c:126
+msgid "[Unverified]"
+msgstr ""
+
+#: fx_buddy.c:129 fx_buddy.c:136 fx_buddy.c:139
+msgid "[Has shut fetion service]"
+msgstr ""
+
+#: fx_buddy.c:133
+msgid "[Online with SMS]"
+msgstr ""
+
+#: fx_buddy.c:145
+msgid "[Out of service]"
+msgstr ""
+
+#: fx_buddy.c:155
+msgid "Unexposed"
+msgstr ""
+
+#: fx_buddy.c:173
+#, c-format
+msgid "'%s' has accepted your add-buddy request"
+msgstr ""
+
+#: fx_buddy.c:174
+msgid "Success"
+msgstr ""
+
+#: fx_buddy.c:185
+#, c-format
+msgid "'%s' has declined your add-buddy request"
+msgstr ""
+
+#: fx_buddy.c:186 fx_user.c:137 fx_user.c:172 openfetion.c:140
+msgid "Failed"
+msgstr ""
+
+#: fx_buddy.c:237
+msgid "Nickname"
+msgstr ""
+
+#: fx_buddy.c:238
+msgid "Gender"
+msgstr ""
+
+#: fx_buddy.c:239
+msgid "Female"
+msgstr ""
+
+#: fx_buddy.c:239
+msgid "Male"
+msgstr ""
+
+#: fx_buddy.c:239
+msgid "Secrecy"
+msgstr ""
+
+#: fx_buddy.c:240
+msgid "Mobile"
+msgstr ""
+
+#: fx_buddy.c:242
+msgid "Fetion"
+msgstr ""
+
+#: fx_buddy.c:243 openfetion.c:103
+msgid "Signature"
+msgstr ""
+
+#: fx_buddy.c:246
+msgid "Province"
+msgstr ""
+
+#: fx_buddy.c:247
+msgid "City"
+msgstr ""
+
+#: fx_buddy.c:248
+msgid "Service Provider"
+msgstr ""
+
+#: fx_buddy.c:273 fx_buddy.c:284 fx_buddy.c:290 fx_buddy.c:303 fx_buddy.c:306
+msgid "Add buddy error.Unknown reason"
+msgstr ""
+
+#: fx_buddy.c:273 fx_buddy.c:279 fx_buddy.c:284 fx_buddy.c:290 fx_buddy.c:303
+#: fx_buddy.c:306 fx_buddy.c:344 fx_buddy.c:360 fx_buddy.c:379
+msgid "Error"
+msgstr ""
+
+#: fx_buddy.c:277
+#, c-format
+msgid "Add buddy error.%s."
+msgstr ""
+
+#: fx_buddy.c:344
+msgid "Not a valid group"
+msgstr ""
+
+#: fx_buddy.c:360
+msgid "Network Error!"
+msgstr ""
+
+#: fx_buddy.c:378
+#, c-format
+msgid "'%s' is not a valid group\n"
+msgstr ""
+
+#: fx_chat.c:175
+msgid "Message sent failed:"
+msgstr ""
+
+#: fx_chat.c:194
+msgid "Message sent timeout:"
+msgstr ""
+
+#: fx_code.c:59
+msgid "Please entry your verification code"
+msgstr ""
+
+#: fx_code.c:80
+msgid "Click here getting new verification code"
+msgstr ""
+
+#: fx_code.c:90 openfetion.c:709 openfetion.c:723
+msgid "OK"
+msgstr ""
+
+#: fx_code.c:96 openfetion.c:318 openfetion.c:710 openfetion.c:724
+msgid "Cancel"
+msgstr ""
+
+#: fx_login.c:183
+msgid "Write confirm code Failed."
+msgstr ""
+
+#: fx_login.c:213 fx_login.c:495
+msgid "Login Failed."
+msgstr ""
+
+#: fx_login.c:377 fx_login.c:525
+msgid "Incorrect password."
+msgstr ""
+
+#: fx_user.c:137
+msgid "Modify account information failed"
+msgstr ""
+
+#: fx_user.c:172
+msgid "send sms to phone failed,unknown reason."
+msgstr ""
+
+#: openfetion.c:100
+msgid "FetionNo"
+msgstr ""
+
+#: openfetion.c:101
+msgid "MobileNo"
+msgstr ""
+
+#: openfetion.c:102
+msgid "Alias"
+msgstr ""
+
+#: openfetion.c:139
+#, c-format
+msgid "'%s' is not a valid group of this account"
+msgstr ""
+
+#: openfetion.c:162
+msgid "Nudge"
+msgstr ""
+
+#: openfetion.c:163
+#, c-format
+msgid "%s has nudged you!"
+msgstr ""
+
+#: openfetion.c:164
+#, c-format
+msgid "Nudging %s..."
+msgstr ""
+
+#: openfetion.c:220
+msgid "Message sent failed:Unauthencated Buddy!"
+msgstr ""
+
+#: openfetion.c:239
+msgid "Message sent failed:It has shut down fetion service!"
+msgstr ""
+
+#: openfetion.c:315
+msgid "Send a mobile message."
+msgstr ""
+
+#: openfetion.c:317 openfetion.c:737
+msgid "Send"
+msgstr ""
+
+#: openfetion.c:344
+msgid "Send to Mobile"
+msgstr ""
+
+#: openfetion.c:437
+msgid "Your fetion login elsewhere. You are forced quit."
+msgstr ""
+
+#: openfetion.c:567
+msgid "Available"
+msgstr ""
+
+#: openfetion.c:575
+msgid "Away"
+msgstr ""
+
+#: openfetion.c:583
+msgid "Invisible"
+msgstr ""
+
+#: openfetion.c:591
+msgid "Offline"
+msgstr ""
+
+#: openfetion.c:599
+msgid "Busy"
+msgstr ""
+
+#: openfetion.c:619
+msgid "<p><b>Author</b>:<br>\n"
+msgstr ""
+
+#: openfetion.c:623
+msgid ""
+"fetion-pidgin is a fetion plugin for pidgin, <br/>implementing Fetion "
+"Protocol Version 4 by the openfetion team.<br/>It supports most features of "
+"Fetion. <br/>It's lightweight and efficient with intuitive interface.<br/"
+"><br/>Project homepage: http://code.google.com/p/ofetion/"
+msgstr ""
+
+#: openfetion.c:629
+msgid "<p><b>Translators</b></p>:<br/>\n"
+msgstr ""
+
+#. Translators: HTML format, So do add a <br /> to every translator,
+#. * such as Zhang <br/> \nWang <br/>
+#.
+#: openfetion.c:633
+msgid "translator-credits"
+msgstr ""
+
+#: openfetion.c:636
+#, c-format
+msgid "About OpenFetion %s"
+msgstr ""
+
+#: openfetion.c:657
+#, c-format
+msgid "<b>Last Login Time</b>: %s<br>\n"
+msgstr ""
+
+#: openfetion.c:658
+#, c-format
+msgid "<b>Last Login IP</b>: %s<br>\n"
+msgstr ""
+
+#: openfetion.c:659
+#, c-format
+msgid "<b>Public IP</b>: %s<br>\n"
+msgstr ""
+
+#: openfetion.c:661
+#, c-format
+msgid "<b>Fetion Number</b>: %s<br>\n"
+msgstr ""
+
+#: openfetion.c:662
+#, c-format
+msgid "<b>Mobile Number</b>: %s<br>\n"
+msgstr ""
+
+#: openfetion.c:663
+#, c-format
+msgid "<b>Login Time</b>: %s<br>\n"
+msgstr ""
+
+#: openfetion.c:664
+#, c-format
+msgid "<b>NickName</b>: %s<br>\n"
+msgstr ""
+
+#: openfetion.c:665
+#, c-format
+msgid "<b>Signature</b>: %s<br>\n"
+msgstr ""
+
+#: openfetion.c:666
+#, c-format
+msgid "<b>Province</b>: %s<br>\n"
+msgstr ""
+
+#: openfetion.c:667
+#, c-format
+msgid "<b>City</b>: %s<br>\n"
+msgstr ""
+
+#: openfetion.c:669
+#, c-format
+msgid "<b>SMS Sent Today</b>: %d<br>\n"
+msgstr ""
+
+#: openfetion.c:670
+#, c-format
+msgid "<b>SMS Sent This Month</b>: %d<br>\n"
+msgstr ""
+
+#: openfetion.c:671
+#, c-format
+msgid "<b>SMS Limit Today</b>: %d<br>\n"
+msgstr ""
+
+#: openfetion.c:672
+#, c-format
+msgid "<b>SMS Limit This Month</b>: %d<br>\n"
+msgstr ""
+
+#: openfetion.c:677
+msgid "Account Information"
+msgstr ""
+
+#: openfetion.c:707 openfetion.c:758
+msgid "Modify Nickname"
+msgstr ""
+
+#: openfetion.c:721 openfetion.c:761
+msgid "Modify Signature"
+msgstr ""
+
+#: openfetion.c:735
+msgid "Send SMS to Your Phone"
+msgstr ""
+
+#: openfetion.c:738
+msgid "Close"
+msgstr ""
+
+#: openfetion.c:750
+msgid "Send SMS To Phone"
+msgstr ""
+
+#: openfetion.c:755
+msgid "View Information"
+msgstr ""
+
+#: openfetion.c:766
+msgid "About OpenFetion"
+msgstr ""
+
+#: openfetion.c:858
+msgid "Fetion Plugin"
+msgstr ""
+
+#: openfetion.c:859
+msgid "Fetion plugin implementing protocol version 4"
+msgstr ""
