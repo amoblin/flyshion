@@ -216,7 +216,9 @@ typedef struct {
 	User       *user;
 	gchar      *data;
 	gchar       userId[48];
+	gint        chan_ready;				/* only used in chat session */
 	GSList     *trans;
+	GSList     *trans_wait;			/* only used in chat session */
 	PurpleConnection *gc;
 	PurpleProxyConnectData *conn_data;
 	PurpleAccount *account;

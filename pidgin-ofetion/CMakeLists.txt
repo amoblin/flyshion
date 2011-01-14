@@ -9,7 +9,6 @@ SET(SRC_LIST
 	fx_blist.c
 	fx_buddy.c
 	fx_chat.c
-	fx_code.c
 	fx_contact.c
 	fx_login.c
 	fx_sip.c
@@ -27,7 +26,6 @@ FIND_PACKAGE(PkgConfig REQUIRED)
 PKG_CHECK_MODULES(LIBXML2 REQUIRED libxml-2.0)
 PKG_CHECK_MODULES(OPENSSL REQUIRED openssl)
 PKG_CHECK_MODULES(PURPLE REQUIRED  purple)
-PKG_CHECK_MODULES(GTK2 REQUIRED    gtk+-2.0)
 
 option(NLS "Native language support" ON)
 if(NLS)
@@ -43,7 +41,6 @@ INCLUDE_DIRECTORIES(
 	${LIBXML2_INCLUDE_DIRS}
 	${OPENSSL_INCLUDE_DIRS}
 	${PURPLE_INCLUDE_DIRS}
-	${GTK2_INCLUDE_DIRS}
 	)
 
 TARGET_LINK_LIBRARIES(libopenfetion

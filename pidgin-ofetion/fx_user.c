@@ -85,8 +85,11 @@ void fetion_user_set_mobileno(User *user, const gchar *mobileno1)
 
 void fetion_user_set_verification_code(User *user, const gchar *code)
 {
+	g_return_if_fail(user != NULL);
+	g_return_if_fail(code != NULL);
+
 	user->verification->code = (gchar*)g_malloc0(strlen(code) + 1);
-	strncpy(user->verification->code, code, sizeof(user->verification->code) - 1);
+	strcpy(user->verification->code, code);
 }
 
 void fetion_user_free(User* user)
@@ -101,7 +104,7 @@ void fetion_user_free(User* user)
 
 static gint set_state_cb(fetion_account *UNUSED(ac), const gchar *sipmsg, struct transaction *UNUSED(trans))
 {
-	purple_debug_info("fetion", sipmsg);
+	purple_debug_info("fetion", "%s", sipmsg);
 	return 0;
 }
 

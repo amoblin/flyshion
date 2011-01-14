@@ -123,7 +123,7 @@ gint process_invite_cb(fetion_account *ac, const gchar *sipmsg)
 			"I: 61\r\n"
 			"Q: 200002 I\r\n\r\n",
 			from);
-	if(send(ac->sk, buf, strlen(buf), 0) == -1) return -1;
+	if(send(ac->sk, buf, strlen(buf), 0) == -1) { g_free(data); return -1; }
 
 	sid = fetion_sip_get_sid_by_sipuri(from);
 	cnt = fetion_contact_list_find_by_sid(ac->user->contactList, sid);
@@ -150,6 +150,20 @@ gint process_invite_cb(fetion_account *ac, const gchar *sipmsg)
 	return 0;
 }
 
+void process_enter_cb(fetion_account *ses, const gchar *sipmsg)
+{
+	GSList *cur = ses->trans_wait;
+	struct transaction *trans;
+	ses->chan_ready = 1;
+	while(cur) {
+		trans = (struct transaction*)(cur->data);
+		fetion_send_sms(ses, trans->userId, trans->msg);
+		transaction_wakeup(ses, trans);
+		cur = ses->trans_wait;
+	}
+	purple_debug_info("fetion", "%s\n" , sipmsg);
+}
+
 void process_left_cb(fetion_account *ses, const gchar *sipmsg)
 {
 	gchar *sipuri;
@@ -157,7 +171,9 @@ void process_left_cb(fetion_account *ses, const gchar *sipmsg)
 	fetion_sip_parse_userleft(sipmsg, &sipuri);
 	session_remove(ses);
 	session_destroy(ses);
-	printf("%s\n", sipmsg);
+
+	purple_debug_info("fetion", "%s\n", sipmsg);
+	g_free(sipuri);
 }
 
 static gint sms_response_cb(fetion_account *ac, const gchar *sipmsg, struct transaction *trans)
@@ -212,27 +228,32 @@ gint fetion_send_sms(fetion_account *ses, const gchar* who, const gchar *msg)
 	if(!(cnt = fetion_contact_list_find_by_userid(ses->user->contactList, who))) return -1;
 	struct transaction *trans = transaction_new();
 
-	fetion_sip_set_type(sip , SIP_MESSAGE);
-	nheader  = fetion_sip_event_header_new(SIP_EVENT_CATMESSAGE);
-	toheader = fetion_sip_header_new("T" , cnt->sipuri);
-	cheader  = fetion_sip_header_new("C" , "text/plain");
-	kheader  = fetion_sip_header_new("K" , "SaveHistory");
-	fetion_sip_add_header(sip , toheader);
-	fetion_sip_add_header(sip , cheader);
-	fetion_sip_add_header(sip , kheader);
-	fetion_sip_add_header(sip , nheader);
-	transaction_set_callid(trans, sip->callid);
-	transaction_set_callback(trans, sms_response_cb);
-	st_data = g_malloc0(sizeof(sms_timeout_data));
-	st_data->ac = ses;
-	st_data->trans = trans;
-	transaction_set_timeout(trans, (GSourceFunc)sms_timeout_cb, st_data);
 	transaction_set_userid(trans, who);
 	transaction_set_msg(trans, msg);
-	transaction_add(ses, trans);
-	res = fetion_sip_to_string(sip , msg);
-	if(send(ses->sk, res, strlen(res), 0) == -1) return -1;
-	g_free(res);
+
+	if(ses->chan_ready) {
+		fetion_sip_set_type(sip , SIP_MESSAGE);
+		nheader  = fetion_sip_event_header_new(SIP_EVENT_CATMESSAGE);
+		toheader = fetion_sip_header_new("T" , cnt->sipuri);
+		cheader  = fetion_sip_header_new("C" , "text/plain");
+		kheader  = fetion_sip_header_new("K" , "SaveHistory");
+		fetion_sip_add_header(sip , toheader);
+		fetion_sip_add_header(sip , cheader);
+		fetion_sip_add_header(sip , kheader);
+		fetion_sip_add_header(sip , nheader);
+		transaction_set_callid(trans, sip->callid);
+		transaction_set_callback(trans, sms_response_cb);
+		st_data = g_malloc0(sizeof(sms_timeout_data));
+		st_data->ac = ses;
+		st_data->trans = trans;
+		transaction_set_timeout(trans, (GSourceFunc)sms_timeout_cb, st_data);
+		transaction_add(ses, trans);
+		res = fetion_sip_to_string(sip , msg);
+		if(send(ses->sk, res, strlen(res), 0) == -1) { g_free(res); return -1; }
+		g_free(res);
+	} else {
+		transaction_wait(ses, trans);
+	}
 
 	return 0;
 }
@@ -319,7 +340,6 @@ gint fetion_send_nudge(fetion_account *ses, const gchar *who)
 
 static gint invite_buddy_cb(fetion_account *ses, const gchar *UNUSED(sipmsg), struct transaction *trans)
 {
-	sleep(1);
 	if(trans->msg[0] == '\0')
 		fetion_send_nudge(ses, trans->userId);
 	else

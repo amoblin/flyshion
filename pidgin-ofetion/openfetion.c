@@ -136,7 +136,7 @@ static void fx_group_buddy(PurpleConnection *gc, const gchar *who,
 	Contact *cnt = fetion_contact_list_find_by_userid(ac->user->contactList, who);
 	Group   *group = fetion_group_list_find_by_name(ac->user->groupList, new_group);
 	if(!group) {
-		snprintf(buf, sizeof(buf) - 1, _("'%s' is not a valid group of this account"), new_group);
+		snprintf(buf, sizeof(buf) - 1, _("'%s' is not a valid group of this account."), new_group);
 		purple_notify_error(ac->gc, NULL, _("Failed"), buf);
 		return;
 	}
@@ -217,7 +217,7 @@ static int fx_im_send(PurpleConnection *gc, const gchar *who, const gchar *what,
 		if(!(conv = purple_find_conversation_with_account(
 						PURPLE_CONV_TYPE_ANY, who, ac->account))) return -1;
 			purple_conversation_write(conv, NULL,
-					  _("Message sent failed:Unauthencated Buddy!"),
+					  _("Failed to send message: Unverified Buddy!"),
 					  PURPLE_MESSAGE_ERROR, time(NULL));
 			return -1;
 	}
@@ -236,7 +236,7 @@ static int fx_im_send(PurpleConnection *gc, const gchar *who, const gchar *what,
 		if(!(conv = purple_find_conversation_with_account(
 						PURPLE_CONV_TYPE_ANY, who, ac->account))) return -1;
 			purple_conversation_write(conv, NULL,
-					  _("Message sent failed:It has shut down fetion service!"),
+					  _("Fail to send message: Buddy has cancled Fetion service!"),
 					  PURPLE_MESSAGE_ERROR, time(NULL));
 			return -1;
 	}
@@ -434,7 +434,7 @@ static void process_dereg_cb(fetion_account *ses, const gchar *UNUSED(sipmsg))
 	pc = purple_account_get_connection(ses->account);
 	purple_connection_error_reason(pc,
 			       PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED,
-				       _("Your fetion login elsewhere. You are forced quit."));
+				       _("Your account has logined elsewhere. You are forced to quit."));
 }
 
 static void process_info_cb(fetion_account *ses, const gchar *sipmsg)
@@ -487,7 +487,13 @@ static void process_notify_cb(fetion_account *ac, const gchar *sipmsg)
 			if(event == NOTIFICATION_EVENT_PRESENCECHANGED)	process_presence(ac , xml);
 			break;
 		case NOTIFICATION_TYPE_CONVERSATION :
-			if(event == NOTIFICATION_EVENT_USERLEFT)		process_left_cb(ac, sipmsg);
+			if(event == NOTIFICATION_EVENT_USERLEFT) {
+				process_left_cb(ac, sipmsg);
+				break;
+			} else 	if(event == NOTIFICATION_EVENT_USERENTER) {
+				process_enter_cb(ac, sipmsg);
+				break;
+			}
 			break;
 		case NOTIFICATION_TYPE_REGISTRATION :
 			if(event == NOTIFICATION_EVENT_DEREGISTRATION)	process_dereg_cb(ac, sipmsg);
@@ -521,6 +527,7 @@ static void fx_login(PurpleAccount *account)
  	ac->user = fetion_user_new(mobileno, password);
 	ac->account = account;
 	ac->gc = pc;
+	ac->chan_ready = 1;
 
 	purple_connection_set_protocol_data(pc, ac);
 
@@ -553,7 +560,6 @@ static void fx_close(PurpleConnection *gc)
 	}
 	fetion_user_free(ac->user);
 	ac->user = NULL;
-	g_free(ac);
 	purple_connection_set_protocol_data(gc, NULL);
 }
 
@@ -620,10 +626,10 @@ static void action_about_openfetion(PurplePluginAction *action)
 	g_string_append(info, "levin(<a href='http://twitter.com/levin108'>@levin108</a>)<br>\n");
 	g_string_append(info, "<br/>\n");
 
-	g_string_append(info, _("fetion-pidgin is a fetion plugin for pidgin, <br/>"
-				"implementing Fetion Protocol Version 4 by the openfetion team.<br/>"
-				"It supports most features of Fetion. <br/>"
-				"It's lightweight and efficient with intuitive interface.<br/><br/>"
+	g_string_append(info, _("pidgin-openfetion is a Fetion protocol plugin for libpurple, <br/>"
+				"implemented by the openfetion team.<br/>"
+				"It supports most features of China Mobile's Fetion V4 protocol. <br/>"
+				"It's lightweight and efficient.<br/><br/>"
 				"Project homepage: http://code.google.com/p/ofetion/"));
 	g_string_append(info, "<br/><br/>");
 	g_string_append(info, _("<p><b>Translators</b></p>:<br/>\n"));
@@ -704,7 +710,7 @@ static void action_modify_nickname(PurplePluginAction *action)
 
 	g_return_if_fail(NULL != gc && NULL != gc->proto_data);
 
-	purple_request_input(gc, NULL, _("Modify Nickname"), NULL,
+	purple_request_input(gc, NULL, _("Change Nickname"), NULL,
 			     NULL, FALSE, FALSE, NULL,
 			     _("OK"), G_CALLBACK(modify_nickname_cb),
 			     _("Cancel"), NULL,
@@ -718,7 +724,7 @@ static void action_modify_impresa(PurplePluginAction *action)
 
 	g_return_if_fail(NULL != gc && NULL != gc->proto_data);
 
-	purple_request_input(gc, NULL, _("Modify Signature"), NULL,
+	purple_request_input(gc, NULL, _("Change Signature"), NULL,
 			     NULL, FALSE, FALSE, NULL,
 			     _("OK"), G_CALLBACK(modify_impresa_cb),
 			     _("Cancel"), NULL,
@@ -755,10 +761,10 @@ static GList *plugin_actions(PurplePlugin *UNUSED(plugin), gpointer UNUSED(conte
 	act = purple_plugin_action_new(_("View Information"), action_show_account_info);
 	m = g_list_append(m, act);
 
-	act = purple_plugin_action_new(_("Modify Nickname"), action_modify_nickname);
+	act = purple_plugin_action_new(_("Change Nickname"), action_modify_nickname);
 	m = g_list_append(m, act);
 
-	act = purple_plugin_action_new(_("Modify Signature"), action_modify_impresa);
+	act = purple_plugin_action_new(_("Change Signature"), action_modify_impresa);
 	m = g_list_append(m, act);
 
 	m = g_list_append(m, NULL);
@@ -836,9 +842,10 @@ static PurplePluginProtocolInfo protocol_info = {
 	NULL,
 	fx_send_attention,
 	fx_attention_types,
-
 	sizeof(PurplePluginProtocolInfo), /* struct_size */
-	NULL							/* get_account_text_table */
+	NULL,							/* get_account_text_table */
+	NULL,
+	NULL
 };
 
 static PurplePluginInfo info = {
@@ -856,9 +863,9 @@ static PurplePluginInfo info = {
     "1.1",
 
     N_("Fetion Plugin"),
-    N_("Fetion plugin implementing protocol version 4"),
+    N_("libpurple plugin implementing Fetion Protocol version 4"),
     "Wenpeng Li <levin108@gmail.com>",
-    "http://basiccoder.com",
+    "http://code.google.com/p/ofetion/",
 
 
 	NULL,

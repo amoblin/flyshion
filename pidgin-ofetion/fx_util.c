@@ -114,12 +114,22 @@ void transaction_set_callback(struct transaction *trans, TransCallback callback)
 
 void transaction_set_timeout(struct transaction *trans, GSourceFunc timeout, gpointer data)
 {
-	trans->timer = purple_timeout_add_seconds(10, timeout, data);
+	trans->timer = purple_timeout_add_seconds(20, timeout, data);
 }
 
 void transaction_add(fetion_account *ses, struct transaction *trans)
 {
 	ses->trans = g_slist_append(ses->trans, trans);
+}
+
+void transaction_wait(fetion_account *ses, struct transaction *trans)
+{
+	ses->trans_wait = g_slist_append(ses->trans_wait, trans);
+}
+
+void transaction_wakeup(fetion_account *ses, struct transaction *trans)
+{
+	ses->trans_wait = g_slist_remove(ses->trans_wait, trans);
 }
 
 void transaction_remove(fetion_account *ses, struct transaction *trans)
@@ -132,6 +142,7 @@ fetion_account *session_new(PurpleAccount *account)
 	fetion_account *ses = g_malloc0(sizeof(fetion_account));
 	ses->account = account;
 	ses->trans = (GSList*)0;
+	ses->trans_wait = (GSList*)0;
 	ses->data = (gchar*)0;
 	return ses;
 }
@@ -141,9 +152,11 @@ fetion_account *session_clone(fetion_account *ac)
 	fetion_account *ses = g_malloc0(sizeof(fetion_account));
 	ses->account = ac->account;
 	ses->trans = (GSList*)0;
+	ses->trans_wait = (GSList*)0;
 	ses->data = (gchar*)0;
 	ses->user = ac->user;
 	ses->gc = ac->gc;
+	ses->chan_ready = 0;
 	return ses;
 }
 

@@ -210,7 +210,7 @@ gint get_info_cb(fetion_account *ac, const gchar *sipmsg, struct transaction *UN
 	Contact    *cnt;
 	PurpleNotifyUserInfo *info;
 	PurpleConnection     *pc;
-	gchar *province, *city;
+	gchar *province, *city, *sid;
 
 	pos = strstr(sipmsg , "\r\n\r\n") + 4;
 	doc = xmlParseMemory(pos , strlen(pos));
@@ -239,7 +239,8 @@ gint get_info_cb(fetion_account *ac, const gchar *sipmsg, struct transaction *UN
 						cnt->gender == 1 ? _("Male") : ( cnt->gender == 2 ? _("Female") : _("Secrecy")));
 	purple_notify_user_info_add_pair(info, _("Mobile"), cnt->mobileno);
 	purple_notify_user_info_add_section_break(info);
-	purple_notify_user_info_add_pair(info, _("Fetion"), cnt->sipuri);
+	sid = fetion_sip_get_sid_by_sipuri(cnt->sipuri);
+	purple_notify_user_info_add_pair(info, _("Fetion"), sid);
 	purple_notify_user_info_add_pair(info, _("Signature"), cnt->impression);
 	province = get_province_name(cnt->province);
 	city = get_city_name(cnt->province, cnt->city);
@@ -251,7 +252,7 @@ gint get_info_cb(fetion_account *ac, const gchar *sipmsg, struct transaction *UN
 	purple_notify_userinfo(pc, cnt->userId, info, NULL, NULL);
 	purple_notify_user_info_destroy(info);
 
-	g_free(province); g_free(city);
+	g_free(province); g_free(city); g_free(sid);
 
 	return 0;
 }
@@ -265,8 +266,6 @@ static gint add_buddy_cb(fetion_account *ses, const gchar *sipmsg, struct transa
 	PurpleBuddy *buddy;
 	PurpleGroup *grp;
 	code = fetion_sip_get_code(sipmsg);
-
-	printf("%s\n", sipmsg);
 
 	if(code == 200) {
 		if(!(cnt = parse_add_buddy_response(sipmsg, &status_code, &errMsg))) {
@@ -312,7 +311,7 @@ static gint add_buddy_cb(fetion_account *ses, const gchar *sipmsg, struct transa
 
 static gint handle_contact_cb(fetion_account *UNUSED(ac), const gchar *sipmsg, struct transaction *UNUSED(trans))
 {
-	purple_debug_info("fetion", sipmsg);
+	purple_debug_info("fetion", "%s", sipmsg);
 	return 0;
 }
 
@@ -413,6 +412,8 @@ static void update_portrait(fetion_account *ac, Contact *contact_cur)
 	PurpleBuddy   *buddy;
 	portrait_data *data;
 
+	g_return_if_fail(ac != NULL && ac->user != NULL);
+
 	if(!(buddy = purple_find_buddy(account, contact_cur->userId))) return;
 	crc = purple_buddy_icons_get_checksum_for_user(buddy);
 	if((!crc && contact_cur->portraitCrc[0] == '\0') || (crc && strcmp(crc, contact_cur->portraitCrc) == 0)) return;
@@ -435,6 +436,8 @@ static gint download_portrait_cb(gpointer data, gint source, const gchar *UNUSED
 
 	udata = (portrait_data*)data;
 	ac    = udata->ac;
+
+	g_return_val_if_fail(ac->user != NULL, -1);
 
 	snprintf(uri, sizeof(uri) - 1 , "/%s/getportrait.aspx" , ac->user->portraitServerPath);
 

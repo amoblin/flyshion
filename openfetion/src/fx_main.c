@@ -130,7 +130,7 @@ void fx_main_initialize(FxMain* fxmain)
 			GTK_WINDOW(fxmain->window),
 			WINDOW_WIDTH , WINDOW_HEIGHT);
 	GdkPixbuf* icon = gdk_pixbuf_new_from_file_at_size(
-			SKIN_DIR"fetion.svg" , 48 , 48 , NULL);
+			SKIN_DIR"fetion.svg" , 24 , 24 , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxmain->window) , icon);
 	fxmain->trayIcon = gtk_status_icon_new_from_file(
 			SKIN_DIR"offline.svg");

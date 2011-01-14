@@ -224,28 +224,19 @@ char* fetion_sip_to_string(fetion_sip* sip , const char* body)
 	res = (gchar*)g_malloc0(len + 1);
 	memset(type, 0 , sizeof(type));
 	switch(sip->type){
-		case SIP_REGISTER     : strcpy(type , "R");
-			break;
-		case SIP_SUBSCRIPTION :	strcpy(type , "SUB");
-			break;
-		case SIP_SERVICE 	  : strcpy(type , "S");
-			break;
-		case SIP_MESSAGE      : strcpy(type , "M");
-			break;
-		case SIP_INCOMING	  : strcpy(type , "IN");
-			break;
-		case SIP_OPTION 	  : strcpy(type , "O");
-			break;
-		case SIP_INVITATION	: strcpy(type , "I");
-			break;
-		case SIP_ACKNOWLEDGE	: strcpy(type , "A");
-			break;
-		default:
-			break;
+		case SIP_REGISTER     : strcpy(type , "R");		break;
+		case SIP_SUBSCRIPTION :	strcpy(type , "SUB");	break;
+		case SIP_SERVICE 	  : strcpy(type , "S");		break;
+		case SIP_MESSAGE      : strcpy(type , "M");		break;
+		case SIP_INCOMING	  : strcpy(type , "IN");	break;
+		case SIP_OPTION 	  : strcpy(type , "O");		break;
+		case SIP_INVITATION	  : strcpy(type , "I");		break;
+		case SIP_ACKNOWLEDGE  : strcpy(type , "A");		break;
+		default:	break;
 	};
 
 	if(*type == '\0'){
-		free(res);
+		g_free(res);
 		return NULL;
 	}
 
@@ -391,16 +382,35 @@ void fetion_sip_parse_notification(const gchar *sip, gint *type, gint *event, gc
 	else
 		*type = NOTIFICATION_TYPE_UNKNOWN;
 
-	pos = strstr(sip , "\r\n\r\n") + 4;
-	*xml = (char*)malloc(strlen(pos) + 1);
-	memset(*xml , 0 , strlen(pos) + 1);
-	strcpy(*xml , pos);
-	doc = xmlReadMemory(*xml , strlen(*xml) , NULL , "UTF-8" , XML_PARSE_RECOVER);
+	if(!(pos = strstr(sip , "\r\n\r\n"))) {
+		*event = NOTIFICATION_TYPE_UNKNOWN;
+		return;
+	}
+	*xml = (gchar*)g_malloc0(strlen(pos) + 1);
+	strcpy(*xml , pos + 4);
+	doc = xmlParseMemory(*xml , strlen(*xml));
 	node = xmlDocGetRootElement(doc);
 	node = xml_goto_node(node , "event");
 	event1 = xmlGetProp(node ,  BAD_CAST "type");
+	if(xmlStrcmp(event1, BAD_CAST "Support") == 0) {
+		xmlFree(event1);
+		node = node->next;
+		event1 = xmlGetProp(node, BAD_CAST "type");
+		if(xmlStrcmp(event1, BAD_CAST "UserEntered") == 0) {
+			*event = NOTIFICATION_EVENT_USERENTER;
+			xmlFree(event1);
+			xmlFreeDoc(doc);
+			return;
+		}
+		*event = NOTIFICATION_EVENT_UNKNOWN;
+		xmlFree(event1);
+		xmlFreeDoc(doc);
+		return;
+	}
 	if(xmlStrcmp(event1 , BAD_CAST "PresenceChanged") == 0)
 		*event = NOTIFICATION_EVENT_PRESENCECHANGED;
+	else if(xmlStrcmp(event1 , BAD_CAST "UserEntered") == 0)
+		*event = NOTIFICATION_EVENT_USERENTER;
 	else if(xmlStrcmp(event1 , BAD_CAST "UserLeft") == 0)
 		*event = NOTIFICATION_EVENT_USERLEFT;
 	else if(xmlStrcmp(event1 , BAD_CAST "deregistered") == 0)
@@ -443,6 +453,8 @@ void fetion_sip_parse_userleft(const gchar *sipmsg, gchar **sipuri)
 	xmlDocPtr doc = NULL;
 	xmlNodePtr node = NULL;
 	xmlChar *res;
+
+	printf("%s\n", sipmsg);
 
 	pos = strstr(sipmsg , "\r\n\r\n") + 4;
 	doc = xmlParseMemory(pos , strlen(pos));

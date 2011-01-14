@@ -64,7 +64,6 @@ extern "C" {
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <openssl/rand.h>
-#include <sqlite3.h>
 
 #include "glib/gi18n.h"
 #include "blist.h"
@@ -117,6 +116,8 @@ void transaction_set_userid(struct transaction *trans, const gchar *userid);
 void transaction_set_callback(struct transaction *trans, TransCallback callback);
 void transaction_set_timeout(struct transaction *trans, GSourceFunc timeout, gpointer data);
 void transaction_set_msg(struct transaction *trans, const gchar *msg);
+void transaction_wait(fetion_account *ses, struct transaction *trans);
+void transaction_wakeup(fetion_account *ses, struct transaction *trans);
 void transaction_add(fetion_account *ses, struct transaction *trans);
 void transaction_remove(fetion_account *ses, struct transaction *trans);
 fetion_account *session_new(PurpleAccount *account);

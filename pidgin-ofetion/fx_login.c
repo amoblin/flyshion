@@ -28,16 +28,13 @@
  *   combination shall include the source code for the parts of the        *
  *   OpenSSL library used as well as that of the covered work.             *
  ***************************************************************************/
-#include <gtk/gtk.h>
-
-#include <eventloop.h>
 #include "fetion.h"
 #include "fx_sip.h"
 #include "fx_user.h"
 #include "fx_contact.h"
 #include "fx_login.h"
 #include "fx_buddy.h"
-#include "fx_code.h"
+#include <eventloop.h>
 #include <openssl/rsa.h>
 #include <openssl/sha.h>
 
@@ -71,7 +68,7 @@ static gint download_cfg(gpointer data, gint source, const gchar * error_message
 static void ssi_auth_cb(gpointer data, PurpleSslConnection *source, PurpleInputCondition *cond);
 static int sipc_reg_action(gpointer data, gint source, const gchar *error_message);
 static gint parse_configuration_xml(User *user, const char *xml);
-static unsigned char* decode_base64(const char* in , int* len);
+static gchar *decode_base64(const gchar *in, gint *len);
 static gint parse_sipc_verification(User *user, const gchar *str);
 static void parse_sipc_reg_response(const gchar *reg_response, gchar **nouce, gchar **key);
 static gchar *generate_aes_key();
@@ -135,6 +132,55 @@ char* generate_response(const char* nouce , const char* userid
 	return hextostr(out , ret);
 }
 
+static void pic_ok_cb(fetion_account *ac, PurpleRequestFields *fields)
+{
+	const gchar *code;
+	code = purple_request_fields_get_string(fields, "code_entry");
+
+	fetion_user_set_verification_code(ac->user, code);
+	if(verify_data.type == VERIFY_TYPE_SSI) {
+		purple_ssl_connect(ac->account, SSI_SERVER,
+				PURPLE_SSL_DEFAULT_PORT, 
+				(PurpleSslInputFunction)ssi_auth_action,
+				(PurpleSslErrorFunction)0, ac);
+	} else if(verify_data.type == VERIFY_TYPE_SIP) {
+		sipc_aut_action(verify_data.sipc_conn, ac, verify_data.response);
+	}
+}
+
+static void pic_cancel_cb(fetion_account *ac, PurpleRequestFields *UNUSED(fields))
+{
+	fetion_verification_free(ac->user->verification);
+	ac->user->verification = NULL;
+	purple_connection_error_reason(ac->gc,
+    					PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED,
+				       _("Login Failed."));
+}
+
+static void fetion_code_request(fetion_account *ac, const gchar *code_data, gint code_size)
+{
+	PurpleRequestFieldGroup *field_group;
+	PurpleRequestField *code_entry;
+	PurpleRequestField *code_pic;
+	PurpleRequestFields *fields;
+
+	fields = purple_request_fields_new();
+	field_group = purple_request_field_group_new((gchar*)0);
+	purple_request_fields_add_group(fields, field_group);
+
+	code_pic = purple_request_field_image_new("code_pic", _("Confirmation code"), code_data, code_size);
+	purple_request_field_group_add_field(field_group, code_pic);
+
+	code_entry = purple_request_field_string_new("code_entry", _("Please input the code"), "", FALSE);
+	purple_request_field_group_add_field(field_group, code_entry);
+
+	purple_request_fields(ac->account, NULL,
+		   		ac->user->verification->tips, (gchar*)0,
+				fields, _("OK"), G_CALLBACK(pic_ok_cb), 
+			   	_("Cancel"), G_CALLBACK(pic_cancel_cb),
+			   	ac->account, NULL, NULL, ac);
+}
+
 static gint pic_read_cb(gpointer data, gint source, const gchar *UNUSED(message))
 {
 	gint n, len;
@@ -142,14 +188,9 @@ static gint pic_read_cb(gpointer data, gint source, const gchar *UNUSED(message)
 	xmlDocPtr  doc;
 	xmlNodePtr node;
 	gchar *code, *pos;
-	guchar *pic;
+	gchar *pic;
 	gint piclen;
-	gint ret;
-	const gchar *pic_code;
-	FILE *picfd;
-	const gchar code_path[] = "/home/levin/.purple/code.gif";
-	PurpleConnection *pc;
-	FxCode *fxcode;
+
 	fetion_account *ac = (fetion_account*)data;
 
 	len = ac->data ? strlen(ac->data) : 0;
@@ -165,7 +206,6 @@ static gint pic_read_cb(gpointer data, gint source, const gchar *UNUSED(message)
 			ac->data = (gchar*)0;
 			return -1;
 		}
-		pc = purple_account_get_connection(ac->account);
 		doc = xmlParseMemory(pos + 4, strlen(pos + 4));
 		node = xmlDocGetRootElement(doc);
 		node = node->xmlChildrenNode;
@@ -175,45 +215,14 @@ static gint pic_read_cb(gpointer data, gint source, const gchar *UNUSED(message)
 		purple_debug_info("fetion", "Generating verification code picture");
 		pic = decode_base64(code , &piclen);
 		g_free(code);
-		if(!(picfd = fopen(code_path , "wb+"))) {
-			g_free(ac->data);
-			ac->data = (gchar*)0;
-			purple_connection_error_reason(pc,
-			       PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED,
-						       _("Write confirm code Failed."));
-			return -1;
-		}
-		for(; n != piclen ; n += fwrite(pic + n , 1 , piclen - n , picfd));
-		fclose(picfd);
+		fetion_code_request(ac, pic, piclen);
+		g_free(pic);
 		g_free(ac->data);
 		ac->data = (gchar*)0;
 
-		fxcode = fx_code_new(ac->user->verification->text, ac->user->verification->tips);
-		fx_code_initialize(fxcode, code_path);
-		ret = gtk_dialog_run(GTK_DIALOG(fxcode->dialog));
-		if(ret == GTK_RESPONSE_OK) {
-			pic_code = fx_code_get_code(fxcode);
-			fetion_user_set_verification_code(ac->user, pic_code);
-			gtk_widget_destroy(fxcode->dialog);
-			if(verify_data.type == VERIFY_TYPE_SSI) {
-				purple_ssl_connect(ac->account, SSI_SERVER,
-						PURPLE_SSL_DEFAULT_PORT, 
-						(PurpleSslInputFunction)ssi_auth_action,
-						(PurpleSslErrorFunction)0, ac);
-			} else if(verify_data.type == VERIFY_TYPE_SIP) {
-				sipc_aut_action(verify_data.sipc_conn, ac, verify_data.response);
-			}
-			return 0;
-		} else {
-			gtk_widget_destroy(fxcode->dialog);
-			fetion_verification_free(ac->user->verification);
-			ac->user->verification = NULL;
-			purple_connection_error_reason(pc,
-			       PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED,
-						       _("Login Failed."));
-			return -1;
-		}
+		return 0;
 	}
+
 	ac->data = (gchar*)realloc(ac->data, len + n + 1);
 	memcpy(ac->data + len, sipmsg, n + 1);
 
@@ -369,8 +378,12 @@ aut_fin:
 	if(USER_AUTH_NEED_CONFIRM(ac->user)) {
 		verify_data.type = VERIFY_TYPE_SIP;
 		verify_data.sipc_conn = source;
-		purple_proxy_connect(NULL, ac->account, NAV_SERVER, 80,
-					(PurpleProxyConnectFunction)pic_code_cb, ac);
+		if(ac->conn_data) {
+			purple_proxy_connect_cancel(ac->conn_data);
+			ac->conn_data = NULL;
+		}
+		ac->conn_data = purple_proxy_connect(NULL, ac->account, NAV_SERVER, 80,
+							(PurpleProxyConnectFunction)pic_code_cb, ac);
 		return -1;
 	} else if(USER_AUTH_ERROR(ac->user) ) {
 		purple_connection_error_reason(pc, PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED,
@@ -515,8 +528,8 @@ static void ssi_auth_cb(gpointer data, PurpleSslConnection *source, PurpleInputC
 		if(USER_AUTH_NEED_CONFIRM(user)) {
 			verify_data.type = VERIFY_TYPE_SSI;
 			verify_data.ssl = source;
-			purple_proxy_connect(NULL, ac->account, NAV_SERVER, 80,
-					(PurpleProxyConnectFunction)pic_code_cb, ac);
+			ac->conn_data = purple_proxy_connect(NULL, ac->account, NAV_SERVER, 80,
+								(PurpleProxyConnectFunction)pic_code_cb, ac);
 
 		} else {
 			pc = purple_account_get_connection(ac->account);
@@ -530,9 +543,21 @@ static void ssi_auth_cb(gpointer data, PurpleSslConnection *source, PurpleInputC
 	g_free(pos);
 	xmlFreeDoc(doc);
 
+	if(ac->conn_data) {
+		purple_proxy_connect_cancel(ac->conn_data);
+		ac->conn_data = NULL;
+	}
 	/* download configuration routine */
 	ac->conn_data = purple_proxy_connect(NULL, ac->account,
 			uri, 80, (PurpleProxyConnectFunction)download_cfg, ac);
+
+	if(!ac->conn_data) {
+		purple_debug_error("fetion", "connect to cfg server failed\n");
+		pc = purple_account_get_connection(ac->account);
+		purple_connection_error_reason(pc,
+			       PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED,
+					       _("Login Failed."));
+	}
 
 	return;
 }
@@ -595,21 +620,44 @@ static gint cfg_cb(gpointer data, gint source, const gchar *UNUSED(error_message
 	if((n = recv(source, msg, sizeof(msg), 0)) == -1) return -1;
 	msg[n] = '\0';
 	if(n == 0) {
+		/* get cfg failed */
+		if(!strstr(ac->data, "HTTP/1.1 200")) {
+			g_free(ac->data);
+			ac->data = (gchar*)0;
+			close(source);
+	   		purple_input_remove(ac->conn);
+			purple_connection_error_reason(ac->gc,
+				       PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED,
+							       _("Download configuration file error."));
+			return -1;
+
+		}
 		if(!(pos = strstr(ac->data, "\r\n\r\n"))) return -1;
 		pos += 4;
 		if(parse_configuration_xml(ac->user, pos) == -1) {
 			g_free(ac->data);
 			ac->data = (gchar*)0;
+			close(source);
+	   		purple_input_remove(ac->conn);
 			return -1;
 		}
 		
 		g_free(ac->data);
 		ac->data = (gchar*)0;
+		close(source);
 	   	purple_input_remove(ac->conn);
 
-		purple_proxy_connect(NULL, ac->account,
-			ac->user->sipcProxyIP, ac->user->sipcProxyPort,
-			(PurpleProxyConnectFunction)sipc_reg_action, ac);
+		ac->conn_data = purple_proxy_connect(NULL, ac->account,
+							ac->user->sipcProxyIP, ac->user->sipcProxyPort,
+							(PurpleProxyConnectFunction)sipc_reg_action, ac);
+
+		if(!ac->conn_data) {
+			purple_debug_error("fetion", "connect to ssi server failed");
+			purple_connection_error_reason(ac->gc,
+				       PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED,
+							       _("Login Failed."));
+			return -1;
+		}
 	   	return 0;
    	}
 	length = ac->data ? strlen(ac->data) : 0;
@@ -1117,10 +1165,10 @@ static gchar *generate_cnouce()
 	return cnouce;
 }
 
-static unsigned char* decode_base64(const char* in , int* len)
+static gchar *decode_base64(const char* in , int* len)
 {
  	unsigned int n , t = 0 , c = 0;
-	unsigned char* res;
+	gchar *res;
 	unsigned char out[3];
 	unsigned char inp[4];
 
@@ -1131,7 +1179,7 @@ static unsigned char* decode_base64(const char* in , int* len)
 	}
 	n = n / 4 * 3;
 	if(len != NULL)	*len = n;
-	res = (unsigned char*)malloc(n);
+	res = (gchar*)malloc(n);
 	memset(res , 0 , n);
 	while(1) {
 		memset(inp , 0 , 4);
@@ -1147,7 +1195,7 @@ static unsigned char* decode_base64(const char* in , int* len)
 	return res;
 }
 
-static gchar* generate_configuration_body(User* user)
+static gchar *generate_configuration_body(User *user)
 {
 	xmlChar* buf;
 	xmlDocPtr doc;
@@ -1168,13 +1216,13 @@ static gchar* generate_configuration_body(User* user)
 	xmlNewProp(cnode , BAD_CAST "platform" , BAD_CAST "W5.1");
 	cnode = xmlNewChild(node , NULL , BAD_CAST "servers" , NULL);
 	xmlNewProp(cnode , BAD_CAST "version",
-				   	BAD_CAST user->configServersVersion);
+				   	BAD_CAST "0");//user->configServersVersion);
 	cnode = xmlNewChild(node , NULL , BAD_CAST "parameters" , NULL);
 	xmlNewProp(cnode , BAD_CAST "version",
-				   	BAD_CAST user->configParametersVersion);
+				   	BAD_CAST "0");//user->configParametersVersion);
 	cnode = xmlNewChild(node , NULL , BAD_CAST "hints" , NULL);
 	xmlNewProp(cnode , BAD_CAST "version",
-				   	BAD_CAST user->configHintsVersion);
+				   	BAD_CAST "0");//user->configHintsVersion);
 	xmlDocDumpMemory(doc , &buf , NULL);
 	xmlFreeDoc(doc);	
 	return xml_convert(buf);

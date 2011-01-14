@@ -49,6 +49,7 @@ typedef struct {
 void process_message_cb(fetion_account *ac, const gchar *sipmsg);
 gint process_invite_cb(fetion_account *ses, const gchar *sipmsg);
 void process_left_cb(fetion_account *sec, const gchar *sipmsg);
+void process_enter_cb(fetion_account *ses, const gchar *sipmsg);
 gint fetion_send_nudge(fetion_account *ses, const gchar *who);
 gint fetion_send_sms(fetion_account *ac, const gchar* who, const gchar *msg);
 gint fetion_send_sms_to_phone(fetion_account *ac, const gchar *userid, const gchar *msg);
