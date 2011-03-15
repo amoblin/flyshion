@@ -10,7 +10,7 @@ set(LIBOFETION_API_VERSION "1.1.0")
 set(LIBOFETION_ABI_VERSION "1.0.0")
 set(LIBOFETION_ABI_MAJOR_VERSION "1")
 
-set(PACKAGE_VERSION "2.1.0")
+set(PACKAGE_VERSION "2.2.0")
 set(PACKAGE_NAME "${TARNAME}")
 set(PACKAGE_TARNAME "${TARNAME}")
 set(PACKAGE_STRING "${PACKAGE_NAME} ${PACKAGE_VERSION}")
@@ -61,7 +61,7 @@ endif(CMAKE_COMPILER_IS_GNUCXX)
 
 
 ##########################################################################
-add_definitions(-Wall -Wextra)
+add_definitions(-g -Wall -Wextra)
 ##########################################################################
 
 include_directories(

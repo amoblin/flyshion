@@ -473,7 +473,7 @@ static void process_system_message(const char *sipmsg)
 static void process_group_message(FxMain *fxmain , Message *message)
 {
 	FxPGGroup     *fxpgcur;
-	FxPGGroup     *fxpg;
+	FxPGGroup     *fxpg = NULL;
 	PGGroupMember *memcur;
 	FxList        *pglist;
 	FxList        *cur;

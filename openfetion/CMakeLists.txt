@@ -109,7 +109,7 @@ configure_file(config-ofetion.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
 
 ##########################################################################
-add_definitions(-Wall -Wextra)
+add_definitions(-g -Wall -Wextra)
 if(NLS AND GETTEXT_FOUND)
 	add_definitions(-DGETTEXT_PACKAGE="${PACKAGE_TARNAME}")
 	add_definitions(-DENABLE_NLS="1")
