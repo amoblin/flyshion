@@ -373,7 +373,7 @@ static int send_error(int client_fifo, const char *msg)
 {
 	struct fifo_resp *resp;
 	char              client_buf[BUFLEN];
-	int               n;
+	unsigned int      n;
 
 	resp = (struct fifo_resp*)client_buf;
 	resp->code = CLI_EXEC_FAIL;
@@ -392,7 +392,7 @@ static int send_success(int client_fifo, const char *msg)
 {
 	struct fifo_resp *resp;
 	char              client_buf[BUFLEN];
-	int               n;
+	unsigned int      n;
 
 	resp = (struct fifo_resp*)client_buf;
 	resp->code = CLI_EXEC_OK;

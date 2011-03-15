@@ -64,8 +64,9 @@ SipHeader* fetion_sip_header_new(const char* name , const char* value)
 	return header;
 }
 
-void fetion_sip_set_type(FetionSip* sip , SipType type)
+void fetion_sip_set_type(FetionSip *sip, SipType type)
 {
+	if(!sip) return;
 	sip->type = type;
 	sip->callid = callid;
 }
@@ -390,44 +391,36 @@ int fetion_sip_get_type(const char* sip)
 char* fetion_sip_get_response(FetionSip* sip)
 {
 	char *res;
-	unsigned int len , n , c;
+	int len , n;
+   	int c, c1;
 	char buf[1024 * 20];
 
-	memset(buf , 0 , sizeof(buf));
+	memset(buf, 0, sizeof(buf));
 
-	c = tcp_connection_recv(sip->tcp , buf , sizeof(buf) - 2);
-
-	if(c == -1)
-		return NULL;
+	if((c = tcp_connection_recv(sip->tcp , buf , sizeof(buf) - 2)) == -1) return (char*)0;
 
 	len = fetion_sip_get_length(buf);
 
-	while(strstr(buf , "\r\n\r\n") == NULL && c < sizeof(buf))
+	while(strstr(buf , "\r\n\r\n") == NULL && c < (int)sizeof(buf))
 		c += tcp_connection_recv(sip->tcp, buf + c, sizeof(buf) - c - 1);
 	
 
 	n = strlen(buf) - strlen(strstr(buf , "\r\n\r\n") + 4);
 	len += n;
-	res = (char*)malloc(len + 1);
-	if(res == NULL)
-		return NULL;
-	memset(res , 0 , len + 1);
-	strcpy(res , buf);
-	if(c < len){
-		unsigned int c1;
-	   	for(;;){
-			memset(buf , 0 , sizeof(buf));
-			c1 = tcp_connection_recv(sip->tcp , buf
-					, len -c < (sizeof(buf) - 1) ? len -c : (sizeof(buf) - 1) );
-			if(c1 == -1){
-				free(res);
-				return NULL;
-			}
+	if(!(res = (char*)malloc(len + 1))) return (char*)0; 
+
+	memset(res, 0, len + 1);
+	strcpy(res, buf);
+	if(c < len) {
+	   	for(;;) {
+			memset(buf, 0, sizeof(buf));
+			if((c1 = tcp_connection_recv(sip->tcp , buf
+					, len -c < (int)(sizeof(buf) - 1) ? len -c : (int)(sizeof(buf) - 1) ))
+				== -1) {free(res); return (char*)0; }
 
 			strncpy(res + c, buf, c1);
 			c += c1;
-			if(c >= len)
-				break;
+			if(c >= len) break;
 		}
 	}
 	return res;
@@ -521,7 +514,7 @@ SipMsg *fetion_sip_listen(FetionSip *sip, int *error)
 			/* now body_len != 0 */
 			pos += 4;
 			memset(holder, 0 , sizeof(holder));
-			if(strlen(pos) < body_len){
+			if((int)strlen(pos) < body_len){
 				strcpy(holder, cur);
 				tcp_connection_recv(sip->tcp,
 					holder + strlen(cur),
@@ -530,7 +523,7 @@ SipMsg *fetion_sip_listen(FetionSip *sip, int *error)
 				strcpy(buffer, holder);
 				cur = buffer;
 				continue;
-			}else if(strlen(pos) == body_len){
+			}else if((int)strlen(pos) == body_len){
 				msg = sipmsg_new();
 				sipmsg_set_msg(msg, cur, strlen(cur));
 				if(list)

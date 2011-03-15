@@ -269,7 +269,7 @@ gboolean fx_myself_on_enter_pressed(GtkWidget* widget , GdkEventKey* event , gpo
 	return FALSE;
 }
 
-static gboolean key_press_func(GtkWidget *widget , GdkEventKey *event
+static gboolean key_press_func(GtkWidget *UNUSED(widget), GdkEventKey *event
 		, gpointer data)
 {
 	FxMyself *fxmyself;

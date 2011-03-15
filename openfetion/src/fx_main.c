@@ -219,7 +219,7 @@ GtkWidget* fx_main_create_menu(const gchar* name
 }
 
 GtkWidget* fx_main_create_menu1(const gchar* name
-							 , const gchar *stockid
+							 , const gchar *UNUSED(stockid)
 							 , GtkWidget* parent
 							 , void (*func)(GtkWidget* item , gpointer data)
 							 , gpointer data

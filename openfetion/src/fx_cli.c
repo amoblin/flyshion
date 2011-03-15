@@ -111,7 +111,7 @@ int fx_cli_exec()
 {
 	int               serv_fifo;
 	int               cli_fifo;
-	int               n;
+	unsigned int      n;
 	char             *xml_body;
 	struct fifo_resp  resp;
 	char              client_fifo_file[BUFLEN];

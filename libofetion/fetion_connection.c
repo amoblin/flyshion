@@ -78,7 +78,7 @@ int tcp_keep_alive(int socketfd)
 	}
 #endif
 
-#ifdef TCP_KEEPCNF
+#ifdef TCP_KEEPCNT
 	if(setsockopt(socketfd , SOL_TCP , TCP_KEEPCNT
 				,(void *)&keepCount,sizeof(keepCount)) == -1){
 		debug_info("set TCP_KEEPCNT failed\n");
@@ -201,7 +201,7 @@ int tcp_connection_connect_with_proxy(FetionConnection* connection
 	strcpy(connection->remote_ipaddress , ipaddress);
 	connection->remote_port = port;
 
-	int n = MAX_RECV_BUF_SIZE;
+	unsigned int n = MAX_RECV_BUF_SIZE;
 	int ret = setsockopt(connection->socketfd , SOL_SOCKET , SO_RCVBUF , (const char*)&n , sizeof(n));
 	if(ret == -1){
 		return -1;
@@ -244,7 +244,7 @@ int tcp_connection_connect_with_proxy(FetionConnection* connection
 	pos++;
 	n = strlen(pos) - strlen(strstr(pos , " "));
 	memset(code, 0, sizeof(code));
-	strncpy(code , pos , (sizeof(code)-1<n)?(sizeof(code)-1):n);
+	strncpy(code, pos, (sizeof(code)-1 < n) ? (sizeof(code)-1) : n);
 	code[sizeof(code)-1]='\0';
 
 	if(strcmp(code , "200") != 0)
@@ -360,7 +360,7 @@ char* http_connection_get_response(FetionConnection* conn)
 	char ls[10];
 	char *pos;
 	char *res;
-	int  n = 0 , c , len;
+	unsigned int  n = 0 , c , len;
 
 	memset(buf, 0, sizeof(buf));
 

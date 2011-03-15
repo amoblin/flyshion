@@ -305,7 +305,9 @@ void fx_tree_initilize(FxMain* fxmain)
 	ThreadArgs* args = (ThreadArgs*)malloc(sizeof(ThreadArgs));
 	args->fxmain = fxmain;
 	args->sip = NULL;
-	GValue value = { 0, };
+	GValue value;
+
+	memset(&value, 0, sizeof(value));
 
 	all_light = fxmain->user->config->allHighlight;
 	fxtree = fxmain->mainPanel;

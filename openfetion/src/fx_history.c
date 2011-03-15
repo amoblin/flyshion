@@ -300,7 +300,7 @@ static void fx_history_on_export_clicked(GtkWidget* UNUSED(widget) , gpointer da
 
 }
 
-static void fx_history_on_cleanup_clicked(GtkWidget* widget , gpointer data)
+static void fx_history_on_cleanup_clicked(GtkWidget *UNUSED(widget), gpointer data)
 {
 	FxHistory *fxhistory = (FxHistory*)data;
 	FxMain *fxmain = fxhistory->fxmain;

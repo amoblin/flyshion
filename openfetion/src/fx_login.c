@@ -203,6 +203,7 @@ void fx_login_initialize(FxMain *fxmain)
 				   	GTK_JUSTIFY_CENTER);
 
 	fxlogin->password = gtk_entry_new();
+	gtk_entry_set_max_length(GTK_ENTRY(fxlogin->password), 16);
 	gtk_widget_set_size_request(GTK_WIDGET(fxlogin->password) , 240 , 25);
 	gtk_entry_set_visibility(GTK_ENTRY(fxlogin->password) , FALSE);
 	g_signal_connect(G_OBJECT(fxlogin->password)
@@ -531,7 +532,7 @@ void fx_login_user_change_func(GtkWidget* widget , gpointer data)
 	g_free(no);
 }
 
-static void userlist_remove_clicked(GtkWidget *widget, gpointer data)
+static void userlist_remove_clicked(GtkWidget *UNUSED(widget), gpointer data)
 {
 	FxMain          *fxmain = (FxMain*)data;
 	FxLogin         *fxlogin = fxmain->loginPanel;

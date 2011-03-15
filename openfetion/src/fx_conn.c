@@ -53,7 +53,7 @@ static DBusGConnection *nm_conn = NULL;
 static DBusGProxy *nm_proxy = NULL;
 
 static void
-nm_state_change_cb(DBusGProxy *proxy, NMState state, gpointer data)
+nm_state_change_cb(DBusGProxy *UNUSED(proxy), NMState state, gpointer data)
 {
 	FxMain *fxmain = (FxMain*)data;
 	if(!fxmain->user)

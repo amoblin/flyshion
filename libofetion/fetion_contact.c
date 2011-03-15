@@ -47,7 +47,6 @@ static char* generate_handle_contact_request_body(const char* sipuri
 								, int buddylist , int result );
 static Contact* parse_handle_contact_request_response(const char* sipmsg);
 static Contact* parse_add_buddy_response(const char* sipmsg , int* statuscode);
-static void parse_set_displayname_response(User* user , const char* userid , const char* sipmsg);
 static int parse_set_mobileno_permission_response(User* user , const char* sipmsg);
 static Contact* parse_contact_info_by_no_response(const char* sipmsg);
 static int has_special_word(const char *in);
@@ -779,6 +778,8 @@ char* generate_add_buddy_body(const char* no
 	xmlFreeDoc(doc);
 	return xml_convert(res);
 }
+
+#if 0
 static void parse_set_displayname_response(User* user , const char* userid , const char* sipmsg)
 {
 	char *pos;
@@ -806,6 +807,8 @@ static void parse_set_displayname_response(User* user , const char* userid , con
 	xmlFree(res);
 	xmlFreeDoc(doc);
 }
+#endif
+
 static int parse_set_mobileno_permission_response(User* user , const char* sipmsg)
 {
 	char *pos;

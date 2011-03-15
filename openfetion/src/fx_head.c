@@ -596,7 +596,7 @@ void* fx_head_change_portrait_thread(void* data)
 	return NULL;
 }
 
-gboolean fx_head_set_sms_clicked(GtkWidget *widget , gpointer data)
+gboolean fx_head_set_sms_clicked(GtkWidget *UNUSED(widget), gpointer data)
 {
 	FxMain *fxmain = (FxMain*)data;
 	User *user = fxmain->user;

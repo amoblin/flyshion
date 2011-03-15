@@ -118,7 +118,7 @@ void fx_smsstat_initialize(FxSmsstat *fxst)
 
 }
 
-static void on_ok_clicked(GtkWidget *widget , gpointer data)
+static void on_ok_clicked(GtkWidget *UNUSED(widget), gpointer data)
 {
 	FxSmsstat *fxst = (FxSmsstat*)data;
 	FxMain *fxmain = fxst->fxmain;
@@ -129,14 +129,14 @@ static void on_ok_clicked(GtkWidget *widget , gpointer data)
 	gtk_dialog_response(GTK_DIALOG(fxst->dialog) , GTK_RESPONSE_OK);
 }
 
-static void on_cancel_clicked(GtkWidget *widget , gpointer data)
+static void on_cancel_clicked(GtkWidget *UNUSED(widget), gpointer data)
 {
 	FxSmsstat *fxst = (FxSmsstat*)data;
 	
 	gtk_dialog_response(GTK_DIALOG(fxst->dialog) , GTK_RESPONSE_CANCEL);
 }
 
-static void on_days_toggled(GtkWidget *widget , gpointer data)
+static void on_days_toggled(GtkWidget *UNUSED(widget), gpointer data)
 {
 	int *d = (int*)data;
 	global_days = (*d);

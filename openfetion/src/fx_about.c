@@ -34,7 +34,7 @@
 #define BUFLEN 4096
 
 static void
-follow_if_link (GtkWidget   *text_view, 
+follow_if_link (GtkWidget   *UNUSED(text_view), 
                 GtkTextIter *iter)
 {
 	GSList *tags = NULL, *tagp = NULL;
@@ -168,7 +168,7 @@ static void create_intro(GtkTextView *view)
 	GtkTextTag    *tag;
 	GtkTextTag    *tag1;
 	GtkTextIter    iter;
-	const char title[] = N_("Openfetion "FETION_VERSION"\n\n");
+	const char title[] = N_("Openfetion "OPENFETION_VERSION"\n\n");
 	const char intro[] = N_("OpenFetion is a Fetion client for linux based on GTK+2.0, "
 				"implementing Fetion Protocol Version 4.\n"
 				"It supports most features of Fetion. \n"
@@ -366,7 +366,7 @@ static void create_contri(GtkTextView *view)
 	insert_link(buffer, &iter, "http://twitter.com/riku");
 }
 
-void close_about(GtkWidget *widget, gpointer data)
+void close_about(GtkWidget *UNUSED(widget), gpointer data)
 {
 	GtkWidget *window = GTK_WIDGET(data);
 	gtk_widget_destroy(window);
