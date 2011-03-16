@@ -45,7 +45,7 @@ FxChat* fx_chat_new(FxMain* fxmain , Conversation* conv)
 {
 	FxChat* fxchat = (FxChat*)malloc(sizeof(FxChat));
 
-	memset(fxchat , 0 , sizeof(FxChat));
+	memset(fxchat, 0, sizeof(FxChat));
 	fxchat->fxmain = fxmain;
 	fxchat->conv = conv;
 	fxchat->sendtophone = FALSE;
@@ -419,7 +419,7 @@ void fx_chat_initialize(FxChat* fxchat)
 		gtk_window_set_default_size(GTK_WINDOW(fxchat->dialog) , 600 , 430);
 	else
 		gtk_window_set_default_size(GTK_WINDOW(fxchat->dialog) , 550 , 430);
-	gtk_widget_set_size_request(fxchat->dialog , 550 , 0);
+	gtk_widget_set_size_request(fxchat->dialog, 550, 430);
 	gtk_container_set_border_width(GTK_CONTAINER(fxchat->dialog) , 10);
 	fx_chat_update_window(fxchat);
 
@@ -430,16 +430,15 @@ void fx_chat_initialize(FxChat* fxchat)
 	gtk_container_add(GTK_CONTAINER(fxchat->dialog) , vbox);
 	action_area = gtk_hbox_new(FALSE , 0);
 
-	fxchat->headbox = gtk_table_new(2 , 10 , FALSE );
+	fxchat->headbox = gtk_hbox_new(FALSE, 5);
 
 	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg" , 40 , 40 , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxchat->dialog), pb);
 	fxchat->headimage = gtk_image_new_from_pixbuf(pb);
 	g_object_unref(pb);
 
-	gtk_table_attach(GTK_TABLE(fxchat->headbox) , fxchat->headimage
-								, 0 , 1 , 0 , 2
-								, GTK_FILL , GTK_FILL , 3 , 0);
+	gtk_box_pack_start(GTK_BOX(fxchat->headbox), fxchat->headimage,
+								FALSE, FALSE, 0);
 
 	fxchat->name_label = gtk_label_new(NULL);
 	sid = fetion_sip_get_sid_by_sipuri(contact->sipuri);
@@ -461,17 +460,22 @@ void fx_chat_initialize(FxChat* fxchat)
 
 	gtk_container_add(GTK_CONTAINER(fxchat->name_box) , fxchat->name_label);
 
-	gtk_table_attach(GTK_TABLE(fxchat->headbox) , fxchat->name_box
-								, 1 , 2 , 0 , 1
-								, GTK_FILL , GTK_FILL , 0 , 0);
+	GtkWidget *vbox1 = gtk_vbox_new(TRUE, 0);
+	GtkWidget *hbox1 = gtk_hbox_new(FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(fxchat->headbox), vbox1,
+								FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(vbox1), hbox1, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(hbox1), fxchat->name_box, FALSE, FALSE, 0);
+	fxchat->input_label = gtk_label_new(NULL);
+	gtk_box_pack_start(GTK_BOX(hbox1), fxchat->input_label, FALSE, FALSE, 10);
 
-	snprintf(nametext , 510 , "%s" , contact->impression);
+	snprintf(nametext , sizeof(nametext) - 1 , "%s" , contact->impression);
 	escape_impression(nametext);
 	fxchat->impre_label = gtk_label_new(nametext);
+	gtk_widget_set_size_request(fxchat->impre_label, 450, 20);
+	gtk_misc_set_alignment(GTK_MISC(fxchat->impre_label), 0, 0);
 	gtk_label_set_justify(GTK_LABEL(fxchat->impre_label) , GTK_JUSTIFY_LEFT);
-	gtk_table_attach(GTK_TABLE(fxchat->headbox) , fxchat->impre_label
-								, 1 , 10 , 1 , 2
-								, GTK_FILL , GTK_FILL , 0 , 0);
+	gtk_box_pack_start(GTK_BOX(vbox1), fxchat->impre_label, FALSE, FALSE, 0);
 
 	halign = gtk_alignment_new( 0 , 0 , 0 , 0);
 	gtk_container_add(GTK_CONTAINER(halign) , fxchat->headbox);
@@ -1098,4 +1102,15 @@ void fx_chat_update_window(FxChat *fxchat)
 
 
 	gtk_window_set_title(GTK_WINDOW(fxchat->dialog), markup);
+}
+
+void fx_chat_set_input(FxChat *fxchat)
+{
+	gtk_label_set_markup(GTK_LABEL(fxchat->input_label), "正在输入...");
+}
+
+void fx_chat_clear_input(FxChat *fxchat)
+{
+	if(GTK_IS_LABEL(fxchat->input_label))
+		gtk_label_set_text(GTK_LABEL(fxchat->input_label), NULL);
 }

@@ -84,10 +84,10 @@ SipHeader* fetion_sip_authentication_header_new(const char* response)
 	char end[]   = "\",algorithm=\"SHA1-sess-v4\"";
 	SipHeader* header;
 	
-	len = strlen(start) + strlen(end) + strlen(response) + 1;
+	len = strlen(start) + strlen(end) + strlen(response) + 10;
 	res = (char*)malloc(len);
-	memset(res , 0 , len);
-	sprintf(res , "%s%s%s" , start , response , end);
+	memset(res, 0 , len);
+	sprintf(res, "%s%s%s" , start , response , end);
 	header = (SipHeader*)malloc(sizeof(SipHeader));
 	memset(header , 0 , sizeof(SipHeader));
 	strcpy(header->name , "A");
@@ -845,8 +845,8 @@ void fetion_sip_parse_incoming(FetionSip* sip
 	}
 	node = node->xmlChildrenNode;
 	res = xmlNodeGetContent(node);
-	if(xmlStrcmp(res , BAD_CAST "nudge") == 0)
-	{
+	if(xmlStrcmp(res, BAD_CAST "nudge") == 0 ||
+		xmlStrcmp(res, BAD_CAST "input") == 0) {
 		*type = INCOMING_UNKNOWN;
 		*sipuri = (char*)malloc(50);
 		memset(replyMsg, 0, sizeof(replyMsg));
@@ -863,8 +863,10 @@ void fetion_sip_parse_incoming(FetionSip* sip
 						   "Q: %s\r\n\r\n"
 						 , *sipuri , callid , seq);
 		tcp_connection_send(sip->tcp , replyMsg , strlen(replyMsg));
-		
-		*type = INCOMING_NUDGE;
+		if(xmlStrcmp(res, BAD_CAST "nudge") == 0)
+			*type = INCOMING_NUDGE;
+		else
+			*type = INCOMING_INPUT;
 	}
 	xmlFree(res);
 	xmlFreeDoc(doc);

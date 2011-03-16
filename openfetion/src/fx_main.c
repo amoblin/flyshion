@@ -815,6 +815,17 @@ static void process_share_action_cancel(FxMain *fxmain
 
 }
 #endif
+
+static void *input_func(void *data)
+{
+	FxChat *fxchat = (FxChat*)data;
+	gdk_threads_enter();
+	if(--fxchat->inputRefcnt <= 0)
+		fx_chat_clear_input(fxchat);
+	gdk_threads_leave();
+	return (void*)0;
+}
+
 void fx_main_process_incoming(FxMain* fxmain
 		, FetionSip* sip , const gchar* sipmsg)
 {
@@ -838,6 +849,15 @@ void fx_main_process_incoming(FxMain* fxmain
 				gdk_threads_leave();
 				debug_info("Received a nudge from %s" , sipuri);
 				break;
+			}
+		case INCOMING_INPUT:
+			{
+				if(!(fxchat = fx_list_find_chat_by_sipuri(fxmain->clist , sipuri))) return;
+				gdk_threads_enter();
+				fxchat->inputRefcnt ++;
+				fx_chat_set_input(fxchat);
+				g_timeout_add_seconds(3, (GSourceFunc)input_func, fxchat);
+				gdk_threads_leave();
 			}
 		case INCOMING_SHARE_CONTENT :
 			{
@@ -1060,8 +1080,6 @@ gboolean fx_main_delete(GtkWidget *widget , GdkEvent *UNUSED(event) , gpointer d
 	int     window_height;
 	int     window_x;
 	int     window_y;
-
-	printf("fx_main_delete\n");
 
 	if(!fxmain->window)
 		return TRUE;

@@ -54,4 +54,8 @@ extern void fx_chat_nudge_in_thread(FxChat *fxchat);
 
 extern void fx_chat_update_window(FxChat *fxchat);
 
+extern void fx_chat_set_input(FxChat *fxchat);
+
+extern void fx_chat_clear_input(FxChat *fxchat);
+
 #endif

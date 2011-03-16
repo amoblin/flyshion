@@ -352,11 +352,8 @@ int fetion_conversation_invite_friend(Conversation* conversation)
 
 	if(fetion_sip_get_code(res) == 200)	{
 		free(res);
-		res = (char*)malloc(2048);
-		memset(res , 0 , 2048);
-		tcp_connection_recv(sip->tcp , res , 2048);
-		//res = fetion_sip_get_response(sip);
-		free(res);
+		char lastbuf[2048];
+		tcp_connection_recv(sip->tcp, lastbuf, sizeof(lastbuf));
 		return 1;
 	}else{
 		free(res);

@@ -44,7 +44,7 @@
 
 #define FETION_NAME "OpenFetion"
 #define FETION_VERSION "2.2.0"
-#define PROTO_VERSION "4.0.2510"
+#define PROTO_VERSION "4.3.0980"
 #define NAVIGATION_URI "nav.fetion.com.cn"
 #define PGGROUP_SPACE_URI "http://group.feixin.10086.cn/space/Index/"
 #define LOGIN_TYPE_FETIONNO    			1

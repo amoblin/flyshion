@@ -252,12 +252,14 @@ typedef struct
 	gboolean sendtophone;
 	StateType state;
 	int unreadMsgCount;
+	int inputRefcnt;
 	/* main widget begin */
 	GtkWidget* dialog;
 	GtkWidget* headbox;
 	GdkPixbuf* headpix;
 	GtkWidget* headimage;
 	GtkWidget* name_box;
+	GtkWidget* input_label;
 	GtkWidget* name_label;
 	GtkWidget* impre_label; 
 	GtkWidget* recv_text;
