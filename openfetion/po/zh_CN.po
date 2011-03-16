@@ -573,6 +573,10 @@ msgstr ""
 msgid "Contributor"
 msgstr "贡献者"
 
+#: src/fx_tree.c:737
+msgid "Copy this contact to"
+msgstr "将好友复制到"
+
 #: src/fx_lookupres.c:179 src/fx_profile.c:117
 msgid "Country:"
 msgstr "国家："

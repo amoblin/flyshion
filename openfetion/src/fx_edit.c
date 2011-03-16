@@ -79,27 +79,29 @@ void fx_edit_free(FxEdit* fxedit)
 {
 	free(fxedit);
 }
-void fx_edit_on_ok_clicked(GtkWidget* UNUSED(widget) , gpointer data)
+
+void fx_edit_on_ok_clicked(GtkWidget* UNUSED(widget), gpointer data)
 {
 	FxEdit* fxedit = (FxEdit*)data;
 	FxMain* fxmain = fxedit->fxmain;
 	User* user = fxmain->user;
 	GtkTreeView* tree = GTK_TREE_VIEW(fxmain->mainPanel->treeView);
 	GtkTreeModel* model = gtk_tree_view_get_model(tree);
-	GtkTreeIter iter = fxedit->iter;
+	GtkTreeIter iter;
+	Contact *contact;
 	const char* name = gtk_entry_get_text(GTK_ENTRY(fxedit->remark_entry));
+	if(*name == '\0')	return;
 
-	if(*name == '\0')
-		return;
-	if(fetion_contact_set_displayname(user , fxedit->userid , name) == 0)
-	{
-		gtk_tree_store_set(GTK_TREE_STORE(model) , &iter
-						 , B_NAME_COL			 , name
-						 , -1);
+	if(fetion_contact_set_displayname(user , fxedit->userid , name) == 0) {
+		contact = fetion_contact_list_find_by_userid(user->contactList, fxedit->userid);
+		foreach_groupids(contact->groupids) {
+			if(fx_tree_get_buddy_iter(model, group_id, fxedit->userid, &iter) == -1) continue;
+			gtk_tree_store_set(GTK_TREE_STORE(model) , &iter
+							 , B_NAME_COL			 , name
+							 , -1);
+		} end_groupids(contact->groupids)
 		gtk_dialog_response(GTK_DIALOG(fxedit->dialog) , GTK_RESPONSE_OK);
-	}
-	else
-	{
+	} else {
 		gtk_dialog_response(GTK_DIALOG(fxedit->dialog) , GTK_RESPONSE_CANCEL);
 	}
 }

@@ -673,6 +673,9 @@ static void parse_contact_list(xmlNodePtr node, User* user,
 		}
 		if(xmlHasProp(node1 , BAD_CAST "l")){
 			buf = xmlGetProp(node1 , BAD_CAST "l");
+			strncpy(contact->groupids, (char*)buf, sizeof(contact->groupids) - 1);
+			if(strlen(contact->groupids) == 0)
+				strcpy(contact->groupids, "0");
 			contact->groupid = atoi((char*)buf);
 			if(xmlStrstr(buf , BAD_CAST ";") != NULL
 					|| contact->groupid < 0)

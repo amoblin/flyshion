@@ -122,6 +122,8 @@ extern void fx_tree_bind_pg_data(FxMain *fxmain);
 extern int fx_tree_get_group_iter_by_id(GtkTreeModel* model
 		, int id , GtkTreeIter* iter);
 
+extern gint fx_tree_get_buddy_iter(GtkTreeModel *model, gint groupid, const gchar *userid, GtkTreeIter *iter);
+
 extern int fx_tree_get_buddy_iter_by_userid(GtkTreeModel* model
 		, const char* userid , GtkTreeIter* iter);
 

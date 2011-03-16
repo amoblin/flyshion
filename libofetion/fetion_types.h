@@ -186,6 +186,7 @@ typedef struct contact {
 	int relationStatus;
 	char carrier[16];
 	StateType state;					/* state type like online,busy,etc					*/
+	char groupids[48];
 	int groupid;						/* buddylist id										*/
 	int gender;							/* gender 1 for male 2 for female,0 for private		*/
 	int imageChanged;					/* whether user`s portrait has changed				*/

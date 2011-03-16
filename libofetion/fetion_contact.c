@@ -50,6 +50,7 @@ static Contact* parse_add_buddy_response(const char* sipmsg , int* statuscode);
 static int parse_set_mobileno_permission_response(User* user , const char* sipmsg);
 static Contact* parse_contact_info_by_no_response(const char* sipmsg);
 static int has_special_word(const char *in);
+static char *generate_group_body(const char *userid, const char *buddylist);
 
 Contact* fetion_contact_new()
 {
@@ -303,28 +304,19 @@ int fetion_contact_set_mobileno_permission(User* user , const char* userid , int
 	int ret;
 	fetion_sip_set_type(sip , SIP_SERVICE);
 	eheader = fetion_sip_event_header_new(SIP_EVENT_SETCONTACTINFO);
-	if(eheader == NULL){
-		return -1;
-	}
+	if(eheader == NULL)	return -1;
 	fetion_sip_add_header(sip , eheader);
 	body = generate_set_mobileno_perssion(userid , show);
-	if(body == NULL){
-		return -1;
-	}
+	if(body == NULL) return -1;
 	res = fetion_sip_to_string(sip , body);
 	free(body);
-	if(res == NULL){
-		return -1;
-	}
+	if(res == NULL)	return -1;
 	ret = tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res) ; 
-	if(ret < 0)
-		return -1;
+	if(ret < 0)	return -1;
 
 	res = fetion_sip_get_response(sip);
-	if(res == NULL){
-		return -1;
-	}
+	if(res == NULL)	return -1;
 	ret = fetion_sip_get_code(res);
 	if(ret == 200){
 		parse_set_mobileno_permission_response(user , res);
@@ -419,6 +411,85 @@ int fetion_contact_move_to_group(User* user , const char* userid , int buddylist
 		return -1;
 	}
 }
+
+int fetion_contact_copy_to_group(User *user, const char *userid, int buddylist)
+{
+	FetionSip *sip = user->sip;
+	SipHeader *eheader;
+	Contact   *cnt;
+	char *res, *body, newbl[48] = { 0,};
+	int ret;
+	fetion_sip_set_type(sip , SIP_SERVICE);
+	if (!(eheader = fetion_sip_event_header_new(SIP_EVENT_SETCONTACTINFO))) return -1;
+	fetion_sip_add_header(sip , eheader);
+	
+	cnt = fetion_contact_list_find_by_userid(user->contactList, userid);
+	
+	foreach_groupids(cnt->groupids) {
+		if(group_id == buddylist) return -1;
+		sprintf(newbl + strlen(newbl), "%d;", group_id);
+	} end_groupids(cnt->groupids)
+	sprintf(newbl + strlen(newbl), "%d", buddylist);
+	sprintf(cnt->groupids, "%s", newbl);
+	 
+	body = generate_group_body(userid, newbl);
+	res = fetion_sip_to_string(sip, body);
+	free(body);
+	if(!res) return -1;
+
+	ret = tcp_connection_send(sip->tcp , res , strlen(res));
+	free(res);
+
+	if(ret < 0)	return -1;
+
+	res = fetion_sip_get_response(sip);
+	if(!res) return -1;
+
+	ret = fetion_sip_get_code(res);
+	free(res);
+
+	return 0;
+}
+
+int fetion_contact_remove_from_group(User *user, const char *userid, int buddylist)
+{
+	FetionSip *sip = user->sip;
+	SipHeader *eheader;
+	Contact   *cnt;
+	char *res, *body, newbl[48] = { 0,};
+	int ret;
+	fetion_sip_set_type(sip , SIP_SERVICE);
+	if (!(eheader = fetion_sip_event_header_new(SIP_EVENT_SETCONTACTINFO))) return -1;
+	fetion_sip_add_header(sip , eheader);
+	
+	cnt = fetion_contact_list_find_by_userid(user->contactList, userid);
+	
+	foreach_groupids(cnt->groupids) {
+		if(group_id == buddylist) continue;
+		sprintf(newbl + strlen(newbl), "%d;", group_id);
+	} end_groupids(cnt->groupids)
+	if(newbl[strlen(newbl) - 1] == ';') newbl[strlen(newbl) - 1] = '\0';
+	sprintf(cnt->groupids, "%s", newbl);
+	 
+	body = generate_group_body(userid, newbl);
+	res = fetion_sip_to_string(sip, body);
+	free(body);
+	if(!res) return -1;
+
+	ret = tcp_connection_send(sip->tcp , res , strlen(res));
+	free(res);
+
+	if(ret < 0)	return -1;
+
+	res = fetion_sip_get_response(sip);
+	if(!res) return -1;
+
+	ret = fetion_sip_get_code(res);
+	free(res);
+
+	return 0;
+}
+
 int fetion_contact_delete_buddy(User* user , const char* userid)
 {
 	FetionSip* sip = user->sip;
@@ -427,19 +498,12 @@ int fetion_contact_delete_buddy(User* user , const char* userid)
 	int ret;
 	fetion_sip_set_type(sip , SIP_SERVICE);
 	eheader = fetion_sip_event_header_new(SIP_EVENT_DELETEBUDDY);
-	if(eheader == NULL){
-		return -1;
-	}
 	fetion_sip_add_header(sip , eheader);
 	body = generate_delete_buddy_body(userid);
-	if(body == NULL){
-		return -1;
-	}
+	if(body == NULL) return -1;
 	res = fetion_sip_to_string(sip , body);
 	free(body);
-	if(res == NULL){
-		return -1;
-	}
+	if(res == NULL)	return -1;
 #if 0
 	if(fetion_contact_del_localbuddy(user, userid) == -1)
 		return -1;
@@ -448,24 +512,14 @@ int fetion_contact_delete_buddy(User* user , const char* userid)
 	ret = tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
 
-	if(ret < 0)
-		return -1;
+	if(ret < 0)	return -1;
 
 	res = fetion_sip_get_response(sip);
-	if(res == NULL){
-		return -1;
-	}
+	if(res == NULL)	return -1;
 	ret = fetion_sip_get_code(res);
 	free(res);
 
-	if(ret == 200){
-		fetion_contact_list_remove_by_userid(user->contactList , userid);
-		debug_info("Delete buddy(%s) success" , userid);
-		return 0;
-	}else{
-		debug_info("Delete buddy(%s) failed" , userid);
-		return -1;
-	}
+	return 0;
 }
 Contact* fetion_contact_add_buddy(User* user , const char* no
 								, NumberType notype , int buddylist
@@ -779,35 +833,23 @@ char* generate_add_buddy_body(const char* no
 	return xml_convert(res);
 }
 
-#if 0
-static void parse_set_displayname_response(User* user , const char* userid , const char* sipmsg)
+static char *generate_group_body(const char *userid, const char *buddylist)
 {
-	char *pos;
-	Contact* contact;
-	xmlChar* res;
+	char args[] = "<args></args>";
+	xmlChar *res;
 	xmlDocPtr doc;
 	xmlNodePtr node;
-	contact = fetion_contact_list_find_by_userid(user->contactList , userid);
-	if(contact == NULL)
-	{
-		debug_error("Can not find user(%s) in contact list" , userid);
-		return;
-	}
-	pos = strstr(sipmsg , "\r\n\r\n") + 4;
-	doc = xmlParseMemory(pos , strlen(pos));
+	doc = xmlParseMemory(args , strlen(args));
 	node = xmlDocGetRootElement(doc);
-	node = node->xmlChildrenNode;
-	res = xmlGetProp(node , BAD_CAST "version");
-	memset(user->contactVersion, 0, sizeof(user->contactVersion));
-	strcpy(user->contactVersion , (char*)res);
-	xmlFree(res);
-	node = node->xmlChildrenNode;
-	res = xmlGetProp(node , BAD_CAST "local-name");
-	strcpy(contact->localname , (char*)res);
-	xmlFree(res);
+	node = xmlNewChild(node , NULL , BAD_CAST "contacts" , NULL);
+	node = xmlNewChild(node , NULL , BAD_CAST "contact" , NULL);
+
+	xmlNewProp(node , BAD_CAST "user-id" , BAD_CAST userid);
+	xmlNewProp(node , BAD_CAST "buddy-lists" , BAD_CAST buddylist);
+	xmlDocDumpMemory(doc , &res , NULL);
 	xmlFreeDoc(doc);
+	return xml_convert(res);
 }
-#endif
 
 static int parse_set_mobileno_permission_response(User* user , const char* sipmsg)
 {
@@ -1113,7 +1155,7 @@ void fetion_contact_load(User *user, int *gcount, int *bcount)
 	}
 	sqlite3_free_table(sqlres);
 
-	sprintf(sql, "select * from contacts;");
+	sprintf(sql, "select * from contacts_2_2_0;");
 	if(sqlite3_get_table(db, sql, &sqlres, &nrows, &ncols, NULL)){
 		sqlite3_close(db);
 		return;
@@ -1146,6 +1188,7 @@ void fetion_contact_load(User *user, int *gcount, int *bcount)
 			strcpy(pos->carrier,	sqlres[start+18]);
 			pos->groupid = 			atoi(sqlres[start+19]);
 			pos->gender = 			atoi(sqlres[start+20]);
+			strcpy(pos->groupids,   sqlres[start+21]);
 		}
 		fetion_contact_list_append(user->contactList, pos);
 	}
@@ -1195,15 +1238,15 @@ void fetion_contact_save(User *user)
 		}
 	}
 	
-	sprintf(sql, "delete from contacts;");
+	sprintf(sql, "delete from contacts_2_2_0;");
 	if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
-		sprintf(sql, "create table contacts (userId,"
+		sprintf(sql, "create table contacts_2_2_0 (userId,"
 						"sId,sipuri,localname,nickname,"
 						"impression,mobileno,devicetype,"
 						"portraitCrc,birthday,country,"
 						"province,city,identity,scoreLevel,"
 						"serviceStatus,carrierStatus,"
-						"relationStatus,carrier,groupid,gender);");
+						"relationStatus,carrier,groupid,gender,groupids);");
 		if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
 			debug_error("create table contacts:%s", sqlite3_errmsg(db));
 			sqlite3_close(db);
@@ -1211,10 +1254,10 @@ void fetion_contact_save(User *user)
 		}
 	}
 	foreach_contactlist(user->contactList, pos){
-		snprintf(sql, sizeof(sql)-1, "insert into contacts "
+		snprintf(sql, sizeof(sql)-1, "insert into contacts_2_2_0 "
 				"values ('%s','%s','%s','%s','%s','%s',"
 				"'%s','%s','%s','%s','%s','%s','%s','%d',%d,"
-				"%d,%d,%d,'%s',%d,%d);",
+				"%d,%d,%d,'%s',%d,%d,'%s');",
 				pos->userId, pos->sId, pos->sipuri,
 				has_special_word(pos->localname) ? "": pos->localname,
 			   	has_special_word(pos->nickname)? "": pos->nickname,
@@ -1225,7 +1268,7 @@ void fetion_contact_save(User *user)
 				pos->city, pos->identity, pos->scoreLevel,
 				pos->serviceStatus, pos->carrierStatus,
 				pos->relationStatus, pos->carrier,
-				pos->groupid, pos->gender);
+				pos->groupid, pos->gender, pos->groupids);
 		if(sqlite3_exec(db, sql, NULL, NULL, NULL))
 			debug_error("insert contact %s:%s\n%s",
 					pos->userId, sqlite3_errmsg(db), sql);
@@ -1255,7 +1298,7 @@ void fetion_contact_update(User *user, Contact *contact)
 		return;
 	}
 
-	snprintf(sql, sizeof(sql)-1, "update contacts set "
+	snprintf(sql, sizeof(sql)-1, "update contacts_2_2_0 set "
 			"userId='%s',sId='%s',sipuri='%s',"
 			"localname='%s',nickname='%s',"
 			"impression='%s',mobileno='%s',"
@@ -1265,7 +1308,7 @@ void fetion_contact_update(User *user, Contact *contact)
 			"identity=%d,scoreLevel=%d,"
 			"serviceStatus=%d,carrierStatus=%d,"
 			"relationStatus=%d,carrier='%s',"
-			"groupid=%d,gender=%d where userId='%s'",
+			"groupid=%d,gender=%d,groupids='%s' where userId='%s'",
 			contact->userId, contact->sId, contact->sipuri,
 			contact->localname, contact->nickname,
 			contact->impression, contact->mobileno,
@@ -1274,27 +1317,27 @@ void fetion_contact_update(User *user, Contact *contact)
 			contact->city, contact->identity, contact->scoreLevel,
 			contact->serviceStatus, contact->carrierStatus,
 			contact->relationStatus, contact->carrier,
-			contact->groupid, contact->gender, contact->userId);
+			contact->groupid, contact->gender, contact->groupids, contact->userId);
 
 	if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
 		debug_error("update contact %s:%s", contact->userId, sqlite3_errmsg(db));
-		sprintf(sql, "create table contacts (userId,"
+		sprintf(sql, "create table contacts_2_2_0 (userId,"
 					"sId,sipuri,localname,nickname,"
 					"impression,mobileno,devicetype,"
 					"portraitCrc,birthday,country,"
 					"province,city,identity,scoreLevel,"
 					"serviceStatus,carrierStatus,"
-					"relationStatus,carrier,groupid,gender);");
+					"relationStatus,carrier,groupid,gender,groupids);");
 		if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
 			debug_error("create table contacts:%s", sqlite3_errmsg(db));
 			sqlite3_close(db);
 			return;
 		}
 
-		snprintf(sql, sizeof(sql)-1, "insert into contacts "
+		snprintf(sql, sizeof(sql)-1, "insert into contacts_2_2_0 "
 					"values ('%s','%s','%s','%s','%s','%s',"
 					"'%s','%s','%s','%s','%s','%s','%s','%d',%d,"
-					"%d,%d,%d,'%s',%d,%d);",
+					"%d,%d,%d,'%s',%d,%d,'%s');",
 					contact->userId, contact->sId, contact->sipuri,
 					contact->localname, contact->nickname,
 					contact->impression, contact->mobileno,
@@ -1303,7 +1346,7 @@ void fetion_contact_update(User *user, Contact *contact)
 					contact->city, contact->identity, contact->scoreLevel,
 					contact->serviceStatus, contact->carrierStatus,
 					contact->relationStatus, contact->carrier,
-					contact->groupid, contact->gender);
+					contact->groupid, contact->gender, contact->groupids);
 
 		if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
 			debug_error("insert contacts:%s", sqlite3_errmsg(db));
@@ -1327,7 +1370,7 @@ int fetion_contact_del_localbuddy(User *user, const char *userid)
 		return -1;
 	}
 
-	sprintf(sql, "delete from contacts where "
+	sprintf(sql, "delete from contacts_2_2_0 where "
 			"userid='%s';", userid);
 	if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
 		debug_error("failed to delete localbuddy:%s",sqlite3_errmsg(db));

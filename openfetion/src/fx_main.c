@@ -375,74 +375,78 @@ void fx_main_process_presence(FxMain* fxmain , const gchar* xml)
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeView));
 	foreach_contactlist(contactlist , contact){
 
-		if(fx_tree_get_buddy_iter_by_userid(model , contact->userId , &iter) == -1)
+		foreach_groupids(contact->groupids) {
+
+			if(fx_tree_get_buddy_iter(model, group_id, contact->userId, &iter) == -1)
 				continue;
 
-		presence_count ++;
+			presence_count ++;
 
-		/* all presence information has been pushed
-		 * then start update local data and buddy portrait */
-		if(presence_count == user->contactCount)
-			g_thread_create(update_data, fxmain, FALSE, NULL);
+			/* all presence information has been pushed
+			 * then start update local data and buddy portrait */
+			if(presence_count == user->contactCount)
+				g_thread_create(update_data, fxmain, FALSE, NULL);
 
-		gtk_tree_model_get(model , &iter
-						 , B_CRC_COL    , &crc
-						 , B_STATE_COL  , &oldstate
-						 , -1);
-		gdk_threads_enter();
-		fxchat = fx_list_find_chat_by_sipuri(fxmain->clist , contact->sipuri);
-		if(oldstate > 0 && contact->state <= 0 && contact->serviceStatus == STATUS_NORMAL)
-		{
-			gtk_tree_model_iter_parent(model , &parentIter , &iter);
-			gtk_tree_model_get(model , &parentIter
-							 , G_ONLINE_COUNT_COL	, &count
+			gtk_tree_model_get(model , &iter
+							 , B_CRC_COL    , &crc
+							 , B_STATE_COL  , &oldstate
 							 , -1);
-			count --;
-			gtk_tree_store_set(GTK_TREE_STORE(model) , &parentIter
-							 , G_ONLINE_COUNT_COL	, count
-							 , -1);
-			fx_tree_move_to_the_last(model , &iter);
-		}
-		if(oldstate <= 0 && contact->state > 0 && contact->serviceStatus == STATUS_NORMAL)
-		{
-			gtk_tree_model_iter_parent(model , &parentIter , &iter);
-			gtk_tree_model_get(model , &parentIter
-							 , G_ONLINE_COUNT_COL	, &count
-							 , -1);
-			count ++;
-			gtk_tree_store_set(GTK_TREE_STORE(model) , &parentIter
-							 , G_ONLINE_COUNT_COL	, count
-							 , -1);
-			fx_tree_move_to_the_last(model , &iter);
-			fx_tree_move_to_the_first(model , &iter);
+			gdk_threads_enter();
+			fxchat = fx_list_find_chat_by_sipuri(fxmain->clist , contact->sipuri);
+			if(oldstate > 0 && contact->state <= 0 && contact->serviceStatus == STATUS_NORMAL)
+			{
+				gtk_tree_model_iter_parent(model , &parentIter , &iter);
+				gtk_tree_model_get(model , &parentIter
+								 , G_ONLINE_COUNT_COL	, &count
+								 , -1);
+				count --;
+				gtk_tree_store_set(GTK_TREE_STORE(model) , &parentIter
+								 , G_ONLINE_COUNT_COL	, count
+								 , -1);
+				fx_tree_move_to_the_last(model , &iter);
+			}
+			if(oldstate <= 0 && contact->state > 0 && contact->serviceStatus == STATUS_NORMAL)
+			{
+				gtk_tree_model_iter_parent(model , &parentIter , &iter);
+				gtk_tree_model_get(model , &parentIter
+								 , G_ONLINE_COUNT_COL	, &count
+								 , -1);
+				count ++;
+				gtk_tree_store_set(GTK_TREE_STORE(model) , &parentIter
+								 , G_ONLINE_COUNT_COL	, count
+								 , -1);
+				fx_tree_move_to_the_last(model , &iter);
+				fx_tree_move_to_the_first(model , &iter);
 
-			popup_online_notify(fxmain, contact);
+				popup_online_notify(fxmain, contact);
 
-		}
-		if(fxchat)
-			fxchat->state = contact->state;
+			}
+			if(fxchat)
+				fxchat->state = contact->state;
 
-		name = (contact->nickname == NULL || strlen(contact->localname) == 0)?
-				contact->nickname : contact->localname;
-		gtk_tree_store_set(GTK_TREE_STORE(model) , &iter
-						 , B_NAME_COL            , g_markup_escape_text(name, -1)
-						 , B_SIPURI_COL			 , contact->sipuri
-						 , B_IMPRESSION_COL		 , g_markup_escape_text(contact->impression, -1)
-						 , B_PHONENUM_COL		 , contact->mobileno
-						 , B_USERID_COL			 , contact->userId
-						 , B_STATE_COL			 , contact->state
-						 , B_IDENTITY_COL		 , contact->identity
-						 , B_DEVICE_COL			 , contact->devicetype
-						 , B_RELATIONSTATUS_COL  , contact->relationStatus
-						 , B_SERVICESTATUS_COL	 , contact->serviceStatus
-						 , B_CARRIERSTATUS_COL   , contact->carrierStatus
-						 , B_CARRIER_COL		 , contact->carrier
-						 , B_CRC_COL			 , contact->portraitCrc
-						 , B_IMAGE_CHANGED_COL	 , crc == NULL ? IMAGE_CHANGED :
-						 (strcmp(crc , contact->portraitCrc) == 0 ? IMAGE_NOT_CHANGED : IMAGE_CHANGED)
-						 , -1);
-		g_free(crc);
-		gdk_threads_leave();
+			name = (contact->nickname == NULL || strlen(contact->localname) == 0)?
+					contact->nickname : contact->localname;
+			gtk_tree_store_set(GTK_TREE_STORE(model) , &iter
+							 , B_NAME_COL            , g_markup_escape_text(name, -1)
+							 , B_SIPURI_COL			 , contact->sipuri
+							 , B_IMPRESSION_COL		 , g_markup_escape_text(contact->impression, -1)
+							 , B_PHONENUM_COL		 , contact->mobileno
+							 , B_USERID_COL			 , contact->userId
+							 , B_STATE_COL			 , contact->state
+							 , B_IDENTITY_COL		 , contact->identity
+							 , B_DEVICE_COL			 , contact->devicetype
+							 , B_RELATIONSTATUS_COL  , contact->relationStatus
+							 , B_SERVICESTATUS_COL	 , contact->serviceStatus
+							 , B_CARRIERSTATUS_COL   , contact->carrierStatus
+							 , B_CARRIER_COL		 , contact->carrier
+							 , B_CRC_COL			 , contact->portraitCrc
+							 , B_IMAGE_CHANGED_COL	 , crc == NULL ? IMAGE_CHANGED :
+							 (strcmp(crc , contact->portraitCrc) == 0 ? IMAGE_NOT_CHANGED : IMAGE_CHANGED)
+							 , -1);
+			g_free(crc);
+			gdk_threads_leave();
+
+		} end_groupids(contact->groupids)
 	}
 }
 

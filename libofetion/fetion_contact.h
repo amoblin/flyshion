@@ -49,6 +49,15 @@ typedef enum
 #define foreach_contactlist(head , cl) \
 	for(cl = head ; (cl = cl->next) != head ;)
 
+#define foreach_groupids(groupids) { char group_str[16] = { 0 }, *pos, *tmp; \
+	int group_id; tmp = groupids; \
+	while(*tmp) { \
+		for(pos = group_str; *tmp != '\0' && *tmp != ';'; *pos++ = *tmp++); \
+	   	*pos = '\0'; if (*tmp == ';') tmp ++;  group_id = atoi(group_str); \
+
+#define end_groupids(groupids) }}
+
+
 /**
  * constuct a Contact object
  */
@@ -144,11 +153,23 @@ extern int fetion_contact_set_displayname(User* user , const char* userid , cons
 /**
  * move the user specified by userid to the new user group specified by the buddylist
  * @param user Global User object
- * @param userid To specify the user to be moved
- * @param buddylist To specify the user group to be moved into
- * @return 1 if success , of else -1
+ * @return 1 if success , orelse -1
  */
 extern int fetion_contact_move_to_group(User* user , const char* userid , int buddylist);
+
+/**
+ * copy the buddy specified by userid to the new group specified by the buddylist
+ * @param user Global User object
+ * @return 1 if success , orelse -1
+ */
+extern int fetion_contact_copy_to_group(User *user, const char *userid, int buddylist);
+
+/**
+ * remove the buddy specified by userid from the group specified by the buddylist
+ * @param user Global User object
+ * @return 1 if success , orelse -1
+ */
+extern int fetion_contact_remove_from_group(User *user, const char *userid, int buddylist);
 
 /**
  * delete a user specified by userid from your contact

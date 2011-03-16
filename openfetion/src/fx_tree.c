@@ -61,12 +61,14 @@ static void fx_tree_on_profilemenu_clicked(GtkWidget* UNUSED(widget) , gpointer 
 static void fx_tree_on_historymenu_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 static void fx_tree_on_editmenu_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 static void fx_tree_on_deletemenu_clicked(GtkWidget* UNUSED(widget) , gpointer data);
+static void fx_tree_on_remove_from_menu_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 static void fx_tree_on_reload_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 static void fx_tree_on_iconchange_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 static void fx_tree_on_gaddmenu_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 static void fx_tree_on_gdeletemenu_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 static void fx_tree_on_geditmenu_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 static void fx_tree_on_movemenu_clicked(GtkWidget* UNUSED(widget) , gpointer data);
+static void fx_tree_on_copymenu_clicked(GtkWidget* UNUSED(widget) , gpointer data);
 static gboolean fx_tree_on_show_tooltip(GtkWidget* widget
 		, int x , int y , gboolean keybord_mode
 		, GtkTooltip* tip , gpointer data);
@@ -416,14 +418,17 @@ void fx_tree_free(FxTree* fxtree)
 {
 	free(fxtree);
 }
+
 void fx_tree_move_to_the_first(GtkTreeModel* model , GtkTreeIter* iter)
 {
 	gtk_tree_store_move_after(GTK_TREE_STORE(model) , iter , NULL);
 }
+
 void fx_tree_move_to_the_last(GtkTreeModel* model , GtkTreeIter* iter)
 {
 	gtk_tree_store_move_before(GTK_TREE_STORE(model) , iter , NULL);
 }
+
 static GtkTreeModel* create_model(User* user)
 {
 	Group         *group = NULL;
@@ -474,65 +479,72 @@ static GtkTreeModel* create_model(User* user)
 	foreach_contactlist(user->contactList , contact){
 		if(strlen(contact->sId) == 0)
 			sid = fetion_sip_get_sid_by_sipuri(contact->sipuri);
-		sprintf(path, "%s/%s.jpg", config->iconPath,
+		snprintf(path, sizeof(path) - 1, "%s/%s.jpg", config->iconPath,
 					 strlen(contact->sId) == 0 ? sid : contact->sId);
-		if(sid){
+		if(sid) {
 			g_free(sid);
 			sid = NULL;
 		}
-		pb = gdk_pixbuf_new_from_file_at_size(path
-				, config->iconSize , config->iconSize , NULL);
-		if(!pb){
-			pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg"
+		
+		foreach_groupids(contact->groupids) {
+
+			if(fx_tree_get_group_iter_by_id(GTK_TREE_MODEL(store),
+						group_id , &iter ) < 0){
+				//debug_info("Error when a group iter not found , groupId :%d\n" , contact->groupid);
+				continue;
+			}
+
+			pb = gdk_pixbuf_new_from_file_at_size(path
 					, config->iconSize , config->iconSize , NULL);
-			imageset = 0;
-		}else
-			imageset = 1;
+			if(!pb){
+				pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg"
+						, config->iconSize , config->iconSize , NULL);
+				imageset = 0;
+			}else
+				imageset = 1;
 
-		if(fx_tree_get_group_iter_by_id(GTK_TREE_MODEL(store),
-					contact->groupid , &iter ) < 0){
-			//debug_info("Error when a group iter not found , groupId :%d\n" , contact->groupid);
-			continue;
-		}
-		if(contact->state > 0)
-			gtk_tree_store_prepend(store , &iter1 , &iter);
-		else
-			gtk_tree_store_append(store , &iter1 , &iter);
-		name = (contact->localname == NULL || strlen(contact->localname) == 0) ?
-					contact->nickname : contact->localname;
+			if(contact->state > 0)
+				gtk_tree_store_prepend(store , &iter1 , &iter);
+			else
+				gtk_tree_store_append(store , &iter1 , &iter);
+			name = (contact->localname == NULL || strlen(contact->localname) == 0) ?
+						contact->nickname : contact->localname;
 
-		gtk_tree_store_set(store , &iter1
-						 , B_PIXBUF_COL 	, pb
-						 , B_SIPURI_COL 	, contact->sipuri ? contact->sipuri : ""
-						 , B_USERID_COL 	, contact->userId ? contact->userId : ""
-						 , B_NAME_COL 	    , name ? g_markup_escape_text(name, -1) : ""
-						 , B_IMPRESSION_COL , g_markup_escape_text(contact->impression, -1)
-						 , B_PHONENUM_COL   , contact->mobileno
-						 , B_DEVICE_COL     , contact->devicetype
-						 , B_CRC_COL        , contact->portraitCrc
-						 , B_CARRIER_COL	, contact->carrier
-						 , B_STATE_COL     , contact->state
-						 , B_IDENTITY_COL	, contact->identity
-						 , B_SERVICESTATUS_COL	, contact->serviceStatus
-						 , B_CARRIERSTATUS_COL  , contact->carrierStatus
-						 , B_RELATIONSTATUS_COL , contact->relationStatus
-						 , B_CARRIERSTATUS_COL  , contact->carrier
-						 , B_SIZE_COL		, config->iconSize
-						 , B_IMAGE_SET_COL  , imageset
-						 , B_IMAGE_CHANGED_COL, contact->imageChanged
-						 , -1);
-		g_object_unref(pb);
-		gtk_tree_model_get(GTK_TREE_MODEL(store) , &iter
-						 , G_ALL_COUNT_COL		, &count
-						 , G_ONLINE_COUNT_COL	, &count1
-						 , -1);
-		count ++;
-		if(contact->state > 0)
-			count1 ++;
-		gtk_tree_store_set(store , &iter
-						 , G_ALL_COUNT_COL		, count
-						 , G_ONLINE_COUNT_COL	, count1
-						 , -1);
+			gtk_tree_store_set(store , &iter1
+							 , B_PIXBUF_COL 	, pb
+							 , B_SIPURI_COL 	, contact->sipuri ? contact->sipuri : ""
+							 , B_USERID_COL 	, contact->userId ? contact->userId : ""
+							 , B_NAME_COL 	    , name ? g_markup_escape_text(name, -1) : ""
+							 , B_IMPRESSION_COL , g_markup_escape_text(contact->impression, -1)
+							 , B_PHONENUM_COL   , contact->mobileno
+							 , B_DEVICE_COL     , contact->devicetype
+							 , B_CRC_COL        , contact->portraitCrc
+							 , B_CARRIER_COL	, contact->carrier
+							 , B_STATE_COL     , contact->state
+							 , B_IDENTITY_COL	, contact->identity
+							 , B_SERVICESTATUS_COL	, contact->serviceStatus
+							 , B_CARRIERSTATUS_COL  , contact->carrierStatus
+							 , B_RELATIONSTATUS_COL , contact->relationStatus
+							 , B_CARRIERSTATUS_COL  , contact->carrier
+							 , B_SIZE_COL		, config->iconSize
+							 , B_IMAGE_SET_COL  , imageset
+							 , B_IMAGE_CHANGED_COL, contact->imageChanged
+							 , -1);
+			g_object_unref(pb);
+			gtk_tree_model_get(GTK_TREE_MODEL(store) , &iter
+							 , G_ALL_COUNT_COL		, &count
+							 , G_ONLINE_COUNT_COL	, &count1
+							 , -1);
+			count ++;
+			if(contact->state > 0)
+				count1 ++;
+			gtk_tree_store_set(store , &iter
+							 , G_ALL_COUNT_COL		, count
+							 , G_ONLINE_COUNT_COL	, count1
+							 , -1);
+
+		} end_groupids(contact->groupids)
+
 	}
 	return GTK_TREE_MODEL(store);
 
@@ -552,6 +564,31 @@ int fx_tree_get_group_iter_by_id(GtkTreeModel* model , int id , GtkTreeIter* ite
 
 	return -1;
 }
+
+gint fx_tree_get_buddy_iter(GtkTreeModel *model, gint groupid, const gchar *userid, GtkTreeIter *iter)
+{
+	gchar *id = NULL;
+	gint  gid = 0;
+	GtkTreeIter pos;
+
+	if(gtk_tree_model_get_iter_root(model, &pos)){
+		do{
+			gtk_tree_model_get(model, &pos, G_ID_COL, &gid, -1);
+			if(gid == groupid) {
+				if(gtk_tree_model_iter_children(model, iter, &pos)){
+					do{
+						gtk_tree_model_get(model, iter, B_USERID_COL, &id, -1);
+						if(!id)	continue;
+						if(strcmp(userid , id) == 0) return 1;
+					}while(gtk_tree_model_iter_next(model , iter));
+				}
+				break;
+			}
+		}while(gtk_tree_model_iter_next(model , &pos));
+	}
+	return -1;
+}
+
 int fx_tree_get_buddy_iter_by_userid(GtkTreeModel* model , const char* userid , GtkTreeIter* iter)
 {
 	char *id = NULL;
@@ -599,6 +636,7 @@ static void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* UNUSED(tree)
 	GtkWidget         *menu = NULL;
 	GtkWidget         *groupSubmenu = NULL;
 	GtkWidget         *moveItem = NULL;
+	GtkWidget         *copyItem = NULL;
 	GtkTreeSelection  *selection = NULL;
 	GtkTreeModel      *model = NULL;
 	GtkTreeIter        groupiter;
@@ -616,7 +654,6 @@ static void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* UNUSED(tree)
 
 
 	menu = gtk_menu_new();
-	groupSubmenu = gtk_menu_new();
 	/*select row*/
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(fxtree->treeView));
 	if(gtk_tree_selection_count_selected_rows(selection) <= 1)
@@ -674,17 +711,26 @@ static void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* UNUSED(tree)
 			fx_tree_create_menu(_("Remove this contact") , SKIN_DIR"delete.png"
 						, menu , TRUE , fx_tree_on_deletemenu_clicked , profileargs);
 
+		Contact *cnt = fetion_contact_list_find_by_userid(user->contactList, userid);
+		if(user->state != P_OFFLINE) {
+			if(cnt && strchr(cnt->groupids, ';') && cnt->groupids[strlen(cnt->groupids) - 1] != ';')
+				fx_tree_create_menu(_("Remove from group"), SKIN_DIR"delete.png",
+							menu, TRUE, fx_tree_on_remove_from_menu_clicked, profileargs);
+			else
+				fx_tree_create_menu(_("Remove from group"), SKIN_DIR"delete.png",
+							menu, FALSE, fx_tree_on_remove_from_menu_clicked, profileargs);
+		}
+
 		gtk_tree_model_iter_parent(model , &groupiter , &iter);
 		gtk_tree_model_get(model , &groupiter , G_ID_COL , &groupid , -1);
 
-		if(groupid != BUDDY_LIST_STRANGER && user->state != P_OFFLINE)
-		{
+		groupSubmenu = gtk_menu_new();
+		if(groupid != BUDDY_LIST_STRANGER && user->state != P_OFFLINE) {
 			moveItem = fx_tree_create_menu(_("Move this contact to") , SKIN_DIR"move.png"
 							, menu , TRUE , NULL , NULL);
 			/*add group child menu*/
 			gtk_tree_model_get_iter_root(GTK_TREE_MODEL(model) , &groupiter);
-			do
-			{
+			do {
 				gtk_tree_model_get(GTK_TREE_MODEL(model) , &groupiter
 								 , G_NAME_COL 			 , &groupname
 								 , G_ID_COL 			 , &groupid , -1);
@@ -693,9 +739,31 @@ static void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* UNUSED(tree)
 								  , groupSubmenu , TRUE , fx_tree_on_movemenu_clicked
 								  , moveargs);
 				free(groupname);
-			}
-			while(gtk_tree_model_iter_next(GTK_TREE_MODEL(model) , &groupiter));
+			} while(gtk_tree_model_iter_next(GTK_TREE_MODEL(model) , &groupiter));
 			gtk_menu_item_set_submenu(GTK_MENU_ITEM(moveItem) , groupSubmenu);
+		}
+
+		groupSubmenu = gtk_menu_new();
+		if(groupid != BUDDY_LIST_STRANGER && user->state != P_OFFLINE) {
+			copyItem = fx_tree_create_menu(_("Copy this contact to") , SKIN_DIR"move.png"
+							, menu , TRUE , NULL , NULL);
+			/*add group child menu*/
+			gtk_tree_model_get_iter_root(GTK_TREE_MODEL(model) , &groupiter);
+			do {
+				gtk_tree_model_get(GTK_TREE_MODEL(model) , &groupiter
+								 , G_NAME_COL 			 , &groupname
+								 , G_ID_COL 			 , &groupid , -1);
+				gchar gs[24] = { 0, };
+				sprintf(gs, "%d", groupid);
+				if(!strstr(cnt->groupids, gs)) {
+					moveargs = fx_args_new(fxmain, iter, userid, groupid);
+					fx_tree_create_menu(groupname 	  , SKIN_DIR"online.svg"
+									  , groupSubmenu , TRUE , fx_tree_on_copymenu_clicked
+									  , moveargs);
+				}
+				free(groupname);
+			} while(gtk_tree_model_iter_next(GTK_TREE_MODEL(model) , &groupiter));
+			gtk_menu_item_set_submenu(GTK_MENU_ITEM(copyItem) , groupSubmenu);
 		}
 	}
 	gtk_widget_show_all(menu);
@@ -1346,14 +1414,50 @@ static void fx_tree_on_editmenu_clicked(GtkWidget* UNUSED(widget) , gpointer dat
 	g_free(args);
 }
 
+static void fx_tree_on_remove_from_menu_clicked(GtkWidget* UNUSED(widget) , gpointer data)
+{
+	Args         *args = (Args*)data;
+	FxMain       *fxmain = args->fxmain;
+	gchar        *userid = args->s;
+	GtkTreeIter   iter = args->iter;
+	GtkTreeIter   parent;
+	GtkTreeModel *model;
+	gint          gid, state, onCnt, allCnt;
+
+	if(!fx_conn_check_action(fxmain))
+		return;
+
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(fxmain->mainPanel->treeView));
+
+	if(gtk_tree_model_iter_parent(model, &parent, &iter)) {
+		gtk_tree_model_get(model, &parent,
+			   	G_ID_COL, &gid,
+			    G_ONLINE_COUNT_COL, &onCnt,
+				G_ALL_COUNT_COL, &allCnt, -1);
+		gtk_tree_model_get(model, &iter,
+				B_STATE_COL, &state, -1);
+		if(fetion_contact_remove_from_group(fxmain->user, userid, gid) == -1) return;
+		if(state > 0) onCnt --;
+		gtk_tree_store_set(GTK_TREE_STORE(model), &parent,
+				G_ONLINE_COUNT_COL, onCnt,
+				G_ALL_COUNT_COL, allCnt - 1, -1);
+		gtk_tree_store_remove(GTK_TREE_STORE(model), &iter);
+	}
+
+	g_free(args);
+}
+
 static void fx_tree_on_deletemenu_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	Args         *args = (Args*)data;
 	FxMain       *fxmain = args->fxmain;
 	gchar        *userid = args->s;
 	GtkTreeIter   iter = args->iter;
+	GtkTreeIter   parent;
+	Contact      *cnt;
 	GtkWidget    *dialog;
 	GtkTreeModel *model;
+	gint          ocnt, acnt, state;
 
 	if(!fx_conn_check_action(fxmain))
 		return;
@@ -1369,8 +1473,24 @@ static void fx_tree_on_deletemenu_clicked(GtkWidget* UNUSED(widget) , gpointer d
 	gint result = gtk_dialog_run(GTK_DIALOG(dialog));
 
 	if(result == GTK_RESPONSE_YES){
-		fetion_contact_delete_buddy(fxmain->user , userid);
-		gtk_tree_store_remove(GTK_TREE_STORE(model) , &iter);
+		if (fetion_contact_delete_buddy(fxmain->user , userid) != -1) {
+			cnt = fetion_contact_list_find_by_userid(fxmain->user->contactList, userid);
+			foreach_groupids(cnt->groupids) {
+				if(fx_tree_get_buddy_iter(model, group_id, userid, &iter) != -1) {
+					if(gtk_tree_model_iter_parent(model, &parent, &iter)) {
+						gtk_tree_model_get(model, &parent, G_ONLINE_COUNT_COL, &ocnt,
+								G_ALL_COUNT_COL, &acnt, -1);
+						gtk_tree_model_get(model, &iter, B_STATE_COL, &state, -1);
+						if(state > 0) ocnt --;
+						gtk_tree_store_set(GTK_TREE_STORE(model), &parent,
+								G_ONLINE_COUNT_COL, ocnt,
+								G_ALL_COUNT_COL, acnt - 1, -1);
+					}
+					gtk_tree_store_remove(GTK_TREE_STORE(model) , &iter);
+				}
+			} end_groupids(cnt->groupids)
+			fetion_contact_list_remove_by_userid(fxmain->user->contactList, userid);
+		}
 	}
 
 	g_free(args);
@@ -1562,6 +1682,106 @@ static void fx_tree_on_geditmenu_clicked(GtkWidget* UNUSED(widget) , gpointer da
 	gtk_widget_destroy(fxgedit->dialog);
 	free(args);
 }
+
+static void fx_tree_on_copymenu_clicked(GtkWidget* UNUSED(widget) , gpointer data)
+{
+	Args          *args = (Args*)data;
+	int            groupid = args->i;
+	char          *userid = args->s;
+	GtkTreeIter    iter = args->iter;
+	GtkTreeIter    newIter;
+	GtkTreeIter    parentIter;
+	GtkTreeIter    oldParentIter;
+	FxMain        *fxmain = args->fxmain;
+	GtkWidget     *tree = fxmain->mainPanel->treeView;
+	GtkTreeModel  *model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
+	gchar         *name , *sipuri , *impression , *mobileno , *device , *crc , *carrier;
+	gint           state , identity , size , imageChanged ;
+	gint           serviceStatus , carrierStatus , relationStatus;
+	gint           gid , oldOnlineCount , oldAllCount , newOnlineCount , newAllCount;
+	GdkPixbuf     *pb = NULL;
+
+	if(fetion_contact_copy_to_group(fxmain->user , userid , groupid) == 0) {
+		gtk_tree_model_get_iter_root(model , &parentIter);
+		do {
+			gtk_tree_model_get(model , &parentIter
+							 , G_ID_COL		 		, &gid
+							 , G_ALL_COUNT_COL		, &newAllCount
+							 , G_ONLINE_COUNT_COL	, &newOnlineCount
+							 , -1);
+			if(gid == groupid)
+				break;
+		} while(gtk_tree_model_iter_next(model , &parentIter));
+
+		gtk_tree_model_iter_parent(model , &oldParentIter , &iter);
+		gtk_tree_model_get(model , &oldParentIter
+						 , G_ID_COL		 		, &gid
+						 , G_ALL_COUNT_COL		, &oldAllCount
+						 , G_ONLINE_COUNT_COL	, &oldOnlineCount
+						 , -1);
+		gtk_tree_model_get(model , &iter
+						 , B_PIXBUF_COL 	, &pb
+						 , B_SIPURI_COL 	, &sipuri
+						 , B_USERID_COL 	, &userid
+						 , B_NAME_COL 	    , &name
+						 , B_IMPRESSION_COL , &impression
+						 , B_PHONENUM_COL   , &mobileno
+						 , B_DEVICE_COL     , &device
+						 , B_CARRIER_COL	, &carrier
+						 , B_CARRIERSTATUS_COL , &carrierStatus
+						 , B_RELATIONSTATUS_COL , &relationStatus
+						 , B_SERVICESTATUS_COL , &serviceStatus
+						 , B_CRC_COL        , &crc
+						 , B_STATE_COL      , &state
+						 , B_IDENTITY_COL	, &identity
+						 , B_SIZE_COL		, &size
+						 , B_IMAGE_CHANGED_COL , &imageChanged
+						 , -1);
+
+		newAllCount ++;
+		gtk_tree_store_set(GTK_TREE_STORE(model) , &parentIter
+						 , G_ALL_COUNT_COL		 , newAllCount
+						 , -1);
+		if(state <= 0) {
+			gtk_tree_store_append(GTK_TREE_STORE(model) , &newIter , &parentIter);
+		} else {
+			gtk_tree_store_prepend(GTK_TREE_STORE(model) , &newIter , &parentIter);
+			newOnlineCount ++;
+			gtk_tree_store_set(GTK_TREE_STORE(model) , &parentIter
+							 , G_ONLINE_COUNT_COL	 , newOnlineCount
+							 , -1);
+		}
+
+		gtk_tree_store_set(GTK_TREE_STORE(model) , &newIter
+						 , B_PIXBUF_COL 	, pb
+						 , B_SIPURI_COL 	, sipuri
+						 , B_USERID_COL 	, userid
+						 , B_NAME_COL 	    , name
+						 , B_IMPRESSION_COL , impression
+						 , B_PHONENUM_COL   , mobileno
+						 , B_CARRIER_COL    , carrier
+						 , B_DEVICE_COL     , device
+						 , B_CRC_COL        , crc
+						 , B_SERVICESTATUS_COL , serviceStatus
+						 , B_CARRIERSTATUS_COL , carrierStatus
+						 , B_RELATIONSTATUS_COL , relationStatus
+						 , B_STATE_COL     , state
+						 , B_IDENTITY_COL	, identity
+						 , B_IMAGE_CHANGED_COL , imageChanged
+						 , B_SIZE_COL		, size
+						 , -1);
+		free(sipuri);
+		free(userid);
+		free(name);
+		free(impression);
+		free(mobileno);
+		free(carrier);
+		free(device);
+		free(crc);
+	}
+	free(args);
+}
+
 static void fx_tree_on_movemenu_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 {
 	Args          *args = (Args*)data;
@@ -1583,8 +1803,7 @@ static void fx_tree_on_movemenu_clicked(GtkWidget* UNUSED(widget) , gpointer dat
 	if(fetion_contact_move_to_group(fxmain->user , userid , groupid) == 0)
 	{
 		gtk_tree_model_get_iter_root(model , &parentIter);
-		do
-		{
+		do {
 			gtk_tree_model_get(model , &parentIter
 							 , G_ID_COL		 		, &gid
 							 , G_ALL_COUNT_COL		, &newAllCount
@@ -1592,8 +1811,7 @@ static void fx_tree_on_movemenu_clicked(GtkWidget* UNUSED(widget) , gpointer dat
 							 , -1);
 			if(gid == groupid)
 				break;
-		}
-		while(gtk_tree_model_iter_next(model , &parentIter));
+		} while(gtk_tree_model_iter_next(model , &parentIter));
 
 		gtk_tree_model_iter_parent(model , &oldParentIter , &iter);
 		gtk_tree_model_get(model , &oldParentIter

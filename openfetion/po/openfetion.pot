@@ -1645,3 +1645,7 @@ msgstr ""
 #: src/fx_util.c:63
 msgid "[Unknown Statement]"
 msgstr ""
+
+#: src/fx_tree.c:737
+msgid "Copy this contact to"
+msgstr "复制到分组"
