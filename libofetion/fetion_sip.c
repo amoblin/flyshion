@@ -44,6 +44,7 @@ FetionSip* fetion_sip_new(FetionConnection* tcp , const char* sid)
 	sip->header = NULL;
 	return sip;
 }
+
 FetionSip* fetion_sip_clone(FetionSip* sip)
 {
 	FetionSip* res = (FetionSip*)malloc(sizeof(FetionSip));
@@ -52,6 +53,7 @@ FetionSip* fetion_sip_clone(FetionSip* sip)
 	sip->header = NULL;
 	return res;
 }
+
 SipHeader* fetion_sip_header_new(const char* name , const char* value)
 {
 	SipHeader* header = (SipHeader*)malloc(sizeof(SipHeader));
@@ -94,6 +96,7 @@ SipHeader* fetion_sip_authentication_header_new(const char* response)
 	header->value = res;
 	return header;
 }
+
 SipHeader* fetion_sip_ack_header_new(const char* code , const char* algorithm , const char* type , const char* guid)
 {
 	char ack[512];
@@ -101,6 +104,7 @@ SipHeader* fetion_sip_ack_header_new(const char* code , const char* algorithm , 
 			 	, code , algorithm , type , guid);
 	return fetion_sip_header_new("A" , ack);
 }
+
 SipHeader* fetion_sip_event_header_new(int eventType)
 {
 	char event[48];
@@ -184,6 +188,7 @@ SipHeader* fetion_sip_event_header_new(int eventType)
 	}
 	return fetion_sip_header_new("N" , event);
 }
+
 SipHeader* fetion_sip_credential_header_new(const char* credential)
 {
 	char value[64];
@@ -191,6 +196,7 @@ SipHeader* fetion_sip_credential_header_new(const char* credential)
 	sprintf(value , "TICKS auth=\"%s\"" , credential);
 	return fetion_sip_header_new("A" , value);
 }
+
 void fetion_sip_add_header(FetionSip* sip , SipHeader* header)
 {
 	SipHeader* pos = sip->header;
@@ -407,9 +413,9 @@ char* fetion_sip_get_response(FetionSip* sip)
 
 	n = strlen(buf) - strlen(strstr(buf , "\r\n\r\n") + 4);
 	len += n;
-	if(!(res = (char*)malloc(len + 1))) return (char*)0; 
+	if(!(res = (char*)malloc(len + 10))) return (char*)0; 
 
-	memset(res, 0, len + 1);
+	memset(res, 0, len + 10);
 	strcpy(res, buf);
 	if(c < len) {
 	   	for(;;) {
@@ -420,7 +426,9 @@ char* fetion_sip_get_response(FetionSip* sip)
 
 			strncpy(res + c, buf, c1);
 			c += c1;
-			if(c >= len) break;
+			if(c >= len) {
+				break;
+			}
 		}
 	}
 	return res;
