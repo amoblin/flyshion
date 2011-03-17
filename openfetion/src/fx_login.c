@@ -501,11 +501,48 @@ void fx_login_user_change_func(GtkWidget* widget , gpointer data)
 	gchar          path[1024];
 	GtkTreeIter    iter;
 	gint           state;
-	struct userlist *ul_cur;
+	struct userlist *ul_cur = NULL;
+	const gchar    *nno;
+
+	GtkWidget *entry = gtk_bin_get_child(GTK_BIN(fxlogin->username));
+	nno = gtk_entry_get_text(GTK_ENTRY(entry));
+	if(!nno) return;
+	ul_cur = fetion_user_list_find_by_no(ul, nno);
+
+	if(!ul_cur) {
+		pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"fetion.svg",
+						120, 120, NULL);
+		if(pixbuf){
+			gtk_image_set_from_pixbuf(
+					GTK_IMAGE(fxlogin->portrait), pixbuf);
+			g_object_unref(pixbuf);
+		}
+		gtk_entry_set_text(GTK_ENTRY(fxlogin->password), "");
+	   	return;
+	}
 
 
-	if(!gtk_combo_box_get_active_iter(combo , &iter))
+	if(!gtk_combo_box_get_active_iter(combo , &iter)) {
+		config = fetion_config_new();
+		fetion_config_initialize(config, ul_cur->userid);
+		snprintf(path, sizeof(path) - 1, "%s/%s.jpg",
+				config->iconPath, ul_cur->sid);
+
+		pixbuf = gdk_pixbuf_new_from_file_at_size(path,
+						120, 120, NULL);
+		if(pixbuf){
+			gtk_image_set_from_pixbuf(
+					GTK_IMAGE(fxlogin->portrait), pixbuf);
+			g_object_unref(pixbuf);
+		}
+		gtk_entry_set_text(GTK_ENTRY(fxlogin->password), ul_cur->password);
+		fx_login_set_last_login_state(fxlogin , ul_cur->laststate);
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxlogin->remember)
+								   , *(ul_cur->password) == '\0' ? FALSE : TRUE);
+
 		return;
+	}
+
 	gtk_tree_model_get(model, &iter,
 				 L_PWD_COL, &pwd,
 				 L_NO_COL, &no,
@@ -513,7 +550,7 @@ void fx_login_user_change_func(GtkWidget* widget , gpointer data)
 	ul_cur = fetion_user_list_find_by_no(ul, no);
 	config = fetion_config_new();
 	fetion_config_initialize(config, ul_cur->userid);
-	sprintf(path, "%s/%s.jpg",
+	snprintf(path, sizeof(path) - 1, "%s/%s.jpg",
 			config->iconPath, ul_cur->sid);
 
 	pixbuf = gdk_pixbuf_new_from_file_at_size(path,

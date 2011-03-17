@@ -734,10 +734,14 @@ static void fx_tree_create_buddy_menu(FxMain* fxmain , GtkWidget* UNUSED(tree)
 				gtk_tree_model_get(GTK_TREE_MODEL(model) , &groupiter
 								 , G_NAME_COL 			 , &groupname
 								 , G_ID_COL 			 , &groupid , -1);
-				moveargs = fx_args_new(fxmain , iter , userid , groupid);
-				fx_tree_create_menu(groupname 	  , SKIN_DIR"online.svg"
-								  , groupSubmenu , TRUE , fx_tree_on_movemenu_clicked
-								  , moveargs);
+				gchar gs[24] = { 0, };
+				sprintf(gs, "%d", groupid);
+				if(!strstr(cnt->groupids, gs)) {
+					moveargs = fx_args_new(fxmain , iter , userid , groupid);
+					fx_tree_create_menu(groupname 	  , SKIN_DIR"online.svg"
+									  , groupSubmenu , TRUE , fx_tree_on_movemenu_clicked
+									  , moveargs);
+				}
 				free(groupname);
 			} while(gtk_tree_model_iter_next(GTK_TREE_MODEL(model) , &groupiter));
 			gtk_menu_item_set_submenu(GTK_MENU_ITEM(moveItem) , groupSubmenu);
@@ -1800,9 +1804,12 @@ static void fx_tree_on_movemenu_clicked(GtkWidget* UNUSED(widget) , gpointer dat
 	gint           gid , oldOnlineCount , oldAllCount , newOnlineCount , newAllCount;
 	GdkPixbuf     *pb = NULL;
 
-	if(fetion_contact_move_to_group(fxmain->user , userid , groupid) == 0)
+	gtk_tree_model_iter_parent(model, &parentIter, &iter);
+	gtk_tree_model_get(model, &parentIter, G_ID_COL, &gid, -1);
+
+	if(fetion_contact_move_to_group(fxmain->user, userid, gid, groupid) == 0)
 	{
-		gtk_tree_model_get_iter_root(model , &parentIter);
+		gtk_tree_model_get_iter_root(model, &parentIter);
 		do {
 			gtk_tree_model_get(model , &parentIter
 							 , G_ID_COL		 		, &gid

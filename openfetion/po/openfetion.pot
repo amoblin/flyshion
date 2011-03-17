@@ -1646,6 +1646,10 @@ msgstr ""
 msgid "[Unknown Statement]"
 msgstr ""
 
-#: src/fx_tree.c:737
+#: src/fx_tree.c:717
+msgid "Remove from group"
+msgstr ""
+
+#: src/fx_tree.c:752
 msgid "Copy this contact to"
-msgstr "复制到分组"
+msgstr ""

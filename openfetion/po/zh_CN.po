@@ -573,7 +573,7 @@ msgstr ""
 msgid "Contributor"
 msgstr "贡献者"
 
-#: src/fx_tree.c:737
+#: src/fx_tree.c:752
 msgid "Copy this contact to"
 msgstr "将好友复制到"
 
@@ -1245,6 +1245,10 @@ msgstr "记住密码"
 #: src/fx_tree.c:1321
 msgid "Remove contact"
 msgstr "删除好友"
+
+#: src/fx_tree.c:717
+msgid "Remove from group"
+msgstr "从该分组删除"
 
 #: src/fx_tree.c:1489
 msgid "Remove group"

@@ -155,7 +155,7 @@ extern int fetion_contact_set_displayname(User* user , const char* userid , cons
  * @param user Global User object
  * @return 1 if success , orelse -1
  */
-extern int fetion_contact_move_to_group(User* user , const char* userid , int buddylist);
+extern int fetion_contact_move_to_group(User *user, const char *userid, int old_bl, int new_bl);
 
 /**
  * copy the buddy specified by userid to the new group specified by the buddylist

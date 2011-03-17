@@ -37,7 +37,7 @@ static char* generate_contact_info_body(const char* userid);
 static char* generate_contact_info_by_no_body(const char* no , NumberType nt);
 static char* generate_set_mobileno_perssion(const char* userid , int show);
 static char* generate_set_displayname_body(const char* userid , const char* name);
-static char* generate_move_to_group_body(const char* userid , int buddylist);
+static char* generate_move_to_group_body(const char *userid, const char *groupids);
 static char* generate_delete_buddy_body(const char* userid);
 static char* generate_add_buddy_body(const char* no , NumberType notype
 								, int buddylist , const char* localname
@@ -65,6 +65,7 @@ Contact* fetion_contact_new()
 	list->next = list;
 	return list;
 }
+
 void fetion_contact_list_append(Contact* cl , Contact* contact)
 {
 	cl->next->pre = contact;
@@ -129,6 +130,7 @@ void fetion_contact_list_remove(Contact *contact)
 	contact->next->pre = contact->pre;
 	contact->pre->next = contact->next;
 }
+
 void fetion_contact_list_free(Contact* contact)
 {
 	Contact *cl_cur , *del_cur;
@@ -141,6 +143,7 @@ void fetion_contact_list_free(Contact* contact)
 	}
 	free(contact);
 }
+
 int fetion_contact_subscribe_only(User* user)
 {
 	char *res, *body;
@@ -171,6 +174,7 @@ int fetion_contact_subscribe_only(User* user)
 	free(res);
 	return 0;
 }
+
 Contact* fetion_contact_get_contact_info(User* user , const char* userid)
 {
 	FetionSip* sip = user->sip;
@@ -182,9 +186,7 @@ Contact* fetion_contact_get_contact_info(User* user , const char* userid)
 	xmlNodePtr node;
 	contact = fetion_contact_list_find_by_userid(user->contactList , userid);
 	body = generate_contact_info_body(userid);
-	if(body == NULL){
-		return NULL;
-	}
+	if(body == NULL) return NULL;
 	fetion_sip_set_type(sip , SIP_SERVICE);
 	SipHeader* eheader = fetion_sip_event_header_new(SIP_EVENT_GETCONTACTINFO);
 	if(eheader == NULL){
@@ -369,47 +371,40 @@ int fetion_contact_set_displayname(User* user , const char* userid , const char*
 		return -1;
 	}
 }
-int fetion_contact_move_to_group(User* user , const char* userid , int buddylist)
+
+int fetion_contact_move_to_group(User *user, const char *userid, int old_bl, int new_bl)
 {
-	FetionSip* sip = user->sip;
-	SipHeader* eheader;
-	char *res , *body;
+	FetionSip *sip = user->sip;
+	SipHeader *eheader;
+	Contact    *cnt;
+	char        bls[1024] = { 0, };
+	char *res, *body;
 	int ret;
+
 	fetion_sip_set_type(sip , SIP_SERVICE);
 	eheader = fetion_sip_event_header_new(SIP_EVENT_SETCONTACTINFO);
-	if(eheader == NULL){
-		return -1;
-	}
 	fetion_sip_add_header(sip , eheader);
-	body = generate_move_to_group_body(userid , buddylist);
-	if(body == NULL){
-		return -1;
-	}
+
+	cnt = fetion_contact_list_find_by_userid(user->contactList, userid);
+	foreach_groupids(cnt->groupids) {
+		if(group_id == old_bl) continue;
+		sprintf(bls + strlen(bls), "%d;", group_id);
+	} end_groupids(cnt->groupids)
+	sprintf(bls + strlen(bls), "%d", new_bl);
+	sprintf(cnt->groupids, "%s", bls);
+
+	body = generate_move_to_group_body(userid, bls);
+
+	if(!body) return -1;
 	res = fetion_sip_to_string(sip , body);
 	free(body);
-	if(res == NULL){
-		return -1;
-	}
+	if(!res) return -1;
 	ret = tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
 
-	if(ret < 0)
-		return -1;
+	if(ret < 0)	return -1;
 
-	res = fetion_sip_get_response(sip);
-	if(res == NULL){
-		return -1;
-	}
-	ret = fetion_sip_get_code(res);
-	free(res);
-
-	if(ret == 200){
-		debug_info("Move buddy(%s) to group %d success" , userid , buddylist);
-		return 0;
-	}else{
-		debug_info("Move buddy(%s) to group %d failed" , userid , buddylist);
-		return -1;
-	}
+	return 0;
 }
 
 int fetion_contact_copy_to_group(User *user, const char *userid, int buddylist)
@@ -763,10 +758,10 @@ char* generate_set_displayname_body(const char* userid , const char* name)
 	xmlFreeDoc(doc);
 	return xml_convert(res);
 }
-char* generate_move_to_group_body(const char* userid , int buddylist)
+
+static char *generate_move_to_group_body(const char *userid, const char *groupids)
 {
 	char args[] = "<args></args>";
-	char bl[5];
 	xmlChar *res;
 	xmlDocPtr doc;
 	xmlNodePtr node;
@@ -775,12 +770,12 @@ char* generate_move_to_group_body(const char* userid , int buddylist)
 	node = xmlNewChild(node , NULL , BAD_CAST "contacts" , NULL);
 	node = xmlNewChild(node , NULL , BAD_CAST "contact" , NULL);
 	xmlNewProp(node , BAD_CAST "user-id" , BAD_CAST userid);
-	sprintf(bl , "%d" , buddylist);
-	xmlNewProp(node , BAD_CAST "buddy-lists" , BAD_CAST bl);
+	xmlNewProp(node , BAD_CAST "buddy-lists" , BAD_CAST groupids);
 	xmlDocDumpMemory(doc , &res , NULL);
 	xmlFreeDoc(doc);
 	return xml_convert(res);
 }
+
 char* generate_delete_buddy_body(const char* userid)
 {
 	char args[] = "<args></args>";
@@ -797,6 +792,7 @@ char* generate_delete_buddy_body(const char* userid)
 	xmlFreeDoc(doc);
 	return xml_convert(res);
 }
+
 char* generate_add_buddy_body(const char* no 
 		, NumberType notype , int buddylist 
 		, const char* localname , const char* desc , int phraseid)
