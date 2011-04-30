@@ -170,7 +170,7 @@ FetionConnection* tcp_connection_new_with_ip_and_port(const char* ipaddress , co
 	strcpy(conn->local_ipaddress , ipaddress);
 	return conn;
 }
-int tcp_connection_connect(FetionConnection* connection , const char* ipaddress , const int port)
+int tcp_connection_connect(FetionConnection *connection, const char *ipaddress, const int port)
 {
 	struct sockaddr_in addr;
 	int n;
@@ -180,12 +180,40 @@ int tcp_connection_connect(FetionConnection* connection , const char* ipaddress 
 	strcpy(connection->remote_ipaddress , ipaddress);
 	connection->remote_port = port;
 
+	int sk, flags, err, ret;
+	socklen_t len;
+	struct timeval tv;
+	fd_set fd_write;
+	tv.tv_sec = 7;
+	tv.tv_usec = 0;
+	
+	sk = connection->socketfd;
+	if((flags = fcntl(sk, F_GETFL, 0)) == -1) return -1;
+	if((flags = fcntl(sk, F_SETFL, flags | O_NONBLOCK)) == -1) return -1;
+
 	n = MAX_RECV_BUF_SIZE;
-	int s = setsockopt(connection->socketfd , SOL_SOCKET , SO_RCVBUF , (const char*)&n , sizeof(n));
-	if(s == -1){
-		return -1;
+	int s = setsockopt(sk, SOL_SOCKET, SO_RCVBUF, (const char*)&n , sizeof(n));
+	if(s == -1)	return -1;
+	debug_info("%s:%d", ipaddress, port);
+
+	if(connect(sk, (struct sockaddr*)&addr,
+			sizeof(struct sockaddr)) == -1) {
+		if(errno != EINPROGRESS) return -1;
+
+		FD_ZERO(&fd_write);
+		FD_SET(sk, &fd_write);
+		ret = select(sk + 1, (fd_set*)0, &fd_write, (fd_set*)0, &tv);
+
+		if(ret > 0) {
+			if(getsockopt(sk, SOL_SOCKET, SO_ERROR, &err, &len) == -1) return -1;
+			if (err == 0) goto success;
+			else          return -1;
+		} else return -1;
+
 	}
-	return connect(connection->socketfd , (struct sockaddr*)&addr , sizeof(struct sockaddr));
+success:
+	if((flags = fcntl(sk, F_SETFL, flags)) == -1) return -1;
+	return 0;
 }
 
 int tcp_connection_connect_with_proxy(FetionConnection* connection 
@@ -203,13 +231,10 @@ int tcp_connection_connect_with_proxy(FetionConnection* connection
 
 	unsigned int n = MAX_RECV_BUF_SIZE;
 	int ret = setsockopt(connection->socketfd , SOL_SOCKET , SO_RCVBUF , (const char*)&n , sizeof(n));
-	if(ret == -1){
-		return -1;
-	}
+	if(ret == -1) return -1;
 	ret = connect(connection->socketfd , (struct sockaddr*)&addr , sizeof(struct sockaddr));
-	if(ret == -1){
-		return -1;
-	}
+	if(ret == -1) return -1;
+	printf("%s:%d\n", ipaddress, port);
 	
 	char http[1024] , code[5] , *pos = NULL;
 	unsigned char authentication[1024];

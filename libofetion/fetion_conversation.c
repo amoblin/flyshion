@@ -309,9 +309,12 @@ int fetion_conversation_invite_friend(Conversation* conversation)
 	conn = tcp_connection_new();
 
 	if(proxy != NULL && proxy->proxyEnabled)
-		ret = tcp_connection_connect_with_proxy(conn , ip , port , proxy);
-	else
-		ret = tcp_connection_connect(conn , ip , port);
+		ret = tcp_connection_connect_with_proxy(conn, ip, port, proxy);
+	else {
+		ret = tcp_connection_connect(conn, ip, port);
+		if(ret == -1)
+			ret = tcp_connection_connect(conn, ip, 443);
+	}
 
 	if(ret == -1)
 		return -1;

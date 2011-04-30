@@ -735,8 +735,15 @@ void fetion_sip_parse_invitation(FetionSip* sip , Proxy *proxy , const char* sip
 
 	if(proxy != NULL && proxy->proxyEnabled)
 		tcp_connection_connect_with_proxy(conn , ipaddress , port , proxy);
-	else
-		tcp_connection_connect(conn , ipaddress , port);
+	else {
+		int ret = tcp_connection_connect(conn , ipaddress , port);
+		if(ret == -1)
+			ret = tcp_connection_connect(conn , ipaddress , 443);
+		if(ret == -1) {
+			debug_error("Connect to server failed: %s:%d/%s:%d", ipaddress, port, ipaddress, 443);
+			return;
+		}
+	}
 
 	*conversionSip = fetion_sip_clone(sip);
 	fetion_sip_set_connection(*conversionSip , conn);

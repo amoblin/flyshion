@@ -374,9 +374,19 @@ login:
 	}else{
 		fx_login_show_msg(fxlogin,
 					  _("Connecting to registration server"));
-		tcp_connection_connect(conn,
+		int ret = tcp_connection_connect(conn,
 					  	config->sipcProxyIP, 
 						config->sipcProxyPort);
+		if(ret == -1) {
+			config->sipcProxyPort = 443;
+			ret = tcp_connection_connect(conn,
+					  	config->sipcProxyIP, 
+						config->sipcProxyPort);
+			if(ret == -1) {
+				fx_login_show_err(fxlogin , _("Login failed"));
+				goto failed;
+			}
+		}
 	}
 
 	/* add the connection object into the connection list */
@@ -696,10 +706,17 @@ int fx_conn_reconnect(FxMain *fxmain, int state)
 					   	config->sipcProxyIP,
 					   	config->sipcProxyPort,
 					   	config->proxy);
-	else
+	else {
 		ret = tcp_connection_connect(tcp,
 					  	config->sipcProxyIP, 
 						config->sipcProxyPort);
+		if(ret == -1 && config->sipcProxyPort != 443) {
+			config->sipcProxyPort = 443;
+			ret = tcp_connection_connect(tcp,
+							config->sipcProxyIP, 
+							config->sipcProxyPort);
+		}
+	}
 
 	if(ret == -1){
 		gdk_threads_enter();
