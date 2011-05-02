@@ -353,15 +353,15 @@ static void popup_online_notify(FxMain *fxmain, Contact *contact)
 				config->iconPath , contact->sId);
 		sprintf(notifySummary,
 				_("%s , now ONLINE") , contact->nickname);
-		sprintf(notifyText ,
+		snprintf(notifyText, sizeof(notifyText) - 1,
 				_("Phone Number: %s\n"
 				  "Fetion Number: %s\n"
-				  "Signature: %s")
-				, contact->mobileno == NULL ||
-					strlen(contact->mobileno) == 0 ?
-					_("unknown") : contact->mobileno
-				, contact->sId
-				, contact->impression );
+				  "Signature: %s"),
+				contact->mobileno == NULL ||
+				strlen(contact->mobileno) == 0 ?
+				_("unknown") : contact->mobileno,
+				contact->sId,
+				contact->impression );
 		pixbuf = gdk_pixbuf_new_from_file_at_size(
 				iconPath,
 				NOTIFY_IMAGE_SIZE,
@@ -628,6 +628,8 @@ static gint indicate_action()
 	/* free the memory allocated for the indicator list */
 	g_slist_free(indicators);
 	indicators = NULL;
+
+	if(count == 0) return 0;
 
 	/* process the incoming message */
 	fx_main_message_func(NULL, fxmain);
@@ -1697,6 +1699,23 @@ void fx_main_message_func(GtkWidget *UNUSED(widget) , gpointer data)
 
 #ifdef USE_LIBNOTIFY
 	notify_notification_close(fxmain->notify , NULL);
+#endif
+
+#ifdef USE_INDICATE
+	GSList *iterator = NULL;
+	IndicateIndicator *indicator = NULL;
+
+	for (iterator = indicators; iterator; iterator = iterator->next) {
+		indicator = (IndicateIndicator*)iterator->data;
+		/* clear attention */
+		indicate_indicator_set_property(indicator, INDICATE_INDICATOR_MESSAGES_PROP_ATTENTION, "");
+		/* remove the indicators from the indicate server */
+		indicate_server_remove_indicator(fxmain->indserver, indicator);
+	}
+
+	/* free the memory allocated for the indicator list */
+	g_slist_free(indicators);
+	indicators = NULL;
 #endif
 
 	while(cur != fxmain->mlist){
