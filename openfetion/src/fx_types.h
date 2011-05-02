@@ -34,6 +34,9 @@
 #ifdef HAVE_LIBNOTIFY
  #include <libnotify/notify.h>
 #endif
+#ifdef USE_INDICATE
+ #include <libindicate/server.h>
+#endif
 
 #define WINDOW_WIDTH 280
 #define WINDOW_HEIGHT 500
@@ -116,6 +119,9 @@ typedef struct
 	FetionHistory* history;
 #ifdef USE_LIBNOTIFY
 	NotifyNotification *notify;
+#endif
+#ifdef USE_INDICATE
+	IndicateServer *indserver;
 #endif
 	int iconConnectId;			 /*  status icon connect id						 */
 

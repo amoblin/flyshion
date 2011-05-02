@@ -181,7 +181,7 @@ int tcp_connection_connect(FetionConnection *connection, const char *ipaddress, 
 	connection->remote_port = port;
 
 	int sk, flags, err, ret;
-	socklen_t len;
+	socklen_t len = sizeof(err);
 	struct timeval tv;
 	fd_set fd_write;
 	tv.tv_sec = 7;
@@ -198,6 +198,7 @@ int tcp_connection_connect(FetionConnection *connection, const char *ipaddress, 
 
 	if(connect(sk, (struct sockaddr*)&addr,
 			sizeof(struct sockaddr)) == -1) {
+
 		if(errno != EINPROGRESS) return -1;
 
 		FD_ZERO(&fd_write);
@@ -205,9 +206,11 @@ int tcp_connection_connect(FetionConnection *connection, const char *ipaddress, 
 		ret = select(sk + 1, (fd_set*)0, &fd_write, (fd_set*)0, &tv);
 
 		if(ret > 0) {
-			if(getsockopt(sk, SOL_SOCKET, SO_ERROR, &err, &len) == -1) return -1;
-			if (err == 0) goto success;
-			else          return -1;
+			if(FD_ISSET(sk, &fd_write)) {
+				if(getsockopt(sk, SOL_SOCKET, SO_ERROR, &err, &len) == -1) return -1;
+				if (err == 0) goto success;
+				else          return -1;
+			} else return -1;
 		} else return -1;
 
 	}

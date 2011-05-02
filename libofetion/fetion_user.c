@@ -456,7 +456,7 @@ int fetion_user_download_portrait_with_uri(User *user , const char *sipuri
 	if(config->proxy != NULL && config->proxy->proxyEnabled)
 		ret = tcp_connection_connect_with_proxy(tcp , ip , 80 , config->proxy);
 	else
-		ret = tcp_connection_connect(tcp , ip , 80);
+		ret = tcp_connection_connect(tcp, ip, 80);
 	if(ret < 0){
 		debug_error("connect to portrait server:%s",
 				strerror(errno));

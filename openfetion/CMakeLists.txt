@@ -6,7 +6,7 @@ set(TARNAME openfetion)
 
 # program name, version etc
 
-set(PACKAGE_VERSION "2.1.0")
+set(PACKAGE_VERSION "2.2.0")
 set(PACKAGE_NAME "OpenFetion")
 set(PACKAGE_TARNAME "${TARNAME}")
 set(PACKAGE_STRING "${PACKAGE_NAME} ${PACKAGE_VERSION}")
@@ -24,6 +24,9 @@ endif(NOT DEFINED DATA_INSTALL_DIR)
 if(NOT DEFINED MAN_INSTALL_DIR)
     set(MAN_INSTALL_DIR "${DATA_INSTALL_DIR}/man")
 endif(NOT DEFINED MAN_INSTALL_DIR)
+if(NOT DEFINED DESKTOP_INSTALL_DIR)
+    set(DESKTOP_INSTALL_DIR "${DATA_INSTALL_DIR}/applications/")
+endif(NOT DEFINED DESKTOP_INSTALL_DIR)
 if(NOT DEFINED RESOURCE_INSTALL_DIR)
     set(RESOURCE_INSTALL_DIR "${DATA_INSTALL_DIR}/openfetion/resource/")
 endif(NOT DEFINED RESOURCE_INSTALL_DIR)
@@ -35,8 +38,9 @@ if(NOT DEFINED LOCALE_INSTALL_DIR)
 endif(NOT DEFINED LOCALE_INSTALL_DIR)
 
 add_definitions(-DRESOURCE_DIR="${RESOURCE_INSTALL_DIR}")
+add_definitions(-DDESKTOP_DIR="${DESKTOP_INSTALL_DIR}")
 install(FILES resource/newmessage.wav DESTINATION ${RESOURCE_INSTALL_DIR})
-install(FILES resource/openfetion.desktop DESTINATION ${DATA_INSTALL_DIR}/applications)
+install(FILES resource/openfetion.desktop DESTINATION ${DESKTOP_INSTALL_DIR})
 
 # compile option switch
 option(NLS "Native language support" ON)
@@ -44,6 +48,7 @@ option(WITH_LIBNOTIFY "Libnotify support" ON)
 option(WITH_GSTREAMER "GStreamer support" ON)
 option(WITH_LIBXSS "LibXScrnSaver support" ON)
 option(WITH_NETWORKMANAGER "NetworkManager support" ON)
+option(WITH_INDICATE "Ubuntu Indicator support" ON)
 
 # openfetion build requirements
 find_package(PkgConfig REQUIRED)
@@ -60,16 +65,24 @@ pkg_check_modules(OFETION REQUIRED ofetion)
 if(WITH_LIBNOTIFY)
     pkg_check_modules(LIBNOTIFY libnotify)
 endif(WITH_LIBNOTIFY)
+
 if(WITH_GSTREAMER)
     pkg_check_modules(GSTREAMER gstreamer-0.10)
 endif(WITH_GSTREAMER)
+
 if(WITH_LIBXSS)
     pkg_check_modules(LIBXSS xscrnsaver)
 endif(WITH_LIBXSS)
+
 if(WITH_NETWORKMANAGER)
     pkg_check_modules(NETWORKMANAGER NetworkManager)
     pkg_check_modules(DBUSGLIB dbus-glib-1)
 endif(WITH_NETWORKMANAGER)
+
+if(WITH_INDICATE)
+	pkg_check_modules(INDICATE indicate)
+	pkg_check_modules(INDICATE_GTK indicate-gtk)
+endif(WITH_INDICATE)
 
 ##########################################################################
 message("==========================================")
@@ -84,24 +97,34 @@ if(WITH_LIBNOTIFY AND LIBNOTIFY_FOUND)
 else(WITH_LIBNOTIFY AND LIBNOTIFY_FOUND)
     message(STATUS "Libnotify support:        NO" )
 endif(WITH_LIBNOTIFY AND LIBNOTIFY_FOUND)
+
 if(WITH_GSTREAMER AND GSTREAMER_FOUND)
     set(USE_GSTREAMER 1)
     message(STATUS "GStreamer support:        YES" )
 else(WITH_GSTREAMER AND GSTREAMER_FOUND)
     message(STATUS "GStreamer support:        NO" )
 endif(WITH_GSTREAMER AND GSTREAMER_FOUND)
+
 if(WITH_LIBXSS AND LIBXSS_FOUND)
     set(USE_LIBXSS 1)
     message(STATUS "Xscreensaver support:     YES" )
 else(WITH_LIBXSS AND LIBXSS_FOUND)
     message(STATUS "Xscreensaver support:     NO" )
 endif(WITH_LIBXSS AND LIBXSS_FOUND)
+
 if(WITH_NETWORKMANAGER AND NETWORKMANAGER_FOUND AND DBUSGLIB_FOUND)
     set(USE_NETWORKMANAGER 1)
     message(STATUS "NetworkManager support:   YES" )
 else(WITH_NETWORKMANAGER AND NETWORKMANAGER_FOUND AND DBUSGLIB_FOUND)
     message(STATUS "NetworkManager support:   NO" )
 endif(WITH_NETWORKMANAGER AND NETWORKMANAGER_FOUND AND DBUSGLIB_FOUND)
+
+if(WITH_INDICATE AND INDICATE_FOUND AND INDICATE_GTK_FOUND)
+    set(USE_INDICATE 1)
+    message(STATUS "Ubuntu Indicator support: YES" )
+else(WITH_INDICATE AND INDICATE_FOUND AND INDICATE_GTK_FOUND)
+    message(STATUS "Ubuntu Indicator support: NO" )
+endif(WITH_INDICATE AND INDICATE_FOUND AND INDICATE_GTK_FOUND)
 message("==========================================")
 
 configure_file(config-ofetion.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
@@ -144,6 +167,11 @@ if(WITH_NETWORKMANAGER AND NETWORKMANAGER_FOUND)
     include_directories(${NETWORKMANAGER_INCLUDE_DIRS})
     include_directories(${DBUSGLIB_INCLUDE_DIRS})
 endif(WITH_NETWORKMANAGER AND NETWORKMANAGER_FOUND)
+
+if(WITH_INDICATE AND INDICATE_FOUND AND INDICATE_GTK_FOUND)
+    include_directories(${INDICATE_INCLUDE_DIRS})
+    include_directories(${INDICATE_GTK_INCLUDE_DIRS})
+endif(WITH_INDICATE AND INDICATE_FOUND AND INDICATE_GTK_FOUND)
 
 set(openfetion_SRC
     src/fx_about.c
@@ -189,12 +217,20 @@ target_link_libraries(openfetion ${GTK2_LIBRARIES} ${GDKPIXBUF_LIBRARIES} ${GTHR
 if(WITH_LIBNOTIFY AND LIBNOTIFY_FOUND)
     target_link_libraries(openfetion ${LIBNOTIFY_LIBRARIES})
 endif(WITH_LIBNOTIFY AND LIBNOTIFY_FOUND)
+
 if(WITH_GSTREAMER AND GSTREAMER_FOUND)
     target_link_libraries(openfetion ${GSTREAMER_LIBRARIES})
 endif(WITH_GSTREAMER AND GSTREAMER_FOUND)
+
 if(WITH_LIBXSS AND LIBXSS_FOUND)
     target_link_libraries(openfetion ${LIBXSS_LIBRARIES})
 endif(WITH_LIBXSS AND LIBXSS_FOUND)
+
+if(WITH_INDICATE AND INDICATE_FOUND AND INDICATE_GTK_FOUND)
+    target_link_libraries(openfetion ${INDICATE_LIBRARIES})
+    target_link_libraries(openfetion ${INDICATE_GTK_LIBRARIES})
+endif(WITH_INDICATE AND INDICATE_FOUND AND INDICATE_GTK_FOUND)
+
 if(WITH_NETWORKMANAGER AND NETWORKMANAGER_FOUND AND DBUSGLIB_FOUND)
     target_link_libraries(openfetion ${NETWORKMANAGER_LIBRARIES})
     target_link_libraries(openfetion ${DBUSGLIB_LIBRARIES})

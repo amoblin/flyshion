@@ -38,6 +38,13 @@
 #include <locale.h>
 #include <glib.h>
 #include <fx_server.h>
+#ifdef USE_INDICATE
+#include <libindicate/indicator.h>
+#include <libindicate-gtk/indicator.h>
+#include <libindicate/server.h>
+#include <libindicate/indicator-messages.h>
+#include <dbus/dbus-glib.h>
+#endif
 
 fd_set  fd_read;
 gint presence_count = 0;
@@ -49,11 +56,19 @@ gint start_popup_presence = 0;
 extern struct unacked_list *unackedlist;
 GStaticMutex mutex = G_STATIC_MUTEX_INIT;
 GdkScreen *current_screen;
+FxMain *fxmain;
+#ifdef USE_INDICATE
+GSList *indicators = NULL;
+#endif
 
 static void fx_main_process_pggetgroupinfo(FxMain *fxmain , const gchar *sipmsg);
 static void fx_main_process_pgpresencechanged(FxMain *fxmain , const gchar *sipmsg);
 static gboolean key_press_func(GtkWidget *widget , GdkEventKey *event
 		, gpointer data);
+#ifdef USE_INDICATE
+static gint indicate_action();
+static void server_display(IndicateServer *server, guint timestamp);
+#endif // USE_INDICATE
 
 FxMain* fx_main_new()
 {
@@ -160,6 +175,17 @@ void fx_main_initialize(FxMain* fxmain)
 	fxmain->loginPanel = fx_login_new();
 	fx_login_initialize(fxmain);
 	gtk_widget_show_all(fxmain->window);
+
+	/* ubuntu indicator */
+	/* get the default indicator */
+#ifdef USE_INDICATE
+	IndicateServer *server = indicate_server_ref_default();
+	indicate_server_set_type(server, "message.openfetion");
+	indicate_server_set_desktop_file(server, DESKTOP_DIR"openfetion.desktop");
+	indicate_server_show(server);
+	fxmain->indserver = server;
+	g_signal_connect(G_OBJECT(server), INDICATE_SERVER_SIGNAL_SERVER_DISPLAY, G_CALLBACK(server_display), fxmain);
+#endif
 
 	gdk_threads_enter();
 	gtk_main();
@@ -583,6 +609,111 @@ static void popup_msg_notify(FxMain *fxmain, Contact *senderContact, Message *ms
 #endif
 }
 
+#ifdef USE_INDICATE
+static gint indicate_action() 
+{
+	GSList *iterator = NULL;
+	IndicateIndicator *indicator = NULL;
+	gint count = 0;
+
+
+	for (iterator = indicators; iterator; iterator = iterator->next, count ++) {
+		indicator = (IndicateIndicator*)iterator->data;
+		/* clear attention */
+		indicate_indicator_set_property(indicator, INDICATE_INDICATOR_MESSAGES_PROP_ATTENTION, "");
+		/* remove the indicators from the indicate server */
+		indicate_server_remove_indicator(fxmain->indserver, indicator);
+	}
+
+	/* free the memory allocated for the indicator list */
+	g_slist_free(indicators);
+	indicators = NULL;
+
+	/* process the incoming message */
+	fx_main_message_func(NULL, fxmain);
+
+	return count;
+}
+
+#ifdef USE_INDICATE
+static void server_display(IndicateServer *UNUSED(server), guint UNUSED(timestamp))
+{
+	if(indicate_action() == 0) {
+		gtk_widget_show(fxmain->window);
+		gtk_window_present(GTK_WINDOW(fxmain->window));
+	}
+}
+#endif //USE_INDICATE
+
+static void message_display(IndicateIndicator *UNUSED(indicator), gpointer UNUSED(data))
+{
+	indicate_action();
+}
+
+static IndicateIndicator *get_indicator(IndicateServer *server, const gchar *sid)
+{
+	GSList *iterator = NULL;
+	IndicateIndicator *indicator;
+	const gchar *id;
+	gchar portrait[1024];
+	GdkPixbuf *pixbuf;
+
+	for (iterator = indicators; iterator; iterator = iterator->next) {
+
+		indicator = (IndicateIndicator*)iterator->data;
+		id = indicate_indicator_get_property(indicator, "sid");
+
+		if(strcmp(sid, id) == 0) return indicator;
+	}
+
+	/* no indicator found, create one :) */
+	indicator = indicate_indicator_new();
+	/* add it to the global indicator list */
+	indicators = g_slist_append(indicators, indicator);
+	indicate_server_add_indicator(server, indicator);
+
+	indicate_indicator_set_property(indicator, INDICATE_INDICATOR_MESSAGES_PROP_COUNT, "0");
+	indicate_indicator_set_property(indicator, "sid", sid);
+	/* set icon */
+	snprintf(portrait, sizeof(portrait) - 1, "%s/%s.jpg", fxmain->user->config->iconPath, sid);
+	pixbuf = gdk_pixbuf_new_from_file(portrait, NULL);
+	indicate_indicator_set_property_icon(indicator, INDICATE_INDICATOR_MESSAGES_PROP_ICON, pixbuf);
+	g_object_unref(pixbuf);
+
+	g_signal_connect(G_OBJECT(indicator), INDICATE_INDICATOR_SIGNAL_DISPLAY,
+			G_CALLBACK(message_display), NULL);
+
+	indicate_indicator_show(indicator);
+
+	return indicator;
+}
+#endif // USE_INDICATE
+
+void messaging_menu_add_new_msg(FxMain *fxmain, Contact *cnt)
+{
+#ifdef USE_INDICATE
+	gchar *sid = 0;
+	gchar count[128];
+
+	sid = fetion_sip_get_sid_by_sipuri(cnt->sipuri);
+
+	IndicateIndicator *indicator = get_indicator(fxmain->indserver, sid);
+	
+	gint count_int = atoi(indicate_indicator_get_property(indicator, INDICATE_INDICATOR_MESSAGES_PROP_COUNT));
+	snprintf(count, sizeof(count) - 1, "%d", count_int + 1);
+	indicate_indicator_set_property(indicator, INDICATE_INDICATOR_MESSAGES_PROP_COUNT, count);
+#if 0
+	GTimeVal time;
+	g_get_current_time(&time);
+	indicate_indicator_set_property_time(ind, "time", &time);
+#endif
+	indicate_indicator_set_property(indicator, INDICATE_INDICATOR_MESSAGES_PROP_NAME,
+			*(cnt->localname) == '\0'?cnt->nickname: cnt->localname);
+	indicate_indicator_set_property(indicator, INDICATE_INDICATOR_MESSAGES_PROP_ATTENTION, "GET A MESSAGE");
+	g_free(sid);
+#endif // USE_INDICATE
+}
+
 void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const gchar* sipmsg)
 {
 	Message   *msg;
@@ -635,12 +766,12 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const gchar* sipm
 
 	if(!fxchat || fxchat->hasFocus == CHAT_DIALOG_NOT_FOCUSED){
 		/* chat window does not exist */
-		if(!fxchat){
+		if(!fxchat) {
 
 			/* auto popup enabled */
-			if(config->autoPopup == AUTO_POPUP_ENABLE){
+			if(config->autoPopup == AUTO_POPUP_ENABLE) {
 				fxchat = fx_main_create_chat_window(fxmain , msg->sipuri);
-				if(!fxchat){
+				if(!fxchat) {
 					fetion_message_free(msg);
 					gdk_threads_leave();
 					return;
@@ -650,31 +781,33 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const gchar* sipm
 				fetion_message_free(msg);
 				gdk_threads_leave();
 				return;
-			}else{
+			} else {
 				/* chat window doesn`t exist and auto-pupup wasn`t enabled
 				 * just push message into message queue,wait for user action */
 				mitem = fx_list_new(msg);
 				fx_list_append(fxmain->mlist , mitem );
 				popup_msg_notify(fxmain, senderContact, msg);
+				messaging_menu_add_new_msg(fxmain, senderContact);
 			}
 		/* chat window exist,but not focused */
-		}else{
+		} else {
 			fx_chat_add_message(fxchat , msg->message,
 						 &(msg->sendtime) , 0 , msg->sysback);
+			messaging_menu_add_new_msg(fxmain, senderContact);
 			fxchat->unreadMsgCount ++;
 			fx_chat_update_window(fxchat);
 		}
 
-		sprintf(path , "%s/%s.jpg" , config->iconPath , sid);
+		snprintf(path, sizeof(path) - 1, "%s/%s.jpg", config->iconPath, sid);
 		g_free(sid);
-		pb = gdk_pixbuf_new_from_file(path , NULL);
-		if(!pb)
-			pb = gdk_pixbuf_new_from_file(SKIN_DIR"online.svg" , NULL);
-		gtk_status_icon_set_from_pixbuf(GTK_STATUS_ICON(fxmain->trayIcon) , pb);
+
+		pb = gdk_pixbuf_new_from_file(path, NULL);
+		if(!pb)	pb = gdk_pixbuf_new_from_file(SKIN_DIR"online.svg", NULL);
+		gtk_status_icon_set_from_pixbuf(GTK_STATUS_ICON(fxmain->trayIcon), pb);
 		g_object_unref(pb);
 
-		gtk_status_icon_set_blinking(GTK_STATUS_ICON(fxmain->trayIcon) , TRUE);
-		g_signal_handler_disconnect(fxmain->trayIcon , fxmain->iconConnectId);
+		gtk_status_icon_set_blinking(GTK_STATUS_ICON(fxmain->trayIcon), TRUE);
+		g_signal_handler_disconnect(fxmain->trayIcon, fxmain->iconConnectId);
 
 		fxmain->iconConnectId = g_signal_connect(G_OBJECT(fxmain->trayIcon)
 							, "activate"
@@ -684,7 +817,7 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const gchar* sipm
 		/* no message was pushed into the message queue,just free it */
 		if(fxchat && fxchat->hasFocus == CHAT_DIALOG_NOT_FOCUSED)
 			fetion_message_free(msg);
-	}else{
+	} else {
 		fx_chat_add_message(fxchat , msg->message,
 					   	&(msg->sendtime) , 0, msg->sysback);
 
@@ -695,9 +828,10 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const gchar* sipm
 	if(config->isMute == MUTE_DISABLE)
 		fx_sound_play_file(RESOURCE_DIR"newmessage.wav");
 }
-void fx_main_process_user_left(FxMain* fxmain , const gchar* msg)
+
+void fx_main_process_user_left(FxMain *fxmain, const gchar *msg)
 {
-	gchar         *sipuri;
+	gchar        *sipuri;
 	FxList       *clist;
 	FxChat       *fxchat;
 	Conversation *conv;
@@ -1379,7 +1513,8 @@ int main(int argc , char* argv[])
 		return fx_cli_exec();
 	}
 
-	FxMain* fxmain = fx_main_new();
+	/* use the GLOBAL fxmain variable */
+	fxmain = fx_main_new();
 	
 	if(!g_thread_supported())
 		g_thread_init(NULL);
