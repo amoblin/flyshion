@@ -422,6 +422,7 @@ typedef struct
 	GtkWidget *onlineNotifyBtn;
 	GtkWidget *closeSysMsgBtn;
 	GtkWidget *closeShowBtn;
+	GtkWidget *useStatusIcon;
 	/* personal setting */
 	GtkWidget* image ;
 	GtkWidget* sid_label ;

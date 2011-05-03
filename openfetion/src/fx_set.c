@@ -103,6 +103,11 @@ static void fx_set_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 		else
 			config->closeFetionShow = CLOSE_FETION_SHOW_DISABLE;
 
+		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fxset->useStatusIcon)))
+			config->useStatusIcon = USE_STATUS_ICON_DISABLE;
+		else
+			config->useStatusIcon = USE_STATUS_ICON_ENABLE;
+
 		gtk_text_buffer_get_start_iter(buffer , &startIter);
 		gtk_text_buffer_get_end_iter(buffer , &endIter);
 		autoReplyMsg = gtk_text_buffer_get_text(buffer , &startIter , &endIter , TRUE);
@@ -111,6 +116,7 @@ static void fx_set_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 
 		if(autoReplyMsg != NULL)
 			strcpy(config->autoReplyMessage , autoReplyMsg);
+		fetion_config_set_use_status_icon(config);
 		fetion_config_save(user);
 	}
 	else
@@ -287,18 +293,20 @@ void fx_set_bind_system(FxSet* fxset)
 	else
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->closeShowBtn), FALSE);
 
+	if(config->useStatusIcon == USE_STATUS_ICON_ENABLE)
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->useStatusIcon), FALSE);
+	else
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxset->useStatusIcon), TRUE);
+
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(fxset->apEty));
 	gtk_text_buffer_get_start_iter(buffer , &startIter);
 	gtk_text_buffer_get_end_iter(buffer , &endIter);
 	gtk_text_buffer_delete(buffer , &startIter , &endIter);
 
-	if(strlen(config->autoReplyMessage) == 0)
-	{
+	if(strlen(config->autoReplyMessage) == 0) {
 		autoReplyMsg = _("Sorry, I am not in now, and will reply to you soon");
 		gtk_text_buffer_insert(buffer , &startIter , autoReplyMsg , strlen(autoReplyMsg));
-	}
-	else
-	{
+	} else {
 		gtk_text_buffer_insert(buffer , &startIter , config->autoReplyMessage , strlen(config->autoReplyMessage));
 	}
 }
@@ -494,6 +502,9 @@ void fx_set_initialize_system(FxSet* fxset)
 
 	fxset->closeShowBtn = gtk_check_button_new_with_label(_("Disable Fetion Show"));
 	gtk_fixed_put(GTK_FIXED(fixed), fxset->closeShowBtn, 40, 132);
+
+	fxset->useStatusIcon = gtk_check_button_new_with_label(_("Don't Use Status Icon(restart)"));
+	gtk_fixed_put(GTK_FIXED(fixed), fxset->useStatusIcon, 230, 132);
 
 	label2 = gtk_label_new("");
 	gtk_label_set_markup(GTK_LABEL(label2) , _("<b>Auto Reply</b>"));

@@ -30,6 +30,11 @@
  ***************************************************************************/
 
 #include "fx_include.h"
+#ifdef USE_INDICATE
+#include <libindicate/indicator.h>
+#include <libindicate/server.h>
+#include <libindicate/indicator-messages.h>
+#endif
 
 static GStaticMutex mutex;
 static void fx_chat_on_tophone_clicked(GtkWidget* widget , gpointer data);
@@ -196,7 +201,32 @@ gboolean fx_chat_focus_in_func(GtkWidget *UNUSED(widget)
 	if(fxchat->unreadMsgCount > 0){
 		fxchat->unreadMsgCount = 0;
 		fx_chat_update_window(fxchat);
+#ifdef USE_INDICATE
+		GSList *iterator = NULL;
+		IndicateIndicator *indicator = NULL;
+		gint count = 0;
+		const gchar *id;
+		gchar *sid;
+		extern GSList *indicators;
+		sid = fetion_sip_get_sid_by_sipuri(fxchat->conv->currentContact->sipuri);
+
+		for (iterator = indicators; iterator; iterator = iterator->next, count ++) {
+			indicator = (IndicateIndicator*)iterator->data;
+			/* clear attention */
+			id = indicate_indicator_get_property(indicator, "sid");
+			if (strcmp(sid, id) == 0) {
+				indicate_indicator_set_property(indicator, INDICATE_INDICATOR_MESSAGES_PROP_ATTENTION, "");
+				/* remove the indicators from the indicate server */
+				indicate_server_remove_indicator(fxmain->indserver, indicator);
+				indicators = g_slist_remove(indicators, indicator);
+				break;
+			}
+		}
+		g_free(sid);
+#endif
 	}
+
+	if(!USE_STATUS_ICON(config)) return FALSE;
 
 	if(list_empty(ctlist)){
 		/* if the message queue is empty,and the status icon is not blinking
@@ -205,9 +235,6 @@ gboolean fx_chat_focus_in_func(GtkWidget *UNUSED(widget)
 				GTK_STATUS_ICON(fxmain->trayIcon))
 			 && fxchat->unreadMsgCount == 0)
 			return FALSE;
-
-		fx_head_set_state_image(fxmain,
-				fxmain->user->state);
 		gtk_status_icon_set_blinking(
 				GTK_STATUS_ICON(fxmain->trayIcon) , FALSE);
 		g_signal_handler_disconnect(fxmain->trayIcon,
@@ -218,11 +245,15 @@ gboolean fx_chat_focus_in_func(GtkWidget *UNUSED(widget)
 							 , "activate"
 							 , GTK_SIGNAL_FUNC(fx_main_tray_activate_func)
 							 , fxmain);
+
+		fx_head_set_state_image(fxmain,
+				fxmain->user->state);
+
 	}else{
 		message = (Message*)(ctlist->next->data);
-
 		sipuri = message->sipuri;
 		sid = fetion_sip_get_sid_by_sipuri(sipuri);
+
 		sprintf(path , "%s/%s.jpg" , config->iconPath , sid);
 		g_free(sid);
 

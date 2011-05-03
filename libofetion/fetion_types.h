@@ -318,6 +318,7 @@ typedef struct {
 	int onlineNotify;
 	int closeSysMsg;
 	int closeFetionShow;
+	int useStatusIcon;
 
 	int window_width;
 	int window_height;

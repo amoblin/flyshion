@@ -43,7 +43,6 @@
 #include <libindicate-gtk/indicator.h>
 #include <libindicate/server.h>
 #include <libindicate/indicator-messages.h>
-#include <dbus/dbus-glib.h>
 #endif
 
 fd_set  fd_read;
@@ -100,10 +99,11 @@ void fx_main_initialize(FxMain* fxmain)
 	gtk_widget_set_name(fxmain->window , "mainwindow");
 	gtk_window_set_title(GTK_WINDOW(fxmain->window) , "OpenFetion");
 
-
 	current_screen = gdk_screen_get_default();
 	config = fetion_config_new();
 	fetion_config_load_size(config);
+	fetion_config_get_use_status_icon(config);
+
 	if(config->window_width == 0){
 		int window_width , window_height;
 		window_width = gdk_screen_get_width(current_screen);
@@ -114,7 +114,6 @@ void fx_main_initialize(FxMain* fxmain)
 		window_pos_x = config->window_pos_x;
 		window_pos_y = config->window_pos_y;
 	}
-	fetion_config_free(config);
 
 	gtk_window_move(GTK_WINDOW(fxmain->window) , window_pos_x , window_pos_y);
 	gtk_container_set_border_width(GTK_CONTAINER(fxmain->window) , 0);
@@ -147,9 +146,6 @@ void fx_main_initialize(FxMain* fxmain)
 	GdkPixbuf* icon = gdk_pixbuf_new_from_file_at_size(
 			SKIN_DIR"fetion.svg" , 24 , 24 , NULL);
 	gtk_window_set_icon(GTK_WINDOW(fxmain->window) , icon);
-	fxmain->trayIcon = gtk_status_icon_new_from_file(
-			SKIN_DIR"offline.svg");
-	gtk_status_icon_set_tooltip(fxmain->trayIcon, "OpenFetion");
 #ifdef USE_LIBNOTIFY
 	#ifdef LIBNOTIFY_OLD
 		fxmain->notify = notify_notification_new("welcome", "", SKIN_DIR"offline.svg", NULL);
@@ -159,15 +155,20 @@ void fx_main_initialize(FxMain* fxmain)
 	notify_notification_set_timeout(fxmain->notify , 2500);
 #endif
 
-	fxmain->iconConnectId = g_signal_connect(
-						GTK_STATUS_ICON(fxmain->trayIcon),
-						"activate",
-						GTK_SIGNAL_FUNC(fx_main_tray_activate_func),
+	if(USE_STATUS_ICON(config)) { /* set status icon */
+		fxmain->trayIcon = gtk_status_icon_new_from_file(
+				SKIN_DIR"offline.svg");
+		gtk_status_icon_set_tooltip(fxmain->trayIcon, "OpenFetion");
+		fxmain->iconConnectId = g_signal_connect(
+							GTK_STATUS_ICON(fxmain->trayIcon),
+							"activate",
+							GTK_SIGNAL_FUNC(fx_main_tray_activate_func),
+							fxmain);
+		g_signal_connect(GTK_STATUS_ICON(fxmain->trayIcon),
+						"popup-menu",
+						GTK_SIGNAL_FUNC(fx_main_tray_popmenu_func),
 						fxmain);
-	g_signal_connect(GTK_STATUS_ICON(fxmain->trayIcon),
-				   	"popup-menu",
-				    GTK_SIGNAL_FUNC(fx_main_tray_popmenu_func),
-				    fxmain);
+	}
 
 	fxmain->mainbox = gtk_vbox_new(FALSE , 4);
 	gtk_container_add(GTK_CONTAINER(fxmain->window) , fxmain->mainbox);
@@ -186,6 +187,9 @@ void fx_main_initialize(FxMain* fxmain)
 	fxmain->indserver = server;
 	g_signal_connect(G_OBJECT(server), INDICATE_SERVER_SIGNAL_SERVER_DISPLAY, G_CALLBACK(server_display), fxmain);
 #endif
+
+	/* free the temporary config object */
+	fetion_config_free(config);
 
 	gdk_threads_enter();
 	gtk_main();
@@ -216,6 +220,7 @@ void update()
 		 gtk_main_iteration();
 	}
 }
+
 TimeOutArgs* timeout_args_new(FxMain *fxmain , FetionSip *sip , const gchar *sipuri)
 {
 	TimeOutArgs *args = (TimeOutArgs*)malloc(sizeof(TimeOutArgs));
@@ -226,6 +231,7 @@ TimeOutArgs* timeout_args_new(FxMain *fxmain , FetionSip *sip , const gchar *sip
 	strcpy(args->sipuri , sipuri);
 	return args;
 }
+
 GtkWidget* fx_main_create_menu(const gchar* name
 							 , const gchar* iconpath
 							 , GtkWidget* parent
@@ -548,20 +554,23 @@ static void process_group_message(FxMain *fxmain , Message *message)
 			    pg_add_message(fxpg , message->message , &(message->sendtime) , memcur);
 		    }
 		}
-		sid = fetion_sip_get_pgid_by_sipuri(message->pguri);
-		snprintf(path , sizeof(path) - 1 , "%s/PG%s.jpg" , config->iconPath , sid);
-		g_free(sid);
-		pixbuf = gdk_pixbuf_new_from_file(path , NULL);
-		if(pixbuf == NULL)
-			pixbuf = gdk_pixbuf_new_from_file(SKIN_DIR"online.svg" , NULL);
-		gtk_status_icon_set_from_pixbuf(GTK_STATUS_ICON(fxmain->trayIcon) , pixbuf);
-		g_object_unref(pixbuf);
-		gtk_status_icon_set_blinking(GTK_STATUS_ICON(fxmain->trayIcon) , TRUE);
-		g_signal_handler_disconnect(fxmain->trayIcon , fxmain->iconConnectId);
-		fxmain->iconConnectId = g_signal_connect(G_OBJECT(fxmain->trayIcon)
-							, "activate"
-							, GTK_SIGNAL_FUNC(fx_main_message_func)
-							, fxmain);
+		
+		if(USE_STATUS_ICON(config)) { /* set the action of the status icon */
+			sid = fetion_sip_get_pgid_by_sipuri(message->pguri);
+			snprintf(path , sizeof(path) - 1 , "%s/PG%s.jpg" , config->iconPath , sid);
+			g_free(sid);
+			pixbuf = gdk_pixbuf_new_from_file(path , NULL);
+			if(pixbuf == NULL)
+				pixbuf = gdk_pixbuf_new_from_file(SKIN_DIR"online.svg" , NULL);
+			gtk_status_icon_set_from_pixbuf(GTK_STATUS_ICON(fxmain->trayIcon) , pixbuf);
+			g_object_unref(pixbuf);
+			gtk_status_icon_set_blinking(GTK_STATUS_ICON(fxmain->trayIcon) , TRUE);
+			g_signal_handler_disconnect(fxmain->trayIcon , fxmain->iconConnectId);
+			fxmain->iconConnectId = g_signal_connect(G_OBJECT(fxmain->trayIcon)
+								, "activate"
+								, GTK_SIGNAL_FUNC(fx_main_message_func)
+								, fxmain);
+		}
 	}else{
 		foreach_pg_member(fxpg->pggroup->member , memcur){
 		    if(strcmp(memcur->sipuri , message->sipuri) == 0)
@@ -641,7 +650,13 @@ static gint indicate_action()
 static void server_display(IndicateServer *UNUSED(server), guint UNUSED(timestamp))
 {
 	if(indicate_action() == 0) {
-		gtk_widget_show(fxmain->window);
+		//gtk_widget_show(fxmain->window);
+		if(window_pos_x_old == 0 && window_pos_y_old == 0){
+			window_pos_x_old = window_pos_x;
+			window_pos_y_old = window_pos_y;
+		}
+		gtk_window_move(GTK_WINDOW(fxmain->window),
+				window_pos_x_old , window_pos_y_old);
 		gtk_window_present(GTK_WINDOW(fxmain->window));
 	}
 }
@@ -800,21 +815,23 @@ void fx_main_process_message(FxMain* fxmain , FetionSip* sip , const gchar* sipm
 			fx_chat_update_window(fxchat);
 		}
 
-		snprintf(path, sizeof(path) - 1, "%s/%s.jpg", config->iconPath, sid);
-		g_free(sid);
+		if(USE_STATUS_ICON(config)) { /* set the action of the status icon */
+			snprintf(path, sizeof(path) - 1, "%s/%s.jpg", config->iconPath, sid);
+			g_free(sid);
 
-		pb = gdk_pixbuf_new_from_file(path, NULL);
-		if(!pb)	pb = gdk_pixbuf_new_from_file(SKIN_DIR"online.svg", NULL);
-		gtk_status_icon_set_from_pixbuf(GTK_STATUS_ICON(fxmain->trayIcon), pb);
-		g_object_unref(pb);
+			pb = gdk_pixbuf_new_from_file(path, NULL);
+			if(!pb)	pb = gdk_pixbuf_new_from_file(SKIN_DIR"online.svg", NULL);
+			gtk_status_icon_set_from_pixbuf(GTK_STATUS_ICON(fxmain->trayIcon), pb);
+			g_object_unref(pb);
 
-		gtk_status_icon_set_blinking(GTK_STATUS_ICON(fxmain->trayIcon), TRUE);
-		g_signal_handler_disconnect(fxmain->trayIcon, fxmain->iconConnectId);
+			gtk_status_icon_set_blinking(GTK_STATUS_ICON(fxmain->trayIcon), TRUE);
+			g_signal_handler_disconnect(fxmain->trayIcon, fxmain->iconConnectId);
 
-		fxmain->iconConnectId = g_signal_connect(G_OBJECT(fxmain->trayIcon)
-							, "activate"
-							, GTK_SIGNAL_FUNC(fx_main_message_func)
-							, fxmain);
+			fxmain->iconConnectId = g_signal_connect(G_OBJECT(fxmain->trayIcon)
+								, "activate"
+								, GTK_SIGNAL_FUNC(fx_main_message_func)
+								, fxmain);
+		}
 
 		/* no message was pushed into the message queue,just free it */
 		if(fxchat && fxchat->hasFocus == CHAT_DIALOG_NOT_FOCUSED)
@@ -1216,16 +1233,21 @@ gboolean fx_main_delete(GtkWidget *widget , GdkEvent *UNUSED(event) , gpointer d
 	Config *config;
 
 
-	int     window_width;
-	int     window_height;
-	int     window_x;
-	int     window_y;
+	gint     window_width;
+	gint     window_height;
+	gint     window_x;
+	gint     window_y;
+	gint	 useMessagingMenu = 0;
+#ifdef USE_INDICATE
+	useMessagingMenu = 1;
+#endif
 
-	if(!fxmain->window)
-		return TRUE;
+	if(!fxmain->window)	return TRUE;
 
 	if(fxmain->user){
 		config = fxmain->user->config;
+		if(!USE_STATUS_ICON(config) && !useMessagingMenu) return TRUE;
+
 		gtk_window_get_position(GTK_WINDOW(fxmain->window),
 				&window_x, &window_y);
 		config->window_pos_x = window_x;
@@ -1751,15 +1773,18 @@ void fx_main_message_func(GtkWidget *UNUSED(widget) , gpointer data)
 		free(tmp);
 	}
 	fx_head_set_state_image(fxmain , fxmain->user->state);
-	gtk_status_icon_set_blinking(
-			GTK_STATUS_ICON(fxmain->trayIcon) , FALSE);
-	g_signal_handler_disconnect(fxmain->trayIcon,
-			fxmain->iconConnectId);
-	fxmain->iconConnectId = g_signal_connect(
-						G_OBJECT(fxmain->trayIcon)
-						 , "activate"
-						 , GTK_SIGNAL_FUNC(fx_main_tray_activate_func)
-						 , fxmain);
+	
+	if(USE_STATUS_ICON(fxmain->user->config)) { /* set the action of the status icon */
+		gtk_status_icon_set_blinking(
+				GTK_STATUS_ICON(fxmain->trayIcon) , FALSE);
+		g_signal_handler_disconnect(fxmain->trayIcon,
+				fxmain->iconConnectId);
+		fxmain->iconConnectId = g_signal_connect(
+							G_OBJECT(fxmain->trayIcon)
+							 , "activate"
+							 , GTK_SIGNAL_FUNC(fx_main_tray_activate_func)
+							 , fxmain);
+	}
 
 	foreach_list(fxmain->clist, cur){
 		fxchat = (FxChat*)cur->data;

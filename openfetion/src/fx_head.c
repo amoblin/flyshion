@@ -223,38 +223,39 @@ void fx_head_bind(FxMain* fxmain)
 }
 void fx_head_set_state_image(FxMain* fxmain , StateType type)
 {
-	FxHead* fxhead = fxmain->headPanel;
+	FxHead *fxhead = fxmain->headPanel;
 	GdkPixbuf *pixbuf;
-	char* statename = fx_util_get_state_name(type);
+	gchar *statename = fx_util_get_state_name(type);
+	gint use_status_icon = USE_STATUS_ICON(fxmain->user->config);
 
 	gtk_label_set_markup(GTK_LABEL(fxhead->state_label) , statename);
 	switch(type)
 	{
 		case P_ONLINE :
 			pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"online.svg" , 20 , 20 , NULL);
-			gtk_status_icon_set_from_file(fxmain->trayIcon
-										, SKIN_DIR"online.svg");
+			if(use_status_icon)
+				gtk_status_icon_set_from_file(fxmain->trayIcon, SKIN_DIR"online.svg");
 			break;
 		case P_BUSY :
 			pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"busy.svg" , 20 , 20 , NULL);
-			gtk_status_icon_set_from_file(fxmain->trayIcon
-										, SKIN_DIR"busy.svg");
+			if(use_status_icon)
+				gtk_status_icon_set_from_file(fxmain->trayIcon, SKIN_DIR"busy.svg");
 			break;
 		case P_HIDDEN :
 			pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"invisible.svg" , 20 , 20 , NULL);
-			gtk_status_icon_set_from_file(fxmain->trayIcon
-										, SKIN_DIR"invisible.svg");
+			if(use_status_icon)
+				gtk_status_icon_set_from_file(fxmain->trayIcon, SKIN_DIR"invisible.svg");
 			break;
 		case P_OFFLINE :
 			pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"offline.svg" , 20 , 20 , NULL);
-			gtk_status_icon_set_from_file(fxmain->trayIcon
-										, SKIN_DIR"offline.svg");
+			if(use_status_icon)
+				gtk_status_icon_set_from_file(fxmain->trayIcon, SKIN_DIR"offline.svg");
 			gtk_widget_set_sensitive(fxhead->portrait, FALSE);
 			break;
 		default :
 			pixbuf = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"away.svg" , 20 , 20 , NULL);
-			gtk_status_icon_set_from_file(fxmain->trayIcon
-										, SKIN_DIR"away.svg");
+			if(use_status_icon)
+				gtk_status_icon_set_from_file(fxmain->trayIcon, SKIN_DIR"away.svg");
 			break;
 	}
 	gtk_image_set_from_pixbuf(GTK_IMAGE(fxhead->state_img) , pixbuf);

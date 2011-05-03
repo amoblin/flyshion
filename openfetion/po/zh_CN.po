@@ -625,6 +625,10 @@ msgstr "失望"
 msgid "Do Not Disturb"
 msgstr "请勿打扰"
 
+#: src/fx_set.c:505
+msgid "Don't Use Status Icon(restart)"
+msgstr "不使用托盘图标(需要重启程序)"
+
 #: src/fx_close.c:73
 msgid "Don't notify again"
 msgstr "不再提示"

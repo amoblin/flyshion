@@ -1653,3 +1653,7 @@ msgstr ""
 #: src/fx_tree.c:752
 msgid "Copy this contact to"
 msgstr ""
+
+#: src/fx_set.c:505
+msgid "Don't Use Status Icon(restart)"
+msgstr ""

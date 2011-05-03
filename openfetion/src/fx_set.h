@@ -92,6 +92,13 @@ typedef enum {
 	CLOSE_FETION_SHOW_ENABLE
 } CloseFetionShow;
 
+typedef enum {
+	USE_STATUS_ICON_ENABLE,
+	USE_STATUS_ICON_DISABLE
+} UseStatusIcon;
+
+#define USE_STATUS_ICON(c) ((c)->useStatusIcon == USE_STATUS_ICON_ENABLE)
+
 extern FxSet* fx_set_new(FxMain* fxmain);
 
 extern void fx_set_initialize(FxSet* fxset);

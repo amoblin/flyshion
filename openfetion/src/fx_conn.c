@@ -565,9 +565,12 @@ auth:
 			 user->nickname , user->mobileno);
 
 	gdk_threads_enter();
-	gtk_status_icon_set_tooltip(
-			GTK_STATUS_ICON(fxmain->trayIcon),
-		   	statusTooltip);
+
+	if(USE_STATUS_ICON(config)) {
+		gtk_status_icon_set_tooltip(
+				GTK_STATUS_ICON(fxmain->trayIcon),
+				statusTooltip);
+	}
 	/* set title of main window*/
 	gtk_window_set_title(GTK_WINDOW(fxmain->window),
 				   	user->nickname );

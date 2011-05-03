@@ -518,6 +518,66 @@ int fetion_config_save_size(Config *config)
 	return 1;
 }
 
+int fetion_config_get_use_status_icon(Config *config)
+{
+	char path[256];
+	char sql[4096];
+	char **sqlres;
+	sqlite3 *db;
+	int ncols, nrows;
+
+	sprintf(path, "%s/data.db", config->globalPath);
+
+	if(sqlite3_open(path, &db)){
+		debug_error("open data.db:%s", sqlite3_errmsg(db));
+		return -1;
+	}
+
+	snprintf(sql, sizeof(sql), "select * from statusicon;");
+	if(sqlite3_get_table(db, sql, &sqlres, &nrows, &ncols, NULL)){
+		sqlite3_close(db);
+		return -1;
+	}
+
+	config->useStatusIcon = atoi(sqlres[ncols]);
+
+	sqlite3_free_table(sqlres);
+	sqlite3_close(db);
+	return 1;
+}
+
+int fetion_config_set_use_status_icon(Config *config)
+{
+	char path[256];
+	char sql[4096];
+	sqlite3 *db;
+
+	snprintf(path, sizeof(path), "%s/data.db" , config->globalPath);
+
+	if(sqlite3_open(path, &db)){
+		return -1;
+	}
+
+	snprintf(sql, sizeof(sql), "delete from statusicon;");
+	if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
+		snprintf(sql, sizeof(sql), "create table statusicon (use);");
+		if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
+			debug_error("create table statusicon:%s", sqlite3_errmsg(db));
+		}
+	}
+
+	snprintf(sql, sizeof(sql), "insert into statusicon values (%d);",
+				config->useStatusIcon);
+	if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
+		debug_error("save statusicon:%s", sqlite3_errmsg(db));
+		sqlite3_close(db);
+		return -1;
+	}
+	
+	sqlite3_close(db);
+	return 1;
+}
+
 int fetion_config_load(User *user)
 {
 	char path[256];
@@ -535,7 +595,7 @@ int fetion_config_load(User *user)
 		return -1;
 	}
 
-	sprintf(sql, "select * from config_2_0_2;");
+	sprintf(sql, "select * from config_2_2_0;");
 	if(sqlite3_get_table(db, sql, &sqlres, &nrows, &ncols, NULL)){
 		sqlite3_close(db);
 		return -1;
@@ -564,11 +624,13 @@ int fetion_config_load(User *user)
 	config->onlineNotify = atoi(sqlres[ncols+20]);
 	config->closeSysMsg = atoi(sqlres[ncols+21]);
 	config->closeFetionShow = atoi(sqlres[ncols+22]);
+	config->useStatusIcon = atoi(sqlres[ncols+23]);
 
 	sqlite3_free_table(sqlres);
 	sqlite3_close(db);
-	return 1;
 
+	fetion_config_get_use_status_icon(config);
+	return 1;
 }
 
 int fetion_config_save(User *user)
@@ -589,10 +651,10 @@ int fetion_config_save(User *user)
 		return -1;
 	}
 
-	sprintf(sql, "delete from config_2_0_2;");
+	sprintf(sql, "delete from config_2_2_0;");
 	if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
 recreate:
-		snprintf(sql, sizeof(sql), "create table config_2_0_2 ("
+		snprintf(sql, sizeof(sql), "create table config_2_2_0 ("
 				"sipcProxyIP,sipcProxyPort,"
 				"portraitServerName,portraitServerPath,"
 				"iconSize,closeAlert,autoReply,isMute,"
@@ -600,7 +662,7 @@ recreate:
 				"sendMode,closeMode,canIconify,allHighlight,"
 				"serversVersion,paremetersVersion,"
 				"hintsVersion,autoAway,autoAwayTimeout,"
-				"onlineNotify,closeSysMsg,closeFetionShow);");
+				"onlineNotify,closeSysMsg,closeFetionShow,useStatusIcon);");
 		count ++;
 		if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
 			debug_error("create table config:%s",sqlite3_errmsg(db));
@@ -611,10 +673,10 @@ recreate:
 		}
 	}
 
-	sprintf(sql, "insert into config_2_0_2 values ("
+	sprintf(sql, "insert into config_2_2_0 values ("
 				"'%s',%d,'%s','%s',%d,%d,%d,"
 				"%d,'%s',%d,%d,%d,%d,%d,%d,"
-				"'%s','%s','%s',%d,%d,%d,%d,%d);",
+				"'%s','%s','%s',%d,%d,%d,%d,%d,%d);",
 				config->sipcProxyIP,
 				config->sipcProxyPort,
 				config->portraitServerName,
@@ -637,11 +699,12 @@ recreate:
 				config->autoAwayTimeout,
 				config->onlineNotify,
 				config->closeSysMsg,
-				config->closeFetionShow);				
+				config->closeFetionShow,
+				config->useStatusIcon);
 	if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
 		debug_error("save config:%s", sqlite3_errmsg(db));
 
-		sprintf(sql1, "drop table config_2_0_2;");
+		sprintf(sql1, "drop table config_2_2_0;");
 		if(sqlite3_exec(db, sql1, NULL, NULL, NULL)){
 			debug_error("drop table config:%s", sqlite3_errmsg(db));
 		}

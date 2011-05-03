@@ -47,6 +47,10 @@ extern int fetion_config_load_size(Config *config);
 
 extern int fetion_config_save_size(Config *config);
 
+extern int fetion_config_get_use_status_icon(Config *config);
+
+extern int fetion_config_set_use_status_icon(Config *config);
+
 extern int fetion_config_load(User* user);
 
 extern Proxy* fetion_config_load_proxy();
