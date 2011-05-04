@@ -498,9 +498,7 @@ static void process_system_message(const char *sipmsg)
 		sysmsg = fx_sysmsg_new();
 		fx_sysmsg_initialize(sysmsg);
 		fx_sysmsg_bind(sysmsg , msg , url);
-		gtk_dialog_run(GTK_DIALOG(sysmsg->dialog));
 
-		gtk_widget_destroy(sysmsg->dialog);
 		g_free(sysmsg);
 
 	}
