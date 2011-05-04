@@ -52,23 +52,25 @@
  * @password Nothing special , just your fetion password
  * @return The user object created
  */
-extern User* fetion_user_new(const char* no , const char* password);
+extern User* fetion_user_new(const char *no, const char *password);
 
-extern void fetion_user_set_userid(User* user , const char* userid);
+extern void fetion_user_set_userid(User *user, const char *userid);
 
-extern void fetion_user_set_sid(User* user , const char* sId);
+extern void fetion_user_set_sid(User* user, const char *sId);
 
-extern void fetion_user_set_mobileno(User* user , const char* mobileno);
+extern void fetion_user_set_mobileno(User *user, const char *mobileno);
 
-extern void fetion_user_set_sip(User* user , FetionSip* sip);
+extern void fetion_user_set_password(User *user, const char *password);
 
-extern void fetion_user_set_config(User* user , Config* config);
+extern void fetion_user_set_sip(User *user, FetionSip *sip);
 
-extern void fetion_user_set_verification_code(User* user , const char* code);
+extern void fetion_user_set_config(User *user, Config *config);
+
+extern void fetion_user_set_verification_code(User *user, const char *code);
 
 extern int fetion_user_init_config(User *user);
 
-extern void fetion_user_free(User* user);
+extern void fetion_user_free(User *user);
 
 /**
  * upload portrait

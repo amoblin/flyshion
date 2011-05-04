@@ -9,6 +9,7 @@ VERS_1.0.0 {
 		 parse_*;
 		 tcp_connection_*;
 		 unacked*;
+		 hash_password*;
 		 convert_date;
 		 get_currenttime;
 		 ssi_auth_action;

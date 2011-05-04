@@ -111,5 +111,8 @@ extern void generate_pic_code(User* user);
  * generate private key string for generating response string for sipc authentication
  * @returns Need to be freed after use.
  */
-extern char* generate_aes_key() ;
+extern char* generate_aes_key();
+
+extern char* hash_password(const char* password);
+
 #endif

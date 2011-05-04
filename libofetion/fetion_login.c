@@ -40,13 +40,14 @@ static void parse_contact_list(xmlNodePtr node , User* user, int *group_count, i
 static void parse_stranger_list(xmlNodePtr node , User* user);
 static void parse_ssi_auth_success(xmlNodePtr node , User* user);
 static void parse_ssi_auth_failed(xmlNodePtr node , User* user);
-static unsigned char* strtohex(const char* in , int* len) ;
-static char* hextostr(const unsigned char* in , int len) ;
-static char* hash_password_v1(const unsigned char* b0 , int b0len , const unsigned char* password , int psdlen);
-static char* hash_password_v2(const char* userid , const char* passwordhex);
+static unsigned char *strtohex(const char* in , int* len) ;
+static char *hextostr(const unsigned char* in , int len) ;
+static char *hash_password_v1(const unsigned char* b0 , int b0len , const unsigned char* password , int psdlen);
+static char *hash_password_v2(const char* userid , const char* passwordhex);
 static char* hash_password_v4(const char* userid , const char* password);
-static char* generate_cnouce() ;
-static unsigned char* decode_base64(const char* in , int* len);
+static char *hash_password_v5(const char *userid, const char *hashed_password);
+static char *generate_cnouce() ;
+static unsigned char *decode_base64(const char* in , int* len);
 
 char* generate_response(const char* nouce , const char* userid 
 		, const char* password , const char* publickey , const char* key)
@@ -108,6 +109,7 @@ char* generate_response(const char* nouce , const char* userid
 	free(nonce);
 	return hextostr(out , ret);
 }
+
 void generate_pic_code(User* user)
 {
 	char buf[1024] , *res , *code;
@@ -166,7 +168,8 @@ void generate_pic_code(User* user)
 	fclose(picfd);
 	free(res);
 }
-char* ssi_auth_action(User* user)
+
+char *ssi_auth_action(User *user)
 {
 	char sslbuf[2048] = { 0 };
 	const char ssiName[] = "uid.fetion.com.cn";
@@ -176,20 +179,26 @@ char* ssi_auth_action(User* user)
 	int passwordType;
 	
 	debug_info("Initialize ssi authentication action");
-	password = hash_password_v4(user->userId , user->password);
+
+	if(strlen(user->password) == 40) /* must be a hashed password */
+		password = hash_password_v5(user->userId, user->password);
+	else 
+		password = hash_password_v4(user->userId, user->password);
+
 	memset(noUri, 0, sizeof(noUri));
 	if(user->loginType == LOGIN_TYPE_MOBILENO)
 		sprintf(noUri , "mobileno=%s" , user->mobileno);
 	else
 		sprintf(noUri , "sid=%s" , user->sId);
+
 	memset(verifyUri, 0, sizeof(verifyUri));
-	if(user->verification != NULL && user->verification->code != NULL)
-	{
+	if(user->verification != NULL && user->verification->code != NULL) {
 		sprintf(verifyUri , "&pid=%s&pic=%s&algorithm=%s"
 						  , user->verification->guid
 						  , user->verification->code
 						  , user->verification->algorithm);
 	}
+
 	passwordType = (strlen(user->userId) == 0 ? 1 : 2);
 	sprintf(sslbuf, "GET /ssiportal/SSIAppSignInV4.aspx?%s"
 				    "&domains=fetion.com.cn%s&v4digest-type=%d&v4digest=%s\r\n"
@@ -202,12 +211,12 @@ char* ssi_auth_action(User* user)
 	FetionConnection* ssl;
 	ssl = tcp_connection_new();
 
-	if(user->config->proxy != NULL && user->config->proxy->proxyEnabled){
+	if(user->config->proxy != NULL && user->config->proxy->proxyEnabled) {
 		int ret;
 		ret = tcp_connection_connect_with_proxy(ssl , ssi_ip , 443 , user->config->proxy);
 		if(ret < 0)
 			return NULL;
-	}else{
+	} else {
 		if(tcp_connection_connect(ssl , ssi_ip , 443) < 0)
 			return NULL;
 	}
@@ -215,7 +224,8 @@ char* ssi_auth_action(User* user)
 	debug_info("Start ssi login with %s password , user number %s"
 			, passwordType == 1 ? "v3Temp" : "v4"
 			, user->loginType == LOGIN_TYPE_MOBILENO ? user->mobileno : user->sId);
-	if(ssl_connection_start(ssl) == -1){
+
+	if(ssl_connection_start(ssl) == -1) {
 		debug_error("Initialize ssl failed,please retry or check your system`s configuration");
 		return NULL;
 	}
@@ -225,6 +235,7 @@ char* ssi_auth_action(User* user)
 	free(ssi_ip);
 	return res;
 }
+
 char* sipc_reg_action(User* user)
 {
 	char* sipmsg;
@@ -257,6 +268,7 @@ char* sipc_reg_action(User* user)
 
 	return sipmsg;
 }
+
 char* sipc_aut_action(User* user , const char* response)
 {
 	char* sipmsg;
@@ -327,6 +339,7 @@ void parse_ssi_auth_response(const char* ssi_response , User* user)
 	free(pos);
 	xmlFreeDoc(doc);
 }
+
 void parse_sipc_reg_response(const char* reg_response , char** nouce , char** key)
 {
 	char digest[2048] = { 0 };
@@ -349,6 +362,7 @@ void parse_sipc_reg_response(const char* reg_response , char** nouce , char** ke
 	debug_info("Register to sip server success");
 	debug_info("nonce:%s" , *nouce);
 }
+
 static void parse_sms_frequency(xmlNodePtr node , User *user)
 {
 	xmlChar *res;
@@ -470,6 +484,7 @@ char* generate_aes_key()
 	fclose(rand_fd);
 	return key;
 }
+
 static char* generate_auth_body(User* user)
 {
 	char basexml[] = "<args></args>";
@@ -510,6 +525,7 @@ static char* generate_auth_body(User* user)
 	xmlFreeDoc(doc);
 	return xml_convert(buf);
 }
+
 static void parse_personal_info(xmlNodePtr node , User* user)
 {
 	xmlChar *buf;
@@ -581,6 +597,7 @@ static void parse_personal_info(xmlNodePtr node , User* user)
 		xmlFree(buf);
 	}
 }
+
 static void parse_contact_list(xmlNodePtr node, User* user,
 				int *group_count, int *buddy_count)
 {
@@ -717,7 +734,6 @@ static void parse_contact_list(xmlNodePtr node, User* user,
 	debug_info("Read contact list complete");
 }
 
-
 static void parse_stranger_list(xmlNodePtr node , User* user)
 {
 	xmlNodePtr node1 = node->xmlChildrenNode;
@@ -747,6 +763,7 @@ static void parse_stranger_list(xmlNodePtr node , User* user)
 		node1 = node1->next;
 	}
 }
+
 static void parse_ssi_auth_success(xmlNodePtr node , User* user)
 {
 	char* pos;
@@ -763,6 +780,7 @@ static void parse_ssi_auth_success(xmlNodePtr node , User* user)
 	strcpy(user->userId , pos);
 	free(pos);
 }
+
 static void parse_ssi_auth_failed(xmlNodePtr node , User* user)
 {
 	Verification* ver = fetion_verification_new();
@@ -772,6 +790,7 @@ static void parse_ssi_auth_failed(xmlNodePtr node , User* user)
 	ver->tips	   = (char*)xmlGetProp(node , BAD_CAST "tips");
 	user->verification = ver;
 }
+
 static unsigned char* strtohex(const char* in , int* len) 
 {
 	unsigned char* out = (unsigned char*)malloc(strlen(in)/2 );
@@ -795,6 +814,7 @@ static unsigned char* strtohex(const char* in , int* len)
 		*len = length;
 	return out;
 }
+
 static char* hextostr(const unsigned char* in , int len) 
 {
 	char* res = (char*)malloc(len * 2 + 1);
@@ -815,6 +835,7 @@ static char* hextostr(const unsigned char* in , int len)
 	};
 	return res;
 }
+
 static char* hash_password_v1(const unsigned char* b0 , int b0len , const unsigned char* password , int psdlen) 
 {
 	unsigned char* dst = (unsigned char*)malloc(b0len + psdlen + 1);
@@ -832,6 +853,7 @@ static char* hash_password_v1(const unsigned char* b0 , int b0len , const unsign
 	res = hextostr(tmp , 20);
 	return res;
 }
+
 static char* hash_password_v2(const char* userid , const char* passwordhex) 
 {
 	int id = atoi(userid);
@@ -845,6 +867,7 @@ static char* hash_password_v2(const char* userid , const char* passwordhex)
 	free(bpsd);
 	return res;
 }
+
 static char* hash_password_v4(const char* userid , const char* password)
 {
 	const char* domain = "fetion.com.cn:";
@@ -858,14 +881,46 @@ static char* hash_password_v4(const char* userid , const char* password)
 	res = hash_password_v1(udomain , strlen(domain) , upassword , strlen(password));
 	free(udomain);
 	free(upassword);
-	if(userid == NULL || *userid == '\0')
-	{
-		return res;
-	}
+	if(userid == NULL || *userid == '\0') return res;
 	dst = hash_password_v2(userid , res);
 	free(res);
 	return dst;
 }
+
+char* hash_password(const char* password)
+{
+	const char* domain = "fetion.com.cn:";
+	char *res;
+	unsigned char* udomain = (unsigned char*)malloc(strlen(domain));
+	unsigned char* upassword = (unsigned char*)malloc(strlen(password));
+	memset(udomain , 0 , strlen(domain));
+	memcpy(udomain , (unsigned char*)domain , strlen(domain));
+	memset(upassword , 0 , strlen(password));
+	memcpy(upassword , (unsigned char*)password , strlen(password));
+	res = hash_password_v1(udomain , strlen(domain) , upassword , strlen(password));
+	free(udomain);
+	free(upassword);
+	return res;
+}
+
+/* login with the hashed password stored locally */
+static char *hash_password_v5(const char *userid, const char *hashed_password)
+{
+	char *res, *dst;
+	int len = 0;
+
+	if(userid == NULL || *userid == '\0') {
+		len = strlen(hashed_password);
+		res = (char*)malloc(len + 1);
+		strncpy(res, hashed_password, len);
+		res[len] = '\0';
+		return res;
+	}
+
+	dst = hash_password_v2(userid, hashed_password);
+	return dst;
+}
+
 static char* generate_cnouce()
 {
 	char* cnouce = (char*)malloc(33);
@@ -886,8 +941,7 @@ static unsigned char* decode_base64(const char* in , int* len)
 	unsigned char inp[4];
 
 	n = strlen(in);
-	if(n % 4 != 0)
-	{
+	if(n % 4 != 0) {
 		debug_error("Try to decode a string which is not a base64 string(decode_base64)");
 		return NULL;
 	}
