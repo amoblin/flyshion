@@ -34,23 +34,23 @@
 #include <openssl/sha.h>
 
 /*private method*/
-static char* generate_auth_body(User* user);
-static void parse_personal_info(xmlNodePtr node , User* user);
-static void parse_contact_list(xmlNodePtr node , User* user, int *group_count, int *buddy_count);
-static void parse_stranger_list(xmlNodePtr node , User* user);
-static void parse_ssi_auth_success(xmlNodePtr node , User* user);
-static void parse_ssi_auth_failed(xmlNodePtr node , User* user);
-static unsigned char *strtohex(const char* in , int* len) ;
-static char *hextostr(const unsigned char* in , int len) ;
+static char* generate_auth_body(User *user);
+static void parse_personal_info(xmlNodePtr node, User *user);
+static void parse_contact_list(xmlNodePtr node, User *user, int *group_count, int *buddy_count);
+static void parse_stranger_list(xmlNodePtr node, User *user);
+static void parse_ssi_auth_success(xmlNodePtr node, User *user);
+static void parse_ssi_auth_failed(xmlNodePtr node, User *user);
+static unsigned char *strtohex(const char *in , int *len) ;
+static char *hextostr(const unsigned char *in , int len) ;
 static char *hash_password_v1(const unsigned char* b0 , int b0len , const unsigned char* password , int psdlen);
-static char *hash_password_v2(const char* userid , const char* passwordhex);
-static char* hash_password_v4(const char* userid , const char* password);
+static char *hash_password_v2(const char *userid, const char *passwordhex);
+static char *hash_password_v4(const char *userid, const char *password);
 static char *hash_password_v5(const char *userid, const char *hashed_password);
 static char *generate_cnouce() ;
 static unsigned char *decode_base64(const char* in , int* len);
 
-char* generate_response(const char* nouce , const char* userid 
-		, const char* password , const char* publickey , const char* key)
+char* generate_response(const char *nouce, const char *userid,
+		const char *password, const char *publickey, const char *key)
 {
 	char* psdhex = hash_password_v4(userid , password);
 	char modulus[257];
@@ -110,7 +110,7 @@ char* generate_response(const char* nouce , const char* userid
 	return hextostr(out , ret);
 }
 
-void generate_pic_code(User* user)
+void generate_pic_code(User *user)
 {
 	char buf[1024] , *res , *code;
 	char codePath[128];
@@ -236,7 +236,7 @@ char *ssi_auth_action(User *user)
 	return res;
 }
 
-char* sipc_reg_action(User* user)
+char *sipc_reg_action(User *user)
 {
 	char* sipmsg;
 	char* cnouce = generate_cnouce();
@@ -287,8 +287,7 @@ char* sipc_aut_action(User* user , const char* response)
 	akheader = fetion_sip_header_new("AK" , "ak-value");
 	fetion_sip_add_header(sip , aheader);
 	fetion_sip_add_header(sip , akheader);
-	if(user->verification != NULL && user->verification->algorithm != NULL)	
-	{
+	if(user->verification != NULL && user->verification->algorithm != NULL)	{
 		ackheader = fetion_sip_ack_header_new(user->verification->code
 											, user->verification->algorithm
 											, user->verification->type
@@ -301,7 +300,7 @@ char* sipc_aut_action(User* user , const char* response)
 	tcp_connection_send(sip->tcp , sipmsg , strlen(sipmsg));
 	res = fetion_sip_get_response(sip);
 	debug_info("Got sipc response");
-	free(sipmsg);
+	//free(sipmsg);
 	return res;
 }
 
