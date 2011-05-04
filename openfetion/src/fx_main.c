@@ -1862,9 +1862,6 @@ void fx_main_system_setting_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 	FxSet *fxset = fx_set_new(fxmain);
 	fx_set_initialize(fxset);
 	g_object_set(fxset->notebook , "page" , 1 , NULL);
-	gtk_window_set_position(GTK_WINDOW(fxset->dialog) , GTK_WIN_POS_CENTER);
-	gtk_dialog_run(GTK_DIALOG(fxset->dialog));
-	gtk_widget_destroy(fxset->dialog);
 }
 
 void fx_main_set_state_clicked(GtkWidget *widget , gpointer data)
