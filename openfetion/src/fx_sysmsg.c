@@ -53,7 +53,7 @@ static void fx_on_close_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 {
 	GtkWidget *dialog = (GtkWidget*)data;
 
-	gtk_dialog_response(GTK_DIALOG(dialog) , GTK_RESPONSE_CANCEL);
+	gtk_widget_destroy(dialog);
 }
 
 void fx_sysmsg_initialize(FxSysmsg *sysmsg)
@@ -63,9 +63,9 @@ void fx_sysmsg_initialize(FxSysmsg *sysmsg)
 	GtkBox *vbox , *action_area;
 	GdkPixbuf *pb;
 
-	sysmsg->dialog = gtk_dialog_new();
-	vbox = GTK_BOX(GTK_DIALOG(sysmsg->dialog)->vbox);
-	action_area = GTK_BOX(GTK_DIALOG(sysmsg->dialog)->action_area);
+	sysmsg->dialog = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	vbox = GTK_BOX(gtk_vbox_new (FALSE, 0));
+	gtk_container_add (GTK_CONTAINER(sysmsg->dialog), GTK_WIDGET(vbox));
 
 	pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"online.svg",
 				   22 , 22 ,NULL);
@@ -81,13 +81,18 @@ void fx_sysmsg_initialize(FxSysmsg *sysmsg)
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(sysmsg->textview) , FALSE);
 	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(sysmsg->textview) , GTK_WRAP_CHAR);
 
-	gtk_box_pack_start_defaults(vbox , sysmsg->textview);
+	gtk_box_pack_start(vbox , sysmsg->textview, TRUE, TRUE, 0);
 
-	sysmsg->moreBtn = gtk_button_new_with_label(_("View details"));
-	gtk_box_pack_start_defaults(action_area , sysmsg->moreBtn);
+	action_area = GTK_BOX(gtk_hbox_new(FALSE , 0));
+	gtk_box_pack_start(GTK_BOX(vbox) , GTK_WIDGET(action_area) , FALSE , FALSE , 5);
+
 	closeBtn = gtk_button_new_with_label(_("Close"));
-	gtk_box_pack_start_defaults(action_area , closeBtn);
+	gtk_widget_set_usize(closeBtn, 100, 30);
+	gtk_box_pack_end(action_area , closeBtn, FALSE, FALSE, 2);
 	g_signal_connect(closeBtn , "clicked" , G_CALLBACK(fx_on_close_clicked) , sysmsg->dialog);
+	sysmsg->moreBtn = gtk_button_new_with_label(_("View details"));
+	gtk_widget_set_usize(sysmsg->moreBtn, 100, 30);
+	gtk_box_pack_end(action_area , sysmsg->moreBtn, FALSE, FALSE, 2);
 
 	gtk_widget_show_all(sysmsg->dialog);
 }

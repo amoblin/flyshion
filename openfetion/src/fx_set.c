@@ -155,12 +155,12 @@ static void fx_set_on_ok_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 				? _("Click here to input signature") : user->impression);
 				}
 	}
-	gtk_dialog_response(GTK_DIALOG(fxset->dialog) , GTK_RESPONSE_CANCEL);
+	gtk_widget_destroy(fxset->dialog);
 }
 
 static void fx_set_on_cancel_clicked(GtkWidget *UNUSED(widget) , gpointer data)
 {
-	gtk_dialog_response(GTK_DIALOG(data) , GTK_RESPONSE_CANCEL);
+	gtk_widget_destroy(GTK_WIDGET(data));
 }
 
 static void fx_set_on_autoreply_toggled(GtkWidget *widget , gpointer data)
@@ -189,15 +189,16 @@ void fx_set_initialize(FxSet* fxset)
 
 	GtkWidget *ok_button = NULL;
 	GtkWidget* cancel_button = NULL;
+	GtkBox *vbox , *action_area;
 
 	GdkPixbuf* pb = gdk_pixbuf_new_from_file_at_size(SKIN_DIR"online.svg",
 				   22, 22, NULL);
 
-	fxset->dialog = gtk_dialog_new();
+	fxset->dialog = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_position(GTK_WINDOW(fxset->dialog), GTK_WIN_POS_CENTER);
 	gtk_window_set_icon(GTK_WINDOW(fxset->dialog) , pb);
 	g_object_unref(pb);
-	gtk_dialog_set_has_separator(GTK_DIALOG(fxset->dialog)
-							   , FALSE);
+
 	gtk_widget_set_usize(fxset->dialog , 500 , 360);
 	gtk_window_set_title(GTK_WINDOW(fxset->dialog) , _("OpenFetion Preference"));
 
@@ -205,8 +206,11 @@ void fx_set_initialize(FxSet* fxset)
 	gtk_widget_set_usize(fxset->notebook , 490 , 320);
 	gtk_notebook_set_show_border(GTK_NOTEBOOK(fxset->notebook) , FALSE);
 	gtk_notebook_set_tab_pos(GTK_NOTEBOOK(fxset->notebook) , GTK_POS_TOP);
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(fxset->dialog)->vbox)
-					 , fxset->notebook , FALSE , FALSE , 0);
+
+	vbox = GTK_BOX(gtk_vbox_new (FALSE, 0));
+	gtk_container_add(GTK_CONTAINER(fxset->dialog), GTK_WIDGET(vbox));
+
+	gtk_box_pack_start(vbox, fxset->notebook , FALSE , FALSE , 0);
 
 	fxset->psetting = gtk_vbox_new(FALSE , FALSE);
 	psetting_label = gtk_label_new(_("Personal Settings"));
@@ -220,14 +224,18 @@ void fx_set_initialize(FxSet* fxset)
 						   , fxset->ssetting
 						   , ssetting_label);
 
-
-	ok_button = gtk_button_new_with_label(_("OK"));
-	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxset->dialog)->action_area) , ok_button);
-	g_signal_connect(ok_button , "clicked" , G_CALLBACK(fx_set_on_ok_clicked) , fxset);
+	action_area = GTK_BOX(gtk_hbox_new(FALSE , 0));
+	gtk_box_pack_start(GTK_BOX(vbox) , GTK_WIDGET(action_area) , FALSE , FALSE , 5);
 
 	cancel_button = gtk_button_new_with_label(_("Cancel"));
-	gtk_box_pack_start_defaults(GTK_BOX(GTK_DIALOG(fxset->dialog)->action_area) , cancel_button);
+	gtk_widget_set_usize(cancel_button, 100, 30);
+	gtk_box_pack_end(action_area , cancel_button, FALSE, FALSE, 5);
 	g_signal_connect(cancel_button , "clicked" , G_CALLBACK(fx_set_on_cancel_clicked) , fxset->dialog);
+
+	ok_button = gtk_button_new_with_label(_("OK"));
+	gtk_widget_set_usize(ok_button, 100, 30);
+	gtk_box_pack_end(action_area , ok_button, FALSE, FALSE, 5);
+	g_signal_connect(ok_button , "clicked" , G_CALLBACK(fx_set_on_ok_clicked) , fxset);
 
 	fx_set_initialize_personal(fxset);
 	fx_set_initialize_system(fxset);

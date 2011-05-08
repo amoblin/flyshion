@@ -163,9 +163,6 @@ void fx_bottom_on_setting_clicked(GtkWidget* UNUSED(widget) , gpointer data)
 	FxMain *fxmain = (FxMain*)data;
 	FxSet *fxset = fx_set_new(fxmain);
 	fx_set_initialize(fxset);
-
-	gtk_dialog_run(GTK_DIALOG(fxset->dialog));
-	gtk_widget_destroy(fxset->dialog);
 }
 
 void fx_bottom_on_sendtome_clicked(GtkWidget* UNUSED(widget) , gpointer data)

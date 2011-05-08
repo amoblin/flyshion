@@ -6,7 +6,7 @@ set(TARNAME cliofetion)
 
 # program name, version etc
 
-set(PACKAGE_VERSION "2.1.0")
+set(PACKAGE_VERSION "2.2.0")
 set(PACKAGE_NAME "cliofetion")
 set(PACKAGE_TARNAME "${TARNAME}")
 set(PACKAGE_STRING "${PACKAGE_NAME} ${PACKAGE_VERSION}")

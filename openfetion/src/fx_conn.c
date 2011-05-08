@@ -45,6 +45,8 @@ int old_state;
 extern gint presence_count;
 extern struct userlist *ul;
 
+#define MAX_PASSWORD_LENGTH 16
+
 #ifdef USE_NETWORKMANAGER
 #include <dbus/dbus-glib.h>
 #include <NetworkManager.h>
@@ -257,6 +259,11 @@ int fx_conn_connect(FxMain *fxmain)
 	fetion_user_set_config(user , config);
 
 login:
+	newul = fetion_user_list_find_by_no(ul , no);
+	if(newul && strlen(password) == MAX_PASSWORD_LENGTH &&
+		strncmp(password, newul->password, MAX_PASSWORD_LENGTH) == 0)
+		fetion_user_set_password(user, newul->password);
+
 	pos = ssi_auth_action(user);
 	if(!pos){
 		fx_login_show_err(fxlogin , _("Login failed"));
@@ -314,34 +321,46 @@ login:
 	fx_main_history_init(fxmain);
 
 	/* set user list to be stored in local file	 */
+	newul = NULL;
 	newul = fetion_user_list_find_by_no(ul , no);
-	if(!newul){
-		if(remember)
-			newul = fetion_user_list_new(no,
-						  password , user->userId,
-						  user->sId, state , 1);
-		else
-			newul = fetion_user_list_new(no,
-						  NULL, user->userId,
-						  user->sId, state , 1);
-		foreach_userlist(ul , ul_cur)
-			ul_cur->islastuser = 0;
-		fetion_user_list_append(ul , newul);
-	}else{
-		memset(newul->password,
-				 0, sizeof(newul->password));
-		if(remember)
-			strcpy(newul->password , password);
+
+	if(!newul) {
+
+		if(remember) { 
+			gchar *hashed_password = hash_password(password);
+			newul = fetion_user_list_new(no, hashed_password, user->userId, user->sId, state, 1);
+			g_free(hashed_password);
+		} else newul = fetion_user_list_new(no,  NULL, user->userId,  user->sId, state, 1);
+
+		foreach_userlist(ul, ul_cur) ul_cur->islastuser = 0;
+		fetion_user_list_append(ul, newul);
+
+	} else {
+
+		if(remember) {
+			if(strlen(password) != MAX_PASSWORD_LENGTH ||
+				strncmp(password, newul->password, MAX_PASSWORD_LENGTH)) { /* hash password */
+				memset(newul->password, 0, sizeof(newul->password));
+				gchar *hashed_password = hash_password(password);
+				strcpy(newul->password, hashed_password);
+				g_free(hashed_password);
+			}
+		} else {
+			/* clear the password */
+			memset(newul->password, 0, sizeof(newul->password));
+		}
+
 		newul->laststate = state;
-		foreach_userlist(ul , ul_cur)
-			ul_cur->islastuser = 0;
+		foreach_userlist(ul , ul_cur) ul_cur->islastuser = 0;
 		newul->islastuser = 1;
 	}
+
 	fetion_user_list_save(config , ul);
 	fetion_user_list_free(ul);
 
 	/* download xml configuration file from the server */
 	fetion_config_load(user);
+
 	if(config->sipcProxyPort == 0)
 		fx_login_show_msg(fxlogin,
 					_("Detected that this is the first time you login\n"
@@ -354,6 +373,7 @@ login:
 					_("Connection has been shutdown by the server"));
 		return -1;
 	}
+
 	fetion_config_save(user);
 
 	fetion_user_set_st(user , state);

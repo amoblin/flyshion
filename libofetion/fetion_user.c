@@ -75,30 +75,39 @@ User* fetion_user_new(const char* no , const char* password)
 	return user;
 }
 
-void fetion_user_set_userid(User* user , const char* userid1)
+void fetion_user_set_userid(User* user, const char* userid1)
 {
-	strcpy(user->userId , userid1);
+	strcpy(user->userId, userid1);
 }
 
-void fetion_user_set_sid(User* user , const char* sId1)
+void fetion_user_set_sid(User* user, const char* sId1)
 {
-	strcpy(user->sId , sId1);
+	strcpy(user->sId, sId1);
 }
 
 void fetion_user_set_mobileno(User* user , const char* mobileno1)
 {
 	strcpy(user->mobileno , mobileno1);
 }
+
+void fetion_user_set_password(User *user, const char *password)
+{
+	strcpy(user->password, password);
+	user->password[strlen(password)] = '\0';
+}
+
 void fetion_user_set_sip(User* user , FetionSip* sip1)
 {
 	debug_info("Set a initialized Sip Struct to User");
 	user->sip = sip1;
 }
+
 void fetion_user_set_config(User* user , Config* config1)
 {
 	debug_info("Set a initialized Config Struct to User");
 	user->config = config1;
 }
+
 void fetion_user_set_verification_code(User* user , const char* code)
 {
 	user->verification->code = (char*)malloc(strlen(code) + 1);

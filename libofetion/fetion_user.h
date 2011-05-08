@@ -52,23 +52,25 @@
  * @password Nothing special , just your fetion password
  * @return The user object created
  */
-extern User* fetion_user_new(const char* no , const char* password);
+extern User* fetion_user_new(const char *no, const char *password);
 
-extern void fetion_user_set_userid(User* user , const char* userid);
+extern void fetion_user_set_userid(User *user, const char *userid);
 
-extern void fetion_user_set_sid(User* user , const char* sId);
+extern void fetion_user_set_sid(User *user, const char *sId);
 
-extern void fetion_user_set_mobileno(User* user , const char* mobileno);
+extern void fetion_user_set_mobileno(User *user, const char *mobileno);
 
-extern void fetion_user_set_sip(User* user , FetionSip* sip);
+extern void fetion_user_set_password(User *user, const char *password);
 
-extern void fetion_user_set_config(User* user , Config* config);
+extern void fetion_user_set_sip(User *user, FetionSip *sip);
 
-extern void fetion_user_set_verification_code(User* user , const char* code);
+extern void fetion_user_set_config(User *user, Config *config);
+
+extern void fetion_user_set_verification_code(User *user, const char *code);
 
 extern int fetion_user_init_config(User *user);
 
-extern void fetion_user_free(User* user);
+extern void fetion_user_free(User *user);
 
 /**
  * upload portrait
@@ -76,7 +78,7 @@ extern void fetion_user_free(User* user);
  * @param filename The absolute filepath of the portrait file to be uploaded
  * @return 1 if success , or else -1
  */
-extern int fetion_user_upload_portrait(User* user , const char* filename);
+extern int fetion_user_upload_portrait(User *user, const char *filename);
 
 /**
  * download portrait of specified user
@@ -84,7 +86,7 @@ extern int fetion_user_upload_portrait(User* user , const char* filename);
  * @param sipuri sip uri of the user whose portrait will be downloaded
  * @return 1 if success, or else -1
  */
-extern int fetion_user_download_portrait(User* user , const char* sipuri);
+extern int fetion_user_download_portrait(User *user, const char *sipuri);
 
 /**
  * download portrait of specified sipuri with
@@ -95,8 +97,8 @@ extern int fetion_user_download_portrait(User* user , const char* sipuri);
  * @param portraitPath The uri path of the portrait server,like '/HD00S/getportrait.aspx'
  * @return 1 if success , or else -1
  */
-extern int fetion_user_download_portrait_with_uri(User* user , const char* sipuri
-       	, const char *server , const char *portraitPath);
+extern int fetion_user_download_portrait_with_uri(User *user, const char *sipuri,
+       	 const char *server, const char *portraitPath);
 
 /**
  * modify the user`s online state such as 'Online' , 'Busy' , etc..
@@ -104,7 +106,7 @@ extern int fetion_user_download_portrait_with_uri(User* user , const char* sipur
  * @param state The online state type
  * @return 1 if success , or else -1
  */
-extern int fetion_user_set_state(User* user , StateType state);
+extern int fetion_user_set_state(User *user, StateType state);
 
 /**
  * modify the user`s personal signature
@@ -112,14 +114,14 @@ extern int fetion_user_set_state(User* user , StateType state);
  * @param moodphrase The new personal signature string
  * @return 1 if success , or else -1
  */
-extern int fetion_user_set_moodphrase(User* user , const char* moodphrase);
+extern int fetion_user_set_moodphrase(User *user, const char *moodphrase);
 
 /**
  * reload the user`s detail information from the sipc server
  * @param user Global User object
  * @return 1 if  success , or else -1
  */
-extern int fetion_user_update_info(User* user);
+extern int fetion_user_update_info(User *user);
 
 /**
  * send a keep-alive message to the sipc server to tell that the client 
@@ -127,7 +129,7 @@ extern int fetion_user_update_info(User* user);
  * @param user Global User object
  * @return 1 if success , or else -1
  */
-extern int fetion_user_keep_alive(User* user);
+extern int fetion_user_keep_alive(User *user);
 
 /**
  * traverse the two-way linked list of user group
@@ -145,12 +147,12 @@ extern Group* fetion_group_new();
 /**
  * append a new group to the group list
  */
-extern void fetion_group_list_append(Group* head , Group* group);
+extern void fetion_group_list_append(Group *head, Group *group);
 
 /**
  * prepend a new group to the group list
  */
-extern void fetion_group_list_prepend(Group* head , Group* group);
+extern void fetion_group_list_prepend(Group *head, Group *group);
 
 /**
  * remove a specified group from the group list
@@ -161,22 +163,22 @@ extern void fetion_group_list_remove(Group *group);
 /**
  * remove a group from the list with the specified group id
  */
-extern void fetion_group_remove(Group* head , int groupid);
+extern void fetion_group_remove(Group *head, int groupid);
 
 /**
  * find a group from the list with the specified group id
  */
-extern Group* fetion_group_list_find_by_id(Group* head , int id);
+extern Group* fetion_group_list_find_by_id(Group *head, int id);
 
 extern Verification* fetion_verification_new();
 
-extern void fetion_verification_free(Verification* ver);
+extern void fetion_verification_free(Verification *ver);
 
-extern Contact* fetion_user_parse_presence_body(const char* body , User* user);
+extern Contact* fetion_user_parse_presence_body(const char *body, User *user);
 
-extern Contact* fetion_user_parse_syncuserinfo_body(const char* body , User* user);
+extern Contact* fetion_user_parse_syncuserinfo_body(const char *body, User *user);
 
-extern int fetion_user_set_sms_status(User *user , int days);
+extern int fetion_user_set_sms_status(User *user, int days);
 
 extern void fetion_user_save(User *user);
 

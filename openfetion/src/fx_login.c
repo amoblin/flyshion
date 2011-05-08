@@ -36,6 +36,8 @@ struct userlist  *ul;
 #define PORTRAIT_SIZE      120
 #define LOADING_IMAGE_SIZE 128
 
+#define MAX_PASSWORD_LENGTH 16
+
 static void userlist_remove_clicked(GtkWidget *widget, gpointer data);
 
 FxLogin* fx_login_new()
@@ -203,7 +205,7 @@ void fx_login_initialize(FxMain *fxmain)
 				   	GTK_JUSTIFY_CENTER);
 
 	fxlogin->password = gtk_entry_new();
-	gtk_entry_set_max_length(GTK_ENTRY(fxlogin->password), 16);
+	gtk_entry_set_max_length(GTK_ENTRY(fxlogin->password), MAX_PASSWORD_LENGTH);
 	gtk_widget_set_size_request(GTK_WIDGET(fxlogin->password) , 240 , 25);
 	gtk_entry_set_visibility(GTK_ENTRY(fxlogin->password) , FALSE);
 	g_signal_connect(G_OBJECT(fxlogin->password)
@@ -447,6 +449,7 @@ void fx_login_set_last_login_user(FxLogin* fxlogin)
 	gchar         *pwd;
 	gint           state;
 	gint           last;
+	gchar           truncated[24];
 
 	if(!gtk_tree_model_get_iter_root(model , &iter))
 		return;
@@ -459,7 +462,16 @@ void fx_login_set_last_login_user(FxLogin* fxlogin)
 						 , -1);
 		if(last == 1){
 			gtk_combo_box_set_active_iter(combo , &iter);
-			gtk_entry_set_text(GTK_ENTRY(fxlogin->password) , pwd);
+
+			if(strlen(pwd) == 40) {/* this is a hashed password */
+				strncpy(truncated, pwd, MAX_PASSWORD_LENGTH);
+				pwd[MAX_PASSWORD_LENGTH] = '\0';
+			} else {
+				strncpy(truncated, pwd, strlen(pwd));
+				truncated[strlen(pwd)] = '\0';
+			}
+
+			gtk_entry_set_text(GTK_ENTRY(fxlogin->password), truncated);
 			fx_login_set_last_login_state(fxlogin , state);	
 			if(*pwd != '\0')
 				gtk_toggle_button_set_active(
@@ -503,6 +515,7 @@ void fx_login_user_change_func(GtkWidget* widget , gpointer data)
 	gint           state;
 	struct userlist *ul_cur = NULL;
 	const gchar    *nno;
+	gchar		   truncated[24];
 
 	GtkWidget *entry = gtk_bin_get_child(GTK_BIN(fxlogin->username));
 	nno = gtk_entry_get_text(GTK_ENTRY(entry));
@@ -560,7 +573,16 @@ void fx_login_user_change_func(GtkWidget* widget , gpointer data)
 				GTK_IMAGE(fxlogin->portrait), pixbuf);
 		g_object_unref(pixbuf);
 	}
-	gtk_entry_set_text(GTK_ENTRY(fxlogin->password) , pwd);
+
+	if(strlen(pwd) == 40) {/* this is a hashed password */
+		strncpy(truncated, pwd, MAX_PASSWORD_LENGTH);
+		pwd[MAX_PASSWORD_LENGTH] = '\0';
+	} else {
+		strncpy(truncated, pwd, strlen(pwd));
+		truncated[strlen(pwd)] = '\0';
+	}
+	gtk_entry_set_text(GTK_ENTRY(fxlogin->password), truncated);
+
 	fx_login_set_last_login_state(fxlogin , state);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fxlogin->remember)
 							   , *pwd == '\0' ? FALSE : TRUE);
