@@ -1,2 +1,4 @@
 #!/bin/bash
-build/robot -f 15901049672 -p lenovo0 -t 15901049672 -d hello,world
+tel=15901049672
+pswd=lenovo0
+build/robot -f $tel -p $pswd -c echo

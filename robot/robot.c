@@ -39,7 +39,7 @@ int fx_login(const char *mobileno, const char *password)
 {
 	Config           *config;
 	FetionConnection *tcp;
-	FetionSip        *sip;
+    FetionSip        *sip;
 	char             *res;
 	char             *nonce;
 	char             *key;
@@ -83,8 +83,8 @@ int fx_login(const char *mobileno, const char *password)
 		return 1;
 	}
  
-	/* set user's login state to be hidden */
-	fetion_user_set_st(user, P_HIDDEN);
+	/* set user's login state to be online*/
+	fetion_user_set_st(user, P_ONLINE);
  
 	/* load user information and contact list information from local host */
 	fetion_user_load(user);
@@ -214,6 +214,9 @@ int main(int argc, char *argv[])
 	char password[BUFLEN];
 	char receiveno[BUFLEN];
 	char message[BUFLEN];
+	FetionSip  *sip;
+	int error;
+    int type;
  
 	memset(mobileno, 0, sizeof(mobileno));
 	memset(password, 0, sizeof(password));
@@ -246,9 +249,52 @@ int main(int argc, char *argv[])
  
 	if(fx_login(mobileno, password))
 		return 1;
- 
-	if(send_message(mobileno, receiveno, message))
-		return 1;
+
+    sip = user->sip;
+
+    /* keep alive */
+
+    /* 后台守候 */
+    SipMsg *msg;
+	SipMsg     *pos;
+    debug_info("begin daemon");
+    while(1) {
+        msg = fetion_sip_listen(sip, &error);
+        pos = msg;
+        while(pos){
+            type = fetion_sip_get_type(pos->message);
+            switch(type){
+                case SIP_NOTIFICATION :
+                    debug_info("notification");
+                    //fx_main_process_notification(fxmain , pos->message);
+                    break;
+                case SIP_MESSAGE:
+                    debug_info("message");
+                    //fx_main_process_message(fxmain , sip , pos->message);
+                    break;
+                case SIP_INVITATION:
+                    debug_info("invitation");
+                    //fx_main_process_invitation(fxmain , pos->message);
+                    break;
+                case SIP_INCOMING :
+                    debug_info("incoming");
+                    //fx_main_process_incoming(fxmain , sip , pos->message);
+                    break;
+                case SIP_SIPC_4_0:
+                    debug_info("sip 4.0");
+                    //fx_main_process_sipc(fxmain , pos->message);
+                    break;
+                default:
+                    debug_info(pos->message);
+                    //printf("%s\n" , pos->message);
+                    break;
+            }
+            pos = pos->next;
+        }
+        if(msg)
+            fetion_sip_message_free(msg);
+        sleep(100);
+    }
  
 	fetion_user_free(user);
 	return 0;
