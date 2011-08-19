@@ -3,6 +3,17 @@ cmake_minimum_required(VERSION 2.6)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules)
 set(TARNAME cliofetion)
 
+set(OFETION_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../libofetion)
+find_path(OFETION_INCLUDE_DIRS openfetion.h  ${CMAKE_CURRENT_SOURCE_DIR}/../libofetion)
+set(OFETION_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR}/../libofetion/build/)
+find_library(OFETION_LIBRARIES NAMES ofetion PATH ${CMAKE_CURRENT_SOURCE_DIR}/../libofetion/build/)
+
+if(OFETION_INCLUDE_DIRS AND OFETION_LIBRARIES)
+    MESSAGE(STATUS "Found openfetion:" ${OFETION_LIBRARIES})
+endif(OFETION_INCLUDE_DIRS AND OFETION_LIBRARIES)
+
+link_directories(${OFETION_LIBRARIES})
+
 
 # program name, version etc
 
@@ -32,18 +43,20 @@ if(NOT DEFINED LOCALE_INSTALL_DIR)
 endif(NOT DEFINED LOCALE_INSTALL_DIR)
 
 add_definitions(-DRESOURCE_DIR="${RESOURCE_INSTALL_DIR}")
-pkg_check_modules(OFETION REQUIRED ofetion)
+#pkg_check_modules(OFETION REQUIRED ofetion)
 
 include_directories(
     ${OFETION_INCLUDE_DIRS}
 )
+include_directories( "/usr/include/libxml2")
 
 set(cliofetion_SRC
     src/cliofetion.c
 )
 
 add_executable(cliofetion ${cliofetion_SRC})
-target_link_libraries(cliofetion ${OFETION_LIBRARIES})
+set_target_properties(cliofetion PROPERTIES COMPILE_FLAGS "-framework GLUT")
+target_link_libraries(cliofetion ofetion)
 install(TARGETS cliofetion RUNTIME DESTINATION ${BIN_INSTALL_DIR})
 
 install(FILES cliofetion.1 DESTINATION ${MAN_INSTALL_DIR}/man1)

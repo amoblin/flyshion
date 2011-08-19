@@ -2,6 +2,7 @@ project(openfetion)
 cmake_minimum_required(VERSION 2.6)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules)
 set(TARNAME openfetion)
+set(OFETION_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../libofetion)
 
 
 # program name, version etc
@@ -43,12 +44,12 @@ install(FILES resource/newmessage.wav DESTINATION ${RESOURCE_INSTALL_DIR})
 install(FILES resource/openfetion.desktop DESTINATION ${DESKTOP_INSTALL_DIR})
 
 # compile option switch
-option(NLS "Native language support" ON)
-option(WITH_LIBNOTIFY "Libnotify support" ON)
-option(WITH_GSTREAMER "GStreamer support" ON)
+option(NLS "Native language support" OFF)
+option(WITH_LIBNOTIFY "Libnotify support" OFF)
+option(WITH_GSTREAMER "GStreamer support" OFF)
 option(WITH_LIBXSS "LibXScrnSaver support" ON)
-option(WITH_NETWORKMANAGER "NetworkManager support" ON)
-option(WITH_INDICATE "Ubuntu Indicator support" ON)
+option(WITH_NETWORKMANAGER "NetworkManager support" OFF)
+option(WITH_INDICATE "Ubuntu Indicator support" OFF)
 
 # openfetion build requirements
 find_package(PkgConfig REQUIRED)
@@ -60,7 +61,7 @@ endif(NLS)
 pkg_check_modules(GTK2 REQUIRED gtk+-2.0)
 pkg_check_modules(GDKPIXBUF REQUIRED gdk-pixbuf-2.0)
 pkg_check_modules(GLIB2 REQUIRED glib-2.0)
-pkg_check_modules(OFETION REQUIRED ofetion)
+#pkg_check_modules(OFETION REQUIRED ofetion)
 
 if(WITH_LIBNOTIFY)
     pkg_check_modules(LIBNOTIFY libnotify)
