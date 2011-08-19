@@ -152,76 +152,40 @@ int fx_login(const char *mobileno, const char *password)
  
 	return 0;
 }
- 
-int send_message(const char *mobileno, const char *receiveno, const char *message)
+
+/* 内部函数绑定的话，修改这里 */
+int auto_reply(char *command, Message *sip_msg, char out_message[])
 {
-	Conversation *conv;
-	Contact      *contact;
-	Contact      *contact_cur;
-	Contact      *target_contact = NULL;
-	int           daycount;
-	int           monthcount;
- 
-	/* send this message to yourself */
-	if(*receiveno == '\0' || strcmp(receiveno, mobileno) == 0) {
-		/* construct a conversation object with the sipuri to set NULL
-		 * to send a message to yourself  */
-		conv = fetion_conversation_new(user, NULL, NULL);
-		if(fetion_conversation_send_sms_to_myself_with_reply(conv, message) == -1) {
-			debug_error("send message \"%s\" to %s", message, user->mobileno);
-			return 1;
-		}
-	}else{
-		/* get the contact detail information by mobile number,
-		 * note that the result doesn't contain sipuri */
-		contact = fetion_contact_get_contact_info_by_no(user, receiveno, MOBILE_NO);
-		if(!contact) {
-			debug_error("get contact information of %s", receiveno);
-			return 1;
-		}
- 
-		/* find the sipuri of the target user */
-		foreach_contactlist(user->contactList, contact_cur) {
-			if(strcmp(contact_cur->userId, contact->userId) == 0) {
-				target_contact = contact_cur;
-				break;
-			}
-		}
- 
-		if(!target_contact) {
-			debug_error("sorry,maybe %s isn't in your contact list");
-			return 1;
-		}
- 
-		/* do what the function name says */
-		conv = fetion_conversation_new(user, target_contact->sipuri, NULL);
-		if(fetion_conversation_send_sms_to_phone_with_reply(conv, message, &daycount, &monthcount) == -1) {
-			debug_error("send sms to %s", receiveno);
-			return 1;
-		}else{
-			debug_info("successfully send sms to %s\nyou have sent %d messages today, %d messages this monthcount",
-					receiveno, daycount, monthcount);
-			return 0;
-		}
-	}
-	return 0;
-}
+    //strncpy(out_message, , sizeof(out_message));
+
+    /* 发送消息 */
+    Conversation *conv = fetion_conversation_new(user, sip_msg->sipuri, NULL);
+    if(fetion_conversation_send_sms_with_reply(conv, out_message) == -1) {
+        debug_info("Error! reply to %s failed!", sip_msg->sipuri);
+    } else {
+        debug_info(out_message);
+    }
+    return 0;
+};
  
 int main(int argc, char *argv[])
 {
 	int ch;
 	char mobileno[BUFLEN];
 	char password[BUFLEN];
-	char receiveno[BUFLEN];
-	char message[BUFLEN];
+    char command[BUFLEN];
+    char out_message[BUFLEN * 3];
 	FetionSip  *sip;
+    SipMsg *msg;
+    SipMsg *pos;
+	Message *sip_msg;
 	int error;
     int type;
  
 	memset(mobileno, 0, sizeof(mobileno));
 	memset(password, 0, sizeof(password));
-	memset(receiveno, 0, sizeof(receiveno));
-	memset(message, 0, sizeof(message));
+    memset(command, 0, sizeof(command));
+    memset(out_message, 0, sizeof(out_message));
  
 	while((ch = getopt(argc, argv, "f:p:c:")) != -1) {
 		switch(ch) {
@@ -235,7 +199,7 @@ int main(int argc, char *argv[])
 				break;
 			case 'c':
 				command_inputed = 1;
-				strncpy(receiveno, optarg, sizeof(receiveno) - 1);
+				strncpy(command, optarg, sizeof(command) - 1);
 				break;
 			default:
 				break;
@@ -250,12 +214,14 @@ int main(int argc, char *argv[])
 	if(fx_login(mobileno, password))
 		return 1;
 
-    sip = user->sip;
+    /*
+    char receiveno[BUFLEN]="13811495947";
+    char message[BUFLEN]="好，熄灯我就睡了。";
+    send_message(mobileno, receiveno, message);
+    */
 
+    sip = user->sip;
     /* 后台守候 */
-    SipMsg *msg;
-    SipMsg *pos;
-	Message *core_message;
     while(1) {
         /* keep alive */
         fetion_sip_keep_alive(sip);
@@ -267,21 +233,25 @@ int main(int argc, char *argv[])
             switch(type){
                 case SIP_NOTIFICATION :
                     debug_info("notification");
-                    //debug_info(pos->message);
+                    debug_info(pos->message);
                     break;
                 case SIP_MESSAGE:
-                    fetion_sip_parse_message(sip , pos->message, &core_message);
-                    debug_info(core_message->message);
+                    fetion_sip_parse_message(sip , pos->message, &sip_msg);
+                    debug_info("%s: %s", sip_msg->sipuri, sip_msg->message);
+                    auto_reply(command, sip_msg, out_message);
                     break;
                 case SIP_INVITATION:
                     debug_info("invitation");
+                    debug_info(pos->message);
                     break;
                 case SIP_INCOMING :
                     debug_info("incoming");
+                    debug_info(pos->message);
                     break;
                 case SIP_SIPC_4_0:
                     break;
                 default:
+                    debug_info("unknown type");
                     debug_info(pos->message);
                     break;
             }
