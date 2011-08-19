@@ -29,8 +29,7 @@
  
 int   password_inputed = 0;
 int   mobileno_inputed = 0;
-int   tono_inputed = 0;
-int   message_inputed = 0;
+int   command_inputed = 0;
 User *user;
 pthread_t th;
  
@@ -221,7 +220,7 @@ int main(int argc, char *argv[])
 	memset(receiveno, 0, sizeof(receiveno));
 	memset(message, 0, sizeof(message));
  
-	while((ch = getopt(argc, argv, "f:p:t:d:")) != -1) {
+	while((ch = getopt(argc, argv, "f:p:c:")) != -1) {
 		switch(ch) {
 			case 'f':
 				mobileno_inputed = 1;
@@ -231,20 +230,16 @@ int main(int argc, char *argv[])
 				password_inputed = 1;
 				strncpy(password, optarg, sizeof(password) - 1);
 				break;
-			case 't':
-				tono_inputed = 1;
+			case 'c':
+				command_inputed = 1;
 				strncpy(receiveno, optarg, sizeof(receiveno) - 1);
-				break;
-			case 'd':
-				message_inputed = 1;
-				strncpy(message, optarg, sizeof(message) - 1);
 				break;
 			default:
 				break;
 		}
 	}
  
-	if(!mobileno_inputed || !password_inputed || !message_inputed) {
+	if(!mobileno_inputed || !password_inputed || !command_inputed) {
 		usage(argv);
 		return 1;
 	}
@@ -262,5 +257,5 @@ int main(int argc, char *argv[])
  
 static void usage(char *argv[])
 {
-	fprintf(stderr, "Usage:%s -f mobileno -p password -t receive_mobileno -d message\n", argv[0]);
+	fprintf(stderr, "Usage:%s -f mobileno -p password -c command\n", argv[0]);
 }
