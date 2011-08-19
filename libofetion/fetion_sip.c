@@ -564,7 +564,7 @@ int fetion_sip_keep_alive(FetionSip* sip)
 	char *res = NULL;
 	int ret;
 
-	debug_info("Send a periodical chat keep alive request");
+	//debug_info("Send a periodical chat keep alive request");
 
 	fetion_sip_set_type(sip , SIP_REGISTER);
 	res = fetion_sip_to_string(sip , NULL);

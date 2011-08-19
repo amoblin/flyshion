@@ -252,13 +252,14 @@ int main(int argc, char *argv[])
 
     sip = user->sip;
 
-    /* keep alive */
-
     /* 后台守候 */
     SipMsg *msg;
-	SipMsg     *pos;
-    debug_info("begin daemon");
+    SipMsg *pos;
+	Message *core_message;
     while(1) {
+        /* keep alive */
+        fetion_sip_keep_alive(sip);
+        /* get receive */
         msg = fetion_sip_listen(sip, &error);
         pos = msg;
         while(pos){
@@ -266,34 +267,29 @@ int main(int argc, char *argv[])
             switch(type){
                 case SIP_NOTIFICATION :
                     debug_info("notification");
-                    //fx_main_process_notification(fxmain , pos->message);
+                    //debug_info(pos->message);
                     break;
                 case SIP_MESSAGE:
-                    debug_info("message");
-                    //fx_main_process_message(fxmain , sip , pos->message);
+                    fetion_sip_parse_message(sip , pos->message, &core_message);
+                    debug_info(core_message->message);
                     break;
                 case SIP_INVITATION:
                     debug_info("invitation");
-                    //fx_main_process_invitation(fxmain , pos->message);
                     break;
                 case SIP_INCOMING :
                     debug_info("incoming");
-                    //fx_main_process_incoming(fxmain , sip , pos->message);
                     break;
                 case SIP_SIPC_4_0:
-                    debug_info("sip 4.0");
-                    //fx_main_process_sipc(fxmain , pos->message);
                     break;
                 default:
                     debug_info(pos->message);
-                    //printf("%s\n" , pos->message);
                     break;
             }
             pos = pos->next;
         }
         if(msg)
             fetion_sip_message_free(msg);
-        sleep(100);
+        sleep(3);
     }
  
 	fetion_user_free(user);
