@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 2.6)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules)
 set(TARNAME openfetion)
 set(OFETION_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../libofetion)
+include_directories(openfetion /usr/include/libxml2)
+link_directories(/Users/whoomoblin/gtk/inst/lib/)
+link_directories(/usr/X11/lib/)
 
 
 # program name, version etc

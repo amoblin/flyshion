@@ -55,7 +55,7 @@ set(cliofetion_SRC
 )
 
 add_executable(cliofetion ${cliofetion_SRC})
-set_target_properties(cliofetion PROPERTIES COMPILE_FLAGS "-framework GLUT")
+#set_target_properties(cliofetion PROPERTIES COMPILE_FLAGS "-framework GLUT")
 target_link_libraries(cliofetion ofetion)
 install(TARGETS cliofetion RUNTIME DESTINATION ${BIN_INSTALL_DIR})
 
