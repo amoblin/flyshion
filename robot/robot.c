@@ -182,6 +182,72 @@ int auto_reply(Message *sip_msg, char out_message[], char command[])
     memset(out_message, 0, BUFLEN);
     return 0;
 };
+
+int process_notification(const char* sipmsg)
+{
+    int   event;
+    int   notification_type;
+    char  *xml;
+    fetion_sip_parse_notification(sipmsg , &notification_type , &event , &xml);
+	switch(notification_type)
+	{
+		case NOTIFICATION_TYPE_PRESENCE:
+			switch(event)
+			{
+				case NOTIFICATION_EVENT_PRESENCECHANGED :
+					//fx_main_process_presence(fxmain , xml);
+					break;
+				default:
+					break;
+			}
+		case NOTIFICATION_TYPE_CONVERSATION :
+			if(event == NOTIFICATION_EVENT_USERLEFT){
+				//fx_main_process_user_left(fxmain , sipmsg);
+				break;
+			}
+			break;
+		case NOTIFICATION_TYPE_REGISTRATION :
+			if(event == NOTIFICATION_EVENT_DEREGISTRATION){
+				//fx_main_process_deregistration(fxmain);
+				break;
+			}
+			break;
+		case NOTIFICATION_TYPE_SYNCUSERINFO :
+			if(event == NOTIFICATION_EVENT_SYNCUSERINFO){
+				//fx_main_process_syncuserinfo(fxmain , xml);
+				break;
+			}
+			break;
+		case NOTIFICATION_TYPE_CONTACT :
+			if(event == NOTIFICATION_EVENT_ADDBUDDYAPPLICATION){
+                /* 解析添加好友请求 */
+                char *userid;
+                char *sipuri;
+                char *desc;
+                int   phrase;
+                int ret;
+                fetion_sip_parse_addbuddyapplication(sipmsg,
+                        &sipuri , &userid , &desc , &phrase);
+                /* 添加好友 */
+                fetion_contact_add_buddy(user, sipuri, FETION_NO, 0, NULL, "robot", phrase, &ret);
+				break;
+			}
+			break;
+		case NOTIFICATION_TYPE_PGGROUP :
+			if(event == NOTIFICATION_EVENT_PGGETGROUPINFO){
+                //fx_main_process_pggetgroupinfo(fxmain , sipmsg);
+				break;
+			}
+			if(event == NOTIFICATION_EVENT_PRESENCECHANGED){
+				//fx_main_process_pgpresencechanged(fxmain , sipmsg);
+				break;
+			}
+			break;
+		default:
+			break;
+	}
+	free(xml);
+}
  
 int main(int argc, char *argv[])
 {
@@ -247,12 +313,15 @@ int main(int argc, char *argv[])
             type = fetion_sip_get_type(pos->message);
             switch(type){
                 case SIP_NOTIFICATION :
-                    debug_info("notification");
-                    debug_info(pos->message);
+                    /* 处理添加好友请求 */
+                    process_notification(pos->message);
                     break;
                 case SIP_MESSAGE:
                     fetion_sip_parse_message(sip , pos->message, &sip_msg);
-                    //debug_info("%s: %s", sip_msg->sipuri, sip_msg->message);
+                    if(strcmp(sip_msg->sipuri,"sip:10000@fetion.com.cn;p=100") == 0){
+                        break;
+                    }
+                    debug_info("%s: %s", sip_msg->sipuri, sip_msg->message);
                     auto_reply(sip_msg, out_message, command);
                     break;
                 case SIP_INVITATION:
