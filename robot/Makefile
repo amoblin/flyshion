@@ -1,15 +1,16 @@
 SERVER=ubuntu-edu.unix-center.net
+FEDORA=fedora-edu.unix-center.net
 
 default:cmake
 	cd build;make
 
 run:
-	./robot.sh
+	bistoo.sh
 
 cmake:
 	cd build;cmake ..
 all:
-	gcc src/cliofetion.c -I../libofetion -I/usr/include/libxml2 -L../libofetion/build/ -lofetion -o build/bin/cliofetion
+	gcc robot.c -I../libofetion -I/usr/include/libxml2 -L../libofetion/build/ -lofetion -o build/bin/robot
 
 scp:
 	-@rm -rf build ../libofetion/build

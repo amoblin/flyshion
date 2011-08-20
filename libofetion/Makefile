@@ -1,4 +1,4 @@
-C_FLAGS = -fPIC -I/usr/include/libxml2 -I/usr/local/Cellar/sqlite/3.7.7/include -I/Users/whoomoblin/Projects/flyshion/libofetion -I/Users/whoomoblin/Projects/flyshion/libofetion/build   -g -Wall -Wextra
+C_FLAGS = -fPIC -I/usr/include/libxml2 -I~/include/sqlite3 -I. -Ibuild -g -Wall -Wextra
 
 C_DEFINES = -Dofetion_EXPORTS -DRESOURCE_DIR=\"/usr/local/share/libofetion1/resource/\"
 

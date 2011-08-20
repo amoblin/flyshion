@@ -159,16 +159,13 @@ int auto_reply(Message *sip_msg, char out_message[], char command[])
     char command_str[BUFLEN];
     memset(command_str, 0, BUFLEN);
     strncpy(command_str, command, BUFLEN);
-    strcat(command_str, "\"");
     strcat(command_str, sip_msg->message);
-    strcat(command_str, "\"");
-    debug_info(command_str);
     FILE *pp;
-    debug_info(command);
     if( (pp = popen(command_str, "r")) == NULL) {
         debug_info("Error! popen() failed!");
         return 1;
     }
+    debug_info("execute: %s", command_str);
     fread(out_message, sizeof(char), BUFLEN, pp);
     pclose(pp);
     /* 发送消息 */
@@ -303,7 +300,9 @@ int main(int argc, char *argv[])
 
     sip = user->sip;
     /* 后台守候 */
+    int sleep_time;
     while(1) {
+        sleep_time = 2;
         /* keep alive */
         fetion_sip_keep_alive(sip);
         /* get receive */
@@ -326,6 +325,8 @@ int main(int argc, char *argv[])
                     break;
                 case SIP_INVITATION:
                     debug_info("invitation");
+                    /* 初次会话 */
+                    sleep_time = 0.5;
                     debug_info(pos->message);
                     break;
                 case SIP_INCOMING :
@@ -343,7 +344,7 @@ int main(int argc, char *argv[])
         }
         if(msg)
             fetion_sip_message_free(msg);
-        sleep(2);
+        sleep(sleep_time);
     }
  
 	fetion_user_free(user);
