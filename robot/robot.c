@@ -130,9 +130,27 @@ int fx_login(const char *mobileno, const char *password)
 	free(res);
 	free(response);
  
-	if(USER_AUTH_ERROR(user) || USER_AUTH_NEED_CONFIRM(user)) {
+	if(USER_AUTH_ERROR(user)) {
 		debug_error("login failed");
 		return 1;
+	}
+	if(USER_AUTH_NEED_CONFIRM(user)) {
+        char codePath[256];
+        char code[16];
+        char ch;
+        memset(codePath, 0, sizeof(codePath));
+        memset(code, 0, sizeof(code));
+
+        generate_pic_code(user);
+        sprintf(codePath , "%s/code.gif" , user->config->globalPath);
+        debug_info("saved in:%s", codePath);
+        int i=0;
+        while((ch=getchar())!='\n') {
+            code[i] = ch;
+            i++;
+        }
+		debug_info("Input verfication code:%s" , code);
+        fetion_user_set_verification_code(user , code);
 	}
  
 	/* save the user information and contact list information back to the local database */
@@ -217,16 +235,27 @@ int process_notification(const char* sipmsg)
 			break;
 		case NOTIFICATION_TYPE_CONTACT :
 			if(event == NOTIFICATION_EVENT_ADDBUDDYAPPLICATION){
-                /* 解析添加好友请求 */
                 char *userid;
                 char *sipuri;
                 char *desc;
                 int   phrase;
                 int ret;
+                /* 解析添加好友请求 */
                 fetion_sip_parse_addbuddyapplication(sipmsg,
                         &sipuri , &userid , &desc , &phrase);
-                /* 添加好友 */
-                fetion_contact_add_buddy(user, sipuri, FETION_NO, 0, NULL, "robot", phrase, &ret);
+                /* 同意添加好友 */
+                /*
+                char *res = NULL;
+                int rtv = parse_add_buddy_verification(user , res);
+                free(res);
+                if(rtv != 0){
+                    debug_info("Add buddy(%s) falied , need verification, but parse error" , no);
+                    return NULL;
+                }
+                debug_info("Add buddy(%s) falied , need verification" , no);
+                return NULL;
+                */
+                //fetion_contact_add_buddy(user, sipuri, FETION_NO, 0, NULL, "robot", phrase, &ret);
 				break;
 			}
 			break;
@@ -313,6 +342,7 @@ int main(int argc, char *argv[])
             switch(type){
                 case SIP_NOTIFICATION :
                     /* 处理添加好友请求 */
+                    debug_info(pos->message);
                     process_notification(pos->message);
                     break;
                 case SIP_MESSAGE:
