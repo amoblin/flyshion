@@ -154,17 +154,32 @@ int fx_login(const char *mobileno, const char *password)
 }
 
 /* 内部函数绑定的话，修改这里 */
-int auto_reply(char *command, Message *sip_msg, char out_message[])
+int auto_reply(Message *sip_msg, char out_message[], char command[])
 {
-    //strncpy(out_message, , sizeof(out_message));
-
+    char command_str[BUFLEN];
+    memset(command_str, 0, BUFLEN);
+    strncpy(command_str, command, BUFLEN);
+    strcat(command_str, "\"");
+    strcat(command_str, sip_msg->message);
+    strcat(command_str, "\"");
+    debug_info(command_str);
+    FILE *pp;
+    debug_info(command);
+    if( (pp = popen(command_str, "r")) == NULL) {
+        debug_info("Error! popen() failed!");
+        return 1;
+    }
+    fread(out_message, sizeof(char), BUFLEN, pp);
+    pclose(pp);
     /* 发送消息 */
     Conversation *conv = fetion_conversation_new(user, sip_msg->sipuri, NULL);
-    if(fetion_conversation_send_sms_with_reply(conv, out_message) == -1) {
+    //if(fetion_conversation_send_sms_with_reply(conv, out_message) == -1) {
+    if(fetion_conversation_send_sms(conv, out_message) == -1) {
         debug_info("Error! reply to %s failed!", sip_msg->sipuri);
     } else {
         debug_info(out_message);
     }
+    memset(out_message, 0, BUFLEN);
     return 0;
 };
  
@@ -174,7 +189,7 @@ int main(int argc, char *argv[])
 	char mobileno[BUFLEN];
 	char password[BUFLEN];
     char command[BUFLEN];
-    char out_message[BUFLEN * 3];
+    char out_message[BUFLEN];
 	FetionSip  *sip;
     SipMsg *msg;
     SipMsg *pos;
@@ -237,8 +252,8 @@ int main(int argc, char *argv[])
                     break;
                 case SIP_MESSAGE:
                     fetion_sip_parse_message(sip , pos->message, &sip_msg);
-                    debug_info("%s: %s", sip_msg->sipuri, sip_msg->message);
-                    auto_reply(command, sip_msg, out_message);
+                    //debug_info("%s: %s", sip_msg->sipuri, sip_msg->message);
+                    auto_reply(sip_msg, out_message, command);
                     break;
                 case SIP_INVITATION:
                     debug_info("invitation");
@@ -259,7 +274,7 @@ int main(int argc, char *argv[])
         }
         if(msg)
             fetion_sip_message_free(msg);
-        sleep(3);
+        sleep(2);
     }
  
 	fetion_user_free(user);
