@@ -143,18 +143,30 @@ int fetion_user_set_state(User* user , StateType state)
 	FetionSip* sip = user->sip;
 	char* body;
 	char* res;
+    int ret;
 
 	fetion_sip_set_type(sip , SIP_SERVICE);
 	eheader = fetion_sip_event_header_new(SIP_EVENT_SETPRESENCE);
 	fetion_sip_add_header(sip , eheader);
 	body = generate_set_state_body(state);
 	res = fetion_sip_to_string(sip , body);
+    syslog(LOG_DEBUG,"change state application:\n%s", res);
 	tcp_connection_send(sip->tcp , res , strlen(res));
-	user->state = state;
-	free(body);
 	free(res);
-	debug_info("User state changed to %d" , state);
-	return 1;
+	res = fetion_sip_get_response(sip);
+    syslog(LOG_DEBUG,"response:\n%s", res);
+	ret = fetion_sip_get_code(res);
+	free(body);
+	if(ret == 200){
+        user->state = state;
+        free(res);
+        debug_info("User state changed to %d" , state);
+		return 1;
+	}else{
+        free(res);
+		debug_error("Changd state failed , errno :" , ret);
+		return -1;
+	}
 }
 int fetion_user_set_moodphrase(User* user , const char* moodphrase)
 {
@@ -223,7 +235,7 @@ int fetion_user_keep_alive(User* user)
 	int ret;
 	char *res = NULL , *body = NULL;
 	fetion_sip_set_type(sip , SIP_REGISTER);
-	debug_info("send a keep alive request");
+	//debug_info("send a keep alive request");
 	eheader = fetion_sip_event_header_new(SIP_EVENT_KEEPALIVE);
 	fetion_sip_add_header(sip , eheader);
 	body = generate_keep_alive_body();
@@ -967,6 +979,26 @@ static char* generate_set_state_body(StateType state)
 	xmlFreeDoc(doc);
 	return xml_convert(res);
 }
+
+static char* generate_set_pg_state_body(User *user, StateType state)
+{
+	char s[16];
+	char data[] = "<args><groups></groups></args>";
+
+	xmlChar* res;
+	xmlDocPtr doc;
+	xmlNodePtr node;
+	doc = xmlParseMemory(data , strlen(data));
+	node = xmlDocGetRootElement(doc);
+	node = xmlNewChild(node , NULL , BAD_CAST "presence" , NULL);
+	node = xmlNewChild(node , NULL , BAD_CAST "basic" , NULL);
+	snprintf(s, sizeof(s) - 1 , "%d" , state);
+	xmlNewProp(node , BAD_CAST "value" , BAD_CAST s);
+	xmlDocDumpMemory(doc , &res , NULL);
+	xmlFreeDoc(doc);
+	return xml_convert(res);
+}
+
 static char* generate_set_moodphrase_body(const char* customConfigVersion
 		, const char* customConfig , const char* personalVersion
 		,  const char* moodphrase)

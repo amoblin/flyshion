@@ -115,7 +115,7 @@ int pg_group_get_list(User *user)
 {
 	FetionSip *sip;
 	SipHeader *eheader;
-	const char *body = "<args><group-list /></args>";
+	const char *body = "<args><group-list grouptype=\"1,3\" /></args>";
 	char *res;
 	extern int callid;
 
@@ -135,10 +135,16 @@ int pg_group_get_list(User *user)
 	if(res == NULL){
 		return -1;
 	}
+    syslog(LOG_DEBUG, "group list application:\n%s", res);
+	free(res);
 
 	int ret = tcp_connection_send(sip->tcp , res , strlen(res));
 
-	free(res);
+	res = fetion_sip_get_response(sip);
+    syslog(LOG_DEBUG, res);
+	ret = fetion_sip_get_code(res);
+
+
 	return ret;
 }
 

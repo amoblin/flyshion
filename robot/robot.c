@@ -58,13 +58,14 @@ int fx_login(const char *mobileno, const char *password)
 	/* attach config to user */
 	fetion_user_set_config(user, config);
  
+login:
 	/* start ssi authencation,result string needs to be freed after use */
 	res = ssi_auth_action(user);
 	/* parse the ssi authencation result,if success,user's sipuri and userid
 	 * are stored in user object,orelse user->loginStatus was marked failed */
 	parse_ssi_auth_response(res, user);
 	free(res);
- 
+
 	/* whether needs to input a confirm code,or login failed
 	 * for other reason like password error */
 	if(USER_AUTH_NEED_CONFIRM(user) || USER_AUTH_ERROR(user)) {
@@ -85,7 +86,7 @@ int fx_login(const char *mobileno, const char *password)
  
 	/* set user's login state to be online*/
 	fetion_user_set_st(user, P_ONLINE);
- 
+
 	/* load user information and contact list information from local host */
 	fetion_user_load(user);
 	fetion_contact_load(user, &local_group_count, &local_buddy_count);
@@ -131,7 +132,7 @@ int fx_login(const char *mobileno, const char *password)
 	free(response);
  
 	if(USER_AUTH_ERROR(user)) {
-		debug_error("login failed");
+		debug_error("Password error , login failed!!!");
 		return 1;
 	}
 	if(USER_AUTH_NEED_CONFIRM(user)) {
@@ -144,6 +145,8 @@ int fx_login(const char *mobileno, const char *password)
         generate_pic_code(user);
         sprintf(codePath , "%s/code.gif" , user->config->globalPath);
         debug_info("saved in:%s", codePath);
+		debug_info(user->verification->text);
+		//debug_info(user->verification->tips);
         int i=0;
         while((ch=getchar())!='\n') {
             code[i] = ch;
@@ -151,6 +154,7 @@ int fx_login(const char *mobileno, const char *password)
         }
 		debug_info("Input verfication code:%s" , code);
         fetion_user_set_verification_code(user , code);
+        goto login;
 	}
  
 	/* save the user information and contact list information back to the local database */
@@ -198,19 +202,31 @@ int auto_reply(Message *sip_msg, char out_message[], char command[])
     return 0;
 };
 
+int process_presence()
+{
+	Contact      *contactlist;
+	Contact      *contact;
+	//contactlist = fetion_user_parse_presence_body(xml , user);
+	//contact = contactlist;
+	//foreach_contactlist(contactlist , contact){
+    //}
+}
+
 int process_notification(const char* sipmsg)
 {
     int   event;
     int   notification_type;
     char  *xml;
     fetion_sip_parse_notification(sipmsg , &notification_type , &event , &xml);
+    debug_info("通知类型：%s", notification_type);
+    debug_info(xml);
 	switch(notification_type)
 	{
 		case NOTIFICATION_TYPE_PRESENCE:
 			switch(event)
 			{
 				case NOTIFICATION_EVENT_PRESENCECHANGED :
-					//fx_main_process_presence(fxmain , xml);
+					process_presence();
 					break;
 				default:
 					break;
@@ -261,7 +277,9 @@ int process_notification(const char* sipmsg)
 			break;
 		case NOTIFICATION_TYPE_PGGROUP :
 			if(event == NOTIFICATION_EVENT_PGGETGROUPINFO){
-                //fx_main_process_pggetgroupinfo(fxmain , sipmsg);
+                debug_info("pggroup notification");
+                PGGroup *pggroup = user->pggroup;
+                pg_group_parse_info(pggroup , sipmsg);
 				break;
 			}
 			if(event == NOTIFICATION_EVENT_PRESENCECHANGED){
@@ -277,6 +295,7 @@ int process_notification(const char* sipmsg)
  
 int main(int argc, char *argv[])
 {
+    fetion_log_init("fetion.log");
 	int ch;
 	char mobileno[BUFLEN];
 	char password[BUFLEN];
@@ -322,18 +341,28 @@ int main(int argc, char *argv[])
 		return 1;
 
     /*
-    char receiveno[BUFLEN]="13811495947";
-    char message[BUFLEN]="好，熄灯我就睡了。";
-    send_message(mobileno, receiveno, message);
+    //pg_group_get_list(user);
+    Group *group_pos;
+    PGGroup *pggroup_pos;
+    foreach_grouplist(user->groupList, group_pos) {
+        debug_info(group_pos->groupname);
+    }
+    if (user->pggroup != NULL) {
+        foreach_pg_group(user->pggroup, pggroup_pos) {
+            debug_info(pggroup_pos->pguri);
+            debug_info(pggroup_pos->name);
+        }
+    }
     */
 
+	fetion_user_set_state(user, P_ONLINE);
     sip = user->sip;
     /* 后台守候 */
-    int sleep_time;
+    int sleep_time=2;
     while(1) {
-        sleep_time = 2;
         /* keep alive */
-        fetion_sip_keep_alive(sip);
+        fetion_user_keep_alive(user);
+        sleep_time = 2;
         /* get receive */
         msg = fetion_sip_listen(sip, &error);
         pos = msg;
@@ -342,15 +371,21 @@ int main(int argc, char *argv[])
             switch(type){
                 case SIP_NOTIFICATION :
                     /* 处理添加好友请求 */
-                    debug_info(pos->message);
                     process_notification(pos->message);
                     break;
                 case SIP_MESSAGE:
                     fetion_sip_parse_message(sip , pos->message, &sip_msg);
+                    Contact *contactlist = NULL;
+                    char *nickname = NULL;
+                    foreach_contactlist(user->contactList , contactlist){
+                        if(strcmp(contactlist->sipuri, sip_msg->sipuri) != 0) {
+                            nickname = contactlist->nickname;
+                        }
+                    }
+                    debug_info("%s: %s", nickname, sip_msg->message);
                     if(strcmp(sip_msg->sipuri,"sip:10000@fetion.com.cn;p=100") == 0){
                         break;
                     }
-                    debug_info("%s: %s", sip_msg->sipuri, sip_msg->message);
                     auto_reply(sip_msg, out_message, command);
                     break;
                 case SIP_INVITATION:

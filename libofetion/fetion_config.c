@@ -350,6 +350,7 @@ int fetion_config_download_configuration(User* user)
 		return -1;
 
 	res = http_connection_get_response(conn);
+    syslog(LOG_DEBUG, "download configuration response:\n%s", res);
 	parse_configuration_xml(user, res);
 	
 	free(res);
