@@ -90,6 +90,7 @@ set(libofetion_SRC
     ./fetion_sip.c
     ./fetion_user.c
     ./fetion_log.c
+    ./fetion_robot.c
 )
 
 add_library(ofetion SHARED ${libofetion_SRC})

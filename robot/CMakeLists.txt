@@ -6,7 +6,6 @@ set(TARNAME robot)
 set(OFETION_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../libofetion)
 find_path(OFETION_INCLUDE_DIRS openfetion.h  ${CMAKE_CURRENT_SOURCE_DIR}/../libofetion)
 set(OFETION_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR}/../libofetion/build/)
-set(FETION_ROBOT_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR}/build)
 find_library(OFETION_LIBRARIES NAMES ofetion PATH ${CMAKE_CURRENT_SOURCE_DIR}/../libofetion/build/)
 
 if(OFETION_INCLUDE_DIRS AND OFETION_LIBRARIES)
@@ -14,7 +13,6 @@ if(OFETION_INCLUDE_DIRS AND OFETION_LIBRARIES)
 endif(OFETION_INCLUDE_DIRS AND OFETION_LIBRARIES)
 
 link_directories(${OFETION_LIBRARIES})
-link_directories(${FETION_ROBOT_LIBRARIES})
 
 # program name, version etc
 
@@ -51,12 +49,11 @@ include_directories(
 )
 include_directories( "/usr/include/libxml2")
 
-set(robot_SRC robot.c)
+set(robot_SRC src/bistu_robot.c)
 
-add_library(bistu_robot modules/bistu_robot.c)
-add_executable(robot ${robot_SRC})
+add_executable(bistu_robot ${robot_SRC})
 #set_target_properties(robot PROPERTIES COMPILE_FLAGS "-framework GLUT")
-target_link_libraries(robot ofetion bistu_robot)
-install(TARGETS robot RUNTIME DESTINATION ${BIN_INSTALL_DIR})
+target_link_libraries(bistu_robot ofetion)
+install(TARGETS bistu_robot RUNTIME DESTINATION ${BIN_INSTALL_DIR})
 
 install(FILES robot.1 DESTINATION ${MAN_INSTALL_DIR}/man1)

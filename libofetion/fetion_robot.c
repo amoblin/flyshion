@@ -18,25 +18,36 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
  
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "fetion_robot.h"
- 
-#ifndef BUFLEN
-#define BUFLEN 1024
-#endif
+#include "openfetion.h"
  
 int   password_inputed = 0;
 int   mobileno_inputed = 0;
 int   command_inputed = 0;
-User *user;
+
+/* 避免利用命令行参数执行其他命令 */
+int check_command(char *command, char *safe_command)
+{
+    int i;
+    int j = 0;
+    for(i=0; i<strlen(command);i++) {
+        switch(command[i]) {
+            case ';':
+                safe_command[j++] = ':';
+                break;
+            case '"':
+                safe_command[j++] = '\\';
+                safe_command[j++] = '"';
+                break;
+            case '`':
+                safe_command[j++] = '\'';
+                break;
+            default:
+                safe_command[j++] = command[i];
+        }
+    }
+}
  
-static void usage(char *argv[]);
- 
-int fx_login(const char *mobileno, const char *password)
+int fx_login(User *user, const char *mobileno, const char *password)
 {
 	Config           *config;
 	FetionConnection *tcp;
@@ -139,7 +150,6 @@ login:
 	if(USER_AUTH_NEED_CONFIRM(user)) {
         char codePath[256];
         char code[16];
-        char ch;
         memset(codePath, 0, sizeof(codePath));
         memset(code, 0, sizeof(code));
 
@@ -149,6 +159,7 @@ login:
 		debug_info(user->verification->text);
 		//debug_info(user->verification->tips);
         int i=0;
+        char ch;
         while((ch=getchar())!='\n') {
             code[i++] = ch;
         }
@@ -175,7 +186,7 @@ login:
 	return 0;
 }
 
-int process_notification(const char* sipmsg)
+int process_notification(User *user, const char* sipmsg)
 {
     int   event;
     int   notification_type;
@@ -189,7 +200,7 @@ int process_notification(const char* sipmsg)
 			switch(event)
 			{
 				case NOTIFICATION_EVENT_PRESENCECHANGED :
-					process_presence(user);
+					//process_presence(user);
 					break;
 				default:
 					break;
@@ -218,7 +229,7 @@ int process_notification(const char* sipmsg)
                 char *sipuri;
                 char *desc;
                 int   phrase;
-                int ret;
+                //int ret;
                 /* 解析添加好友请求 */
                 fetion_sip_parse_addbuddyapplication(sipmsg,
                         &sipuri , &userid , &desc , &phrase);
@@ -254,55 +265,21 @@ int process_notification(const char* sipmsg)
 			break;
 	}
 	free(xml);
+    return 0;
 }
 
-int main(int argc, char *argv[])
+int fetion_robot_daemon(User *user)
 {
-    fetion_log_init("fetion.log");
-	int ch;
-	char mobileno[BUFLEN];
-	char password[BUFLEN];
-    char command[BUFLEN];
-    char out_message[BUFLEN];
 	FetionSip  *sip;
     SipMsg *msg;
     SipMsg *pos;
 	Message *sip_msg;
 	int error;
     int type;
- 
-	memset(mobileno, 0, sizeof(mobileno));
-	memset(password, 0, sizeof(password));
-    memset(command, 0, sizeof(command));
+	int ch;
+    char out_message[BUFLEN];
     memset(out_message, 0, sizeof(out_message));
  
-	while((ch = getopt(argc, argv, "f:p:c:")) != -1) {
-		switch(ch) {
-			case 'f':
-				mobileno_inputed = 1;
-				strncpy(mobileno, optarg, sizeof(mobileno) - 1);	
-				break;
-			case 'p':
-				password_inputed = 1;
-				strncpy(password, optarg, sizeof(password) - 1);
-				break;
-			case 'c':
-				command_inputed = 1;
-				strncpy(command, optarg, sizeof(command) - 1);
-				break;
-			default:
-				break;
-		}
-	}
- 
-	if(!mobileno_inputed || !password_inputed || !command_inputed) {
-		usage(argv);
-		return 1;
-	}
- 
-	if(fx_login(mobileno, password))
-		return 1;
-
     /*
     //pg_group_get_list(user);
     Group *group_pos;
@@ -334,7 +311,7 @@ int main(int argc, char *argv[])
             switch(type){
                 case SIP_NOTIFICATION :
                     /* 处理添加好友请求 */
-                    process_notification(pos->message);
+                    //process_notification(pos->message);
                     break;
                 case SIP_MESSAGE:
                     fetion_sip_parse_message(sip , pos->message, &sip_msg);
@@ -349,7 +326,7 @@ int main(int argc, char *argv[])
                     if(strcmp(sip_msg->sipuri,"sip:10000@fetion.com.cn;p=100") == 0){
                         break;
                     }
-                    process_new_message(user, sip_msg, out_message, command);
+                    //process_new_message(user, sip_msg, out_message, command);
                     break;
                 case SIP_INVITATION:
                     debug_info("invitation");
@@ -379,9 +356,47 @@ int main(int argc, char *argv[])
 	return 0;
  
 }
- 
-static void usage(char *argv[])
+
+int init_arg(int argc, char *argv[], char **_mobileno, char **_password, char **_command)
 {
-	fprintf(stdout, "Usage:%s -f mobileno -p password -c command\n", argv[0]);
-	fprintf(stderr, "Usage:%s -f mobileno -p password -c command\n", argv[0]);
+    char ch;
+	char mobileno[BUFLEN];
+	char password[BUFLEN];
+    char command[BUFLEN];
+	memset(mobileno, 0, sizeof(mobileno));
+	memset(password, 0, sizeof(password));
+    memset(command, 0, sizeof(command));
+ 
+	while((ch = getopt(argc, argv, "f:p:c:")) != -1) {
+		switch(ch) {
+			case 'f':
+				mobileno_inputed = 1;
+				strncpy(mobileno, optarg, sizeof(mobileno) - 1);	
+				break;
+			case 'p':
+				password_inputed = 1;
+				strncpy(password, optarg, sizeof(password) - 1);
+				break;
+			case 'c':
+				command_inputed = 1;
+				strncpy(command, optarg, sizeof(command) - 1);
+				break;
+			default:
+				break;
+		}
+	}
+ 
+	if(!mobileno_inputed || !password_inputed || !command_inputed) {
+		usage(argv[0]);
+		return 1;
+	}
+    *_mobileno = mobileno;
+    *_password = password;
+    *_command = command;
+
+}
+ 
+void usage(char *command)
+{
+	fprintf(stdout, "Usage:%s -f mobileno -p password [-c command]\n", command);
 }

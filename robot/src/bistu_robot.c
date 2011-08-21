@@ -1,28 +1,11 @@
-#include "fetion_robot.h"
-#define BUFLEN 1024
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include "openfetion.h"
 
-/* 避免利用命令行参数执行其他命令 */
-int check_command(char *command, char *safe_command)
-{
-    int i;
-    int j = 0;
-    for(i=0; i<strlen(command);i++) {
-        switch(command[i]) {
-            case ';':
-                safe_command[j++] = ':';
-                break;
-            case '"':
-                safe_command[j++] = '\\';
-                safe_command[j++] = '"';
-                break;
-            case '`':
-                safe_command[j++] = '\'';
-                break;
-            default:
-                safe_command[j++] = command[i];
-        }
-    }
-}
+#define BUFLEN 1024
 
 int process_new_message(User *user, Message *sip_msg, char out_message[], char command[])
 {
@@ -63,3 +46,15 @@ int process_presence(User *user)
     //}
 }
 
+int main(int argc, char *argv[])
+{
+    User *user;
+    fetion_log_init("fetion.log");
+    char *mobileno;
+    char *password;
+    char *command;
+    init_arg(argc, argv, &mobileno, &password, &command);
+	if(fx_login(user, mobileno, password))
+		return 1;
+    fetion_robot_daemon(user);
+}

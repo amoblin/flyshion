@@ -72,6 +72,7 @@ extern "C" {
 #include "fetion_directsms.h"
 #include "fetion_group.h"
 #include "fetion_log.h"
+#include "fetion_robot.h"
 
 #ifdef __cplusplus
 }

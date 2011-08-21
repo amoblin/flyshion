@@ -1,10 +1,15 @@
-#include "openfetion.h"
+#include <sys/socket.h>
+#define BUFLEN 1024
+
+int init_arg(int argc, char *argv[], char **_mobileno, char **_password, char **_command);
 
 /* 避免利用命令行参数执行其他命令 */
 int check_command(char *command, char *safe_command);
 
-/* 处理收到的信息 */
-int process_new_message(User *user, Message *sip_msg, char out_message[], char command[]);
+/*  */
+int fx_login(User *user, const char *mobileno, const char *password);
 
-/* 改变状态时的消息处理 */
-int process_presence(User *user);
+/* 飞信机器人守护进程 */
+int fetion_robot_daemon(User *user);
+
+void usage(char *command);
