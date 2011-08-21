@@ -9,8 +9,9 @@ run:
 
 cmake:
 	cd build;cmake ..
-all:
-	gcc robot.c -I../libofetion -I/usr/include/libxml2 -L../libofetion/build/ -lofetion -o build/bin/robot
+
+bistu_robot:
+	gcc robot.c -I../libofetion -I/usr/include/libxml2 -L../libofetion/build/ -lofetion -Lbuild -l$@ -o build/bin/robot
 
 scp:
 	-@rm -rf build ../libofetion/build

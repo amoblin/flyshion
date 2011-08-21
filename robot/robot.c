@@ -18,20 +18,21 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
  
-#include <openfetion.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "fetion_robot.h"
  
+#ifndef BUFLEN
 #define BUFLEN 1024
+#endif
  
 int   password_inputed = 0;
 int   mobileno_inputed = 0;
 int   command_inputed = 0;
 User *user;
-pthread_t th;
  
 static void usage(char *argv[]);
  
@@ -174,69 +175,6 @@ login:
 	return 0;
 }
 
-/* 避免利用命令行参数执行其他命令 */
-int check_command(char *command, char *safe_command)
-{
-    int i;
-    int j = 0;
-    for(i=0; i<strlen(command);i++) {
-        switch(command[i]) {
-            case ';':
-                safe_command[j++] = ':';
-                break;
-            case '"':
-                safe_command[j++] = '\\';
-                safe_command[j++] = '"';
-                break;
-            case '`':
-                safe_command[j++] = '\'';
-                break;
-            default:
-                safe_command[j++] = command[i];
-        }
-    }
-}
-
-/* 内部函数绑定的话，修改这里 */
-int auto_reply(Message *sip_msg, char out_message[], char command[])
-{
-    char command_str[BUFLEN];
-    memset(command_str, 0, BUFLEN);
-    strncpy(command_str, command, BUFLEN);
-    char safe_command[BUFLEN];
-    memset(safe_command, 0, sizeof(safe_command));
-    check_command(sip_msg->message, safe_command);
-    strcat(command_str, safe_command);
-    FILE *pp;
-    if( (pp = popen(command_str, "r")) == NULL) {
-        debug_info("Error! popen() failed!");
-        return 1;
-    }
-    //debug_info("execute: %s", command_str);
-    fread(out_message, sizeof(char), BUFLEN, pp);
-    pclose(pp);
-    /* 发送消息 */
-    Conversation *conv = fetion_conversation_new(user, sip_msg->sipuri, NULL);
-    //if(fetion_conversation_send_sms_with_reply(conv, out_message) == -1) {
-    if(fetion_conversation_send_sms(conv, out_message) == -1) {
-        debug_info("Error! reply to %s failed!", sip_msg->sipuri);
-    } else {
-        debug_info(out_message);
-    }
-    memset(out_message, 0, BUFLEN);
-    return 0;
-}
-
-int process_presence()
-{
-	Contact      *contactlist;
-	Contact      *contact;
-	//contactlist = fetion_user_parse_presence_body(xml , user);
-	//contact = contactlist;
-	//foreach_contactlist(contactlist , contact){
-    //}
-}
-
 int process_notification(const char* sipmsg)
 {
     int   event;
@@ -251,7 +189,7 @@ int process_notification(const char* sipmsg)
 			switch(event)
 			{
 				case NOTIFICATION_EVENT_PRESENCECHANGED :
-					process_presence();
+					process_presence(user);
 					break;
 				default:
 					break;
@@ -317,7 +255,7 @@ int process_notification(const char* sipmsg)
 	}
 	free(xml);
 }
- 
+
 int main(int argc, char *argv[])
 {
     fetion_log_init("fetion.log");
@@ -411,7 +349,7 @@ int main(int argc, char *argv[])
                     if(strcmp(sip_msg->sipuri,"sip:10000@fetion.com.cn;p=100") == 0){
                         break;
                     }
-                    auto_reply(sip_msg, out_message, command);
+                    process_new_message(user, sip_msg, out_message, command);
                     break;
                 case SIP_INVITATION:
                     debug_info("invitation");
@@ -444,5 +382,6 @@ int main(int argc, char *argv[])
  
 static void usage(char *argv[])
 {
+	fprintf(stdout, "Usage:%s -f mobileno -p password -c command\n", argv[0]);
 	fprintf(stderr, "Usage:%s -f mobileno -p password -c command\n", argv[0]);
 }
