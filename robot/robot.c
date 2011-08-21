@@ -149,8 +149,7 @@ login:
 		//debug_info(user->verification->tips);
         int i=0;
         while((ch=getchar())!='\n') {
-            code[i] = ch;
-            i++;
+            code[i++] = ch;
         }
 		debug_info("Input verfication code:%s" , code);
         fetion_user_set_verification_code(user , code);
@@ -175,6 +174,7 @@ login:
 	return 0;
 }
 
+/* 避免利用命令行参数执行其他命令 */
 int check_command(char *command, char *safe_command)
 {
     int i;
@@ -212,7 +212,7 @@ int auto_reply(Message *sip_msg, char out_message[], char command[])
         debug_info("Error! popen() failed!");
         return 1;
     }
-    debug_info("execute: %s", command_str);
+    //debug_info("execute: %s", command_str);
     fread(out_message, sizeof(char), BUFLEN, pp);
     pclose(pp);
     /* 发送消息 */
@@ -225,7 +225,7 @@ int auto_reply(Message *sip_msg, char out_message[], char command[])
     }
     memset(out_message, 0, BUFLEN);
     return 0;
-};
+}
 
 int process_presence()
 {
@@ -383,11 +383,11 @@ int main(int argc, char *argv[])
 	fetion_user_set_state(user, P_ONLINE);
     sip = user->sip;
     /* 后台守候 */
-    int sleep_time=2000;
+    int sleep_time=2000000;
     while(1) {
         /* keep alive */
         fetion_user_keep_alive(user);
-        sleep_time = 2000;
+        sleep_time = 2000000;
         /* get receive */
         msg = fetion_sip_listen(sip, &error);
         pos = msg;
