@@ -175,13 +175,38 @@ login:
 	return 0;
 }
 
+int check_command(char *command, char *safe_command)
+{
+    int i;
+    int j = 0;
+    for(i=0; i<strlen(command);i++) {
+        switch(command[i]) {
+            case ';':
+                safe_command[j++] = ':';
+                break;
+            case '"':
+                safe_command[j++] = '\\';
+                safe_command[j++] = '"';
+                break;
+            case '`':
+                safe_command[j++] = '\'';
+                break;
+            default:
+                safe_command[j++] = command[i];
+        }
+    }
+}
+
 /* 内部函数绑定的话，修改这里 */
 int auto_reply(Message *sip_msg, char out_message[], char command[])
 {
     char command_str[BUFLEN];
     memset(command_str, 0, BUFLEN);
     strncpy(command_str, command, BUFLEN);
-    strcat(command_str, sip_msg->message);
+    char safe_command[BUFLEN];
+    memset(safe_command, 0, sizeof(safe_command));
+    check_command(sip_msg->message, safe_command);
+    strcat(command_str, safe_command);
     FILE *pp;
     if( (pp = popen(command_str, "r")) == NULL) {
         debug_info("Error! popen() failed!");
@@ -358,11 +383,11 @@ int main(int argc, char *argv[])
 	fetion_user_set_state(user, P_ONLINE);
     sip = user->sip;
     /* 后台守候 */
-    int sleep_time=2;
+    int sleep_time=2000;
     while(1) {
         /* keep alive */
         fetion_user_keep_alive(user);
-        sleep_time = 2;
+        sleep_time = 2000;
         /* get receive */
         msg = fetion_sip_listen(sip, &error);
         pos = msg;
@@ -391,7 +416,7 @@ int main(int argc, char *argv[])
                 case SIP_INVITATION:
                     debug_info("invitation");
                     /* 初次会话 */
-                    sleep_time = 0.5;
+                    sleep_time = 1;
                     debug_info(pos->message);
                     break;
                 case SIP_INCOMING :
@@ -409,7 +434,7 @@ int main(int argc, char *argv[])
         }
         if(msg)
             fetion_sip_message_free(msg);
-        sleep(sleep_time);
+        usleep(sleep_time);
     }
  
 	fetion_user_free(user);
