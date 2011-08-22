@@ -49,12 +49,6 @@ int process_presence(User *user)
 int main(int argc, char *argv[])
 {
     User *user;
-    fetion_log_init("fetion.log");
-    char *mobileno;
-    char *password;
-    char *command;
-    init_arg(argc, argv, &mobileno, &password, &command);
-	if(fx_login(user, mobileno, password))
-		return 1;
-    fetion_robot_daemon(user);
+    fetion_robot_daemon(&user, argc, argv);
+    return 0;
 }

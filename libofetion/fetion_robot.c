@@ -20,10 +20,6 @@
  
 #include "openfetion.h"
  
-int   password_inputed = 0;
-int   mobileno_inputed = 0;
-int   command_inputed = 0;
-
 /* 避免利用命令行参数执行其他命令 */
 int check_command(char *command, char *safe_command)
 {
@@ -47,7 +43,7 @@ int check_command(char *command, char *safe_command)
     }
 }
  
-int fx_login(User *user, const char *mobileno, const char *password)
+int fx_login(User **user_p, const char *mobileno, const char *password)
 {
 	Config           *config;
 	FetionConnection *tcp;
@@ -64,7 +60,8 @@ int fx_login(User *user, const char *mobileno, const char *password)
 	int               ret;
  
 	/* construct a user object */
- 	user = fetion_user_new(mobileno, password);
+    User *user = fetion_user_new(mobileno, password);
+    *user_p = user;
 	/* construct a config object */
 	config = fetion_config_new();
 	/* attach config to user */
@@ -268,8 +265,17 @@ int process_notification(User *user, const char* sipmsg)
     return 0;
 }
 
-int fetion_robot_daemon(User *user)
+int fetion_robot_daemon(User **user_p, int argc, char *argv[])
 {
+    User *user;
+    int   password_inputed = 0;
+    int   mobileno_inputed = 0;
+    int   command_inputed = 0;
+
+	char mobileno[BUFLEN];
+	char password[BUFLEN];
+    char command[BUFLEN];
+    char out_message[BUFLEN];
 	FetionSip  *sip;
     SipMsg *msg;
     SipMsg *pos;
@@ -277,8 +283,40 @@ int fetion_robot_daemon(User *user)
 	int error;
     int type;
 	int ch;
-    char out_message[BUFLEN];
+
+	memset(mobileno, 0, sizeof(mobileno));
+	memset(password, 0, sizeof(password));
+    memset(command, 0, sizeof(command));
     memset(out_message, 0, sizeof(out_message));
+
+	while((ch = getopt(argc, argv, "f:p:c:")) != -1) {
+		switch(ch) {
+			case 'f':
+				mobileno_inputed = 1;
+				strncpy(mobileno, optarg, sizeof(mobileno) - 1);
+				break;
+			case 'p':
+				password_inputed = 1;
+				strncpy(password, optarg, sizeof(password) - 1);
+				break;
+			case 'c':
+				command_inputed = 1;
+				strncpy(command, optarg, sizeof(command) - 1);
+				break;
+			default:
+				break;
+		}
+	}
+
+	if(!mobileno_inputed || !password_inputed || !command_inputed) {
+		usage(argv[0]);
+		return 1;
+	}
+
+	if(fx_login(user_p, mobileno, password)) {
+		return 1;
+    }
+    user = *user_p;
  
     /*
     //pg_group_get_list(user);
@@ -357,45 +395,6 @@ int fetion_robot_daemon(User *user)
  
 }
 
-int init_arg(int argc, char *argv[], char **_mobileno, char **_password, char **_command)
-{
-    char ch;
-	char mobileno[BUFLEN];
-	char password[BUFLEN];
-    char command[BUFLEN];
-	memset(mobileno, 0, sizeof(mobileno));
-	memset(password, 0, sizeof(password));
-    memset(command, 0, sizeof(command));
- 
-	while((ch = getopt(argc, argv, "f:p:c:")) != -1) {
-		switch(ch) {
-			case 'f':
-				mobileno_inputed = 1;
-				strncpy(mobileno, optarg, sizeof(mobileno) - 1);	
-				break;
-			case 'p':
-				password_inputed = 1;
-				strncpy(password, optarg, sizeof(password) - 1);
-				break;
-			case 'c':
-				command_inputed = 1;
-				strncpy(command, optarg, sizeof(command) - 1);
-				break;
-			default:
-				break;
-		}
-	}
- 
-	if(!mobileno_inputed || !password_inputed || !command_inputed) {
-		usage(argv[0]);
-		return 1;
-	}
-    *_mobileno = mobileno;
-    *_password = password;
-    *_command = command;
-
-}
- 
 void usage(char *command)
 {
 	fprintf(stdout, "Usage:%s -f mobileno -p password [-c command]\n", command);
