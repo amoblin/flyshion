@@ -19,30 +19,7 @@
  ***************************************************************************/
  
 #include "openfetion.h"
- 
-/* 避免利用命令行参数执行其他命令 */
-int check_command(char *command, char *safe_command)
-{
-    int i;
-    int j = 0;
-    for(i=0; i<strlen(command);i++) {
-        switch(command[i]) {
-            case ';':
-                safe_command[j++] = ':';
-                break;
-            case '"':
-                safe_command[j++] = '\\';
-                safe_command[j++] = '"';
-                break;
-            case '`':
-                safe_command[j++] = '\'';
-                break;
-            default:
-                safe_command[j++] = command[i];
-        }
-    }
-}
- 
+
 int fx_login(User **user_p, const char *mobileno, const char *password)
 {
 	Config           *config;
@@ -182,6 +159,95 @@ login:
  
 	return 0;
 }
+ 
+/* 对参数进行检查，避免利用命令行参数执行其他命令 */
+int check_command(char *command, char *safe_command)
+{
+    int i;
+    int j = 0;
+    for(i=0; i<strlen(command);i++) {
+        switch(command[i]) {
+            case ';':
+                safe_command[j++] = ':';
+                break;
+            case '"':
+                safe_command[j++] = '\\';
+                safe_command[j++] = '"';
+                break;
+            case '`':
+                safe_command[j++] = '\'';
+                break;
+            default:
+                safe_command[j++] = command[i];
+        }
+    }
+}
+
+int execute_command_with_args(User *user, Message *sip_msg, char out_message[], char command[])
+{
+    char command_str[BUFLEN];
+    memset(command_str, 0, BUFLEN);
+    strncpy(command_str, command, BUFLEN);
+    char safe_command[BUFLEN];
+    memset(safe_command, 0, sizeof(safe_command));
+    check_command(sip_msg->message, safe_command);
+    strcat(command_str, safe_command);
+    FILE *pp;
+    if( (pp = popen(command_str, "r")) == NULL) {
+        debug_info("Error! popen() failed!");
+        return 1;
+    }
+    //debug_info("execute: %s", command_str);
+    fread(out_message, sizeof(char), BUFLEN, pp);
+    pclose(pp);
+    /* 发送消息 */
+    Conversation *conv = fetion_conversation_new(user, sip_msg->sipuri, NULL);
+    //if(fetion_conversation_send_sms_with_reply(conv, out_message) == -1) {
+    if(fetion_conversation_send_sms(conv, out_message) == -1) {
+        debug_info("Error! reply to %s failed!", sip_msg->sipuri);
+    } else {
+        debug_info(out_message);
+    }
+    memset(out_message, 0, BUFLEN);
+    return 0;
+}
+
+int execute_command(User *user, Message *sip_msg, char out_message[])
+{
+    FILE *pp;
+    if( (pp = popen(sip_msg->message, "r")) == NULL) {
+        debug_info("Error! popen() failed!");
+        return 1;
+    }
+    //debug_info("execute: %s", command_str);
+    fread(out_message, sizeof(char), BUFLEN, pp);
+    pclose(pp);
+    return 0;
+}
+
+int fetion_robot_send_msg(User *user, Message *sip_msg, char out_message[])
+{
+    /* 发送消息 */
+    Conversation *conv = fetion_conversation_new(user, sip_msg->sipuri, NULL);
+    if(fetion_conversation_send_sms(conv, out_message) == -1) {
+        debug_info("Error! reply to %s failed!", sip_msg->sipuri);
+        return 1;
+    } else {
+        debug_info(out_message);
+    }
+    memset(out_message, 0, BUFLEN);
+    return 0;
+}
+
+int process_presence(User *user)
+{
+	Contact      *contactlist;
+	Contact      *contact;
+	//contactlist = fetion_user_parse_presence_body(xml , user);
+	//contact = contactlist;
+	//foreach_contactlist(contactlist , contact){
+    //}
+}
 
 int process_notification(User *user, const char* sipmsg)
 {
@@ -197,7 +263,7 @@ int process_notification(User *user, const char* sipmsg)
 			switch(event)
 			{
 				case NOTIFICATION_EVENT_PRESENCECHANGED :
-					//process_presence(user);
+					process_presence(user);
 					break;
 				default:
 					break;
@@ -265,7 +331,7 @@ int process_notification(User *user, const char* sipmsg)
     return 0;
 }
 
-int fetion_robot_daemon(User **user_p, int argc, char *argv[])
+int fetion_robot_daemon(int argc, char *argv[], User **user_p, int (**process_function)(User *, Message *, char *))
 {
     User *user;
     int   password_inputed = 0;
@@ -364,7 +430,9 @@ int fetion_robot_daemon(User **user_p, int argc, char *argv[])
                     if(strcmp(sip_msg->sipuri,"sip:10000@fetion.com.cn;p=100") == 0){
                         break;
                     }
-                    //process_new_message(user, sip_msg, out_message, command);
+                    process_function[0](user, sip_msg, out_message);
+                    fetion_robot_send_msg(user, sip_msg, out_message);
+
                     break;
                 case SIP_INVITATION:
                     debug_info("invitation");
