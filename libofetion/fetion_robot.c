@@ -183,11 +183,11 @@ int check_command(char *command, char *safe_command)
     }
 }
 
-int execute_command_with_args(User *user, Message *sip_msg, char out_message[], char command[])
+int execute_command_with_args(User *user, Message *sip_msg, char out_message[])
 {
     char command_str[BUFLEN];
     memset(command_str, 0, BUFLEN);
-    strncpy(command_str, command, BUFLEN);
+    strncpy(command_str, Command, BUFLEN);
     char safe_command[BUFLEN];
     memset(safe_command, 0, sizeof(safe_command));
     check_command(sip_msg->message, safe_command);
@@ -197,18 +197,9 @@ int execute_command_with_args(User *user, Message *sip_msg, char out_message[], 
         debug_info("Error! popen() failed!");
         return 1;
     }
-    //debug_info("execute: %s", command_str);
+    debug_info("execute: %s", command_str);
     fread(out_message, sizeof(char), BUFLEN, pp);
     pclose(pp);
-    /* 发送消息 */
-    Conversation *conv = fetion_conversation_new(user, sip_msg->sipuri, NULL);
-    //if(fetion_conversation_send_sms_with_reply(conv, out_message) == -1) {
-    if(fetion_conversation_send_sms(conv, out_message) == -1) {
-        debug_info("Error! reply to %s failed!", sip_msg->sipuri);
-    } else {
-        debug_info(out_message);
-    }
-    memset(out_message, 0, BUFLEN);
     return 0;
 }
 
@@ -225,18 +216,43 @@ int execute_command(User *user, Message *sip_msg, char out_message[])
     return 0;
 }
 
-int fetion_robot_send_msg(User *user, Message *sip_msg, char out_message[])
+int fetion_robot_send_msg(User *user, char *sipuri, char out_message[])
 {
     /* 发送消息 */
-    Conversation *conv = fetion_conversation_new(user, sip_msg->sipuri, NULL);
+    Conversation *conv = fetion_conversation_new(user, sipuri, NULL);
     if(fetion_conversation_send_sms(conv, out_message) == -1) {
-        debug_info("Error! reply to %s failed!", sip_msg->sipuri);
+        debug_info("Error! reply to %s failed!", sipuri);
         return 1;
     } else {
-        debug_info(out_message);
+        debug_info("Me --> %s : %s", sipuri, out_message);
     }
     memset(out_message, 0, BUFLEN);
     return 0;
+}
+
+int fetion_robot_add_buddy(User *user, char *sipmsg, char out_message[])
+{
+    char *userid;
+    char *sipuri;
+    char *desc;
+    int   phrase;
+    //int ret;
+    /* 解析添加好友请求 */
+    fetion_sip_parse_addbuddyapplication(sipmsg,
+            &sipuri , &userid , &desc , &phrase);
+    /* 同意添加好友 */
+    /*
+       char *res = NULL;
+       int rtv = parse_add_buddy_verification(user , res);
+       free(res);
+       if(rtv != 0){
+       debug_info("Add buddy(%s) falied , need verification, but parse error" , no);
+       return NULL;
+       }
+       debug_info("Add buddy(%s) falied , need verification" , no);
+       return NULL;
+     */
+    //fetion_contact_add_buddy(user, sipuri, FETION_NO, 0, NULL, "robot", phrase, &ret);
 }
 
 int process_presence(User *user)
@@ -249,11 +265,12 @@ int process_presence(User *user)
     //}
 }
 
-int process_notification(User *user, const char* sipmsg)
+int process_notification(User *user, const char* sipmsg, int (**process_function)(User *, Message *, char *), char *out_message)
 {
     int   event;
     int   notification_type;
     char  *xml;
+    debug_info(sipmsg);
     fetion_sip_parse_notification(sipmsg , &notification_type , &event , &xml);
     debug_info("通知类型：%s", notification_type);
     debug_info(xml);
@@ -263,7 +280,8 @@ int process_notification(User *user, const char* sipmsg)
 			switch(event)
 			{
 				case NOTIFICATION_EVENT_PRESENCECHANGED :
-					process_presence(user);
+					//process_presence(user);
+                    //process_function[1];
 					break;
 				default:
 					break;
@@ -288,27 +306,7 @@ int process_notification(User *user, const char* sipmsg)
 			break;
 		case NOTIFICATION_TYPE_CONTACT :
 			if(event == NOTIFICATION_EVENT_ADDBUDDYAPPLICATION){
-                char *userid;
-                char *sipuri;
-                char *desc;
-                int   phrase;
-                //int ret;
-                /* 解析添加好友请求 */
-                fetion_sip_parse_addbuddyapplication(sipmsg,
-                        &sipuri , &userid , &desc , &phrase);
-                /* 同意添加好友 */
-                /*
-                char *res = NULL;
-                int rtv = parse_add_buddy_verification(user , res);
-                free(res);
-                if(rtv != 0){
-                    debug_info("Add buddy(%s) falied , need verification, but parse error" , no);
-                    return NULL;
-                }
-                debug_info("Add buddy(%s) falied , need verification" , no);
-                return NULL;
-                */
-                //fetion_contact_add_buddy(user, sipuri, FETION_NO, 0, NULL, "robot", phrase, &ret);
+                fetion_robot_add_buddy(user, sipmsg, out_message);
 				break;
 			}
 			break;
@@ -336,11 +334,9 @@ int fetion_robot_daemon(int argc, char *argv[], User **user_p, int (**process_fu
     User *user;
     int   password_inputed = 0;
     int   mobileno_inputed = 0;
-    int   command_inputed = 0;
 
 	char mobileno[BUFLEN];
 	char password[BUFLEN];
-    char command[BUFLEN];
     char out_message[BUFLEN];
 	FetionSip  *sip;
     SipMsg *msg;
@@ -352,8 +348,8 @@ int fetion_robot_daemon(int argc, char *argv[], User **user_p, int (**process_fu
 
 	memset(mobileno, 0, sizeof(mobileno));
 	memset(password, 0, sizeof(password));
-    memset(command, 0, sizeof(command));
     memset(out_message, 0, sizeof(out_message));
+    memset(Command, 0, sizeof(Command));
 
 	while((ch = getopt(argc, argv, "f:p:c:")) != -1) {
 		switch(ch) {
@@ -366,15 +362,16 @@ int fetion_robot_daemon(int argc, char *argv[], User **user_p, int (**process_fu
 				strncpy(password, optarg, sizeof(password) - 1);
 				break;
 			case 'c':
-				command_inputed = 1;
-				strncpy(command, optarg, sizeof(command) - 1);
+                /* 调用外部命令来处理消息*/
+				strncpy(Command, optarg, sizeof(Command) - 1);
+                process_function[0] = execute_command_with_args;
 				break;
 			default:
 				break;
 		}
 	}
 
-	if(!mobileno_inputed || !password_inputed || !command_inputed) {
+	if(!mobileno_inputed || !password_inputed) {
 		usage(argv[0]);
 		return 1;
 	}
@@ -415,23 +412,17 @@ int fetion_robot_daemon(int argc, char *argv[], User **user_p, int (**process_fu
             switch(type){
                 case SIP_NOTIFICATION :
                     /* 处理添加好友请求 */
-                    //process_notification(pos->message);
+                    process_notification(user, pos->message, process_function, out_message);
                     break;
                 case SIP_MESSAGE:
                     fetion_sip_parse_message(sip , pos->message, &sip_msg);
-                    Contact *contactlist = NULL;
-                    char *nickname = NULL;
-                    foreach_contactlist(user->contactList , contactlist){
-                        if(strcmp(contactlist->sipuri, sip_msg->sipuri) != 0) {
-                            nickname = contactlist->nickname;
-                        }
-                    }
-                    debug_info("%s: %s", nickname, sip_msg->message);
+                    /* 忽略移动的消息  */
                     if(strcmp(sip_msg->sipuri,"sip:10000@fetion.com.cn;p=100") == 0){
                         break;
                     }
+                    debug_info("%s: %s", sip_msg->sipuri, sip_msg->message);
                     process_function[0](user, sip_msg, out_message);
-                    fetion_robot_send_msg(user, sip_msg, out_message);
+                    fetion_robot_send_msg(user, sip_msg->sipuri, out_message);
 
                     break;
                 case SIP_INVITATION:
@@ -445,6 +436,7 @@ int fetion_robot_daemon(int argc, char *argv[], User **user_p, int (**process_fu
                     debug_info(pos->message);
                     break;
                 case SIP_SIPC_4_0:
+                    /* 这个一直有 */
                     break;
                 default:
                     debug_info("unknown type");

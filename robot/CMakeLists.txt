@@ -49,11 +49,9 @@ include_directories(
 )
 include_directories( "/usr/include/libxml2")
 
-set(robot_SRC src/bistu_robot.c)
+add_executable(command_robot src/command_robot.c)
+target_link_libraries(command_robot ofetion)
 
-add_executable(bistu_robot ${robot_SRC})
-#set_target_properties(robot PROPERTIES COMPILE_FLAGS "-framework GLUT")
-target_link_libraries(bistu_robot ofetion)
-install(TARGETS bistu_robot RUNTIME DESTINATION ${BIN_INSTALL_DIR})
+install(TARGETS command_robot RUNTIME DESTINATION ${BIN_INSTALL_DIR})
 
 install(FILES robot.1 DESTINATION ${MAN_INSTALL_DIR}/man1)
