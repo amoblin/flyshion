@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 {
     User *user;
     int (*process_function[10])(User *user, Message *sip_msg, char *);
-    process_function[0] = bistu_process_message;
+    process_function[9] = bistu_process_message;
     fetion_robot_daemon(argc, argv, &user, process_function);
     return 0;
 }

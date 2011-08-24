@@ -51,7 +51,10 @@ include_directories( "/usr/include/libxml2")
 
 add_executable(command_robot src/command_robot.c)
 target_link_libraries(command_robot ofetion)
-
 install(TARGETS command_robot RUNTIME DESTINATION ${BIN_INSTALL_DIR})
+
+add_executable(bistu_robot src/bistu_robot.c)
+target_link_libraries(bistu_robot ofetion)
+install(TARGETS bistu_robot RUNTIME DESTINATION ${BIN_INSTALL_DIR})
 
 install(FILES robot.1 DESTINATION ${MAN_INSTALL_DIR}/man1)

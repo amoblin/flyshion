@@ -210,7 +210,6 @@ int execute_command(User *user, Message *sip_msg, char out_message[])
         debug_info("Error! popen() failed!");
         return 1;
     }
-    //debug_info("execute: %s", command_str);
     fread(out_message, sizeof(char), BUFLEN, pp);
     pclose(pp);
     return 0;
@@ -364,7 +363,7 @@ int fetion_robot_daemon(int argc, char *argv[], User **user_p, int (**process_fu
 			case 'c':
                 /* 调用外部命令来处理消息*/
 				strncpy(Command, optarg, sizeof(Command) - 1);
-                process_function[0] = execute_command_with_args;
+                process_function[0] = process_function[9];
 				break;
 			default:
 				break;
