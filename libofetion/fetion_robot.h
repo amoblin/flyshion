@@ -24,4 +24,7 @@ int process_notification(User *user, const char* sipmsg, int (**process_function
 /* 封装的消息处理，消息在process_function*/
 int fetion_robot_daemon(int argc, char *argv[], User **user, int (**process_function)(User *, Message *, char *));
 
+/* 邀请处理 */
+void process_invitation(User *user, SipMsg *msg, char* out_message);
+
 void usage(char *command);

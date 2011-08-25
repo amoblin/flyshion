@@ -197,7 +197,7 @@ int execute_command_with_args(User *user, Message *sip_msg, char out_message[])
         debug_info("Error! popen() failed!");
         return 1;
     }
-    debug_info("execute: %s", command_str);
+    debug_info("$ %s<Return>", command_str);
     fread(out_message, sizeof(char), BUFLEN, pp);
     pclose(pp);
     return 0;
@@ -223,10 +223,42 @@ int fetion_robot_send_msg(User *user, char *sipuri, char out_message[])
         debug_info("Error! reply to %s failed!", sipuri);
         return 1;
     } else {
-        debug_info("Me --> %s : %s", sipuri, out_message);
+        char *sid = fetion_sip_get_sid_by_sipuri(sipuri);
+        debug_info("%s: %s", user->sId, out_message);
+        debug_info("Sent a message to %s successfully!" , sid);
     }
     memset(out_message, 0, BUFLEN);
     return 0;
+}
+
+void process_invitation(User *user, SipMsg *msg, char* out_message)
+{
+    debug_info(msg->message);
+	char       *sipuri;
+	FetionSip   *osip;
+	FetionSip   *sip;
+	FxList      *list;
+	//TimeOutArgs *timeout;
+	char        event[16];
+
+	sip = user->sip;
+	memset(event, 0, sizeof(event));
+	if(fetion_sip_get_attr(msg->message, "N" , event) != -1){
+		return;
+	}
+
+	fetion_sip_parse_invitation(sip, user->config->proxy, msg->message, &osip , &sipuri);
+
+	list = fx_list_new(osip);
+	//fx_list_append(fxmain->slist , list);
+
+	/* create a thread to listen in this channel */
+
+	/* start send keep alive message throuth chat chanel
+	 * and put the timeout information into stack */
+	debug_info("Start periodically sending keep alive request");
+	//list = fx_list_new(timeout);
+	//fx_list_append(fxmain->tlist , list);
 }
 
 int fetion_robot_add_buddy(User *user, char *sipmsg, char out_message[])
@@ -419,16 +451,15 @@ int fetion_robot_daemon(int argc, char *argv[], User **user_p, int (**process_fu
                     if(strcmp(sip_msg->sipuri,"sip:10000@fetion.com.cn;p=100") == 0){
                         break;
                     }
-                    debug_info("%s: %s", sip_msg->sipuri, sip_msg->message);
+                    debug_info("%s: %s", fetion_sip_get_sid_by_sipuri(sip_msg->sipuri), sip_msg->message);
                     process_function[0](user, sip_msg, out_message);
                     fetion_robot_send_msg(user, sip_msg->sipuri, out_message);
 
                     break;
                 case SIP_INVITATION:
                     debug_info("invitation");
-                    /* 初次会话 */
                     sleep_time = 1;
-                    debug_info(pos->message);
+                    process_invitation(user, pos, out_message);
                     break;
                 case SIP_INCOMING :
                     debug_info("incoming");

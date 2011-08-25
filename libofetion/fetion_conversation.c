@@ -88,7 +88,7 @@ int fetion_conversation_send_sms(Conversation* conversation , const char* msg)
 	unacked_list_append(unackedlist , unacked);
 
 	res = fetion_sip_to_string(sip , msg);
-	debug_info("Sent a message to %s" , conversation->currentContact->sipuri);
+	//debug_info("Sent a message to %s" , conversation->currentContact->sipuri);
 	if(tcp_connection_send(sip->tcp , res , strlen(res)) == -1){
 		free(res);
 		return -1;
