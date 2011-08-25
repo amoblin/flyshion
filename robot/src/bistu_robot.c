@@ -7,13 +7,13 @@ int bistu_process_message(User *user, Message *sip_msg, char *out_message)
         execute_command_with_args(user, sip_msg, out_message);
         return 0;
     }
-    /* -b message 群发消息message */
-    if(sip_msg->message[0] == '-' && sip_msg->message[1] == 'b') {
+    /* -b message 广播消息 */
+    if(sip_msg->message[0] == '-' && sip_msg->message[1] == 'b' && sip_msg->message[2] == ' ') {
         Contact *contactlist;
-        strcpy(out_message, sip_msg->message+2);
+        strcpy(out_message, sip_msg->message+3);
+        debug_info(out_message);
         foreach_contactlist(user->contactList, contactlist) {
-            debug_info("send message to %s", contactlist->sipuri);
-            //fetion_robot_send_msg(user, contactlist->sipuri, out_message);
+            fetion_robot_send_msg(user, contactlist->sipuri, out_message);
         }
         return 0;
     }

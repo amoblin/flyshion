@@ -163,7 +163,7 @@ login:
 /* 对参数进行检查，避免利用命令行参数执行其他命令 */
 int check_command(char *command, char *safe_command)
 {
-    int i;
+    unsigned int i;
     int j = 0;
     for(i=0; i<strlen(command);i++) {
         switch(command[i]) {
@@ -181,6 +181,7 @@ int check_command(char *command, char *safe_command)
                 safe_command[j++] = command[i];
         }
     }
+    return 0;
 }
 
 int execute_command_with_args(User *user, Message *sip_msg, char out_message[])
@@ -224,7 +225,6 @@ int fetion_robot_send_msg(User *user, char *sipuri, char out_message[])
         return 1;
     } else {
         char *sid = fetion_sip_get_sid_by_sipuri(sipuri);
-        debug_info("%s: %s", user->sId, out_message);
         debug_info("Sent a message to %s successfully!" , sid);
     }
     memset(out_message, 0, BUFLEN);
@@ -246,6 +246,7 @@ void process_invitation(User *user, SipMsg *msg, char* out_message)
 	if(fetion_sip_get_attr(msg->message, "N" , event) != -1){
 		return;
 	}
+    debug_info("event:%s", event);
 
 	fetion_sip_parse_invitation(sip, user->config->proxy, msg->message, &osip , &sipuri);
 
@@ -284,25 +285,25 @@ int fetion_robot_add_buddy(User *user, char *sipmsg, char out_message[])
        return NULL;
      */
     //fetion_contact_add_buddy(user, sipuri, FETION_NO, 0, NULL, "robot", phrase, &ret);
+    return 0;
 }
 
-int process_presence(User *user)
+int process_presence(User *user, char *xml)
 {
 	Contact      *contactlist;
 	Contact      *contact;
-	//contactlist = fetion_user_parse_presence_body(xml , user);
-	//contact = contactlist;
-	//foreach_contactlist(contactlist , contact){
-    //}
+	contactlist = fetion_user_parse_presence_body(xml , user);
+	foreach_contactlist(contactlist , contact){
+    }
+    return 0;
 }
 
-int process_notification(User *user, const char* sipmsg, int (**process_function)(User *, Message *, char *), char *out_message)
+int process_notification(User *user, Message* sip_msg, int (**process_function)(User *, Message *, char *), char *out_message)
 {
     int   event;
     int   notification_type;
     char  *xml;
-    debug_info(sipmsg);
-    fetion_sip_parse_notification(sipmsg , &notification_type , &event , &xml);
+    fetion_sip_parse_notification(sip_msg->message , &notification_type , &event , &xml);
     debug_info("通知类型：%s", notification_type);
     debug_info(xml);
 	switch(notification_type)
@@ -311,15 +312,16 @@ int process_notification(User *user, const char* sipmsg, int (**process_function
 			switch(event)
 			{
 				case NOTIFICATION_EVENT_PRESENCECHANGED :
-					//process_presence(user);
-                    //process_function[1];
+					process_presence(user, xml);
+                    process_function[1](user, sip_msg, out_message);
 					break;
 				default:
 					break;
 			}
 		case NOTIFICATION_TYPE_CONVERSATION :
 			if(event == NOTIFICATION_EVENT_USERLEFT){
-				//fx_main_process_user_left(fxmain , sipmsg);
+				//fx_main_process_user_left(fxmain , sip_msg->message);
+                //process_function[2];
 				break;
 			}
 			break;
@@ -337,7 +339,7 @@ int process_notification(User *user, const char* sipmsg, int (**process_function
 			break;
 		case NOTIFICATION_TYPE_CONTACT :
 			if(event == NOTIFICATION_EVENT_ADDBUDDYAPPLICATION){
-                fetion_robot_add_buddy(user, sipmsg, out_message);
+                fetion_robot_add_buddy(user, sip_msg->message, out_message);
 				break;
 			}
 			break;
@@ -345,11 +347,11 @@ int process_notification(User *user, const char* sipmsg, int (**process_function
 			if(event == NOTIFICATION_EVENT_PGGETGROUPINFO){
                 debug_info("pggroup notification");
                 PGGroup *pggroup = user->pggroup;
-                pg_group_parse_info(pggroup , sipmsg);
+                pg_group_parse_info(pggroup , sip_msg->message);
 				break;
 			}
 			if(event == NOTIFICATION_EVENT_PRESENCECHANGED){
-				//fx_main_process_pgpresencechanged(fxmain , sipmsg);
+				//fx_main_process_pgpresencechanged(fxmain , sip_msg->message);
 				break;
 			}
 			break;
@@ -453,6 +455,7 @@ int fetion_robot_daemon(int argc, char *argv[], User **user_p, int (**process_fu
                     }
                     debug_info("%s: %s", fetion_sip_get_sid_by_sipuri(sip_msg->sipuri), sip_msg->message);
                     process_function[0](user, sip_msg, out_message);
+                    debug_info("%s: %s", user->sId, out_message);
                     fetion_robot_send_msg(user, sip_msg->sipuri, out_message);
 
                     break;
