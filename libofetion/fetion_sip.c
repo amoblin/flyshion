@@ -293,7 +293,7 @@ char* fetion_sip_to_string(FetionSip* sip , const char* body)
 }
 void fetion_sip_free(FetionSip* sip)
 {
-	debug_info("Free sip struct and close socket");
+	syslog(LOG_INFO, "Free sip struct and close socket");
 	if(sip != NULL)
 		tcp_connection_free(sip->tcp);
 	free(sip);
@@ -340,7 +340,7 @@ int fetion_sip_get_attr(const char* sip , const char* name , char* result)
 	else
 		n = strlen(pos) - strlen(strstr(pos , "\r\n"));
 	strncpy(result , pos , n);
-    //debug_info("result:%s", result);
+    syslog(LOG_DEBUG, "result:%s", result);
 	return 1;
 }
 
@@ -474,7 +474,7 @@ SipMsg *fetion_sip_listen(FetionSip *sip, int *error)
 	n = tcp_connection_recv_dont_wait(sip->tcp,
 				buffer, sizeof(buffer) - 1);
 	if(n == 0){
-		debug_info("fetion_sip_listen 0");
+		syslog(LOG_INFO, "fetion_sip_listen 0");
 		*error = 1;
 		return NULL;
 	}
@@ -565,7 +565,7 @@ int fetion_sip_keep_alive(FetionSip* sip)
 	char *res = NULL;
 	int ret;
 
-	//debug_info("Send a periodical chat keep alive request");
+	syslog(LOG_DEBUG, "Send a periodical chat keep alive request");
 
 	fetion_sip_set_type(sip , SIP_REGISTER);
 	res = fetion_sip_to_string(sip , NULL);
@@ -748,7 +748,7 @@ void fetion_sip_parse_invitation(FetionSip* sip , Proxy *proxy , const char* sip
 
 	*conversionSip = fetion_sip_clone(sip);
 	fetion_sip_set_connection(*conversionSip , conn);
-	debug_info("Received a conversation invitation");
+	syslog(LOG_INFO, "Received a conversation invitation");
 	sprintf(buf , "SIP-C/4.0 200 OK\r\nF: %s\r\nI: -61\r\nQ: 200002 I\r\n\r\n"
 				, from);
 	*sipuri = (char*)malloc(48);
@@ -766,7 +766,7 @@ void fetion_sip_parse_invitation(FetionSip* sip , Proxy *proxy , const char* sip
 	fetion_sip_add_header(sip , mheader);
 	fetion_sip_add_header(sip , nheader);
 	sipres = fetion_sip_to_string(sip , NULL);
-	debug_info("Register to conversation server %s:%d" , ipaddress , port);
+	syslog(LOG_INFO, "Register to conversation server %s:%d" , ipaddress , port);
 	tcp_connection_send(conn , sipres , strlen(sipres));
 	free(sipres);
 	free(ipaddress);
@@ -831,7 +831,7 @@ void fetion_sip_parse_incoming(FetionSip* sip
 	doc = xmlParseMemory(pos , strlen(pos));
 	node = xmlDocGetRootElement(doc);
 	if(xmlStrcmp(node->name , BAD_CAST "share-content") == 0){
-		debug_info("Received a share-content IN message");
+		syslog(LOG_INFO, "Received a share-content IN message");
 		*sipuri = (char*)malloc(48);
 		memset(*sipuri, 0, 48);
 		fetion_sip_get_attr(sipmsg , "F" , *sipuri);
@@ -854,7 +854,7 @@ void fetion_sip_parse_incoming(FetionSip* sip
 		return;
 	}
 	if(xmlStrcmp(node->name , BAD_CAST "is-composing") != 0){
-		debug_info("Received a unhandled sip message , thanks for sending it to the author");
+		syslog(LOG_INFO, "Received a unhandled sip message , thanks for sending it to the author");
 		*type = INCOMING_UNKNOWN;
 		xmlFreeDoc(doc);
 		return;

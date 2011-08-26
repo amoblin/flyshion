@@ -58,14 +58,14 @@ int tcp_keep_alive(int socketfd)
 
 	if(setsockopt(socketfd , SOL_SOCKET , SO_KEEPALIVE 
 				,(void*)&keepAlive,sizeof(keepAlive)) == -1){
-		debug_info("set SO_KEEPALIVE failed\n");
+		syslog(LOG_INFO, "set SO_KEEPALIVE failed\n");
 		return -1;
 	}
 
 #ifdef TCP_KEEPIDEL
 	if(setsockopt(socketfd , SOL_TCP , TCP_KEEPIDLE 
 				,(void *)&keepIdle,sizeof(keepIdle)) == -1){
-		debug_info("set TCP_KEEPIDEL failed\n");
+		syslog(LOG_INFO, "set TCP_KEEPIDEL failed\n");
 		return -1;
 	}
 #endif
@@ -73,7 +73,7 @@ int tcp_keep_alive(int socketfd)
 #ifdef TCP_KEEPINTVL
 	if(setsockopt(socketfd , SOL_TCP , TCP_KEEPINTVL
 				,(void *)&keepInterval,sizeof(keepInterval)) == -1){
-		debug_info("set TCP_KEEPINTVL failed\n");
+		syslog(LOG_INFO, "set TCP_KEEPINTVL failed\n");
 		return -1;
 	}
 #endif
@@ -81,7 +81,7 @@ int tcp_keep_alive(int socketfd)
 #ifdef TCP_KEEPCNT
 	if(setsockopt(socketfd , SOL_TCP , TCP_KEEPCNT
 				,(void *)&keepCount,sizeof(keepCount)) == -1){
-		debug_info("set TCP_KEEPCNT failed\n");
+		syslog(LOG_INFO, "set TCP_KEEPCNT failed\n");
 		return -1;
 	}
 #endif
@@ -194,7 +194,7 @@ int tcp_connection_connect(FetionConnection *connection, const char *ipaddress, 
 	n = MAX_RECV_BUF_SIZE;
 	int s = setsockopt(sk, SOL_SOCKET, SO_RCVBUF, (const char*)&n , sizeof(n));
 	if(s == -1)	return -1;
-	debug_info("%s:%d", ipaddress, port);
+	syslog(LOG_INFO, "%s:%d", ipaddress, port);
 
 	if(connect(sk, (struct sockaddr*)&addr,
 			sizeof(struct sockaddr)) == -1) {
@@ -325,7 +325,7 @@ int tcp_connection_getname(FetionConnection* connection , char **ip , int *port)
 void tcp_connection_close(FetionConnection *connection)
 {
 	close(connection->socketfd);
-	debug_info("Close connection with %s:%d",
+	syslog(LOG_INFO, "Close connection with %s:%d",
 			connection->remote_ipaddress,
 			connection->remote_port);
 }
@@ -338,19 +338,19 @@ int ssl_connection_start(FetionConnection* conn)
 	conn->ssl_ctx = SSL_CTX_new(SSLv23_client_method());
 
 	if ( conn->ssl_ctx == NULL ){
-		debug_info("Init SSL CTX failed");
+		syslog(LOG_INFO, "Init SSL CTX failed");
 		return -1;
 	}
 	conn->ssl = SSL_new(conn->ssl_ctx);
 
 	if ( conn->ssl == NULL ){
-		debug_info("New SSL with created CTX failed");
+		syslog(LOG_INFO, "New SSL with created CTX failed");
 		return -1;
 	}
 	ret = SSL_set_fd(conn->ssl, conn->socketfd);
 
 	if ( ret == 0 ){
-		debug_info("Add ssl to tcp socket failed");
+		syslog(LOG_INFO, "Add ssl to tcp socket failed");
 		return -1;
 	}
 	RAND_poll();
@@ -362,7 +362,7 @@ int ssl_connection_start(FetionConnection* conn)
 	ret = SSL_connect(conn->ssl);
 	if( ret != 1 )
 	{
-		debug_info("SSL connection failed");
+		syslog(LOG_INFO, "SSL connection failed");
 		return -1;
 	}
 	return 0;

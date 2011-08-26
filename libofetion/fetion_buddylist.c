@@ -51,7 +51,7 @@ int fetion_buddylist_create(User* user , const char* name)
 	{
 		ret = parse_create_buddylist_response(user , res);
 		free(res);
-		debug_info("Create buddy list success");
+		syslog(LOG_USER|LOG_INFO, "Create buddy list success");
 		return ret;
 	}
 	else
@@ -81,7 +81,7 @@ int fetion_buddylist_delete(User* user , int id)
 	if(ret == 200)
 	{
 		fetion_group_remove(user->groupList , id);
-		debug_info("Delete buddy list success");
+		syslog(LOG_USER|LOG_INFO, "Delete buddy list success");
 		return 1;
 	}
 	else
@@ -109,7 +109,7 @@ int fetion_buddylist_edit(User* user , int id , const char* name)
 	free(res);
 	if(ret == 200)
 	{
-		debug_info("Set buddy list name to %s success" , name);
+		syslog(LOG_USER|LOG_INFO, "Set buddy list name to %s success" , name);
 		return 1;
 	}
 	else

@@ -169,7 +169,7 @@ int fetion_contact_subscribe_only(User* user)
 		return -1;
 	}
 	free(body);
-	debug_info("Start subscribe contact list");
+	syslog(LOG_INFO, "Start subscribe contact list");
 	tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
 	return 0;
@@ -290,7 +290,7 @@ Contact* fetion_contact_get_contact_info_by_no(User* user , const char* no , Num
 	if(ret == 200){
  		contact = parse_contact_info_by_no_response(res);
 		free(res);
-		debug_info("Get user information by mobile number success");
+		syslog(LOG_INFO, "Get user information by mobile number success");
 		return contact;
 	}else{
 		free(res);
@@ -323,7 +323,7 @@ int fetion_contact_set_mobileno_permission(User* user , const char* userid , int
 	if(ret == 200){
 		parse_set_mobileno_permission_response(user , res);
 		free(res);
-		debug_info("Get user information by mobile number success");
+		syslog(LOG_INFO, "Get user information by mobile number success");
 		return 0;
 	}else{
 		free(res);
@@ -364,10 +364,10 @@ int fetion_contact_set_displayname(User* user , const char* userid , const char*
 	free(res);
 
 	if(ret == 200){
-		debug_info("Set buddy(%s)`s localname to %s success" , userid , name);
+		syslog(LOG_INFO, "Set buddy(%s)`s localname to %s success" , userid , name);
 		return 0;
 	}else{
-		debug_info("Set buddy(%s)`s localname to %s failed" , userid , name);
+		syslog(LOG_INFO, "Set buddy(%s)`s localname to %s failed" , userid , name);
 		return -1;
 	}
 }
@@ -572,25 +572,25 @@ Contact* fetion_contact_add_buddy(User* user , const char* no
 			user->verification = NULL;
 			free(res);
 			if(contact == NULL){
-				debug_info("Add buddy(%s) failed" , no);
+				syslog(LOG_INFO, "Add buddy(%s) failed" , no);
 				return NULL;
 			}
 			fetion_contact_list_append(user->contactList , contact);
-			debug_info("Add buddy(%s) success" , no);
+			syslog(LOG_INFO, "Add buddy(%s) success" , no);
 			return contact;
 		case 421 : 
 		case 420 :
 			rtv = parse_add_buddy_verification(user , res);
 			free(res);
 			if(rtv != 0){
-				debug_info("Add buddy(%s) falied , need verification, but parse error" , no);
+				syslog(LOG_INFO, "Add buddy(%s) falied , need verification, but parse error" , no);
 				return NULL;
 			}
-			debug_info("Add buddy(%s) falied , need verification" , no);
+			syslog(LOG_INFO, "Add buddy(%s) falied , need verification" , no);
 			return NULL;
 		default:
 			free(res);
-			debug_info("Add buddy(%s) failed" , no);
+			syslog(LOG_INFO, "Add buddy(%s) failed" , no);
 			return NULL;
 	}
 }
@@ -632,15 +632,15 @@ Contact* fetion_contact_handle_contact_request(User* user
 			contact = parse_handle_contact_request_response(res);
 			free(res);
 			if(contact == NULL){
-				debug_info("handle contact request from (%s) failed" , userid);
+				syslog(LOG_INFO, "handle contact request from (%s) failed" , userid);
 				return NULL;
 			}
 			fetion_contact_list_append(user->contactList , contact);
-			debug_info("handle contact request from (%s) success" , userid);
+			syslog(LOG_INFO, "handle contact request from (%s) success" , userid);
 			return contact;
 		default:
 			free(res);
-			debug_info("handle contact request from (%s) failed" , userid);
+			syslog(LOG_INFO, "handle contact request from (%s) failed" , userid);
 			return NULL;
 	}
 	return NULL;
@@ -1121,7 +1121,7 @@ void fetion_contact_load(User *user, int *gcount, int *bcount)
 	Group *gpos;
 	Config *config = user->config;
 
-	debug_info("Load contact list");
+	syslog(LOG_INFO, "Load contact list");
 
 	*gcount = 0;
 	*bcount = 0;
@@ -1201,7 +1201,7 @@ void fetion_contact_save(User *user)
 	Group *gpos;
 	Config *config = user->config;
 
-	debug_info("Save contact list");
+	syslog(LOG_INFO, "Save contact list");
 
 	sprintf(path , "%s/data.db" , config->userPath);
 	if(sqlite3_open(path, &db)){
@@ -1276,7 +1276,7 @@ void fetion_contact_save(User *user)
 		return;
 	}
 	sqlite3_close(db);
-	debug_info("Save contact list successfully");
+	syslog(LOG_INFO, "Save contact list successfully");
 }
 
 void fetion_contact_update(User *user, Contact *contact)
@@ -1286,7 +1286,7 @@ void fetion_contact_update(User *user, Contact *contact)
 	sqlite3 *db;
 	Config *config = user->config;
 
-	debug_info("Update contact information");
+	syslog(LOG_INFO, "Update contact information");
 
 	sprintf(path , "%s/data.db" , config->userPath);
 	if(sqlite3_open(path, &db)){

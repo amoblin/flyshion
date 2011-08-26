@@ -98,13 +98,13 @@ void fetion_user_set_password(User *user, const char *password)
 
 void fetion_user_set_sip(User* user , FetionSip* sip1)
 {
-	debug_info("Set a initialized Sip Struct to User");
+	syslog(LOG_USER|LOG_INFO, "Set a initialized Sip Struct to User");
 	user->sip = sip1;
 }
 
 void fetion_user_set_config(User* user , Config* config1)
 {
-	debug_info("Set a initialized Config Struct to User");
+	syslog(LOG_INFO, "Set a initialized Config Struct to User");
 	user->config = config1;
 }
 
@@ -150,17 +150,17 @@ int fetion_user_set_state(User* user , StateType state)
 	fetion_sip_add_header(sip , eheader);
 	body = generate_set_state_body(state);
 	res = fetion_sip_to_string(sip , body);
-    syslog(LOG_DEBUG,"change state application:\n%s", res);
+    syslog(LOG_DEBUG, "change state application:\n%s", res);
 	tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
 	res = fetion_sip_get_response(sip);
-    syslog(LOG_DEBUG,"response:\n%s", res);
+    syslog(LOG_DEBUG, "response:\n%s", res);
 	ret = fetion_sip_get_code(res);
 	free(body);
 	if(ret == 200){
         user->state = state;
         free(res);
-        debug_info("User state changed to %d" , state);
+        syslog(LOG_INFO, "User state changed to %d" , state);
 		return 1;
 	}else{
         free(res);
@@ -175,7 +175,7 @@ int fetion_user_set_moodphrase(User* user , const char* moodphrase)
 	char *res , *body;
 	int ret;
 	fetion_sip_set_type(sip , SIP_SERVICE);
-	debug_info("Start seting moodphrase");
+	syslog(LOG_INFO, "Start seting moodphrase");
 	eheader = fetion_sip_event_header_new(SIP_EVENT_SETUSERINFO);
 	fetion_sip_add_header(sip , eheader);
 	body = generate_set_moodphrase_body(user->customConfigVersion
@@ -191,7 +191,7 @@ int fetion_user_set_moodphrase(User* user , const char* moodphrase)
 	if(ret == 200){
 		parse_set_moodphrase_response(user , res);
 		free(res);
-		debug_info("Set moodphrase success");
+		syslog(LOG_INFO, "Set moodphrase success");
 		return 1;
 	}else{
 		free(res);
@@ -207,7 +207,7 @@ int fetion_user_update_info(User* user)
 	char *res , *body;
 	int ret;
 	fetion_sip_set_type(sip , SIP_SERVICE);
-	debug_info("Start Updating User Information");
+	syslog(LOG_INFO, "Start Updating User Information");
 	eheader = fetion_sip_event_header_new(SIP_EVENT_SETUSERINFO);
 	fetion_sip_add_header(sip , eheader);
 	body = generate_update_information_body(user);
@@ -220,7 +220,7 @@ int fetion_user_update_info(User* user)
 
 	if(ret == 200){
 		free(res);
-		debug_info("Update information success");
+		syslog(LOG_INFO, "Update information success");
 		return 1;
 	}else{
 		free(res);
@@ -235,7 +235,7 @@ int fetion_user_keep_alive(User* user)
 	int ret;
 	char *res = NULL , *body = NULL;
 	fetion_sip_set_type(sip , SIP_REGISTER);
-	//debug_info("send a keep alive request");
+	syslog(LOG_INFO, "send a keep alive request");
 	eheader = fetion_sip_event_header_new(SIP_EVENT_KEEPALIVE);
 	fetion_sip_add_header(sip , eheader);
 	body = generate_keep_alive_body();
@@ -346,7 +346,7 @@ int fetion_user_upload_portrait(User* user , const char* filename)
 	fseek(f , 0 , SEEK_END);
 	filelength = ftell(f);
 	rewind(f);
-	debug_info("uploading portrait....");
+	syslog(LOG_INFO, "uploading portrait....");
 	sprintf(http , "POST /%s/setportrait.aspx HTTP/1.1\r\n"
 		    	   "Cookie: ssic=%s\r\n"
 				   "Accept: */*\r\n"
@@ -383,7 +383,7 @@ int fetion_user_upload_portrait(User* user , const char* filename)
 	memset(code, 0, sizeof(code));
 	strncpy(code , res + 9 , 3);
 	if(strcmp(code , "200") == 0){
-		debug_info("Upload portrait success");
+		syslog(LOG_INFO, "Upload portrait success");
 		return 1;
 	}else{
 		debug_error("Upload portrait failed");
@@ -415,7 +415,7 @@ int fetion_user_set_sms_status(User *user , int days)
 	strncpy(code , res , 3);
 	if(strcmp(code , "200") == 0){
 		parse_set_sms_status_response(user , buffer);
-		debug_info("set sms online status to %d days[%s]"
+		syslog(LOG_INFO, "set sms online status to %d days[%s]"
 					   	, days , user->smsOnLineStatus);
 		return 1;
 	}else{
@@ -814,7 +814,7 @@ Contact* fetion_user_parse_syncuserinfo_body(const char* body , User* user)
 		pos = xmlGetProp(node , BAD_CAST "user-id");
 		currentContact = fetion_contact_list_find_by_userid(contactlist , (char*)pos);
 		//currentContact = fetion_contact_new();
-		debug_info("synchronize user information");
+		syslog(LOG_INFO, "synchronize user information");
 		if(currentContact == NULL)
 		{
 			/*not a valid information*/
@@ -832,9 +832,9 @@ Contact* fetion_user_parse_syncuserinfo_body(const char* body , User* user)
 			pos = xmlGetProp(node , BAD_CAST "relation-status");
 			currentContact->relationStatus = atoi((char*)pos);
 			if(atoi((char*)pos) == 1){
-				debug_info("User %s accepted your request" , currentContact->userId);
+				syslog(LOG_INFO, "User %s accepted your request" , currentContact->userId);
 			}else{
-				debug_info("User %s refused your request" , currentContact->userId);
+				syslog(LOG_INFO, "User %s refused your request" , currentContact->userId);
 			}
 			xmlFree(pos);
 		}
@@ -858,7 +858,7 @@ void fetion_user_save(User *user)
 	sprintf(path, "%s/data.db",
 				   	config->userPath);
 
-	debug_info("Save user information");
+	syslog(LOG_INFO, "Save user information");
 	if(sqlite3_open(path, &db)){
 		debug_error("open data.db:%s",
 					sqlite3_errmsg(db));
@@ -915,7 +915,7 @@ void fetion_user_load(User *user)
 
 	sprintf(path, "%s/data.db",config->userPath);
 
-	debug_info("Load user information");
+	syslog(LOG_INFO, "Load user information");
 	if(sqlite3_open(path, &db)){
 		debug_error("open data.db:%s", sqlite3_errmsg(db));
 		return;

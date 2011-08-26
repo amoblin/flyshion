@@ -256,7 +256,7 @@ create_ul_table:
 		goto list_load_re;
 	}
 
-	debug_info("Loading user list store in local data file");
+	syslog(LOG_USER|LOG_INFO, "Loading user list store in local data file");
 	for(i = 0; i < nrows; i ++){
 		start = ncols + i * ncols;
 		pos = fetion_user_list_new(sqlres[start],
@@ -590,7 +590,7 @@ int fetion_config_load(User *user)
 
 	sprintf(path, "%s/data.db", config->userPath);
 
-	debug_info("Load configuration");
+	syslog(LOG_USER|LOG_INFO, "Load configuration");
 	if(sqlite3_open(path, &db)){
 		debug_error("open data.db:%s error.", sqlite3_errmsg(db));
 		return -1;
@@ -645,7 +645,7 @@ int fetion_config_save(User *user)
 
 	snprintf(path, sizeof(path), "%s/data.db" , config->userPath);
 
-	debug_info("Save configuration");
+	syslog(LOG_INFO, "Save configuration");
 
 	if(sqlite3_open(path, &db)){
 		debug_error("failed to load user list");
@@ -726,7 +726,7 @@ Proxy* fetion_config_load_proxy()
 
 	snprintf(path, sizeof(path),"%s/.openfetion/data.db",getenv("HOME"));
 
-	debug_info("Read proxy information");
+	syslog(LOG_INFO, "Read proxy information");
 	if(sqlite3_open(path, &db)){
 		debug_error("open data.db:%s", sqlite3_errmsg(db));
 		return NULL;
@@ -739,7 +739,7 @@ Proxy* fetion_config_load_proxy()
 					"proxyEnabled, proxyHost,"
 					"proxyPort, proxyUser, proxyPass);");
 		if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
-			debug_info("create table proxy:%s", sqlite3_errmsg(db));
+			syslog(LOG_INFO, "create table proxy:%s", sqlite3_errmsg(db));
 		}
 		goto load_proxy;
 	}
@@ -768,7 +768,7 @@ void fetion_config_save_proxy(Proxy *proxy)
 
 	snprintf(path, sizeof(path), "%s/.openfetion/data.db", getenv("HOME"));
 
-	debug_info("Save proxy information");
+	syslog(LOG_INFO, "Save proxy information");
 	if(sqlite3_open(path, &db)){
 		debug_error("open data.db:%s", sqlite3_errmsg(db));
 		return;
@@ -969,7 +969,7 @@ static void save_phrase(xmlNodePtr node, User *user)
 
 	snprintf(path, sizeof(path), "%s/data.db",config->userPath);
 
-	debug_info("Load user information");
+	syslog(LOG_INFO, "Load user information");
 	if(sqlite3_open(path, &db)){
 		debug_error("open data.db:%s",sqlite3_errmsg(db));
 		return;
@@ -1014,7 +1014,7 @@ int fetion_user_list_remove(Config *config, const char *no)
 
 	snprintf(sql, sizeof(sql), "delete from userlist where no='%s';", no);
 	if(sqlite3_exec(db, sql, NULL, NULL, NULL)){
-		debug_info("remove user list:%s", sqlite3_errmsg(db));
+		syslog(LOG_INFO, "remove user list:%s", sqlite3_errmsg(db));
 		sqlite3_close(db);
 		return -1;
 	}

@@ -195,10 +195,10 @@ int execute_command_with_args(User *user, Message *sip_msg, char out_message[])
     strcat(command_str, safe_command);
     FILE *pp;
     if( (pp = popen(command_str, "r")) == NULL) {
-        debug_info("Error! popen() failed!");
+        syslog(LOG_INFO, "Error! popen() failed!");
         return 1;
     }
-    debug_info("$ %s<Return>", command_str);
+    syslog(LOG_INFO, "$ %s<Return>", command_str);
     fread(out_message, sizeof(char), BUFLEN, pp);
     pclose(pp);
     return 0;
@@ -208,7 +208,7 @@ int execute_command(User *user, Message *sip_msg, char out_message[])
 {
     FILE *pp;
     if( (pp = popen(sip_msg->message, "r")) == NULL) {
-        debug_info("Error! popen() failed!");
+        syslog(LOG_INFO, "Error! popen() failed!");
         return 1;
     }
     fread(out_message, sizeof(char), BUFLEN, pp);
@@ -221,11 +221,11 @@ int fetion_robot_send_msg(User *user, char *sipuri, char out_message[])
     /* 发送消息 */
     Conversation *conv = fetion_conversation_new(user, sipuri, NULL);
     if(fetion_conversation_send_sms(conv, out_message) == -1) {
-        debug_info("Error! reply to %s failed!", sipuri);
+        syslog(LOG_INFO, "Error! reply to %s failed!", sipuri);
         return 1;
     } else {
         char *sid = fetion_sip_get_sid_by_sipuri(sipuri);
-        debug_info("Sent a message to %s successfully!" , sid);
+        syslog(LOG_INFO, "Sent a message to %s successfully!" , sid);
     }
     memset(out_message, 0, BUFLEN);
     return 0;
@@ -242,11 +242,11 @@ void process_invitation(User *user, SipMsg *msg, char* out_message)
 
 	sip = user->sip;
 	memset(event, 0, sizeof(event));
-    //debug_info("event addr: %p", event);
+    syslog(LOG_DEBUG, "event addr: %p", event);
 	if(fetion_sip_get_attr(msg->message, "N" , event) != -1){
 		return;
 	}
-    //debug_info("event:%s", event);
+    syslog(LOG_DEBUG, "event:%s", event);
 
 	fetion_sip_parse_invitation(sip, user->config->proxy, msg->message, &osip , &sipuri);
 
@@ -257,7 +257,7 @@ void process_invitation(User *user, SipMsg *msg, char* out_message)
 
 	/* start send keep alive message throuth chat chanel
 	 * and put the timeout information into stack */
-	debug_info("Start periodically sending keep alive request");
+	syslog(LOG_INFO, "Start periodically sending keep alive request");
 	//list = fx_list_new(timeout);
 	//fx_list_append(fxmain->tlist , list);
 }
@@ -278,10 +278,10 @@ int fetion_robot_add_buddy(User *user, char *sipmsg, char out_message[])
        int rtv = parse_add_buddy_verification(user , res);
        free(res);
        if(rtv != 0){
-       debug_info("Add buddy(%s) falied , need verification, but parse error" , no);
+       syslog(LOG_INFO, "Add buddy(%s) falied , need verification, but parse error" , no);
        return NULL;
        }
-       debug_info("Add buddy(%s) falied , need verification" , no);
+       syslog(LOG_INFO, "Add buddy(%s) falied , need verification" , no);
        return NULL;
      */
     //fetion_contact_add_buddy(user, sipuri, FETION_NO, 0, NULL, "robot", phrase, &ret);
@@ -304,8 +304,8 @@ int process_notification(User *user, Message* sip_msg, int (**process_function)(
     int   notification_type;
     char  *xml;
     fetion_sip_parse_notification(sip_msg->message , &notification_type , &event , &xml);
-    debug_info("通知类型：%s", notification_type);
-    debug_info(xml);
+    syslog(LOG_DEBUG, "通知类型：%s", notification_type);
+    syslog(LOG_DEBUG, xml);
 	switch(notification_type)
 	{
 		case NOTIFICATION_TYPE_PRESENCE:
@@ -345,7 +345,7 @@ int process_notification(User *user, Message* sip_msg, int (**process_function)(
 			break;
 		case NOTIFICATION_TYPE_PGGROUP :
 			if(event == NOTIFICATION_EVENT_PGGETGROUPINFO){
-                debug_info("pggroup notification");
+                syslog(LOG_DEBUG, "pggroup notification");
                 PGGroup *pggroup = user->pggroup;
                 pg_group_parse_info(pggroup , sip_msg->message);
 				break;
@@ -371,6 +371,7 @@ int fetion_robot_daemon(int argc, char *argv[], User **user_p, int (**process_fu
 	char mobileno[BUFLEN];
 	char password[BUFLEN];
     char out_message[BUFLEN];
+    char log_path[BUFLEN];
 	FetionSip  *sip;
     SipMsg *msg;
     SipMsg *pos;
@@ -378,13 +379,18 @@ int fetion_robot_daemon(int argc, char *argv[], User **user_p, int (**process_fu
 	int error;
     int type;
 	int ch;
+    int logmask;
 
 	memset(mobileno, 0, sizeof(mobileno));
 	memset(password, 0, sizeof(password));
     memset(out_message, 0, sizeof(out_message));
     memset(Command, 0, sizeof(Command));
+    memset(log_path, 0, sizeof(log_path));
+    strcpy(log_path, "fetion_robot.log");
 
-	while((ch = getopt(argc, argv, "f:p:c:")) != -1) {
+    /* 设置默认日志输出格式 */
+    logmask= LOG_INFO;
+	while((ch = getopt(argc, argv, "f:p:c:l:d")) != -1) {
 		switch(ch) {
 			case 'f':
 				mobileno_inputed = 1;
@@ -399,10 +405,20 @@ int fetion_robot_daemon(int argc, char *argv[], User **user_p, int (**process_fu
 				strncpy(Command, optarg, sizeof(Command) - 1);
                 process_function[0] = process_function[9];
 				break;
+            case 'l':
+                strcpy(log_path, optarg);
+                break;
+            case 'd':
+                /* 设置日志为调试输出格式*/
+                logmask = LOG_DEBUG;
 			default:
 				break;
 		}
 	}
+
+    /* 初始化日志文件 */
+    fetion_log_init(log_path);
+    setlogmask(LOG_UPTO(logmask));
 
 	if(!mobileno_inputed || !password_inputed) {
 		usage(argv[0]);
@@ -419,7 +435,7 @@ int fetion_robot_daemon(int argc, char *argv[], User **user_p, int (**process_fu
     Group *group_pos;
     PGGroup *pggroup_pos;
     foreach_grouplist(user->groupList, group_pos) {
-        debug_info(group_pos->groupname);
+        syslog(LOG_DEBUG, group_pos->groupname);
     }
     if (user->pggroup != NULL) {
         foreach_pg_group(user->pggroup, pggroup_pos) {
@@ -453,27 +469,27 @@ int fetion_robot_daemon(int argc, char *argv[], User **user_p, int (**process_fu
                     if(strcmp(sip_msg->sipuri,"sip:10000@fetion.com.cn;p=100") == 0){
                         break;
                     }
-                    debug_info("%s: %s", fetion_sip_get_sid_by_sipuri(sip_msg->sipuri), sip_msg->message);
+                    syslog(LOG_INFO, "%s: %s", fetion_sip_get_sid_by_sipuri(sip_msg->sipuri), sip_msg->message);
                     process_function[0](user, sip_msg, out_message);
-                    debug_info("%s: %s", user->sId, out_message);
+                    syslog(LOG_INFO, "%s: %s", user->sId, out_message);
                     fetion_robot_send_msg(user, sip_msg->sipuri, out_message);
 
                     break;
                 case SIP_INVITATION:
-                    debug_info("invitation");
+                    syslog(LOG_INFO, "invitation");
                     sleep_time = 1;
                     process_invitation(user, pos, out_message);
                     break;
                 case SIP_INCOMING :
-                    debug_info("incoming");
-                    debug_info(pos->message);
+                    syslog(LOG_INFO, "incoming");
+                    syslog(LOG_DEBUG, pos->message);
                     break;
                 case SIP_SIPC_4_0:
                     /* 这个一直有 */
                     break;
                 default:
-                    debug_info("unknown type");
-                    debug_info(pos->message);
+                    syslog(LOG_INFO, "unknown type");
+                    syslog(LOG_DEBUG, pos->message);
                     break;
             }
             pos = pos->next;
@@ -490,5 +506,5 @@ int fetion_robot_daemon(int argc, char *argv[], User **user_p, int (**process_fu
 
 void usage(char *command)
 {
-	fprintf(stdout, "Usage:%s -f mobileno -p password [-c command]\n", command);
+	fprintf(stdout, "Usage:%s -f mobileno -p password [-c command] [-d]\n", command);
 }

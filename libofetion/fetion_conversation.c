@@ -88,7 +88,7 @@ int fetion_conversation_send_sms(Conversation* conversation , const char* msg)
 	unacked_list_append(unackedlist , unacked);
 
 	res = fetion_sip_to_string(sip , msg);
-	//debug_info("Sent a message to %s" , conversation->currentContact->sipuri);
+	syslog(LOG_INFO, "Sent a message to %s" , conversation->currentContact->sipuri);
 	if(tcp_connection_send(sip->tcp , res , strlen(res)) == -1){
 		free(res);
 		return -1;
@@ -128,7 +128,7 @@ int fetion_conversation_send_sms_with_reply(Conversation *conv, const char *msg)
 	fetion_message_set_callid(message , sip->callid);
 
 	res = fetion_sip_to_string(sip , msg);
-	debug_info("Sent a message to %s" , conv->currentContact->sipuri);
+	syslog(LOG_INFO, "Sent a message to %s" , conv->currentContact->sipuri);
 	tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
 
@@ -156,7 +156,7 @@ int fetion_conversation_send_sms_to_myself(Conversation* conversation,
 	fetion_sip_add_header(sip , toheader);
 	fetion_sip_add_header(sip , eheader);
 	res = fetion_sip_to_string(sip , message);
-	debug_info("Sent a message to myself" , conversation->currentContact->sipuri);
+	syslog(LOG_INFO, "Sent a message to myself" , conversation->currentContact->sipuri);
 	if(tcp_connection_send(sip->tcp , res , strlen(res)) == -1) {
 		free(res);
 		return -1;
@@ -183,7 +183,7 @@ int fetion_conversation_send_sms_to_myself_with_reply(Conversation* conversation
 	fetion_sip_add_header(sip , toheader);
 	fetion_sip_add_header(sip , eheader);
 	res = fetion_sip_to_string(sip , message);
-	debug_info("Sent a message to myself" , conversation->currentContact->sipuri);
+	syslog(LOG_INFO, "Sent a message to myself" , conversation->currentContact->sipuri);
 	tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
 	memset(rep, 0, sizeof(rep));
@@ -224,7 +224,7 @@ int fetion_conversation_send_sms_to_phone(Conversation* conversation,
 	}
 	fetion_sip_add_header(sip , eheader);
 	res = fetion_sip_to_string(sip , message);
-	debug_info("Sent a message to (%s)`s mobile phone" , sipuri);
+	syslog(LOG_INFO, "Sent a message to (%s)`s mobile phone" , sipuri);
 	tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
 	memset(rep, 0, sizeof(rep));
@@ -261,7 +261,7 @@ int fetion_conversation_send_sms_to_phone_with_reply(Conversation* conversation
 	}
 	fetion_sip_add_header(sip , eheader);
 	res = fetion_sip_to_string(sip , message);
-	debug_info("Sent a message to (%s)`s mobile phone" , sipuri);
+	syslog(LOG_INFO, "Sent a message to (%s)`s mobile phone" , sipuri);
 	tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
 
@@ -381,7 +381,7 @@ int fetion_conversation_send_nudge(Conversation* conversation)
 	body = generate_send_nudge_body();
 	res = fetion_sip_to_string(sip , body);
 	free(body);
-	debug_info("Sent a nudge to (%s)" , sipuri);
+	syslog(LOG_INFO, "Sent a nudge to (%s)" , sipuri);
 	tcp_connection_send(sip->tcp , res , strlen(res));
 	free(res);
 /*	res = fetion_sip_get_response(sip);

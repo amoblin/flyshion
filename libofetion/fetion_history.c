@@ -130,7 +130,7 @@ FxList* fetion_history_get_list(Config* config,
 
 	hislist = fx_list_new(NULL);
 
-	debug_info("Load chat history with %s",
+	syslog(LOG_INFO, "Load chat history with %s",
 			userid);
 	if(sqlite3_open(path, &db)){
 		debug_error("open data.db:%s", sqlite3_errmsg(db));
@@ -183,7 +183,7 @@ FxList* fetion_history_get_e_list(Config *config,
 
 	hislist = fx_list_new(NULL);
 
-	debug_info("Load chat history with %s", userid);
+	syslog(LOG_INFO, "Load chat history with %s", userid);
 	if(sqlite3_open(path, &db)){
 		debug_error("open data.db:%s", sqlite3_errmsg(db));
 		return hislist;
@@ -261,7 +261,7 @@ int fetion_history_export(Config *config , const char *myid
 	sprintf(path, "%s/data.db",
 				   	config->userPath);
 
-	debug_info("Export chat history with %s",
+	syslog(LOG_INFO, "Export chat history with %s",
 			userid);
 	if(sqlite3_open(path, &db)){
 		debug_error("open data.db:%s",
@@ -309,7 +309,7 @@ int fetion_history_delete(Config *config, const char *userid)
 
 	snprintf(path, sizeof(path),"%s/data.db", config->userPath);
 
-	debug_info("Delete chat history with %s", userid);
+	syslog(LOG_INFO, "Delete chat history with %s", userid);
 	if(sqlite3_open(path, &db)){
 		debug_error("open data.db:%s", sqlite3_errmsg(db));
 		return -1;

@@ -90,11 +90,11 @@ char* generate_response(const char *nouce, const char *userid,
 	flen = RSA_size(r);
 	out =  (unsigned char*)malloc(flen);
 	memset(out , 0 , flen);
-	debug_info("Start encrypting response");
+	syslog(LOG_INFO, "Start encrypting response");
 	ret = RSA_public_encrypt(nonce_len + aeskey_len + psd_len,
 			res , out, r, RSA_PKCS1_PADDING);
 	if (ret < 0){
-		debug_info("Encrypt response failed!");
+		syslog(LOG_INFO, "Encrypt response failed!");
 		free(res); 
 		free(aeskey);
 		free(psd);
@@ -102,7 +102,7 @@ char* generate_response(const char *nouce, const char *userid,
 		return NULL;
 	}
 	RSA_free(r);
-	debug_info("Encrypting reponse success");
+	syslog(LOG_INFO, "Encrypting reponse success");
 	free(res); 
 	free(aeskey);
 	free(psd);
@@ -155,7 +155,7 @@ void generate_pic_code(User *user)
 	user->verification->guid = (char*)xmlGetProp(node , BAD_CAST "id");
 	code = (char*)xmlGetProp(node , BAD_CAST "pic");
 	xmlFreeDoc(doc);
-	debug_info("Generating verification code picture");
+	syslog(LOG_INFO, "Generating verification code picture");
 	pic = decode_base64(code , &piclen);
 	free(code);
 	memset(codePath, 0, sizeof(codePath));
@@ -178,7 +178,7 @@ char *ssi_auth_action(User *user)
 	char *password , *ssi_ip , *res;
 	int passwordType;
 	
-	debug_info("Initialize ssi authentication action");
+	syslog(LOG_INFO, "Initialize ssi authentication action");
 
 	if(strlen(user->password) == 40) /* must be a hashed password */
 		password = hash_password_v5(user->userId, user->password);
@@ -221,7 +221,7 @@ char *ssi_auth_action(User *user)
 			return NULL;
 	}
 
-	debug_info("Start ssi login with %s password , user number %s"
+	syslog(LOG_INFO, "Start ssi login with %s password , user number %s"
 			, passwordType == 1 ? "v3Temp" : "v4"
 			, user->loginType == LOGIN_TYPE_MOBILENO ? user->mobileno : user->sId);
 
@@ -243,7 +243,7 @@ char *sipc_reg_action(User *user)
 
 	FetionSip* sip = user->sip;
 
-	debug_info("Initialize sipc registeration action");
+	syslog(LOG_INFO, "Initialize sipc registeration action");
 
 	fetion_sip_set_type(sip , SIP_REGISTER);
 	SipHeader* cheader = fetion_sip_header_new("CN" , cnouce);
@@ -252,7 +252,7 @@ char *sipc_reg_action(User *user)
 	fetion_sip_add_header(sip , client);
 	free(cnouce);
 	sipmsg = fetion_sip_to_string(sip , NULL);
-	debug_info("Start registering to sip server(%s:%d)"
+	syslog(LOG_INFO, "Start registering to sip server(%s:%d)"
 			 , sip->tcp->remote_ipaddress , sip->tcp->remote_port);
 	tcp_connection_send(sip->tcp , sipmsg , strlen(sipmsg));
 	free(sipmsg);
@@ -260,7 +260,7 @@ char *sipc_reg_action(User *user)
 	sipmsg = (char*)malloc(1024);
 	memset(sipmsg, 0 , 1024);
 	if(tcp_connection_recv(sip->tcp , sipmsg , 1023) <= 0){
-		debug_info("Network error occured here");
+		syslog(LOG_INFO, "Network error occured here");
 		return NULL;
 	}
 #endif
@@ -279,7 +279,7 @@ char* sipc_aut_action(User* user , const char* response)
 	SipHeader* ackheader = NULL;
 	FetionSip* sip = user->sip;
 
-	debug_info("Initialize sipc authencation action");
+	syslog(LOG_INFO, "Initialize sipc authencation action");
 
 	xml = generate_auth_body(user);
 	fetion_sip_set_type(sip , SIP_REGISTER);
@@ -295,11 +295,11 @@ char* sipc_aut_action(User* user , const char* response)
 		fetion_sip_add_header(sip , ackheader);
 	}
 	sipmsg = fetion_sip_to_string(sip , xml);
-	debug_info("Start sipc authentication , with ak-value");
+	syslog(LOG_INFO, "Start sipc authentication , with ak-value");
 
 	tcp_connection_send(sip->tcp , sipmsg , strlen(sipmsg));
 	res = fetion_sip_get_response(sip);
-	debug_info("Got sipc response");
+	syslog(LOG_INFO, "Got sipc response");
 	//free(sipmsg);
 	return res;
 }
@@ -327,12 +327,12 @@ void parse_ssi_auth_response(const char* ssi_response , User* user)
 	node = node->xmlChildrenNode;
 	if(atoi(pos) == 200)
 	{
-		debug_info("SSI login success");
+		syslog(LOG_INFO, "SSI login success");
 		parse_ssi_auth_success(node , user);
 	}
 	else
 	{
-		debug_info("SSI login failed , status-code :%s" , pos);
+		syslog(LOG_INFO, "SSI login failed , status-code :%s" , pos);
 		parse_ssi_auth_failed(node , user);
 	}
 	free(pos);
@@ -358,8 +358,8 @@ void parse_sipc_reg_response(const char* reg_response , char** nouce , char** ke
 	*key = (char*)malloc(n + 1);
 	strncpy(*key , pos , n);
 	(*key)[n] = '\0';
-	debug_info("Register to sip server success");
-	debug_info("nonce:%s" , *nouce);
+	syslog(LOG_INFO, "Register to sip server success");
+	syslog(LOG_INFO, "nonce:%s" , *nouce);
 }
 
 static void parse_sms_frequency(xmlNodePtr node , User *user)
@@ -405,7 +405,7 @@ int parse_sipc_auth_response(const char* auth_response , User* user, int *group_
 	if(code == 200){
 		fetion_verification_free(user->verification);
 		user->verification = NULL;
-		debug_info("Sipc authentication success");
+		syslog(LOG_INFO, "Sipc authentication success");
 	}else if(code == 421 || code == 420){
 		parse_add_buddy_verification(user , auth_response);
 		return 2;
@@ -611,9 +611,9 @@ static void parse_contact_list(xmlNodePtr node, User* user,
 	*buddy_count = 0;
 
 	buf = xmlGetProp(node , BAD_CAST "version");
-	debug_info("Start reading contact list ");
+	syslog(LOG_INFO, "Start reading contact list ");
 	if(strcmp(user->contactVersion , (char*) buf) == 0){
-		debug_info("Contact list is the same as that stored in the local disk!");
+		syslog(LOG_INFO, "Contact list is the same as that stored in the local disk!");
 		return ;
 	}
 	strcpy(user->contactVersion , (char*)buf);
@@ -730,7 +730,7 @@ static void parse_contact_list(xmlNodePtr node, User* user,
 	}
 
 	*buddy_count = nr;
-	debug_info("Read contact list complete");
+	syslog(LOG_INFO, "Read contact list complete");
 }
 
 static void parse_stranger_list(xmlNodePtr node , User* user)
