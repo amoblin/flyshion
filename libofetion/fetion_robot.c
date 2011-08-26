@@ -233,7 +233,6 @@ int fetion_robot_send_msg(User *user, char *sipuri, char out_message[])
 
 void process_invitation(User *user, SipMsg *msg, char* out_message)
 {
-    debug_info(msg->message);
 	char       *sipuri;
 	FetionSip   *osip;
 	FetionSip   *sip;
@@ -243,10 +242,11 @@ void process_invitation(User *user, SipMsg *msg, char* out_message)
 
 	sip = user->sip;
 	memset(event, 0, sizeof(event));
+    //debug_info("event addr: %p", event);
 	if(fetion_sip_get_attr(msg->message, "N" , event) != -1){
 		return;
 	}
-    debug_info("event:%s", event);
+    //debug_info("event:%s", event);
 
 	fetion_sip_parse_invitation(sip, user->config->proxy, msg->message, &osip , &sipuri);
 

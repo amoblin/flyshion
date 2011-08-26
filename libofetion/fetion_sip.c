@@ -340,6 +340,7 @@ int fetion_sip_get_attr(const char* sip , const char* name , char* result)
 	else
 		n = strlen(pos) - strlen(strstr(pos , "\r\n"));
 	strncpy(result , pos , n);
+    //debug_info("result:%s", result);
 	return 1;
 }
 
