@@ -281,7 +281,7 @@ char* fetion_sip_to_string(FetionSip* sip , const char* body)
 		free(tmp);
 	}
 	if(body){
-		sprintf(buf , "L: %d\r\n\r\n" , strlen(body));
+		sprintf(buf , "L: %d\r\n\r\n" , (int)strlen(body));
 		strcat(res , buf);
 		strcat(res , body);
 	}else{
@@ -340,7 +340,8 @@ int fetion_sip_get_attr(const char* sip , const char* name , char* result)
 	else
 		n = strlen(pos) - strlen(strstr(pos , "\r\n"));
 	strncpy(result , pos , n);
-    syslog(LOG_DEBUG, "result:%s", result);
+    syslog(LOG_DEBUG, "%s: %s", name, result);
+    //debug_info("%s: %s", name, result);
 	return 1;
 }
 
@@ -474,8 +475,8 @@ SipMsg *fetion_sip_listen(FetionSip *sip, int *error)
 	n = tcp_connection_recv_dont_wait(sip->tcp,
 				buffer, sizeof(buffer) - 1);
 	if(n == 0){
-		syslog(LOG_INFO, "fetion_sip_listen 0");
-		*error = 1;
+		syslog(LOG_ERR, "fetion_sip_listen 0");
+		*error = 2;
 		return NULL;
 	}
 	if(n == -1){
@@ -639,8 +640,8 @@ void fetion_sip_parse_notification(const char* sip , int* type , int* event , ch
 	else if(xmlStrcmp(event1 , BAD_CAST "deregistered") == 0)
 		*event = NOTIFICATION_EVENT_DEREGISTRATION;
 	else if(xmlStrcmp(event1 , BAD_CAST "SyncUserInfo") == 0)
-		*event = NOTIFICATION_EVENT_SYNCUSERINFO;
-	else if(xmlStrcmp(event1 , BAD_CAST "AddBuddyApplication") == 0)
+        *event = NOTIFICATION_EVENT_SYNCUSERINFO;
+    else if(xmlStrcmp(event1 , BAD_CAST "AddBuddyApplication") == 0)
 		*event = NOTIFICATION_EVENT_ADDBUDDYAPPLICATION;
 	else if(xmlStrcmp(event1 , BAD_CAST "PGGetGroupInfo") == 0)
 	    	*event = NOTIFICATION_EVENT_PGGETGROUPINFO;
@@ -979,7 +980,7 @@ int fetion_sip_parse_shareaccept(FetionSip *sip
 					   "I: %s\r\n"
 					   "Q: %s\r\n"
 					   "L: %d\r\n\r\n%s"
-					 , from , callid , seq , strlen(pos) , pos);
+					 , from , callid , seq , (int)strlen(pos) , pos);
 	free(pos);
 	pos = NULL;
 

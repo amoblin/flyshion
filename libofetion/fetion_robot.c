@@ -71,7 +71,7 @@ login:
 	}
  
 	/* set user's login state to be online*/
-	fetion_user_set_st(user, P_ONLINE);
+	fetion_user_set_st(user, P_HIDDEN);
 
 	/* load user information and contact list information from local host */
 	fetion_user_load(user);
@@ -225,7 +225,7 @@ int fetion_robot_send_msg(User *user, char *sipuri, char out_message[])
         return 1;
     } else {
         char *sid = fetion_sip_get_sid_by_sipuri(sipuri);
-        syslog(LOG_INFO, "Sent a message to %s successfully!" , sid);
+        //syslog(LOG_INFO, "Sent a message to %s successfully!" , sid);
     }
     memset(out_message, 0, BUFLEN);
     return 0;
@@ -285,6 +285,107 @@ int fetion_robot_add_buddy(User *user, char *sipmsg, char out_message[])
        return NULL;
      */
     //fetion_contact_add_buddy(user, sipuri, FETION_NO, 0, NULL, "robot", phrase, &ret);
+    /* 更新联系人 */
+    Contact *contact = fetion_contact_new();
+    /*
+	doc = xmlParseMemory(body , strlen(body));
+	node = xmlDocGetRootElement(doc);
+	node = xml_goto_node(node , "c");
+	while(node != NULL)
+	{
+		pos = xmlGetProp(node , BAD_CAST "id");
+		currentContact = fetion_contact_list_find_by_userid(contactlist , (char*)pos);
+		if(currentContact == NULL)
+		{
+			node = node->next;
+			continue;
+		}
+		cnode = node->xmlChildrenNode;
+		if(xmlHasProp(cnode , BAD_CAST "sid"))
+		{
+			pos = xmlGetProp(cnode , BAD_CAST "sid");
+			strcpy(currentContact->sId ,  (char*)pos);
+			xmlFree(pos);
+		}
+		if(xmlHasProp(cnode , BAD_CAST "m"))
+		{
+			pos = xmlGetProp(cnode , BAD_CAST "m");
+			strcpy(currentContact->mobileno ,  (char*)pos);
+			xmlFree(pos);
+		}
+		if(xmlHasProp(cnode , BAD_CAST "l"))
+		{
+			pos = xmlGetProp(cnode , BAD_CAST "l");
+			currentContact->scoreLevel = atoi((char*)pos);
+			xmlFree(pos);
+		}
+		if(xmlHasProp(cnode , BAD_CAST "n"))
+		{
+			pos = xmlGetProp(cnode , BAD_CAST "n");
+			strcpy(currentContact->nickname ,  (char*)pos);
+			xmlFree(pos);
+		}
+		if(xmlHasProp(cnode , BAD_CAST "i"))
+		{
+			pos = xmlGetProp(cnode , BAD_CAST "i");
+			strcpy(currentContact->impression ,  (char*)pos);
+			xmlFree(pos);
+		}
+		if(xmlHasProp(cnode , BAD_CAST "p"))
+		{
+			pos = xmlGetProp(cnode , BAD_CAST "p");
+			if(strcmp(currentContact->portraitCrc, (char*)pos) == 0
+					|| strcmp((char*)pos, "0") == 0)
+				currentContact->imageChanged = 0;
+			else
+				currentContact->imageChanged = 1;
+			strcpy(currentContact->portraitCrc ,  (char*)pos);
+			xmlFree(pos);
+		}else{
+			currentContact->imageChanged = 0;
+		}
+
+		if(xmlHasProp(cnode , BAD_CAST "c"))
+		{
+			pos = xmlGetProp(cnode , BAD_CAST "c");
+			strcpy(currentContact->carrier , (char*)pos);
+			xmlFree(pos);
+		}
+		if(xmlHasProp(cnode , BAD_CAST "cs"))
+		{
+			pos = xmlGetProp(cnode , BAD_CAST "cs");
+			currentContact->carrierStatus = atoi((char*)pos);
+			xmlFree(pos);
+		}
+		if(xmlHasProp(cnode , BAD_CAST "s"))
+		{
+			pos = xmlGetProp(cnode , BAD_CAST "s");
+			currentContact->serviceStatus = atoi((char*)pos);
+			xmlFree(pos);
+		}
+#if 0
+		if(xmlHasProp(cnode , BAD_CAST "sms")){
+			pos = xmlGetProp(cnode , BAD_CAST "sms");
+			xmlFree(pos);
+		}
+#endif
+		cnode = xml_goto_node(node , "pr");
+		if(xmlHasProp(cnode , BAD_CAST "dt"))
+		{
+			pos = xmlGetProp(cnode , BAD_CAST "dt");
+			strcpy(currentContact->devicetype ,  *((char*)pos) == '\0' ? "PC" : (char*)pos);
+			xmlFree(pos);
+		}
+		if(xmlHasProp(cnode , BAD_CAST "b"))
+		{
+			pos = xmlGetProp(cnode , BAD_CAST "b");
+			currentContact->state = atoi((char*)pos);
+			xmlFree(pos);
+		}
+}
+    contact->
+        */
+    //fetion_contact_list_append(user->contactList ,contact);
     return 0;
 }
 
@@ -298,13 +399,13 @@ int process_presence(User *user, char *xml)
     return 0;
 }
 
-int process_notification(User *user, Message* sip_msg, int (**process_function)(User *, Message *, char *), char *out_message)
+int process_notification(User *user, char* message, int (**process_function)(User *, Message *, char *), char *out_message)
 {
     int   event;
     int   notification_type;
     char  *xml;
-    fetion_sip_parse_notification(sip_msg->message , &notification_type , &event , &xml);
-    syslog(LOG_DEBUG, "通知类型：%s", notification_type);
+    fetion_sip_parse_notification(message , &notification_type , &event , &xml);
+    syslog(LOG_DEBUG, "通知类型：%d", notification_type);
     syslog(LOG_DEBUG, xml);
 	switch(notification_type)
 	{
@@ -313,14 +414,14 @@ int process_notification(User *user, Message* sip_msg, int (**process_function)(
 			{
 				case NOTIFICATION_EVENT_PRESENCECHANGED :
 					process_presence(user, xml);
-                    process_function[1](user, sip_msg, out_message);
+                    //process_function[1](user, sip_msg, out_message);
 					break;
 				default:
 					break;
 			}
 		case NOTIFICATION_TYPE_CONVERSATION :
 			if(event == NOTIFICATION_EVENT_USERLEFT){
-				//fx_main_process_user_left(fxmain , sip_msg->message);
+				//fx_main_process_user_left(fxmain , message);
                 //process_function[2];
 				break;
 			}
@@ -339,7 +440,8 @@ int process_notification(User *user, Message* sip_msg, int (**process_function)(
 			break;
 		case NOTIFICATION_TYPE_CONTACT :
 			if(event == NOTIFICATION_EVENT_ADDBUDDYAPPLICATION){
-                fetion_robot_add_buddy(user, sip_msg->message, out_message);
+                /* 处理添加好友请求 */
+                fetion_robot_add_buddy(user, message, out_message);
 				break;
 			}
 			break;
@@ -347,11 +449,11 @@ int process_notification(User *user, Message* sip_msg, int (**process_function)(
 			if(event == NOTIFICATION_EVENT_PGGETGROUPINFO){
                 syslog(LOG_DEBUG, "pggroup notification");
                 PGGroup *pggroup = user->pggroup;
-                pg_group_parse_info(pggroup , sip_msg->message);
+                pg_group_parse_info(pggroup , message);
 				break;
 			}
 			if(event == NOTIFICATION_EVENT_PRESENCECHANGED){
-				//fx_main_process_pgpresencechanged(fxmain , sip_msg->message);
+				//fx_main_process_pgpresencechanged(fxmain , message);
 				break;
 			}
 			break;
@@ -425,6 +527,7 @@ int fetion_robot_daemon(int argc, char *argv[], User **user_p, int (**process_fu
 		return 1;
 	}
 
+login:
 	if(fx_login(user_p, mobileno, password)) {
 		return 1;
     }
@@ -455,12 +558,16 @@ int fetion_robot_daemon(int argc, char *argv[], User **user_p, int (**process_fu
         sleep_time = 2000000;
         /* get receive */
         msg = fetion_sip_listen(sip, &error);
+        /* 自动重连 */
+        if (2 == error) {
+            syslog(LOG_INFO, "offline. Now begin to reconnect.");
+            goto login;
+        }
         pos = msg;
         while(pos){
             type = fetion_sip_get_type(pos->message);
             switch(type){
                 case SIP_NOTIFICATION :
-                    /* 处理添加好友请求 */
                     process_notification(user, pos->message, process_function, out_message);
                     break;
                 case SIP_MESSAGE:

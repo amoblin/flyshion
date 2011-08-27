@@ -19,7 +19,7 @@ int execute_command(User *user, Message *sip_msg, char out_message[]);
 /* 封装的发送消息 */
 int fetion_robot_send_msg(User *user, char *sipuri, char out_message[]);
 
-int process_notification(User *user, Message* sip_msg, int (**process_function)(User *, Message *, char *), char *out_message);
+int process_notification(User *user, char* message, int (**process_function)(User *, Message *, char *), char *out_message);
 
 /* 封装的消息处理，消息在process_function*/
 int fetion_robot_daemon(int argc, char *argv[], User **user, int (**process_function)(User *, Message *, char *));

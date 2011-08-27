@@ -779,7 +779,6 @@ Contact* fetion_user_parse_presence_body(const char* body , User* user)
 			xmlFree(pos);
 		}
 		contact = fetion_contact_new();
-		memset(contact , 0 , sizeof(contact));
 		memcpy(contact , currentContact , sizeof(Contact));
 		fetion_contact_list_append(contactres , contact);
 		node = node->next;
