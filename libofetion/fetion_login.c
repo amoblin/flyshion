@@ -178,7 +178,7 @@ char *ssi_auth_action(User *user)
 	char *password , *ssi_ip , *res;
 	int passwordType;
 	
-	syslog(LOG_INFO, "Initialize ssi authentication action");
+	syslog(LOG_USER|LOG_INFO, "Initialize ssi authentication action");
 
 	if(strlen(user->password) == 40) /* must be a hashed password */
 		password = hash_password_v5(user->userId, user->password);
@@ -221,7 +221,7 @@ char *ssi_auth_action(User *user)
 			return NULL;
 	}
 
-	syslog(LOG_INFO, "Start ssi login with %s password , user number %s"
+	syslog(LOG_USER|LOG_INFO, "Start ssi login with %s password , user number %s"
 			, passwordType == 1 ? "v3Temp" : "v4"
 			, user->loginType == LOGIN_TYPE_MOBILENO ? user->mobileno : user->sId);
 

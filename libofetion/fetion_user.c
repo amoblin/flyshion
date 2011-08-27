@@ -235,7 +235,7 @@ int fetion_user_keep_alive(User* user)
 	int ret;
 	char *res = NULL , *body = NULL;
 	fetion_sip_set_type(sip , SIP_REGISTER);
-	syslog(LOG_INFO, "send a keep alive request");
+	syslog(LOG_DEBUG, "send a keep alive request");
 	eheader = fetion_sip_event_header_new(SIP_EVENT_KEEPALIVE);
 	fetion_sip_add_header(sip , eheader);
 	body = generate_keep_alive_body();
